@@ -20,16 +20,17 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -64,8 +65,8 @@ import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
 import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
-import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams.TopicEvent;
+import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -84,13 +85,11 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -101,6 +100,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -1130,7 +1131,7 @@ public class DiscussionForumManagerImpl implements DiscussionForumManager {
 
   @Override
   public DiscussionForum updateForumAvailability(String siteId, Long forumId, boolean restricted,
-          java.time.Instant openDate, java.time.Instant closeDate) {
+          Instant openDate, Instant closeDate) {
       DiscussionForum forum = getForumForUpdate(siteId, forumId);
       if (restricted && (openDate == null || closeDate == null || closeDate.isBefore(openDate))) {
           throw new IllegalArgumentException("Invalid forum availability dates");

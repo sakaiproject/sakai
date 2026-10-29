@@ -63,36 +63,34 @@ import org.sakaiproject.conversations.api.TopicShowDateMessager;
 import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
-import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
-import org.sakaiproject.conversations.api.model.ConversationsComment;
+import org.sakaiproject.conversations.api.beans.TagTransferBean;
+import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.model.ConvStatus;
+import org.sakaiproject.conversations.api.model.ConversationsComment;
 import org.sakaiproject.conversations.api.model.ConversationsPost;
+import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.PostReaction;
 import org.sakaiproject.conversations.api.model.PostReactionTotal;
 import org.sakaiproject.conversations.api.model.PostStatus;
 import org.sakaiproject.conversations.api.model.Settings;
-import org.sakaiproject.conversations.api.beans.TagTransferBean;
-import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.TopicReaction;
 import org.sakaiproject.conversations.api.model.TopicReactionTotal;
 import org.sakaiproject.conversations.api.model.TopicStatus;
-import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
-import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.conversations.api.repository.ConvStatusRepository;
+import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
+import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.conversations.api.repository.PostReactionRepository;
 import org.sakaiproject.conversations.api.repository.PostReactionTotalRepository;
 import org.sakaiproject.conversations.api.repository.PostStatusRepository;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;
-import org.sakaiproject.tags.api.Tag;
-import org.sakaiproject.tags.api.TagSummary;
-import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.conversations.api.repository.TopicReactionRepository;
 import org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -105,8 +103,6 @@ import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lti.api.LTIService;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -114,6 +110,9 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -123,7 +122,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.entity.api.EntityTransferrer;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -139,6 +139,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import lombok.Setter;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 
 @Slf4j
@@ -823,7 +824,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String currentUserId = getCheckedCurrentUserId();
 
-        ConversationsTopic topic = topicRepository.getReferenceById(topicId);
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new EntityNotFoundException("No topic for id " + topicId));
 
         if (!currentUserCanViewTopic(topic)) {
             throw new ConversationsPermissionsException("Current user cannot view topic");
@@ -2212,13 +2214,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         return PostTransferBean.of(postRepository.save(post));
     }
 
-    public PostTransferBean unUpvotePost(String siteId, String postId) throws ConversationsPermissionsException {
+    public PostTransferBean unUpvotePost(String siteId, String topicId, String postId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
-        if (!Objects.equals(post.getSiteId(), siteId)) {
+        if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
             throw new ConversationsPermissionsException("Post does not belong to this site and topic");
         }
 

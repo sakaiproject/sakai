@@ -23,14 +23,16 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.ItemHashUtil;
-import org.sakaiproject.tool.assessment.facade.TypeFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries;
+import org.sakaiproject.tool.assessment.facade.TypeFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.authz.AuthzQueriesFacade;
-import org.sakaiproject.tool.assessment.integration.helper.impl.GradebookServiceHelperImpl;
 import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
+import org.sakaiproject.tool.assessment.integration.helper.impl.GradebookServiceHelperImpl;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -39,8 +41,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.mockito.Mockito.mock;
 
@@ -173,15 +175,15 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
     }
 
     @Bean
-    public org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries extendedTimeQueries() {
-        org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries queries = new org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries();
+    public ExtendedTimeQueries extendedTimeQueries() {
+        ExtendedTimeQueries queries = new ExtendedTimeQueries();
         queries.setSessionFactory(sessionFactory());
         return queries;
     }
 
     @Bean
-    public org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade extendedTimeFacade() {
-        org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade facade = new org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade();
+    public ExtendedTimeFacade extendedTimeFacade() {
+        ExtendedTimeFacade facade = new ExtendedTimeFacade();
         facade.setExtendedTimeQueries(extendedTimeQueries());
         return facade;
     }

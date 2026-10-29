@@ -15,10 +15,9 @@
  */
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.PublicApi;
-
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.webapi.security.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

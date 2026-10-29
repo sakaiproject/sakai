@@ -13,8 +13,6 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.ServiceSiteAccess;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +21,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -34,10 +32,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.service.LessonItemService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.service.LessonItemService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.webapi.beans.LessonItemRestBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +84,6 @@ public class LessonsController extends AbstractSakaiApiController {
 
 
     // lessonId = itemId of lesson's root page
-    @ServiceSiteAccess("The actual lesson site and lessonbuilder.upd permission authorize this operation.")
     @DeleteMapping(value = "/sites/{siteId}/lessons/{lessonId}/items")
     public ResponseEntity<String> deleteLessonItems(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId) {
         String userId = checkSakaiSession().getUserId();
@@ -146,7 +143,6 @@ public class LessonsController extends AbstractSakaiApiController {
         return ResponseEntity.status(status).body(message);
     }
 
-    @ServiceSiteAccess("The actual lesson site and lessonbuilder.upd permission authorize this operation.")
     @DeleteMapping("/sites/{siteId}/lessons/{lessonId}/conditions")
     public ResponseEntity<String> deleteLessonConditions(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId) {
         String userId = checkSakaiSession().getUserId();
@@ -182,7 +178,6 @@ public class LessonsController extends AbstractSakaiApiController {
         return ResponseEntity.ok().build();
     }
 
-    @ServiceSiteAccess("The actual lesson site and lessonbuilder.upd permission authorize this operation.")
     @PostMapping(value = "/sites/{siteId}/lessons/{lessonId}/items/bulk", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LessonItemRestBean>> createLessonItems(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId,
             @RequestBody List<LessonItemRestBean> lessonItems) {

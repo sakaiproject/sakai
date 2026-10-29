@@ -73,7 +73,7 @@ public class WebApiAccessInterceptor implements HandlerInterceptor {
         }
 
         Object variables = request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-        if (!method.hasMethodAnnotation(ServiceSiteAccess.class) && variables instanceof Map) {
+        if (variables instanceof Map) {
             Object siteId = ((Map<?, ?>) variables).get("siteId");
             if (siteId instanceof String) {
                 try {

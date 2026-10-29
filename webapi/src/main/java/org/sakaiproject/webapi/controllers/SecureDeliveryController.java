@@ -13,8 +13,6 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.PublicApi;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -53,6 +51,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.webapi.beans.SebValidationBean;
+import org.sakaiproject.webapi.security.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;

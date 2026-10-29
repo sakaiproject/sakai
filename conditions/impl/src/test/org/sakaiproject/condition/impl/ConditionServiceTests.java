@@ -19,6 +19,8 @@ package org.sakaiproject.condition.impl;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
@@ -131,6 +133,33 @@ public class ConditionServiceTests extends AbstractTransactionalJUnit4SpringCont
         assertThrows(SecurityException.class, () -> service.deleteConditionForSite("site-a", ownId));
         assertNotNull(service.getCondition(ownId));
         assertNotNull(service.getCondition(foreignId));
+    }
+
+    @Test
+    public void equalNodesOnDifferentBranchesMustBothHaveTheirChildrenValidated() {
+        Condition foreign = service.saveCondition(condition("site-b", "foreign-equal-branch"));
+        sessionFactory.getCurrentSession().flush();
+        String foreignId = foreign.getId();
+        sessionFactory.getCurrentSession().clear();
+
+        Condition safe = condition("site-a", "equal-node");
+        Condition duplicate = condition("site-a", "equal-node");
+        duplicate.setSubConditions(Set.of(service.getCondition(foreignId).toBuilder()
+                .siteId("site-a").argument("forged").build()));
+        assertEquals(safe, duplicate);
+        Condition firstBranch = condition("site-a", "first-branch");
+        firstBranch.setSubConditions(Set.of(safe));
+        Condition secondBranch = condition("site-a", "second-branch");
+        secondBranch.setSubConditions(Set.of(duplicate));
+        Condition root = condition("site-a", "equal-branches-root");
+        root.setSubConditions(new LinkedHashSet<>(List.of(firstBranch, secondBranch)));
+
+        assertThrows(SecurityException.class, () -> service.saveConditionForSite("site-a", root));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertEquals("site-b", service.getCondition(foreignId).getSiteId());
+        assertNull(service.getCondition(foreignId).getArgument());
+        assertTrue(service.getConditionsForSite("site-a").isEmpty());
     }
 
     @Test

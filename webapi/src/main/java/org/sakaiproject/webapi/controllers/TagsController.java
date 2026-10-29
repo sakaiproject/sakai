@@ -13,8 +13,6 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.ServiceSiteAccess;
-
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.authz.api.SecurityService;
@@ -22,18 +20,18 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tags.api.Tag;
-import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.webapi.exception.ForbiddenAccessException;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import jakarta.annotation.Resource;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,14 +45,12 @@ public class TagsController extends AbstractSakaiApiController {
 	@Resource
 	private SecurityService securityService;
 
-	@ServiceSiteAccess("TagService or the explicit tool permission check authorizes this collection operation.")
 	@PostMapping(value = "/sites/{siteId}/tools/{tool}/tags", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Tag> createTags(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @RequestBody List<Tag> tags) {
 		checkSakaiSession();
 		return tagService.createSiteTags(siteId, tool, tags);
 	}
 
-	@ServiceSiteAccess("TagService or the explicit tool permission check authorizes this collection operation.")
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<Tag> getTagsForItem(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @PathVariable("collectionId") String collectionId, @PathVariable("itemId") String itemId) {
 		checkSakaiSession();
@@ -64,7 +60,6 @@ public class TagsController extends AbstractSakaiApiController {
 		return tagService.getAssociatedTagsForItem("samigo".equals(tool) && !siteId.equals(collectionId) ? collectionId : siteId, itemId);
 	}
 	
-	@ServiceSiteAccess("TagService or the explicit tool permission check authorizes this collection operation.")
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<TagSummary> getTagsForCollection(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @PathVariable("collectionId") String collectionId) {
 		checkSakaiSession();

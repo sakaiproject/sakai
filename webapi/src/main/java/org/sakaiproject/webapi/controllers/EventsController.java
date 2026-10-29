@@ -13,10 +13,9 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.PublicApi;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.webapi.security.PublicApi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

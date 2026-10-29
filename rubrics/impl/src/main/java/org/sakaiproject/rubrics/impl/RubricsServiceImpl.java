@@ -58,10 +58,13 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jsoup.Jsoup;
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -75,10 +78,11 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
-import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionOutcomeTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
@@ -103,9 +107,9 @@ import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -113,8 +117,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
-import org.hibernate.SessionFactory;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -2312,12 +2314,17 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return false;
         }
         try {
-            org.sakaiproject.assignment.api.model.Assignment assignment = assignmentService.getAssignment(association.getItemId());
-            if (!Objects.equals(siteId, assignment.getContext()) || !isEvaluationActor(eval.getEvaluatedItemId(), eval.getEvaluatedItemOwnerType(), siteId, currentUserId)) {
+            Assignment assignment = assignmentService.getAssignment(association.getItemId());
+            if (!Objects.equals(siteId, assignment.getContext())) {
                 return false;
             }
             if (Objects.equals(eval.getEvaluatedItemId(), eval.getEvaluatedItemOwnerId())) {
-                return Integer.valueOf(1).equals(association.getParameters().get(RubricsConstants.RBCS_STUDENT_SELF_REPORT));
+                return isEvaluationActor(eval.getEvaluatedItemId(), eval.getEvaluatedItemOwnerType(), siteId, currentUserId)
+                    && Integer.valueOf(1).equals(association.getParameters().get(RubricsConstants.RBCS_STUDENT_SELF_REPORT));
+            }
+            if (!Objects.equals(eval.getEvaluatedItemId(), currentUserId)
+                    && !isEvaluationActor(eval.getEvaluatedItemId(), eval.getEvaluatedItemOwnerType(), siteId, currentUserId)) {
+                return false;
             }
             if (!Boolean.TRUE.equals(assignment.getAllowPeerAssessment()) || !assignmentService.isPeerAssessmentOpen(assignment)) {
                 return false;
@@ -2337,7 +2344,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                     return true;
                 }
             }
-        } catch (org.sakaiproject.exception.IdUnusedException | org.sakaiproject.exception.PermissionException e) {
+        } catch (IdUnusedException | PermissionException e) {
             log.debug("Cannot authorize rubric review for association {}: {}", eval.getAssociationId(), e.toString());
         }
         return false;

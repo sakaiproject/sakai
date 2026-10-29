@@ -13,8 +13,6 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.ServiceSiteAccess;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +69,6 @@ public class PermissionsController extends AbstractSakaiApiController {
     @Autowired
     private SecurityService securityService;
 
-    @ServiceSiteAccess("AuthzGroupService checks realm update permission for this permission-management operation.")
     @GetMapping(value = "/sites/{siteId}/permissions/{tool}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getPermissions(@PathVariable("siteId") String siteId,
                                              @PathVariable("tool") String tool,
@@ -216,7 +213,6 @@ public class PermissionsController extends AbstractSakaiApiController {
         }
     }
 
-    @ServiceSiteAccess("AuthzGroupService checks realm update permission for this permission-management operation.")
     @PostMapping(value = "/sites/{siteId}/permissions")
     public String setPermissions(@PathVariable("siteId") String siteId,
                                 @RequestParam("ref") String ref,

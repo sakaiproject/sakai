@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +33,10 @@ import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipItem;
-import org.sakaiproject.api.app.messageforums.MessageForumsUser;
-import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
@@ -48,7 +49,7 @@ public interface DiscussionForumManager
 {
   DiscussionForum getForumForUpdate(String siteId, Long forumId);
   DiscussionForum updateForumAvailability(String siteId, Long forumId, boolean restricted,
-      java.time.Instant openDate, java.time.Instant closeDate);
+      Instant openDate, Instant closeDate);
 
   public List searchTopicMessages(Long topicId, String searchText);
     

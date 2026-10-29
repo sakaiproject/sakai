@@ -28,8 +28,8 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -59,7 +59,12 @@ public class SiteEntityRestBean {
     @SuppressWarnings("unchecked")
     public static SiteEntityRestBean of(PublishedAssessmentFacade assessment,
             Set<TimeExceptionRestBean> timeExceptions) {
-        String siteId = assessment.getOwnerSiteId();
+        return of(assessment, timeExceptions, assessment.getOwnerSiteId());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static SiteEntityRestBean of(PublishedAssessmentFacade assessment,
+            Set<TimeExceptionRestBean> timeExceptions, String siteId) {
         Set<String> groupRefs = Optional.ofNullable(assessment.getReleaseToGroups())
                 .map(Map::keySet)
                 .map(groupIds -> (Set<String>) groupIds)

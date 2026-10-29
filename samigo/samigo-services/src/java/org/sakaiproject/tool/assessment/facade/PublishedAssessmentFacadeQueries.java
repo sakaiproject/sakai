@@ -21,9 +21,6 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
-import org.sakaiproject.tool.assessment.services.PersistenceHelper;
-import org.sakaiproject.grading.api.GradingService;
-import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +35,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -103,8 +103,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -119,6 +119,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
@@ -1661,6 +1662,24 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			return new ArrayList<>();
 		}
 	}
+
+    @Override
+    public Map<Long, String> getPublishedAssessmentAuthors(String siteId) {
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = builder.createTupleQuery();
+        Root<PublishedAssessmentData> assessment = query.from(PublishedAssessmentData.class);
+        Root<AuthorizationData> ownership = query.from(AuthorizationData.class);
+        query.multiselect(assessment.get("publishedAssessmentId"), assessment.get("createdBy"))
+            .where(builder.equal(ownership.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                builder.equal(ownership.get("agentIdString"), siteId),
+                builder.equal(ownership.get("qualifierId"), assessment.get("publishedAssessmentId").as(String.class)));
+        Map<Long, String> authors = new HashMap<>();
+        for (Tuple row : session.createQuery(query).getResultList()) {
+            authors.put(row.get(0, Long.class), row.get(1, String.class));
+        }
+        return authors;
+    }
 
 	// This is for instructors view (author index page)
 	public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String sortString, boolean ascending, final String siteAgentId) {

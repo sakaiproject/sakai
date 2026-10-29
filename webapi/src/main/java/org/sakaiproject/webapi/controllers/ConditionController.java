@@ -13,8 +13,6 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.ServiceSiteAccess;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -88,7 +86,6 @@ public class ConditionController extends AbstractSakaiApiController {
         return ResponseEntity.ok(conditions);
     }
 
-    @ServiceSiteAccess("ConditionService checks condition.update on the actual stored site and graph.")
     @PostMapping(value = "/sites/{siteId}/conditions", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Condition> createCondition(@PathVariable("siteId") String siteId, @RequestBody Condition condition) {
         Session session = checkSakaiSession();
@@ -109,7 +106,6 @@ public class ConditionController extends AbstractSakaiApiController {
         return ResponseEntity.badRequest().build();
     }
 
-    @ServiceSiteAccess("ConditionService checks condition.update on the actual stored site and graph.")
     @PostMapping(value = "/sites/{siteId}/conditions/bulk", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Set<Condition>> createConditions(@PathVariable("siteId") String siteId, @RequestBody Set<Condition> conditions) {
         Session session = checkSakaiSession();
@@ -132,7 +128,6 @@ public class ConditionController extends AbstractSakaiApiController {
         return ResponseEntity.ok(savedConditions);
     }
 
-    @ServiceSiteAccess("ConditionService checks condition.update on the actual stored site and graph.")
     @PutMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Condition> updateCondition(@PathVariable("siteId") String siteId, @PathVariable("conditionId") String conditionId,
             @RequestBody Condition condition) {
@@ -158,7 +153,6 @@ public class ConditionController extends AbstractSakaiApiController {
         return ResponseEntity.badRequest().build();
     }
 
-    @ServiceSiteAccess("ConditionService checks condition.update on the actual stored site and graph.")
     @DeleteMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> deleteCondition(@PathVariable("siteId") String siteId, @PathVariable("conditionId") String conditionId) {
         Session session = checkSakaiSession();

@@ -26,13 +26,13 @@ import java.time.Instant;
 import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
-import org.sakaiproject.conversations.api.beans.TopicTransferBean;
-import org.sakaiproject.conversations.api.model.ConversationsComment;
-import org.sakaiproject.conversations.api.model.ConvStatus;
-import org.sakaiproject.conversations.api.model.ConversationsPost;
-import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.beans.TagTransferBean;
+import org.sakaiproject.conversations.api.beans.TopicTransferBean;
+import org.sakaiproject.conversations.api.model.ConvStatus;
+import org.sakaiproject.conversations.api.model.ConversationsComment;
+import org.sakaiproject.conversations.api.model.ConversationsPost;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
+import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 
@@ -98,7 +98,7 @@ public interface ConversationsService extends EntityProducer {
     Collection<PostTransferBean> getPostsByTopicId(String siteId, String topicId, Integer page, PostSort sort, String requestedPostId) throws ConversationsPermissionsException;
     void deletePost(String siteId, String topicId, String postId, boolean setTopicResolved) throws ConversationsPermissionsException;
     PostTransferBean upvotePost(String siteId, String topicId, String postId) throws ConversationsPermissionsException;
-    PostTransferBean unUpvotePost(String siteId, String postId) throws ConversationsPermissionsException;
+    PostTransferBean unUpvotePost(String siteId, String topicId, String postId) throws ConversationsPermissionsException;
     PostTransferBean lockPost(String siteId, String topicId, String postId, boolean locked) throws ConversationsPermissionsException;
     PostTransferBean hidePost(String siteId, String topicId, String postId, boolean hiddn) throws ConversationsPermissionsException;
     Map<Reaction, Integer> savePostReactions(String topicId, String postId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException;

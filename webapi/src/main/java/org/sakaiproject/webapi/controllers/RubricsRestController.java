@@ -22,14 +22,12 @@
 
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.ServiceSiteAccess;
-
 import jakarta.persistence.OptimisticLockException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StaleStateException;
-import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionOutcomeTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
@@ -51,6 +49,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,9 +57,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -73,6 +71,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -116,7 +115,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return rubricsService.getSharedRubrics().stream().map(b -> entityModelForRubricBean(b)).collect(Collectors.toList());
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PostMapping(value = "/sites/{siteId}/rubrics/default", produces = MediaType.APPLICATION_JSON_VALUE)
     EntityModel<RubricTransferBean> createDefaultRubric(@PathVariable("siteId") String siteId) {
 
@@ -151,7 +149,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PostMapping(value = "/sites/{siteId}/rubrics/adhoc", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<RubricTransferBean> updateRubricAdhoc(@PathVariable("siteId") String siteId, @RequestBody RubricTransferBean bean, @RequestParam(name = "pointsUpdated", defaultValue = "false") Boolean pointsUpdated) throws Exception {
 
@@ -224,7 +221,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                     .collect(Collectors.toMap(CriterionTransferBean::getId, item -> item, (existing, replacement) -> replacement));
             List<Long> removeIds = toRemove.stream()
                     .map(CriterionTransferBean::getId)
-                    .filter(java.util.Objects::nonNull)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
                 
             // get assessment, itemgradings and rubric evaluations
@@ -316,7 +313,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return ResponseEntity.ok(saved);
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}", consumes = "application/json-patch+json")
     public ResponseEntity patchRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestBody List<JsonPatchOperation> patch, @RequestHeader("If-Match") String revision) throws Exception {
 
@@ -341,7 +337,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 }
                 RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
                 patchedBean.setVersion(expectedRevision);
-                if (!java.util.Objects.equals(rubricId, patchedBean.getId())) {
+                if (!Objects.equals(rubricId, patchedBean.getId())) {
                     return ResponseEntity.badRequest().build();
                 }
                 return ResponseEntity.ok(rubricsService.saveRubric(patchedBean));
@@ -354,7 +350,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}")
     public ResponseEntity deleteRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
 
@@ -379,7 +374,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/default", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EntityModel<CriterionTransferBean>> createDefaultCriterion(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
 
@@ -390,7 +384,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/defaultEmpty", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EntityModel<CriterionTransferBean>> createDefaultEmptyCriterion(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
 
@@ -401,7 +394,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criterions/{criterionId}")
     public ResponseEntity deleteRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @PathVariable("criterionId") Long criterionId, @RequestHeader("If-Match") String revision) {
 
@@ -423,26 +415,23 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PostMapping(value = "/sites/{siteId}/rubric-evaluations", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EvaluationTransferBean> createEvaluation(@PathVariable("siteId") String siteId, @RequestBody EvaluationTransferBean bean) throws Exception {
 
         return ResponseEntity.ok(rubricsService.saveEvaluation(bean, siteId));
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PutMapping(value = "/sites/{siteId}/rubric-evaluations/{evaluationId}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity saveEvaluation(@PathVariable("siteId") String siteId, @PathVariable("evaluationId") Long evaluationId, @RequestBody EvaluationTransferBean bean) throws Exception {
 
         checkSakaiSession();
 
-        if (!java.util.Objects.equals(evaluationId, bean.getId())) {
+        if (!Objects.equals(evaluationId, bean.getId())) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(rubricsService.saveEvaluation(bean, siteId));
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PatchMapping(value = "/sites/{siteId}/rubric-evaluations/{evaluationId}", consumes = "application/json-patch+json")
     ResponseEntity patchEvaluation(@PathVariable("siteId") String siteId, @PathVariable("evaluationId") Long evaluationId, @RequestBody JsonPatch patch, @RequestHeader("If-Match") String revision) throws Exception {
 
@@ -455,7 +444,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 JsonNode patched = patch.apply(jsonMapper.convertValue(evaluation, JsonNode.class));
                 EvaluationTransferBean patchedBean  = jsonMapper.treeToValue(patched, EvaluationTransferBean.class);
                 patchedBean.setVersion(expectedRevision);
-                if (!java.util.Objects.equals(evaluationId, patchedBean.getId())) {
+                if (!Objects.equals(evaluationId, patchedBean.getId())) {
                     return ResponseEntity.badRequest().build();
                 }
                 return ResponseEntity.ok(rubricsService.saveEvaluation(patchedBean, siteId));
@@ -489,7 +478,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @DeleteMapping(value = "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}/evaluations/{evaluatedItemId}")
     ResponseEntity deleteEvaluation(@PathVariable("siteId") String siteId, @PathVariable("toolId") String toolId, @PathVariable("itemId") String itemId, @PathVariable("evaluatedItemId") String evaluatedItemId) throws Exception {
 
@@ -510,7 +498,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return ResponseEntity.ok(rubricsService.getEvaluationsForToolAndItem(toolId, itemId, siteId));
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PutMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/sort")
     ResponseEntity sortCriteria(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestBody List<Long> sortedIds, @RequestHeader("If-Match") String revision) {
 
@@ -520,7 +507,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return ResponseEntity.ok(rubricsService.sortRubricCriteria(rubricId, sortedIds, parseRevision(revision)));
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PutMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/sort")
     ResponseEntity sortRatings(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @PathVariable("criterionId") Long criterionId, @RequestBody List<Long> sortedIds, @RequestHeader("If-Match") String revision) {
 
@@ -539,7 +525,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId, parseRevision(revision)));
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{sourceId}/copy", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EntityModel<CriterionTransferBean>> copyCriterionPost(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @PathVariable("sourceId") Long sourceId, @RequestHeader("If-Match") String revision) {
 
@@ -548,7 +533,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId, parseRevision(revision))));
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}",
                     consumes = "application/json-patch+json",
                     produces = MediaType.APPLICATION_JSON_VALUE)
@@ -564,7 +548,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 JsonNode patched = patch.apply(jsonMapper.convertValue(criterion, JsonNode.class));
                 CriterionTransferBean patchedBean  = jsonMapper.treeToValue(patched, CriterionTransferBean.class);
                 patchedBean.setRubricVersion(expectedRevision);
-                if (!java.util.Objects.equals(criterionId, patchedBean.getId())) {
+                if (!Objects.equals(criterionId, patchedBean.getId())) {
                     return ResponseEntity.badRequest().build();
                 }
                 return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.updateCriterion(patchedBean, siteId)));
@@ -575,7 +559,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/default", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EntityModel<RatingTransferBean>> createDefaultRating(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @PathVariable("criterionId") Long criterionId, @RequestParam("position") Integer position, @RequestHeader("If-Match") String revision) {
 
@@ -587,21 +570,19 @@ public class RubricsRestController extends AbstractSakaiApiController {
     }
 
     //@PreAuthorize("canCopy(#sourceId, 'Rating')")
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}")
     ResponseEntity saveRating(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @PathVariable("criterionId") Long criterionId, @PathVariable("ratingId") Long ratingId, @RequestBody RatingTransferBean ratingBean) {
 
         checkSakaiSession();
         requireRubricPath(siteId, rubricId, criterionId);
 
-        if (!java.util.Objects.equals(ratingId, ratingBean.getId())
-                || !java.util.Objects.equals(criterionId, ratingBean.getCriterionId())) {
+        if (!Objects.equals(ratingId, ratingBean.getId())
+                || !Objects.equals(criterionId, ratingBean.getCriterionId())) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(rubricsService.updateRating(ratingBean, siteId));
     }
 
-    @ServiceSiteAccess("RubricsService checks actual rubric editor/evaluator or verified peer/self assignment permission.")
     @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EntityModel<CriterionTransferBean>> deleteRating(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @PathVariable("criterionId") Long criterionId, @PathVariable("ratingId") Long ratingId, @RequestHeader("If-Match") String revision) throws Exception {
 
@@ -613,7 +594,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
     private void requireRubricPath(String siteId, Long rubricId, Long criterionId) {
         RubricTransferBean rubric = rubricsService.getRubric(rubricId)
             .orElseThrow(() -> new SecurityException("Rubric unavailable"));
-        if (!java.util.Objects.equals(siteId, rubric.getOwnerId()) || (criterionId != null
+        if (!Objects.equals(siteId, rubric.getOwnerId()) || (criterionId != null
                 && rubric.getCriteria().stream().noneMatch(criterion -> criterionId.equals(criterion.getId())))) {
             throw new SecurityException("Rubric or criterion does not match request path");
         }

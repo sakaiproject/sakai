@@ -26,6 +26,8 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +46,7 @@ public class EntityController extends AbstractSakaiApiController {
     public Map<String, List<Map<String, String>>> getToolEntityMaps(@PathVariable("toolId") String toolId, @RequestParam("sites") List<String> sites) {
 
         if (sites.stream().anyMatch(siteId -> !siteService.allowUpdateSite(siteId))) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         Map<String, List<Map<String, String>>> map = new HashMap<>();
         for (EntityProducer ep : entityManager.getEntityProducers()) {

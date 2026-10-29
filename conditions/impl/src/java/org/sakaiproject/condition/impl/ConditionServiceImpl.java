@@ -18,15 +18,14 @@ package org.sakaiproject.condition.impl;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Objects;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Map.Entry;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -40,6 +39,8 @@ import org.sakaiproject.condition.api.exception.UnsupportedToolIdException;
 import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.condition.api.persistence.ConditionRepository;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,7 +103,7 @@ public class ConditionServiceImpl implements ConditionService {
     @Transactional
     public Condition saveConditionForSite(String siteId, Condition condition) {
         requireConditionEditor(siteId);
-        validateConditionSite(condition, siteId, new HashSet<>());
+        validateConditionSite(condition, siteId, Collections.newSetFromMap(new IdentityHashMap<>()));
         return saveCondition(condition);
     }
 
@@ -115,7 +116,7 @@ public class ConditionServiceImpl implements ConditionService {
             throw new SecurityException("Condition does not belong to this site");
         }
         if (condition != null) {
-            validateConditionSite(condition, siteId, new HashSet<>());
+            validateConditionSite(condition, siteId, Collections.newSetFromMap(new IdentityHashMap<>()));
         }
         return deleteCondition(conditionId);
     }

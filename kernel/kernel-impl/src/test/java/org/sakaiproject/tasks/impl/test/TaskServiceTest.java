@@ -30,19 +30,21 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import static org.mockito.Mockito.*;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.Priorities;
-import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskPermissions;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.api.FormattedText;
@@ -82,6 +84,24 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         input.setPriority(Priorities.HIGH);
         when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
         assertThrows(SecurityException.class, () -> taskService.createUserAuthoredTask(input));
+        assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
+    }
+
+    @Test
+    public void emptyGroupTaskIsRejectedBeforeCreatingTasks() throws Exception {
+        switchToInstructor();
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        Site site = mock(Site.class);
+        Group empty = mock(Group.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getGroup("empty")).thenReturn(empty);
+        when(empty.getUsers()).thenReturn(Set.of());
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setSiteId(siteId);
+        input.setAssignationType("group");
+        input.setSelectedGroups(new String[] { "empty" });
+        input.setDescription("Empty group task");
+        assertThrows(IllegalArgumentException.class, () -> taskService.createUserAuthoredTask(input));
         assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
     }
 

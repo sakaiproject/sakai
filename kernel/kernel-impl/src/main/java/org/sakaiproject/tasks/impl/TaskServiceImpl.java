@@ -25,21 +25,21 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.exception.IdUnusedException;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 
 import org.sakaiproject.authz.api.AuthzGroupReferenceBuilder;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -53,9 +53,9 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.AssignationType;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskAssigned;
-import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.TaskPermissions;
 import org.sakaiproject.tasks.api.TaskService;
+import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.tasks.api.repository.TaskAssignedRepository;
 import org.sakaiproject.tasks.api.repository.TaskRepository;
@@ -181,6 +181,9 @@ public class TaskServiceImpl implements TaskService, Observer {
                 groups.add(groupId);
                 users.addAll(group.getUsers());
             }
+        }
+        if (AssignationType.group.name().equals(assignation) && users.isEmpty()) {
+            throw new IllegalArgumentException("Selected groups have no members");
         }
         Task task = new Task();
         task.setDescription(transfer.getDescription());

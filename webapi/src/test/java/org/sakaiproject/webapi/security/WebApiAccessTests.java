@@ -20,22 +20,44 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.conversations.api.ConversationsPermissionsException;
+import org.sakaiproject.conversations.api.ConversationsService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.SakaiAccessTokenException;
 import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.WebApiAccessConfiguration;
+import org.sakaiproject.webapi.controllers.ConversationsController;
+import org.sakaiproject.webapi.controllers.EntityController;
+import org.sakaiproject.webapi.controllers.PermissionsController;
 import org.sakaiproject.webapi.exception.GlobalExceptionHandler;
 import org.sakaiproject.webapi.lti.LtiBearerTokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +83,9 @@ public class WebApiAccessTests {
     @EnableWebMvc
     @Import({ WebApiAccessConfiguration.class, WebApiAccessInterceptor.class,
         LtiBearerTokenInterceptor.class, GlobalExceptionHandler.class, TestController.class,
-        org.sakaiproject.webapi.controllers.EntityController.class,
-        org.sakaiproject.webapi.controllers.PermissionsController.class })
+        EntityController.class,
+        ConversationsController.class,
+        PermissionsController.class })
     public static class TestConfiguration {
         @Bean(name = "org.sakaiproject.tool.api.SessionManager")
         public SessionManager sessionManager() { return mock(SessionManager.class); }
@@ -70,17 +93,25 @@ public class WebApiAccessTests {
         public SakaiAccessTokenService tokenService() { return mock(SakaiAccessTokenService.class); }
         @Bean
         public SiteService siteService() { return mock(SiteService.class); }
-        @Bean public org.sakaiproject.portal.api.PortalService portalService() { return mock(org.sakaiproject.portal.api.PortalService.class); }
-        @Bean public org.sakaiproject.entity.api.EntityManager entityManager() { return mock(org.sakaiproject.entity.api.EntityManager.class); }
-        @Bean public org.sakaiproject.authz.api.AuthzGroupService authzGroupService() { return mock(org.sakaiproject.authz.api.AuthzGroupService.class); }
-        @Bean public org.sakaiproject.authz.api.FunctionManager functionManager() { return mock(org.sakaiproject.authz.api.FunctionManager.class); }
-        @Bean public org.sakaiproject.authz.api.SecurityService securityService() { return mock(org.sakaiproject.authz.api.SecurityService.class); }
-        @Bean public org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService() { return mock(org.sakaiproject.component.api.ServerConfigurationService.class); }
+        @Bean public PortalService portalService() { return mock(PortalService.class); }
+        @Bean public EntityManager entityManager() { return mock(EntityManager.class); }
+        @Bean public AuthzGroupService authzGroupService() { return mock(AuthzGroupService.class); }
+        @Bean public FunctionManager functionManager() { return mock(FunctionManager.class); }
+        @Bean public SecurityService securityService() { return mock(SecurityService.class); }
+        @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+        public ServerConfigurationService serverConfigurationService() { return mock(ServerConfigurationService.class); }
 
+        @Bean public ConversationsService conversationsService() { return mock(ConversationsService.class); }
+        @Bean public UserDirectoryService userDirectoryService() { return mock(UserDirectoryService.class); }
+        @Bean public SearchService searchService() { return mock(SearchService.class); }
     }
 
     @RestController
     public static class TestController {
+        @GetMapping("/invalid-request")
+        public String invalidRequest() { throw new IllegalArgumentException("Select at least one group"); }
+        @GetMapping("/missing-resource")
+        public String missingResource() { throw new EntityNotFoundException("Missing topic"); }
         @GetMapping("/protected")
         public String protectedHandler() { return "protected"; }
         @PublicApi("A public control for the default policy regression.")
@@ -88,13 +119,11 @@ public class WebApiAccessTests {
         public String publicHandler() { return "public"; }
         @GetMapping("/sites/{siteId}/protected")
         public String siteHandler() { return "site"; }
-        @ServiceSiteAccess("Test operation whose service enforces its own permission.")
         @GetMapping("/sites/{siteId}/service")
         public String serviceHandler() { return "service"; }
-        @ServiceSiteAccess("A service permission denial must use the domain exception mapping.")
         @GetMapping("/sites/{siteId}/service-denied")
-        public String serviceDeniedHandler() throws org.sakaiproject.conversations.api.ConversationsPermissionsException {
-            throw new org.sakaiproject.conversations.api.ConversationsPermissionsException("Current user cannot update posts.");
+        public String serviceDeniedHandler() throws ConversationsPermissionsException {
+            throw new ConversationsPermissionsException("Current user cannot update posts.");
         }
     }
 
@@ -102,22 +131,43 @@ public class WebApiAccessTests {
     @Autowired private SessionManager sessionManager;
     @Autowired private SakaiAccessTokenService tokenService;
     @Autowired private SiteService siteService;
-    @Autowired private org.sakaiproject.entity.api.EntityManager entityManager;
-    @Autowired private org.sakaiproject.authz.api.AuthzGroupService realms;
-    @Autowired private org.sakaiproject.authz.api.FunctionManager functions;
+    @Autowired private ConversationsService conversationsService;
+    @Autowired private EntityManager entityManager;
+    @Autowired private AuthzGroupService realms;
+    @Autowired private FunctionManager functions;
     private MockMvc mvc;
     private AtomicReference<Session> current;
     private Session previous;
 
     @Before
     public void setup() {
-        reset(sessionManager, tokenService, siteService, entityManager, realms, functions);
+        reset(sessionManager, tokenService, siteService, entityManager, realms, functions, conversationsService);
         previous = mock(Session.class);
         current = new AtomicReference<>(previous);
         when(sessionManager.getCurrentSession()).thenAnswer(call -> current.get());
         doAnswer(call -> { current.set(call.getArgument(0)); return null; })
             .when(sessionManager).setCurrentSession(any(Session.class));
         mvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
+
+    @Test
+    public void unpublishedSiteRejectsTopicPostAndCommentWritesBeforeServiceInvocation() throws Exception {
+        when(previous.getUserId()).thenReturn("student");
+        when(siteService.getSiteVisit("unpublished")).thenThrow(
+            new PermissionException("student", SiteService.SITE_VISIT_UNPUBLISHED, "/site/unpublished"));
+        for (String path : List.of("/sites/unpublished/topics",
+                "/sites/unpublished/topics/topic/posts", "/sites/unpublished/topics/topic/posts/post/comments")) {
+            mvc.perform(post(path).contentType("application/json").content("{}"))
+                .andExpect(status().isForbidden());
+        }
+        verifyNoInteractions(conversationsService);
+    }
+
+    @Test
+    public void invalidArgumentsAndMissingEntitiesHaveDeliberateClientResponses() throws Exception {
+        when(previous.getUserId()).thenReturn("member");
+        mvc.perform(get("/invalid-request")).andExpect(status().isBadRequest());
+        mvc.perform(get("/missing-resource")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -165,7 +215,7 @@ public class WebApiAccessTests {
     }
 
     @Test
-    public void serviceSitePolicyStillRequiresLogin() throws Exception {
+    public void serviceHandlerStillRequiresLogin() throws Exception {
         mvc.perform(get("/sites/course/service")).andExpect(status().isForbidden());
     }
 
@@ -198,18 +248,18 @@ public class WebApiAccessTests {
             .andExpect(jsonPath("$.message").value("Permission denied"))
             .andExpect(jsonPath("$.trace").doesNotExist())
             .andExpect(jsonPath("$.stackTrace").doesNotExist());
-        verifyNoInteractions(siteService);
+        verify(siteService).getSiteVisit("course");
         verify(mini).invalidate();
         assertEquals(previous, current.get());
     }
 
     @Test
-    public void scopedBearerCanReachServicePolicyWithoutSiteVisit() throws Exception {
+    public void scopedBearerWithoutSiteVisitCannotReachServiceHandler() throws Exception {
         Session mini = bearerSession();
         when(siteService.getSiteVisit("private")).thenThrow(new PermissionException("lti", "site.visit", "/site/private"));
         mvc.perform(get("/sites/private/service").header("Authorization", "Bearer valid"))
-            .andExpect(status().isOk()).andExpect(content().string("service"));
-        verifyNoInteractions(siteService);
+            .andExpect(status().isForbidden());
+        verify(siteService).getSiteVisit("private");
         verify(mini).invalidate();
         assertEquals(previous, current.get());
     }
@@ -238,12 +288,12 @@ public class WebApiAccessTests {
     public void permittedSourceInventoryBatchReachesRealController() throws Exception {
         when(previous.getUserId()).thenReturn("editor");
         when(siteService.allowUpdateSite("course")).thenReturn(true);
-        org.sakaiproject.entity.api.EntityProducer entityProducer = mock(org.sakaiproject.entity.api.EntityProducer.class,
-            withSettings().extraInterfaces(org.sakaiproject.entity.api.EntityTransferrer.class));
-        org.sakaiproject.entity.api.EntityTransferrer producer = (org.sakaiproject.entity.api.EntityTransferrer) entityProducer;
+        EntityProducer entityProducer = mock(EntityProducer.class,
+            withSettings().extraInterfaces(EntityTransferrer.class));
+        EntityTransferrer producer = (EntityTransferrer) entityProducer;
         when(producer.myToolIds()).thenReturn(new String[] {"sakai.samigo"});
-        when(producer.getEntityMap("course")).thenReturn(java.util.List.of(java.util.Map.of("id", "draft-id", "title", "Draft")));
-        when(entityManager.getEntityProducers()).thenReturn(java.util.List.of(entityProducer));
+        when(producer.getEntityMap("course")).thenReturn(List.of(Map.of("id", "draft-id", "title", "Draft")));
+        when(entityManager.getEntityProducers()).thenReturn(List.of(entityProducer));
         mvc.perform(get("/tool-entities/tools/sakai.samigo").param("sites", "course"))
             .andExpect(status().isOk()).andExpect(jsonPath("$.course[0].title").value("Draft"));
     }
@@ -262,20 +312,20 @@ public class WebApiAccessTests {
     }
 
     @Test
-    public void scopedPermissionEditorCanReadTheirRealmWithoutSiteVisit() throws Exception {
+    public void bearerPermissionEditorCanReadTheirRealmWithSiteVisit() throws Exception {
         bearerSession();
         when(siteService.siteReference("course")).thenReturn("/site/course");
         when(realms.allowUpdate("/site/course")).thenReturn(true);
-        org.sakaiproject.site.api.Site site = mock(org.sakaiproject.site.api.Site.class);
-        when(site.getGroups()).thenReturn(java.util.List.of());
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(List.of());
         when(siteService.getSite("course")).thenReturn(site);
-        org.sakaiproject.authz.api.AuthzGroup realm = mock(org.sakaiproject.authz.api.AuthzGroup.class);
-        when(realm.getRoles()).thenReturn(java.util.Set.of());
+        AuthzGroup realm = mock(AuthzGroup.class);
+        when(realm.getRoles()).thenReturn(Set.of());
         when(realms.getAuthzGroup("/site/course")).thenReturn(realm);
-        when(functions.getRegisteredFunctions("content.")).thenReturn(java.util.List.of());
+        when(functions.getRegisteredFunctions("content.")).thenReturn(List.of());
         mvc.perform(get("/sites/course/permissions/content").param("ref", "/site/course")
             .header("Authorization", "Bearer valid")).andExpect(status().isOk());
-        verify(siteService, never()).getSiteVisit(anyString());
+        verify(siteService).getSiteVisit("course");
     }
 
     private Session bearerSession() throws Exception {

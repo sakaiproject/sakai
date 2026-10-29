@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,14 +56,20 @@ import org.springframework.test.context.transaction.TestTransaction;
 
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
-import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.beans.CriterionOutcomeTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
@@ -73,15 +80,15 @@ import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
 import org.sakaiproject.rubrics.api.model.Evaluation;
 import org.sakaiproject.rubrics.api.model.EvaluationStatus;
 import org.sakaiproject.rubrics.api.model.Rating;
-import org.sakaiproject.rubrics.api.model.ReturnedEvaluation;
 import org.sakaiproject.rubrics.api.model.ReturnedCriterionOutcome;
+import org.sakaiproject.rubrics.api.model.ReturnedEvaluation;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
 import org.sakaiproject.rubrics.api.repository.CriterionRepository;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
-import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
+import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.rubrics.impl.RubricsServiceImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -92,8 +99,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.api.FormattedText;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -116,7 +123,8 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
     @Autowired private AssociationRepository associationRepository;
     @Autowired private AssignmentService assignmentService;
-    @Autowired private org.sakaiproject.assignment.api.AssignmentPeerAssessmentService assignmentPeerAssessmentService;
+    @Autowired private AuthzGroupService authzGroupService;
+    @Autowired private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Autowired private CriterionRepository criterionRepository;
     @Autowired private EventTrackingService eventTrackingService;
     @Autowired private EvaluationRepository evaluationRepository;
@@ -169,6 +177,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     public void setup() {
 
         reset(securityService);
+        reset(authzGroupService);
         reset(userDirectoryService);
 
         user1User = mock(User.class);
@@ -1033,21 +1042,21 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT_GRADES,
                 "peer-assignment", Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
                     RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
-        org.sakaiproject.assignment.api.model.Assignment assignment = new org.sakaiproject.assignment.api.model.Assignment();
+        Assignment assignment = new Assignment();
         assignment.setId("peer-assignment");
         assignment.setContext(siteId);
         assignment.setAllowPeerAssessment(true);
         when(assignmentService.getAssignment(assignment.getId())).thenReturn(assignment);
         when(assignmentService.isPeerAssessmentOpen(assignment)).thenReturn(true);
-        org.sakaiproject.assignment.api.model.AssignmentSubmission submission = new org.sakaiproject.assignment.api.model.AssignmentSubmission();
+        AssignmentSubmission submission = new AssignmentSubmission();
         submission.setAssignment(assignment);
-        org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter submitter = new org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter();
+        AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
         submitter.setSubmitter(user2);
-        submission.setSubmitters(new java.util.HashSet<>(Set.of(submitter)));
+        submission.setSubmitters(new HashSet<>(Set.of(submitter)));
         when(assignmentService.getSubmission("peer-submission")).thenReturn(submission);
-        org.sakaiproject.assignment.api.model.PeerAssessmentItem peer = new org.sakaiproject.assignment.api.model.PeerAssessmentItem();
+        PeerAssessmentItem peer = new PeerAssessmentItem();
         peer.setAssignmentId(assignment.getId());
-        peer.setId(new org.sakaiproject.assignment.api.model.AssessorSubmissionId("peer-submission", user1));
+        peer.setId(new AssessorSubmissionId("peer-submission", user1));
         when(assignmentPeerAssessmentService.getPeerAssessmentItems(assignment.getId(), user1, null)).thenReturn(List.of(peer));
         EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, user1);
         evaluation.setEvaluatedItemOwnerId(user2);
@@ -1065,6 +1074,39 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void assignedPeerCanReviewGroupSubmissionWithUserOrGroupAssessor() throws Exception {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT_GRADES,
+            "group-peer-assignment", Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
+                RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
+        Assignment assignment = new Assignment();
+        assignment.setId("group-peer-assignment");
+        assignment.setContext(siteId);
+        assignment.setAllowPeerAssessment(true);
+        when(assignmentService.getAssignment(assignment.getId())).thenReturn(assignment);
+        when(assignmentService.isPeerAssessmentOpen(assignment)).thenReturn(true);
+        AssignmentSubmission submission = new AssignmentSubmission();
+        submission.setAssignment(assignment);
+        submission.setGroupId("reviewed-group");
+        when(assignmentService.getSubmission("group-peer-submission")).thenReturn(submission);
+        when(authzGroupService.getUserRole(user1, siteRef + "/group/assessor-group")).thenReturn("access");
+        switchToUser1();
+        for (String assessor : List.of(user1, "assessor-group")) {
+            PeerAssessmentItem peer = new PeerAssessmentItem();
+            peer.setId(new AssessorSubmissionId("group-peer-submission", assessor));
+            when(assignmentPeerAssessmentService.getPeerAssessmentItems(assignment.getId(), assessor, null)).thenReturn(List.of(peer));
+            EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, assessor);
+            evaluation.setEvaluatedItemOwnerType(EvaluatedItemOwnerType.GROUP);
+            evaluation.setEvaluatedItemOwnerId("reviewed-group");
+            EvaluationTransferBean saved = rubricsService.saveEvaluation(evaluation, siteId);
+            assertNotNull(saved.getId());
+            saved.setEvaluatedItemOwnerId("unassigned-group");
+            assertThrows(SecurityException.class, () -> rubricsService.saveEvaluation(saved, siteId));
+        }
+    }
+
+    @Test
     public void configuredSelfEvaluationIsAllowedWithoutTrustingClientFlag() throws Exception {
         switchToInstructor();
         RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
@@ -1072,7 +1114,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, "self-assignment",
                 Map.of(RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString(),
                     RubricsConstants.RBCS_CONFIG + RubricsConstants.RBCS_STUDENT_SELF_REPORT, "1")).orElseThrow();
-        org.sakaiproject.assignment.api.model.Assignment assignment = new org.sakaiproject.assignment.api.model.Assignment();
+        Assignment assignment = new Assignment();
         assignment.setId("self-assignment");
         assignment.setContext(siteId);
         when(assignmentService.getAssignment("self-assignment")).thenReturn(assignment);

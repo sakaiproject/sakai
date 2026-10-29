@@ -16,12 +16,12 @@
 package org.sakaiproject.conversations.impl;
 
 import org.mockito.ArgumentCaptor;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.lti.api.LTIService;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -29,10 +29,10 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsEvent;
-import org.sakaiproject.conversations.api.ConversationsService;
-import org.sakaiproject.conversations.api.ConversationsStat;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
+import org.sakaiproject.conversations.api.ConversationsService;
+import org.sakaiproject.conversations.api.ConversationsStat;
 import static org.sakaiproject.conversations.api.ConversationsReferenceReckoner.ConversationsReference;
 import org.sakaiproject.conversations.api.Permissions;
 import org.sakaiproject.conversations.api.PostSort;
@@ -41,12 +41,12 @@ import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
+import org.sakaiproject.conversations.api.beans.TagTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.model.ConversationsComment;
 import org.sakaiproject.conversations.api.model.ConversationsPost;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.Settings;
-import org.sakaiproject.conversations.api.beans.TagTransferBean;
 import org.sakaiproject.conversations.api.model.TopicStatus;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
@@ -60,7 +60,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
-import org.springframework.cache.Cache;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -69,8 +68,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.api.FormattedText;
+import org.springframework.cache.Cache;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -81,10 +81,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.hibernate.SessionFactory;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -95,8 +97,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -106,6 +106,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -305,6 +306,13 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void bookmarkingMissingTopicReportsNotFound() {
+        switchToUser1();
+        assertThrows(EntityNotFoundException.class,
+            () -> conversationsService.bookmarkTopic("missing-topic", true));
+    }
+
+    @Test
     public void foreignSiteCannotAuthorizePostOrCommentOperations() throws Exception {
         switchToInstructor(null);
         topicBean.draft = false;
@@ -319,11 +327,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         comment.message = "Original";
         CommentTransferBean saved = conversationsService.saveComment(comment);
         switchToInstructor(site2Id);
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvotePost(site1Id, "other-topic", post.id));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.deletePost(site2Id, topic.id, post.id, false));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.lockPost(site2Id, topic.id, post.id, true));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.hidePost(site2Id, topic.id, post.id, true));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvotePost(site2Id, topic.id, post.id));
-        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvotePost(site2Id, post.id));
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvotePost(site2Id, topic.id, post.id));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvoteTopic(site2Id, topic.id));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvoteTopic(site2Id, topic.id));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.deleteComment(site2Id, saved.id));
@@ -1205,11 +1214,11 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean = conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id);
             assertEquals(1, postBean.upvotes);
 
-            postBean = conversationsService.unUpvotePost(postBean.siteId, postBean.id);
+            postBean = conversationsService.unUpvotePost(postBean.siteId, postBean.topic, postBean.id);
             assertEquals(0, postBean.upvotes);
 
             // We should not be allowed to unupvote a post twice
-            assertThrows(IllegalArgumentException.class, () -> conversationsService.unUpvotePost(postBean.siteId, postBean.id));
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.unUpvotePost(postBean.siteId, postBean.topic, postBean.id));
 
             verify(eventTrackingService).post(event);
         } catch (ConversationsPermissionsException cpe) {

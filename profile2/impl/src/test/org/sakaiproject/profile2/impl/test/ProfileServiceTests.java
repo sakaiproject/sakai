@@ -27,6 +27,8 @@ import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.profile2.api.MimeTypeByteArray;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.ProfileImage;
 import org.sakaiproject.profile2.api.ProfileService;
@@ -177,12 +179,12 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Test
     public void loggedInUserCanHearAnotherUsersPronunciation() throws Exception {
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
-        org.sakaiproject.content.api.ContentResource recording = mock(org.sakaiproject.content.api.ContentResource.class);
+        ContentResource recording = mock(ContentResource.class);
         byte[] audio = new byte[] { 1, 2, 3 };
         when(recording.getContent()).thenReturn(audio);
         when(recording.getContentType()).thenReturn("audio/ogg");
         when(contentHostingService.getResource("/private/namePronunciation/" + user1Id + ".ogg")).thenReturn(recording);
-        org.sakaiproject.profile2.api.MimeTypeByteArray result = profileService.getUserNamePronunciation(user1Id);
+        MimeTypeByteArray result = profileService.getUserNamePronunciation(user1Id);
         assertArrayEquals(audio, result.getBytes());
         assertEquals("audio/ogg", result.getMimeType());
     }

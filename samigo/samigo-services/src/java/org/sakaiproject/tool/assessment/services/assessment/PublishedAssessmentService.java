@@ -24,12 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -67,8 +67,8 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
-import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 
 /**
@@ -103,28 +103,29 @@ public class PublishedAssessmentService extends AssessmentService{
   /** Author metadata, including accommodation identities, is only available to assessment editors. */
   public List<PublishedAssessmentFacade> getPublishedAssessmentsForAuthor(String siteId) {
     String userId = AgentFacade.getAgentString();
+    boolean canEditAny = PersistenceService.getInstance().getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
     if (StringUtils.isBlank(userId)
-        || !(PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId)
+        || !(canEditAny
             || PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN, siteId))) {
       throw new SecurityException("Assessment editing permission required");
     }
+    Map<Long, String> authors = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+        .getPublishedAssessmentAuthors(siteId);
     return getBasicInfoOfAllPublishedAssessments(userId, "publishedAssessmentId", true, siteId).stream()
-        .map(summary -> getPublishedAssessment(summary.getPublishedAssessmentId().toString()))
-        .filter(assessment -> assessment != null && siteId.equals(assessment.getOwnerSiteId())
-            && canEditPublishedAssessment(assessment))
+        .filter(assessment -> authors.containsKey(assessment.getPublishedAssessmentId())
+            && (canEditAny || userId.equals(authors.get(assessment.getPublishedAssessmentId()))))
         .collect(Collectors.toList());
   }
 
   public boolean canEditPublishedAssessment(PublishedAssessmentFacade assessment) {
     String userId = AgentFacade.getAgentString();
-    if (assessment == null || StringUtils.isBlank(userId) || StringUtils.isBlank(assessment.getOwnerSiteId())) {
+    if (assessment == null || StringUtils.isBlank(userId)) {
       return false;
     }
-    return PersistenceService.getInstance().getAuthzQueriesFacade()
-        .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, assessment.getOwnerSiteId())
-        || (PersistenceService.getInstance().getAuthzQueriesFacade()
-            .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN, assessment.getOwnerSiteId())
-            && userId.equals(assessment.getCreatedBy()));
+    String siteId = assessment.getOwnerSiteId();
+    return StringUtils.isNotBlank(siteId) && PersistenceService.getInstance().getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
   }
 
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId) {

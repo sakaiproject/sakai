@@ -1,7 +1,5 @@
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.ServiceSiteAccess;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,12 +12,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.videotraining.api.model.PagedResponse;
 import org.sakaiproject.videotraining.api.model.VideoPublicationStatus;
-import org.sakaiproject.videotraining.api.model.VideoVisibilityScope;
 import org.sakaiproject.videotraining.api.model.VideoTrainingAnalyticsSummary;
 import org.sakaiproject.videotraining.api.model.VideoTrainingCategory;
 import org.sakaiproject.videotraining.api.model.VideoTrainingCourseGroup;
 import org.sakaiproject.videotraining.api.model.VideoTrainingLessonLink;
 import org.sakaiproject.videotraining.api.model.VideoTrainingVideo;
+import org.sakaiproject.videotraining.api.model.VideoVisibilityScope;
 import org.sakaiproject.videotraining.api.service.VideoTrainingService;
 import org.sakaiproject.webapi.beans.VideoCategoryRestBean;
 import org.sakaiproject.webapi.beans.VideoTrainingAnalyticsRestBean;
@@ -159,7 +157,6 @@ public class VideoTrainingController extends AbstractSakaiApiController {
             .toList();
     }
 
-    @ServiceSiteAccess("VideoTrainingService authorizes the operation using the stored video, category or lesson owner.")
     @GetMapping(value = "/sites/{siteId}/videos/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<VideoTrainingAnalyticsRestBean>> getAnalytics(@PathVariable("siteId") String siteId) {
 
@@ -240,7 +237,6 @@ public class VideoTrainingController extends AbstractSakaiApiController {
         return new PagedResponse<>(beans, totalCount, safePage, safeSize);
     }
 
-    @ServiceSiteAccess("VideoTrainingService authorizes the operation using the stored video, category or lesson owner.")
     @GetMapping(value = "/sites/{siteId}/videos/categories/tree", produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedResponse<VideoCategoryRestBean> getCategoryTree(
         @PathVariable("siteId") String siteId,
@@ -269,7 +265,6 @@ public class VideoTrainingController extends AbstractSakaiApiController {
         return new PagedResponse<>(beans, totalCount, safePage, safeSize);
     }
 
-    @ServiceSiteAccess("VideoTrainingService checks the actual library/category/lesson management permission.")
     @PostMapping(value = "/sites/{siteId}/videos/categories",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -394,7 +389,6 @@ public class VideoTrainingController extends AbstractSakaiApiController {
         }
     }
 
-    @ServiceSiteAccess("VideoTrainingService authorizes the operation using the stored video, category or lesson owner.")
     @GetMapping(value = "/sites/{siteId}/videos/quota", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getQuota(@PathVariable("siteId") String siteId) {
         Session session = checkSakaiSession();
@@ -408,7 +402,6 @@ public class VideoTrainingController extends AbstractSakaiApiController {
         return Map.of("siteId", siteId, "maxBytes", maxBytes, "usedBytes", usedBytes);
     }
 
-    @ServiceSiteAccess("VideoTrainingService checks the actual library/category/lesson management permission.")
     @PostMapping(value = "/lessons/{siteId}/videos/{videoId}/links",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -432,7 +425,6 @@ public class VideoTrainingController extends AbstractSakaiApiController {
         return videoTrainingService.saveLessonLink(link);
     }
 
-    @ServiceSiteAccess("VideoTrainingService authorizes the operation using the stored video, category or lesson owner.")
     @PostMapping(value = "/lessons/{siteId}/lesson-links/{lessonLinkId}/delete", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> deleteLessonLink(@PathVariable("siteId") String siteId,
             @PathVariable("lessonLinkId") String lessonLinkId) {
@@ -446,7 +438,6 @@ public class VideoTrainingController extends AbstractSakaiApiController {
         return Map.of("deleted", true);
     }
 
-    @ServiceSiteAccess("VideoTrainingService checks the actual library/category/lesson management permission.")
     @PostMapping(value = "/lessons/{siteId}/promote-resource",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)

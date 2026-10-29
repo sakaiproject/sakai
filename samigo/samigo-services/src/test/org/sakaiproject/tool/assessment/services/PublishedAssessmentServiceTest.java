@@ -27,13 +27,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -46,8 +49,8 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService.TotalScoreCancellationException;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +69,7 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     @Autowired private SessionFactory sessionFactory;
     @Autowired private org.sakaiproject.grading.api.GradingService gradebookService;
     @Autowired private SiteService siteService;
-    @Autowired private org.sakaiproject.authz.api.SecurityService securityService;
+    @Autowired private SecurityService securityService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private ApplicationContext applicationContext;
@@ -85,7 +88,7 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     @Before
     public void setup() throws Exception {
         reset(gradebookService, siteService, toolManager, userDirectoryService, securityService);
-        ComponentManager.loadComponent(org.sakaiproject.authz.api.SecurityService.class, securityService);
+        ComponentManager.loadComponent(SecurityService.class, securityService);
         ComponentManager.loadComponent("agentHelper", applicationContext.getBean("agentHelper"));
         ComponentManager.loadComponent("gradebookServiceHelper", applicationContext.getBean("gradebookServiceHelper"));
         ComponentManager.loadComponent(org.sakaiproject.grading.api.GradingService.class,
@@ -123,8 +126,9 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
 
     @Test
     public void ownAssessmentEditorOnlySeesTheirAssessmentsWithoutSiteVisit() {
-        when(securityService.unlock(org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN,
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN,
             "/site/" + siteId)).thenReturn(true);
+        assertFalse(service.canEditPublishedAssessment(assessment));
         List<PublishedAssessmentFacade> authored = service.getPublishedAssessmentsForAuthor(siteId);
         assertEquals(1, authored.size());
         PublishedAssessmentData authorized = new PublishedAssessmentData();
@@ -141,10 +145,30 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     public void anyAssessmentEditorSeesOtherAuthorsButCannotUseForeignSitePermission() {
         data().setCreatedBy("another-author");
         sessionFactory.getCurrentSession().flush();
-        when(securityService.unlock(org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
             "/site/" + siteId)).thenReturn(true);
         assertEquals(1, service.getPublishedAssessmentsForAuthor(siteId).size());
         assertThrows(SecurityException.class, () -> service.getPublishedAssessmentsForAuthor("foreign-site"));
+    }
+
+    @Test
+    public void authorListDoesNotLoadAssessmentEntitiesOrCollections() {
+        createAssessment(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString(), null);
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/" + siteId)).thenReturn(true);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Statistics statistics = sessionFactory.getStatistics();
+        boolean enabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            assertEquals(2, service.getPublishedAssessmentsForAuthor(siteId).size());
+            assertEquals(0, statistics.getEntityLoadCount());
+            assertEquals(0, statistics.getCollectionFetchCount());
+        } finally {
+            statistics.setStatisticsEnabled(enabled);
+        }
     }
 
     @Test

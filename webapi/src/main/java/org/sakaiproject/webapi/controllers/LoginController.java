@@ -13,9 +13,6 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.security.PublicApi;
-
-
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,12 +23,13 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.Evidence;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.user.api.AuthenticationManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.beans.LoginRestBean;
+import org.sakaiproject.webapi.security.PublicApi;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
