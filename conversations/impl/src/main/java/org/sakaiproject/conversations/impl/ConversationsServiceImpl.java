@@ -970,6 +970,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!Objects.equals(topic.getSiteId(), siteId)) {
             throw new ConversationsPermissionsException("Topic does not belong to this site");
         }
+        if (!currentUserCanViewTopic(topic)) {
+            throw new ConversationsPermissionsException("Current user cannot view this topic");
+        }
         if (topic.getMetadata().getCreator().equals(currentUserId)) {
             throw new IllegalArgumentException("Users cannot upvote their own topics");
         }
@@ -1012,6 +1015,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         if (!Objects.equals(topic.getSiteId(), siteId)) {
             throw new ConversationsPermissionsException("Topic does not belong to this site");
+        }
+        if (!currentUserCanViewTopic(topic)) {
+            throw new ConversationsPermissionsException("Current user cannot view this topic");
         }
         if (topic.getMetadata().getCreator().equals(currentUserId)) {
             throw new IllegalArgumentException("Users cannot unupvote their own topics");
@@ -2167,7 +2173,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
             throw new ConversationsPermissionsException("Post does not belong to this site and topic");
         }
-
+        if (!currentUserCanViewPost(post)) {
+            throw new ConversationsPermissionsException("Current user cannot view this post");
+        }
 
         if (post.getMetadata().getCreator().equals(currentUserId)) {
             throw new IllegalArgumentException("Users cannot upvote their own posts");
@@ -2223,7 +2231,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
             throw new ConversationsPermissionsException("Post does not belong to this site and topic");
         }
-
+        if (!currentUserCanViewPost(post)) {
+            throw new ConversationsPermissionsException("Current user cannot view this post");
+        }
 
         if (post.getMetadata().getCreator().equals(currentUserId)) {
             throw new IllegalArgumentException("Users cannot unupvote their own posts");

@@ -21,10 +21,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Instant;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,11 +36,15 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.conversations.api.ConversationsService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -53,11 +61,15 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.WebApiAccessConfiguration;
+import org.sakaiproject.webapi.beans.SiteEntityRestBean;
+import org.sakaiproject.webapi.beans.SiteEntityRestBean.SiteEntityType;
 import org.sakaiproject.webapi.controllers.ConversationsController;
 import org.sakaiproject.webapi.controllers.EntityController;
 import org.sakaiproject.webapi.controllers.PermissionsController;
+import org.sakaiproject.webapi.controllers.SiteEntityController;
 import org.sakaiproject.webapi.exception.GlobalExceptionHandler;
 import org.sakaiproject.webapi.lti.LtiBearerTokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +95,7 @@ public class WebApiAccessTests {
     @EnableWebMvc
     @Import({ WebApiAccessConfiguration.class, WebApiAccessInterceptor.class,
         LtiBearerTokenInterceptor.class, GlobalExceptionHandler.class, TestController.class,
-        EntityController.class,
+        EntityController.class, SiteEntityController.class,
         ConversationsController.class,
         PermissionsController.class })
     public static class TestConfiguration {
@@ -104,6 +116,10 @@ public class WebApiAccessTests {
         @Bean public ConversationsService conversationsService() { return mock(ConversationsService.class); }
         @Bean public UserDirectoryService userDirectoryService() { return mock(UserDirectoryService.class); }
         @Bean public SearchService searchService() { return mock(SearchService.class); }
+        @Bean public AssignmentService assignmentService() { return mock(AssignmentService.class); }
+        @Bean public ContentHostingService contentHostingService() { return mock(ContentHostingService.class); }
+        @Bean public DiscussionForumManager discussionForumManager() { return mock(DiscussionForumManager.class); }
+        @Bean public PersistenceService persistenceService() { return mock(PersistenceService.class); }
     }
 
     @RestController
@@ -132,6 +148,7 @@ public class WebApiAccessTests {
     @Autowired private SakaiAccessTokenService tokenService;
     @Autowired private SiteService siteService;
     @Autowired private ConversationsService conversationsService;
+    @Autowired private DiscussionForumManager forumManager;
     @Autowired private EntityManager entityManager;
     @Autowired private AuthzGroupService realms;
     @Autowired private FunctionManager functions;
@@ -141,13 +158,42 @@ public class WebApiAccessTests {
 
     @Before
     public void setup() {
-        reset(sessionManager, tokenService, siteService, entityManager, realms, functions, conversationsService);
+        reset(sessionManager, tokenService, siteService, entityManager, realms, functions, conversationsService, forumManager);
         previous = mock(Session.class);
         current = new AtomicReference<>(previous);
         when(sessionManager.getCurrentSession()).thenAnswer(call -> current.get());
         doAnswer(call -> { current.set(call.getArgument(0)); return null; })
             .when(sessionManager).setCurrentSession(any(Session.class));
         mvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
+
+    @Test
+    public void invalidForumDateRangeRejectsWholeBatchBeforeSaving() throws Exception {
+        when(previous.getUserId()).thenReturn("editor");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("course");
+        when(siteService.getOptionalSite("course")).thenReturn(Optional.of(site));
+        when(forumManager.getForumForUpdate("course", 1L)).thenReturn(mock(DiscussionForum.class));
+        // Set iteration order is unspecified in JSON binding; use an ordered batch to exercise a valid first item.
+        Set<SiteEntityRestBean> batch = new LinkedHashSet<>();
+        batch.add(SiteEntityRestBean.builder().id("1").type(SiteEntityType.FORUM).dateRestricted(false).build());
+        batch.add(SiteEntityRestBean.builder().id("2").type(SiteEntityType.FORUM).dateRestricted(true)
+            .openDate(Instant.parse("2026-01-02T00:00:00Z")).closeDate(Instant.parse("2026-01-01T00:00:00Z")).build());
+        assertEquals(400, context.getBean(SiteEntityController.class).updateSiteEntities("course", batch).getStatusCode().value());
+        verify(forumManager).getForumForUpdate("course", 1L);
+        verify(forumManager, never()).updateForumAvailability(anyString(), anyLong(), anyBoolean(), any(), any());
+    }
+
+    @Test
+    public void missingForumHasAClientResponse() throws Exception {
+        when(previous.getUserId()).thenReturn("editor");
+        when(siteService.getOptionalSite("course")).thenReturn(Optional.of(mock(Site.class)));
+        when(forumManager.getForumForUpdate("course", 99L)).thenThrow(new IllegalArgumentException("Forum not found"));
+        mvc.perform(patch("/sites/course/entities").contentType("application/json")
+                .content("[{\"id\":\"99\",\"type\":\"FORUM\"}]"))
+            .andExpect(status().isBadRequest());
+        verify(forumManager).getForumForUpdate("course", 99L);
+        verify(forumManager, never()).updateForumAvailability(anyString(), anyLong(), anyBoolean(), any(), any());
     }
 
     @Test

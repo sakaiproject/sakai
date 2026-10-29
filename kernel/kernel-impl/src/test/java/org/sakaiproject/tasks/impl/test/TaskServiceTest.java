@@ -88,6 +88,80 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
     }
 
     @Test
+    public void siteTaskUsesStudentRecipientsAndCreatesOnlyOneSanitizedAuthorRow() throws Exception {
+        switchToInstructor();
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        Site site = mock(Site.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getUsersIsAllowed("section.role.student")).thenReturn(Set.of(student, instructor));
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setSiteId(siteId);
+        input.setAssignationType("site");
+        input.setDescription("Site task");
+        input.setNotes("Author notes");
+        input.setPriority(Priorities.HIGH);
+        input.setOwner("forged");
+        input.setUserId("forged");
+        input.setSystem(true);
+        input.setUserTaskId(-1L);
+        input.setTaskId(-1L);
+        taskService.createUserAuthoredTask(input);
+        List<UserTaskAdapterBean> authored = taskService.getCurrentTasksForCurrentUser();
+        assertEquals(1, authored.size());
+        UserTaskAdapterBean author = authored.get(0);
+        assertEquals(instructor, author.getUserId());
+        assertEquals(instructor, author.getOwner());
+        assertFalse(author.getSystem());
+        assertNotEquals(Long.valueOf(-1), author.getUserTaskId());
+        assertNotEquals(Long.valueOf(-1), author.getTaskId());
+        assertEquals("Author notes", author.getNotes());
+        switchToStudent();
+        assertEquals(1, taskService.getCurrentTasksForCurrentUser().size());
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("nonstudent");
+        assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
+    }
+
+    @Test
+    public void groupTaskCreatesOnlyOneAuthorRowWhenAuthorIsARecipient() throws Exception {
+        switchToInstructor();
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getGroup("selected")).thenReturn(group);
+        when(group.getUsers()).thenReturn(Set.of(student, instructor));
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setSiteId(siteId);
+        input.setAssignationType("group");
+        input.setSelectedGroups(new String[] { "selected" });
+        input.setDescription("Group task");
+        input.setNotes("Author notes");
+        input.setPriority(Priorities.HIGH);
+        taskService.createUserAuthoredTask(input);
+        assertEquals(1, taskService.getCurrentTasksForCurrentUser().size());
+        assertEquals("Author notes", taskService.getCurrentTasksForCurrentUser().get(0).getNotes());
+        switchToStudent();
+        assertEquals(1, taskService.getCurrentTasksForCurrentUser().size());
+    }
+
+    @Test
+    public void groupTaskRejectsMissingOrForeignGroupsBeforeCreatingTasks() throws Exception {
+        switchToInstructor();
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        Site site = mock(Site.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setSiteId(siteId);
+        input.setAssignationType("group");
+        input.setDescription("Invalid group task");
+        for (String[] selected : new String[][] { new String[0], new String[] { "foreign" } }) {
+            input.setSelectedGroups(selected);
+            assertThrows(IllegalArgumentException.class, () -> taskService.createUserAuthoredTask(input));
+            assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
+        }
+    }
+
+    @Test
     public void emptyGroupTaskIsRejectedBeforeCreatingTasks() throws Exception {
         switchToInstructor();
         when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);

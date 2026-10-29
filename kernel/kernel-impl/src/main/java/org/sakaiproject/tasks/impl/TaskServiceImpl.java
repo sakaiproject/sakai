@@ -193,6 +193,7 @@ public class TaskServiceImpl implements TaskService, Observer {
         task.setOwner(userId);
         task.setSystem(false);
         task.setReference("/user/" + userId + "/" + UUID.randomUUID());
+        users.remove(userId);
         Task saved = createTask(task, users, transfer.getPriority());
         UserTask authorTask = createUserTask(saved, transfer);
         if (AssignationType.site.name().equals(assignation)) {

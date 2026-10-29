@@ -293,6 +293,42 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void hiddenContentCannotBeVotedOnEvenWithUpvotePermission() throws Exception {
+        switchToUser1();
+        topicBean.draft = false;
+        TopicTransferBean topic = conversationsService.saveTopic(topicBean, false);
+        postBean.topic = topic.id;
+        postBean.draft = false;
+        PostTransferBean post = conversationsService.savePost(postBean, false);
+        switchToUser2();
+        conversationsService.upvoteTopic(site1Id, topic.id);
+        conversationsService.upvotePost(site1Id, topic.id, post.id);
+        ConversationsTopic stored = topicRepository.findById(topic.id).orElseThrow();
+        for (String restriction : List.of("draft", "hidden", "instructors")) {
+            stored.setDraft("draft".equals(restriction));
+            stored.setHidden("hidden".equals(restriction));
+            stored.setVisibility("instructors".equals(restriction) ? TopicVisibility.INSTRUCTORS : TopicVisibility.SITE);
+            topicRepository.save(stored);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvoteTopic(site1Id, topic.id));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvoteTopic(site1Id, topic.id));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvotePost(site1Id, topic.id, post.id));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvotePost(site1Id, topic.id, post.id));
+            assertEquals(1, topicRepository.findById(topic.id).orElseThrow().getUpvotes().intValue());
+            assertEquals(1, postRepository.findById(post.id).orElseThrow().getUpvotes().intValue());
+        }
+        stored.setDraft(false);
+        stored.setHidden(false);
+        stored.setVisibility(TopicVisibility.SITE);
+        topicRepository.save(stored);
+        ConversationsPost draft = postRepository.findById(post.id).orElseThrow();
+        draft.setDraft(true);
+        postRepository.save(draft);
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvotePost(site1Id, topic.id, post.id));
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvotePost(site1Id, topic.id, post.id));
+        assertEquals(1, postRepository.findById(post.id).orElseThrow().getUpvotes().intValue());
+    }
+
+    @Test
     public void scopedPostAuthorRetainsCreateAndUpdateWithoutSiteVisit() throws Exception {
         switchToUser1();
         topicBean.draft = false;
@@ -326,7 +362,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         comment.postId = post.id;
         comment.message = "Original";
         CommentTransferBean saved = conversationsService.saveComment(comment);
-        switchToInstructor(site2Id);
+        switchToInstructor(site2Ref);
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvotePost(site1Id, "other-topic", post.id));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.deletePost(site2Id, topic.id, post.id, false));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.lockPost(site2Id, topic.id, post.id, true));

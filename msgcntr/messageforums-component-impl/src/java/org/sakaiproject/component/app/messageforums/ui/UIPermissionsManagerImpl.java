@@ -153,7 +153,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         boolean instructor = securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef);
         if (instructor && (!Boolean.TRUE.equals(forum.getRestrictPermissionsForGroups())
                 || isAllowedGroupMember(forum.getId(), true, siteId, getCurrentUserId())
-                || forumManager.isForumOwner(forum))) {
+                || forumManager.isForumOwner(forum, getCurrentUserId(), siteRef))) {
             return true;
         }
         return getForumItemsByCurrentUser(forum, siteId).stream().filter(Objects::nonNull).anyMatch(ifChangeSettings);

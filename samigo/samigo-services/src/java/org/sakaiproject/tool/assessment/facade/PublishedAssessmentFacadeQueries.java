@@ -1569,9 +1569,17 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 * @return
 	 */
 	public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, final String siteId) {
-		String orderField = orderBy;
-		boolean ascendingOrder = ascending;
-		final List<String> groupIds = getSiteGroupIdsForCurrentUser(siteId);
+        return getBasicInfoOfAllPublishedAssessments(orderBy, ascending, siteId, false);
+    }
+
+    @Override
+    public List<PublishedAssessmentFacade> getBasicInfoOfPublishedAssessmentsForAuthor(String siteId) {
+        return getBasicInfoOfAllPublishedAssessments("publishedAssessmentId", true, siteId, true);
+    }
+
+    private List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(
+            String orderBy, boolean ascending, String siteId, boolean forAuthor) {
+        List<String> groupIds = forAuthor ? Collections.emptyList() : getSiteGroupIdsForCurrentUser(siteId);
 
 		try {
 			Session session = sessionFactory.getCurrentSession();
@@ -1623,7 +1631,8 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				cb.equal(pRoot.get("status"), 1),
 				cb.equal(pRoot.get("status"), 3)));
 
-			predicates.add(cb.equal(azRoot.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(azRoot.get("functionId"),
+                forAuthor ? "OWN_PUBLISHED_ASSESSMENT" : "TAKE_PUBLISHED_ASSESSMENT"));
 			predicates.add(cb.equal(azRoot.get("qualifierId"), pRoot.get("publishedAssessmentId").as(String.class)));
 
 			Predicate sitePredicate = cb.equal(azRoot.get("agentIdString"), siteId);

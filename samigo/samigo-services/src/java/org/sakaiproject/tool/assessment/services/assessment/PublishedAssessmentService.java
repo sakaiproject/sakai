@@ -112,7 +112,8 @@ public class PublishedAssessmentService extends AssessmentService{
     }
     Map<Long, String> authors = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
         .getPublishedAssessmentAuthors(siteId);
-    return getBasicInfoOfAllPublishedAssessments(userId, "publishedAssessmentId", true, siteId).stream()
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+        .getBasicInfoOfPublishedAssessmentsForAuthor(siteId).stream()
         .filter(assessment -> authors.containsKey(assessment.getPublishedAssessmentId())
             && (canEditAny || userId.equals(authors.get(assessment.getPublishedAssessmentId()))))
         .collect(Collectors.toList());

@@ -261,6 +261,16 @@ public class TasksControllerTests extends BaseControllerTests {
     }
 
     @Test
+    public void taskUpdateRejectsDifferentPathAndBodyIds() throws Exception {
+        Map<String, Object> input = getUserTaskMap();
+        input.put("userTaskId", 1L);
+        mockMvc.perform(put("/tasks/2").contentType("application/json")
+                .content(new ObjectMapper().writeValueAsString(input)))
+            .andExpect(status().isBadRequest());
+        verify(taskService, never()).saveUserTask(any());
+    }
+
+    @Test
     public void testUpdateTask() throws Exception {
 
         Map<String, Object> map = getUserTaskMap();

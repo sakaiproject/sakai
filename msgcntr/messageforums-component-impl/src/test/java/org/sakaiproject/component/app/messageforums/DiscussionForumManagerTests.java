@@ -133,6 +133,15 @@ public class DiscussionForumManagerTests extends AbstractTransactionalJUnit4Spri
     }
 
     @Test
+    public void restrictedForumOwnerCanUpdateWithoutToolPlacement() {
+        when(security.unlock(SiteService.SECURE_UPDATE_SITE, "/site/site-a")).thenReturn(true);
+        forum.setRestrictPermissionsForGroups(true);
+        forum.setCreatedBy(TestUtil.isRunningTests() ? "test-user" : "reader");
+        sessionFactory.getCurrentSession().flush();
+        assertFalse(service.updateForumAvailability("site-a", forum.getId(), false, null, null).getAvailabilityRestricted());
+    }
+
+    @Test
     public void customForumRoleCanEditWithoutSiteUpdateOrToolPlacement() {
         // The module's existing TestUtil uses this identity while running its wired service tests.
         when(realms.getUserRole("test-user", "/site/site-a")).thenReturn("custom-role");

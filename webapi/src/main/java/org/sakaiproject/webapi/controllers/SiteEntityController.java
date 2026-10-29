@@ -49,7 +49,6 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
@@ -65,7 +64,6 @@ import org.sakaiproject.webapi.beans.SiteEntityRestBean;
 import org.sakaiproject.webapi.beans.TimeExceptionRestBean;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -94,10 +92,6 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
     @Autowired
     private DiscussionForumManager discussionForumManager;
-
-    @Autowired
-    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
-    private SimplePageToolDao lessonService;
 
     @Autowired
     private SecurityService securityService;
@@ -270,8 +264,10 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.badRequest().build();
                     }
 
-                    if (!isDateRestrictionPatchValid(patchEntity)) {
-                        log.debug("Date restriction invalid", patchEntity.getId());
+                    if (!isDateRestrictionPatchValid(patchEntity)
+                            || (Boolean.TRUE.equals(patchEntity.getDateRestricted())
+                                && patchEntity.getCloseDate().isBefore(patchEntity.getOpenDate()))) {
+                        log.debug("Invalid date restriction for forum {}", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 

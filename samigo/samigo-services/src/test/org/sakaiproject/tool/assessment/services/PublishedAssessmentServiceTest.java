@@ -152,6 +152,22 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     }
 
     @Test
+    public void editorSeesOwnedAssessmentReleasedToAnotherGroup() {
+        String id = assessment.getPublishedAssessmentId().toString();
+        sessionFactory.getCurrentSession().createMutationQuery(
+            "update AuthorizationData set agentIdString = :group where qualifierId = :id and functionId = :function")
+            .setParameter("group", "group-without-editor").setParameter("id", id)
+            .setParameter("function", "TAKE_PUBLISHED_ASSESSMENT").executeUpdate();
+        data().getAssessmentAccessControl().setReleaseTo(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
+        sessionFactory.getCurrentSession().flush();
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/" + siteId)).thenReturn(true);
+        assertTrue(persistenceService.getPublishedAssessmentFacadeQueries().getBasicInfoOfAllPublishedAssessments("publishedAssessmentId", true, siteId).isEmpty());
+        assertEquals(assessment.getPublishedAssessmentId(),
+            service.getPublishedAssessmentsForAuthor(siteId).get(0).getPublishedAssessmentId());
+    }
+
+    @Test
     public void authorListDoesNotLoadAssessmentEntitiesOrCollections() {
         createAssessment(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString(), null);
         when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
