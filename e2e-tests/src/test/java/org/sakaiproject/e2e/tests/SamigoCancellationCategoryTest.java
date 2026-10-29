@@ -194,6 +194,8 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
             assertThat(page.locator("#assessmentForm\\:parts .samigo-question-callout")).hasCount(question);
         }
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).first().click();
+        sakai.waitForPortalFocus();
+        assertThat(page.locator("#jqueryui-accordion.ui-accordion")).isVisible();
         page.locator("#expandLink").click();
         DateTimeFormatter dateTime12h = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
         sakai.selectDate("#assessmentSettingsAction\\:startDate",
