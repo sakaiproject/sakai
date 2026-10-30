@@ -84,11 +84,11 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
                 </div>
                 <div class="ms-auto points ${this.isLocked ? "d-none" : ""}">
                   <label class="label-rubrics form-label" for="rating-points-${this.rating.id}">${this._i18n.points}</label>
-                  <input type="number" required step="any"
+                  <input type="text" inputmode="decimal" required
                       id="rating-points-${this.rating.id}"
                       class="form-control hide-input-arrows"
                       name="quantity"
-                      .value=${this.rating.points}
+                      .value=${this.rating.points.toLocaleString(this.locale, { useGrouping: false, numberingSystem: "latn" })}
                       min="${ifDefined(this.minpoints)}"
                       max="${ifDefined(this.maxpoints)}">
                 </div>
@@ -118,7 +118,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   resetFields() {
 
     document.getElementById(`rating-title-edit-${this.rating.id}`).value = this.rating.title;
-    document.getElementById(`rating-points-${this.rating.id}`).value = this.rating.points;
+    document.getElementById(`rating-points-${this.rating.id}`).value = this.rating.points.toLocaleString(this.locale, { useGrouping: false, numberingSystem: "latn" });
     document.getElementById(`rating-description-${this.rating.id}`).value = this.rating.description;
   }
 
@@ -133,8 +133,17 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     e.stopPropagation();
 
     const pointsInput = this.renderRoot.querySelector(`#rating-points-${this.rating.id}`);
-    pointsInput.setCustomValidity(pointsInput.validity.valueMissing || pointsInput.validity.badInput
-      ? this.tr("rating_points_required") : "");
+    // Accept the Sakai locale's decimal separator, retaining native number/range validation.
+    const decimalSeparator = (1.1).toLocaleString(this.locale, { numberingSystem: "latn" }).charAt(1);
+    const numberInput = document.createElement("input");
+    numberInput.type = "number";
+    numberInput.required = true;
+    numberInput.step = "any";
+    numberInput.min = pointsInput.getAttribute("min") ?? "";
+    numberInput.max = pointsInput.getAttribute("max") ?? "";
+    numberInput.value = pointsInput.value.trim().replace(decimalSeparator, ".");
+    pointsInput.setCustomValidity(numberInput.validity.valueMissing || numberInput.validity.badInput
+      ? this.tr("rating_points_required") : numberInput.validationMessage);
     if (!this.isLocked && !pointsInput.reportValidity()) {
       return;
     }
@@ -143,7 +152,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     if (!this.isLocked) {
 
-      const points = parseFloat(pointsInput.value);
+      const points = numberInput.valueAsNumber;
       // Check points value. Blank breaks things.
       if (isFinite(points)) {
         // Round user input to two digits.

@@ -221,7 +221,7 @@ export class SakaiRubricAssociation extends RubricsElement {
                 ?disabled=${this.isAssociated != 1 || this.readOnly}>
               ${this._rubrics.map(r => html`
               <option value="${r.id}" ?selected=${r.id == this._selectedRubricId ? "selected" : undefined}>
-                ${r.title} ${r.maxPoints ? `(${r.maxPoints} ${this._i18n.points})` : ""}
+                ${r.title} ${r.maxPoints ? `(${r.maxPoints.toLocaleString(this.locale)} ${this._i18n.points})` : ""}
               </option>
               `)}
             </select>
