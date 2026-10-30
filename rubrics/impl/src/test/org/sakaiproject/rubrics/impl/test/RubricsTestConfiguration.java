@@ -17,6 +17,7 @@ package org.sakaiproject.rubrics.impl.test;
 
 import lombok.Getter;
 import org.hibernate.SessionFactory;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
@@ -60,6 +61,11 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.rubrics")
     @Getter
     protected AdditionalHibernateMappings additionalHibernateMappings;
+
+    @Bean(name = "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService")
+    public AssignmentPeerAssessmentService assignmentPeerAssessmentService() {
+        return mock(AssignmentPeerAssessmentService.class);
+    }
 
     @Bean(name="org.sakaiproject.rubrics.api.repository.CriterionRepository")
     public CriterionRepository criterionRepository(SessionFactory sessionFactory) {

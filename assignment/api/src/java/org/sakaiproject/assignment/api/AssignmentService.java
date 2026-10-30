@@ -482,6 +482,15 @@ public interface AssignmentService extends EntityProducer {
     public AssignmentSubmission getSubmission(String submissionId) throws IdUnusedException, PermissionException;
 
     /**
+     * Reads a submission under its active peer-review assignment rather than general submission-read permission.
+     * The current user must be the assigned assessor or a member of the assigned assessor group,
+     * and the review must be open and not removed. Returns null for a missing submission.
+     *
+     * @throws PermissionException if the current user is not authorized for this peer review
+     */
+    AssignmentSubmission getSubmissionForPeerAssessment(String submissionId, String assessorId) throws PermissionException;
+
+    /**
      * Access all the Assignemnts that are not deleted and self-drafted ones
      *
      * @param context -

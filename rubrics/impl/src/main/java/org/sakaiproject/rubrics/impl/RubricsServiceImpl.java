@@ -60,7 +60,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -72,6 +76,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -149,6 +154,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     private static Predicate<ToolItemRubricAssociation> isCreator;
 
     private AssignmentService assignmentService;
+    private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     private AuthzGroupService authzGroupService;
     private CriterionRepository criterionRepository;
     private EntityManager entityManager;
@@ -283,6 +289,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         return rubricRepository.findById(rubricId).map(source -> {
 
+            if (!Boolean.TRUE.equals(source.getShared()) && !isCurrentUserEditor(source.getOwnerId())) {
+                throw new SecurityException("Not allowed to copy this rubric");
+            }
             Rubric copy = source.clone(toSiteId);
             Instant now = Instant.now();
             copy.setCreated(now);
@@ -401,6 +410,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Rubric rubric = rubricRepository.findById(rubricId)
             .orElseThrow(() -> new IllegalArgumentException("No rubric with id " + rubricId));
 
+        requireRubricEditor(rubric);
+        if (!Boolean.TRUE.equals(criterion.getRubric().getShared()) && !isCurrentUserEditor(criterion.getRubric().getOwnerId())) {
+            throw new SecurityException("Not allowed to copy this criterion");
+        }
         checkVersion(version, rubric.getVersion());
 
         List<Long> criterionIds = rubric.getCriteria().stream().map(Criterion::getId).collect(Collectors.toList());
@@ -424,6 +437,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     public RubricTransferBean sortRubricCriteria(Long rubricId, List<Long> sortedCriterionIds, Long version) {
 
         return rubricRepository.findById(rubricId).map(rubric -> {
+            requireRubricEditor(rubric);
             checkVersion(version, rubric.getVersion());
 
             Map<Long, Criterion> current = rubric.getCriteria().stream()
@@ -462,6 +476,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     public CriterionTransferBean sortCriterionRatings(Long criterionId, List<Long> sortedRatingIds, Long version) {
 
         return criterionRepository.findById(criterionId).map(criterion -> {
+            requireRubricEditor(criterion.getRubric());
             checkVersion(version, criterion.getRubric().getVersion());
             if (sortedRatingIds == null || sortedRatingIds.isEmpty()) {
                 log.debug("sortCriterionRatings called with empty/none order for criterion {}", criterionId);
@@ -512,6 +527,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
 
         return rubricRepository.findById(rubricId).map(rubric -> {
+            requireRubricSite(rubric, siteId);
             checkVersion(version, rubric.getVersion());
 
             List<Long> criterionIds = rubric.getCriteria().stream().map(Criterion::getId).collect(Collectors.toList());
@@ -564,6 +580,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
 
         return rubricRepository.findById(rubricId).map(rubric -> {
+            requireRubricSite(rubric, siteId);
             checkVersion(version, rubric.getVersion());
             List<Long> criterionIds = rubric.getCriteria().stream().map(Criterion::getId).collect(Collectors.toList());
 
@@ -596,9 +613,13 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Rubric rubric = rubricRepository.findById(rubricId)
             .orElseThrow(() -> new IllegalArgumentException("No rubric with id " + rubricId));
 
+        requireRubricSite(rubric, siteId);
         checkVersion(version, rubric.getVersion());
 
         Optional<Rating> savedRating = criterionRepository.findById(criterionId).map(criterion -> {
+            if (!Objects.equals(criterion.getRubric().getId(), rubricId)) {
+                throw new SecurityException("Criterion does not belong to this rubric");
+            }
 
             Rating rating = new Rating();
             rating.setTitle(resourceLoader.getString("default_rating_title"));
@@ -762,6 +783,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             sanitizeCriterionBean(bean);
             // we can use getById since a bean with an id should exist
             Criterion criterion = criterionRepository.getById(bean.getId());
+            requireRubricSite(criterion.getRubric(), siteId);
             checkVersion(bean.getRubricVersion(), criterion.getRubric().getVersion());
             checkVersion(bean.getVersion(), criterion.getVersion());
             criterion.setTitle(bean.getTitle());
@@ -798,6 +820,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Rubric rubric = rubricRepository.findById(rubricId)
             .orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
 
+        requireRubricSite(rubric, siteId);
         checkVersion(version, rubric.getVersion());
         rubric.getCriteria().removeIf(c -> c.getId().equals(criterionId));
 
@@ -817,6 +840,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         if (bean.getId() != null) {
             sanitizeRatingBean(bean);
             Rating rating = ratingRepository.getById(bean.getId());
+            if (!Objects.equals(rating.getCriterion().getId(), bean.getCriterionId())) {
+                throw new SecurityException("Rating does not belong to this criterion");
+            }
+            requireRubricSite(rating.getCriterion().getRubric(), siteId);
             checkVersion(bean.getRubricVersion(), rating.getCriterion().getRubric().getVersion());
             checkVersion(bean.getVersion(), rating.getVersion());
             rating.setTitle(bean.getTitle());
@@ -842,6 +869,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
 
         Criterion savedCriterion = criterionRepository.findById(criterionId).map(criterion -> {
+            requireRubricSite(criterion.getRubric(), siteId);
+            if (!Objects.equals(criterion.getRubric().getId(), rubricId)) {
+                throw new SecurityException("Criterion does not belong to this rubric");
+            }
 
             Rating rating = criterion.getRatings().stream().filter(r -> r.getId().equals(ratingId))
                     .findFirst().orElseThrow(RubricsConflictException::new);
@@ -887,7 +918,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             throw new SecurityException("You must be a rubrics editor to get criteria");
         }
 
-        return criterionRepository.findById(criterionId).map(CriterionTransferBean::new);
+        return criterionRepository.findById(criterionId).map(criterion -> {
+            requireRubricSite(criterion.getRubric(), siteId);
+            return new CriterionTransferBean(criterion);
+        });
     }
 
     // Rich text is cleaned before persistence; read paths return stored values unchanged.
@@ -927,7 +961,13 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     @Transactional(readOnly = true)
     public Optional<AssociationTransferBean> getAssociationForToolAndItem(String toolId, String itemId, String siteId) {
 
-        return associationRepository.findByToolIdAndItemId(toolId, itemId).map(AssociationTransferBean::new);
+        return associationRepository.findByToolIdAndItemId(toolId, itemId).map(association -> {
+            requireRubricSite(association.getRubric(), siteId);
+            if (!isEvaluator(siteId) && !isEvaluee(siteId) && !isCurrentUserEditor(siteId)) {
+                throw new SecurityException("Not allowed to read this rubric association");
+            }
+            return new AssociationTransferBean(association);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -936,7 +976,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return evaluationRepository.findById(evaluationId).map(e -> {
 
                 String currentUserId = sessionManager.getCurrentSessionUserId();
-                if (isEvaluator(siteId)
+                if (!Objects.equals(e.getOwnerId(), siteId)) {
+                    return null;
+                }
+                if (isEvaluator(e.getOwnerId())
                     || (e.getStatus() == EvaluationStatus.RETURNED && e.getEvaluatedItemOwnerId().equals(currentUserId))) {
                     return new EvaluationTransferBean(e);
                 } else {
@@ -973,6 +1016,13 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
 
         List<Evaluation> evaluations = evaluationRepository.findAllByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
+        requireRubricSite(association.getRubric(), siteId);
+        if (!isEvaluator(siteId)) {
+            throw new SecurityException("Not allowed to delete rubric evaluations");
+        }
+        if (evaluations.stream().anyMatch(e -> !Objects.equals(e.getOwnerId(), siteId))) {
+            throw new SecurityException("Evaluation does not belong to this site");
+        }
         evaluations.forEach(this::deleteRubricEvaluation);
         return evaluations.size() == 1;
     }
@@ -1053,6 +1103,18 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             throw new SecurityException("You must be an evaluator to evaluate rubrics");
         }
 
+        ToolItemRubricAssociation checkedAssociation = associationRepository.findById(evaluationBean.getAssociationId())
+            .orElseThrow(() -> new IllegalArgumentException("No rubric association"));
+        requireRubricSite(checkedAssociation.getRubric(), siteId);
+        Set<Long> criterionIds = checkedAssociation.getRubric().getCriteria().stream()
+            .map(Criterion::getId).collect(Collectors.toSet());
+        if (evaluationBean.getCriterionOutcomes().stream().anyMatch(outcome -> !criterionIds.contains(outcome.getCriterionId())
+                || (outcome.getSelectedRatingId() != null && checkedAssociation.getRubric().getCriteria().stream()
+                    .filter(criterion -> Objects.equals(criterion.getId(), outcome.getCriterionId()))
+                    .flatMap(criterion -> criterion.getRatings().stream())
+                    .noneMatch(rating -> Objects.equals(rating.getId(), outcome.getSelectedRatingId()))))) {
+            throw new SecurityException("Evaluation outcomes do not belong to the associated rubric");
+        }
         sanitizeEvaluationBean(evaluationBean);
 
         Evaluation evaluation;
@@ -1061,6 +1123,13 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         if (evaluationBean.getId() != null) {
             // UI knows the evaluation ID, fetch it directly
             evaluation = evaluationRepository.getById(evaluationBean.getId());
+            if (!Objects.equals(evaluation.getOwnerId(), siteId)
+                    || !Objects.equals(evaluation.getAssociationId(), evaluationBean.getAssociationId())
+                    || !Objects.equals(evaluation.getEvaluatedItemId(), evaluationBean.getEvaluatedItemId())
+                    || !Objects.equals(evaluation.getEvaluatedItemOwnerId(), evaluationBean.getEvaluatedItemOwnerId())
+                    || evaluation.getEvaluatedItemOwnerType() != evaluationBean.getEvaluatedItemOwnerType()) {
+                throw new SecurityException("Evaluation identity cannot be changed");
+            }
             checkVersion(evaluationBean.getVersion(), evaluation.getVersion());
         } else {
             // UI thinks this is new, but check if an evaluation exists for this association and item
@@ -1201,6 +1270,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Evaluation evaluation = evaluationRepository.findById(draftEvaluationId)
             .orElseThrow(() -> new IllegalArgumentException("No evaluation for id " + draftEvaluationId));
 
+        if (!canGrade(new EvaluationTransferBean(evaluation), evaluation.getOwnerId())) {
+            throw new SecurityException("Not allowed to cancel this evaluation");
+        }
         checkVersion(version, evaluation.getVersion());
 
         if (evaluation.getStatus() != EvaluationStatus.DRAFT) {
@@ -2160,6 +2232,18 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
     }
 
+    private void requireRubricSite(Rubric rubric, String siteId) {
+        if (!Objects.equals(rubric.getOwnerId(), siteId)) {
+            throw new SecurityException("Rubric does not belong to this site");
+        }
+    }
+
+    private void requireRubricEditor(Rubric rubric) {
+        if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId()) || !isCurrentUserEditor(rubric.getOwnerId())) {
+            throw new SecurityException("Not allowed to edit this rubric");
+        }
+    }
+
     private boolean isCurrentUserEditor(String siteId) {
 
         return securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteService.siteReference(siteId));
@@ -2178,6 +2262,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     }
 
     private boolean canViewEvaluation(Evaluation eval, String siteId, boolean isPeer) {
+        if (!Objects.equals(eval.getOwnerId(), siteId)) {
+            return false;
+        }
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
@@ -2212,27 +2299,61 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     }
 
     private boolean canGrade(EvaluationTransferBean eval, String siteId) {
-
         String currentUserId = sessionManager.getCurrentSessionUserId();
-
         if (StringUtils.isBlank(currentUserId)) {
             return false;
         }
-
         if (isEvaluator(siteId)) {
             return true;
         }
-
-        if (eval.isPeerOrSelf()) {
-            if (eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.USER && currentUserId.equals(eval.getEvaluatedItemId())) {//self or peer evals assigned to me
-                return true;
-            }
-            if (eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.GROUP) {//peer evals assigned to my group
-                return authzGroupService.getUserRole(currentUserId, "/site/" + siteId + "/group/" + eval.getEvaluatedItemId()) != null;
-            }
+        if (!isEvaluee(siteId) || eval.getAssociationId() == null) {
+            return false;
         }
-
+        ToolItemRubricAssociation association = associationRepository.findById(eval.getAssociationId()).orElse(null);
+        if (association == null || !RubricsConstants.RBCS_TOOL_ASSIGNMENT_GRADES.equals(association.getToolId())) {
+            return false;
+        }
+        try {
+            Assignment assignment = assignmentService.getAssignment(association.getItemId());
+            if (!Objects.equals(siteId, assignment.getContext())) {
+                return false;
+            }
+            if (Objects.equals(eval.getEvaluatedItemId(), eval.getEvaluatedItemOwnerId())) {
+                return isEvaluationActor(eval.getEvaluatedItemId(), eval.getEvaluatedItemOwnerType(), siteId, currentUserId)
+                    && Integer.valueOf(1).equals(association.getParameters().get(RubricsConstants.RBCS_STUDENT_SELF_REPORT));
+            }
+            if (!Objects.equals(eval.getEvaluatedItemId(), currentUserId)
+                    && !isEvaluationActor(eval.getEvaluatedItemId(), eval.getEvaluatedItemOwnerType(), siteId, currentUserId)) {
+                return false;
+            }
+            if (!Boolean.TRUE.equals(assignment.getAllowPeerAssessment()) || !assignmentService.isPeerAssessmentOpen(assignment)) {
+                return false;
+            }
+            for (PeerAssessmentItem peer : assignmentPeerAssessmentService.getPeerAssessmentItems(assignment.getId(), eval.getEvaluatedItemId(), null)) {
+                if (Boolean.TRUE.equals(peer.getRemoved())) {
+                    continue;
+                }
+                AssignmentSubmission submission = assignmentService.getSubmissionForPeerAssessment(peer.getId().getSubmissionId(), eval.getEvaluatedItemId());
+                if (submission == null) {
+                    continue;
+                }
+                boolean matchesOwner = eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.GROUP
+                    ? Objects.equals(submission.getGroupId(), eval.getEvaluatedItemOwnerId())
+                    : submission.getSubmitters().stream().anyMatch(submitter -> Objects.equals(submitter.getSubmitter(), eval.getEvaluatedItemOwnerId()));
+                if (Objects.equals(submission.getAssignment().getId(), assignment.getId()) && matchesOwner) {
+                    return true;
+                }
+            }
+        } catch (IdUnusedException | PermissionException e) {
+            log.debug("Cannot authorize rubric review for association {}: {}", eval.getAssociationId(), e.toString());
+        }
         return false;
+    }
+
+    private boolean isEvaluationActor(String actorId, EvaluatedItemOwnerType type, String siteId, String userId) {
+        return type == EvaluatedItemOwnerType.USER ? Objects.equals(actorId, userId)
+            : type == EvaluatedItemOwnerType.GROUP && actorId != null
+                && authzGroupService.getUserRole(userId, siteService.siteReference(siteId) + "/group/" + actorId) != null;
     }
 
     private Rubric updateRubricMaxPoints(Rubric rubric) {
