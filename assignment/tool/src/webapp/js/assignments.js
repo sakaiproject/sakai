@@ -1028,6 +1028,10 @@ $(document).ready(() => {
     const studentSelfReport = document.getElementById('rbcs-config-studentSelfReport');
     const usePeerAssessment = document.getElementById("usePeerAssessment");
 
+    if (!usePeerAssessment) {
+      return;
+    }
+
     if(doAssociateCheck.checked) {
       //page-loading
       if (studentSelfReport.checked) {
