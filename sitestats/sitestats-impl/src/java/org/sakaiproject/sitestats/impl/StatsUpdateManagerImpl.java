@@ -500,9 +500,9 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 			}
 			
 			// user check
-			if(userId == null) {
+			if(userId == null && e.getSessionId() != null) {
 				UsageSession session = usageSessionService.getSession(e.getSessionId());
-				if(session != null) {
+				if(session != null && session.getUserId() != null) {
 					userId = session.getUserId();
 				}
 			}

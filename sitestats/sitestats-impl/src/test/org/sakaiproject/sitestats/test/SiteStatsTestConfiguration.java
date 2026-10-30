@@ -56,6 +56,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -494,7 +495,27 @@ public class SiteStatsTestConfiguration {
 
     @Bean(name = "org.sakaiproject.event.api.UsageSessionService")
     public UsageSessionService usageSessionService() {
-        return mock(UsageSessionService.class);
+        UsageSessionService service = mock(UsageSessionService.class);
+        UsageSession session = presenceUsageSession();
+        UsageSession anonymousSession = anonymousPresenceUsageSession();
+        when(service.getSession("presence-session-user-a")).thenReturn(session);
+        when(service.getSession("presence-anonymous-session")).thenReturn(anonymousSession);
+        return service;
+    }
+
+    @Bean
+    public UsageSession presenceUsageSession() {
+        UsageSession session = mock(UsageSession.class);
+        when(session.getId()).thenReturn("presence-session-user-a");
+        when(session.getUserId()).thenReturn(FakeData.USER_A_ID);
+        return session;
+    }
+
+    @Bean
+    public UsageSession anonymousPresenceUsageSession() {
+        UsageSession session = mock(UsageSession.class);
+        when(session.getId()).thenReturn("presence-anonymous-session");
+        return session;
     }
 
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")
