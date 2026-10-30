@@ -763,6 +763,8 @@ public interface GradingService extends EntityProducer {
      * @throws AssessmentNotFoundException
      * @throws ConflictingAssignmentNameException
      * @throws AssignmentHasIllegalPointsException
+     * @throws InvalidCategoryException if the effective category is invalid or the proposed points
+     *         differ from peers in a Keep/Drop category without equal weighting
      */
     public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl, String externalData, String title, Long categoryId, Double points, Date dueDate, Boolean ungraded)
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
