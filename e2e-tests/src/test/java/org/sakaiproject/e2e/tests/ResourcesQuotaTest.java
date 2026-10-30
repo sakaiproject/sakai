@@ -97,7 +97,8 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         assertThat(enabled).isChecked();
         assertThat(quota).hasValue("0");
 
-        quota.fill("");
+        quota.press("ControlOrMeta+A");
+        quota.press("Backspace");
         assertThat(quota).isEmpty();
         assertThat(enabled).isChecked();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();

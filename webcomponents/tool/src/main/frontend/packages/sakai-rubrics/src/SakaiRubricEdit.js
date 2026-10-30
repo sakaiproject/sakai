@@ -26,7 +26,13 @@ export class SakaiRubricEdit extends RubricsElement {
 
   firstUpdated() {
 
-    const modal = this.querySelector("div.modal");
+    const modal = this.renderRoot.querySelector("div.modal");
+
+    modal.addEventListener("show.bs.modal", () => {
+      this._modalShown = new Promise(resolve => {
+        modal.addEventListener("shown.bs.modal", () => resolve(), { once: true });
+      });
+    });
 
     modal.addEventListener("shown.bs.modal", () => {
       modal.querySelector("input[type='text']").select();
@@ -93,8 +99,10 @@ export class SakaiRubricEdit extends RubricsElement {
     this.dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
   }
 
-  saved() {
+  async saved() {
     this._saveError = null;
+    // Bootstrap ignores hide() while the opening transition is in progress.
+    await this._modalShown;
     bootstrap.Modal.getInstance(this.renderRoot.querySelector("div.modal"))?.hide();
   }
 
