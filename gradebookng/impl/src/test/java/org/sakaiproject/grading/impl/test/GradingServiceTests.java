@@ -26,7 +26,10 @@ import java.util.Map;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import org.hibernate.SessionFactory;
 import org.junit.Assert;
+import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
@@ -73,6 +76,7 @@ import org.springframework.test.util.AopTestUtils;
 @ContextConfiguration(classes = {GradingTestConfiguration.class})
 public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired private SessionFactory sessionFactory;
     @Autowired private CourseGradeRepository courseGradeRepository;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
@@ -292,6 +296,137 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(dueDate, assignment.getDueDate());
         assertEquals(description, assignment.getExternalAppName());
         assertTrue(assignment.getExternallyMaintained());
+    }
+
+    @Test
+    public void categoryLookupDoesNotCreateMissingGradebook() {
+        switchToInstructor();
+        createSiteMock(siteId);
+        assertTrue(gradingService.getCategoryDefinitions(siteId, siteId).isEmpty());
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertEquals(Long.valueOf(0L), sessionFactory.getCurrentSession()
+                .createQuery("select count(g) from Gradebook g where g.uid = :uid", Long.class)
+                .setParameter("uid", siteId).uniqueResult());
+    }
+
+    @Test
+    public void externalUpdatesPreserveKeepDropCategoryPoints() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(gradebook, "second", categoryId, 3D);
+        assertRejectedCancellationUpdate(gradebook, null);
+        assertRejectedCancellationUpdate(gradebook, categoryId);
+    }
+
+    @Test
+    public void externalUpdatesRejectEachDropMode() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 1, 0, 0, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(gradebook, "second", categoryId, 3D);
+        assertRejectedCancellationUpdate(gradebook, categoryId);
+        CategoryDefinition category = gradingService.getCategoryDefinitions(gradebook.getUid(), siteId).get(0);
+        category.setDropHighest(0);
+        category.setDropLowest(1);
+        GradebookInformation settings = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        settings.setCategories(new ArrayList<>(List.of(category)));
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, settings);
+        assertRejectedCancellationUpdate(gradebook, categoryId);
+    }
+
+    @Test
+    public void externalCreationAndUpdatesShareCategoryValidation() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        assertThrows(InvalidCategoryException.class,
+                () -> addCancellationAssessment(gradebook, "second", categoryId, 2D));
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", null, 2D, null, false);
+        assertEquals(Double.valueOf(2D), gradingService.getExternalAssignment(gradebook.getUid(), "first").getPoints());
+        addCancellationAssessment(gradebook, "second", categoryId, 2D);
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", categoryId, 2D, null, false);
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", -1L, 1D, null, false);
+        assertNull(gradingService.getExternalAssignment(gradebook.getUid(), "first").getCategoryId());
+        assertThrows(InvalidCategoryException.class,
+                () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", "new-link", "new-data", "new-title", categoryId, 1D, null, false));
+    }
+
+    @Test
+    public void externalUpdatesAllowOrdinaryAndEqualWeightCategories() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 0, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(gradebook, "second", categoryId, 3D);
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", null, 2D, null, false);
+        CategoryDefinition category = gradingService.getCategoryDefinitions(gradebook.getUid(), siteId).get(0);
+        category.setKeepHighest(2);
+        category.setEqualWeight(true);
+        GradebookInformation settings = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        settings.setCategories(new ArrayList<>(List.of(category)));
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, settings);
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", null, 1D, null, false);
+        assertEquals(Double.valueOf(1D), gradingService.getExternalAssignment(gradebook.getUid(), "first").getPoints());
+    }
+
+    @Test
+    public void externalUpdatesIgnoreRemovedPeersAndRejectInvalidCategories() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(gradebook, "second", categoryId, 3D);
+        gradingService.removeExternalAssignment(gradebook.getUid(), "second", "Samigo");
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", null, 2D, null, false);
+        assertRejectedCancellationUpdate(gradebook, Long.MAX_VALUE);
+        assertThrows(InvalidCategoryException.class,
+                () -> addCancellationAssessment(gradebook, "invalid", Long.MAX_VALUE, 3D));
+        Gradebook other = createGroupGradebook();
+        Long foreignCategoryId = cancellationCategory(other, 0, 0, 0, false);
+        assertRejectedCancellationUpdate(gradebook, foreignCategoryId);
+        GradebookInformation settings = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        settings.setCategories(new ArrayList<>());
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, settings);
+        assertRejectedCancellationUpdate(gradebook, categoryId);
+    }
+
+    private Long cancellationCategory(Gradebook gradebook, int dropHighest, int dropLowest, int keepHighest, boolean equalWeight) {
+        CategoryDefinition category = new CategoryDefinition();
+        category.setName("Quizzes");
+        category.setWeight(1D);
+        category.setExtraCredit(false);
+        category.setEqualWeight(equalWeight);
+        category.setDropHighest(dropHighest);
+        category.setDropLowest(dropLowest);
+        category.setKeepHighest(keepHighest);
+        GradebookInformation settings = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        settings.setCategoryType(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY);
+        settings.setCategories(new ArrayList<>(List.of(category)));
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, settings);
+        return gradingService.getCategoryDefinitions(gradebook.getUid(), siteId).get(0).getId();
+    }
+
+    private void addCancellationAssessment(Gradebook gradebook, String externalId, Long categoryId, Double points) {
+        gradingService.addExternalAssessment(gradebook.getUid(), siteId, externalId, "old-link", externalId,
+                points, null, "Samigo", "data", false, categoryId, null);
+    }
+
+    private void assertRejectedCancellationUpdate(Gradebook gradebook, Long categoryId) {
+        Assignment before = gradingService.getExternalAssignment(gradebook.getUid(), "first");
+        assertThrows(InvalidCategoryException.class,
+                () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", "new-link", "new-data", "new-title", categoryId, 1D, new Date(), true));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Assignment after = gradingService.getExternalAssignment(gradebook.getUid(), "first");
+        assertEquals(before.getPoints(), after.getPoints());
+        assertEquals(before.getCategoryId(), after.getCategoryId());
+        assertEquals(before.getName(), after.getName());
+        assertEquals(before.getExternalData(), after.getExternalData());
+        assertEquals(before.getDueDate(), after.getDueDate());
+        assertEquals(before.getUngraded(), after.getUngraded());
+        GradebookAssignment stored = sessionFactory.getCurrentSession().get(GradebookAssignment.class, after.getId());
+        assertEquals("old-link", stored.getExternalInstructorLink());
+        assertEquals("old-link", stored.getExternalStudentLink());
     }
 
     @Test

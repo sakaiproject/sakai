@@ -2542,7 +2542,11 @@ public class GradingServiceImpl implements GradingService {
             throw new GradingSecurityException();
         }
 
-        Long gradebookId = getGradebook(gradebookUid).getId();
+        Optional<Gradebook> gradebook = gradingPersistenceManager.getGradebook(gradebookUid);
+        if (gradebook.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Long gradebookId = gradebook.get().getId();
 
         // Return categories sorted to match Gradebook Settings order. This ensures
         // consistent ordering across Gradebook, Assignments, and Tests & Quizzes.
@@ -4294,26 +4298,7 @@ public class GradingServiceImpl implements GradingService {
         // Get the gradebook
         final Gradebook gradebook = getGradebook(gradebookUid);
 
-        // if a category was indicated, double check that it is valid
-        Category persistedCategory = null;
-        if (categoryId != null) {
-            persistedCategory = getCategory(categoryId);
-            if (persistedCategory.isDropScores() && !persistedCategory.getEqualWeightAssignments()) {
-                List<GradebookAssignment> thisCategoryAssignments = getAssignmentsForCategory(categoryId);
-                for (GradebookAssignment thisAssignment : thisCategoryAssignments) {
-                    if (!Objects.equals(thisAssignment.getPointsPossible(), points)) {
-                        String errorMessage = "Assignment points mismatch the selected Gradebook Category ("
-                            + thisAssignment.getPointsPossible().toString() + ") and cannot be added to Gradebook )";
-                        throw new InvalidCategoryException(errorMessage);
-                    }
-                }
-            }
-            if (persistedCategory == null || persistedCategory.getRemoved() ||
-                    !persistedCategory.getGradebook().getId().equals(gradebook.getId())) {
-                throw new InvalidCategoryException("The category with id " + categoryId +
-                        " is not valid for gradebook " + gradebook.getUid());
-            }
-        }
+        Category persistedCategory = validateExternalAssessmentCategory(gradebook, categoryId, points, null);
 
         // Create the external assignment
         final GradebookAssignment asn = new GradebookAssignment(gradebook, title, points, dueDate);
@@ -4391,6 +4376,11 @@ public class GradingServiceImpl implements GradingService {
         // name cannot contain these chars as they are reserved for special columns in import/export
         GradebookHelper.validateGradeItemName(title);
 
+        Long effectiveCategoryId = categoryId == null
+                ? (asn.getCategory() == null ? null : asn.getCategory().getId())
+                : (categoryId == -1L ? null : categoryId);
+        Category effectiveCategory = validateExternalAssessmentCategory(asn.getGradebook(), effectiveCategoryId, points, asn.getId());
+
         asn.setExternalInstructorLink(externalUrl);
         asn.setExternalStudentLink(externalUrl);
         asn.setExternalData(externalData);
@@ -4404,13 +4394,7 @@ public class GradingServiceImpl implements GradingService {
         } else {
             asn.setUngraded(false);
         }
-        if (categoryId != null) {
-            if (categoryId != -1L) {
-                asn.setCategory(getCategory(categoryId));
-            } else {
-                asn.setCategory(null);
-            }
-        }
+        asn.setCategory(effectiveCategory);
         gradingPersistenceManager.saveGradebookAssignment(asn);
 
         log.info("External assessment updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId, getUserUid());
@@ -4427,6 +4411,27 @@ public class GradingServiceImpl implements GradingService {
                 log.error("Could not load site associated with gradebook - lineitem not updated", e);
             }
         }
+    }
+
+    private Category validateExternalAssessmentCategory(Gradebook gradebook, Long categoryId, Double points, Long assignmentId) {
+        if (categoryId == null) {
+            return null;
+        }
+        Category category = gradingPersistenceManager.getCategory(categoryId).orElse(null);
+        if (category == null || category.getRemoved()
+                || !category.getGradebook().getId().equals(gradebook.getId())) {
+            throw new InvalidCategoryException("The category with id " + categoryId
+                    + " is not valid for gradebook " + gradebook.getUid());
+        }
+        if (category.isDropScores() && !category.getEqualWeightAssignments()) {
+            for (GradebookAssignment peer : getAssignmentsForCategory(categoryId)) {
+                if (!Objects.equals(peer.getId(), assignmentId) && !Objects.equals(peer.getPointsPossible(), points)) {
+                    throw new InvalidCategoryException("Assignment points must match the selected Gradebook category ("
+                            + peer.getPointsPossible() + ")");
+                }
+            }
+        }
+        return category;
     }
 
     @Override

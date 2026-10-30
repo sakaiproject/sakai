@@ -42,9 +42,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.util.QuestionCancellationEligibility;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -80,6 +81,20 @@ public class AssessmentBean  implements Serializable {
    * Creates a new AssessmentBean object.
    */
   public AssessmentBean() {
+  }
+
+  public boolean isTotalScoreCancellationAllowed() {
+    if (!(assessment instanceof PublishedAssessmentIfc)) {
+      return true;
+    }
+    return QuestionCancellationEligibility.restrictionKey((PublishedAssessmentIfc) assessment).isEmpty();
+  }
+
+  public String getTotalScoreCancellationRestrictionMessage() {
+    if (!(assessment instanceof PublishedAssessmentIfc)) {
+      return "";
+    }
+    return QuestionCancellationEligibility.restrictionMessage((PublishedAssessmentIfc) assessment);
   }
 
   public AssessmentIfc getAssessment() {
