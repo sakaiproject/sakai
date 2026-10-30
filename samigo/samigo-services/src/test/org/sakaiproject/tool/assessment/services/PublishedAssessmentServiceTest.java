@@ -49,8 +49,8 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService.TotalScoreCancellationException;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService.TotalScoreCancellationException;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,6 +181,47 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         PublishedAssessmentFacade summary = service.getPublishedAssessmentsForAuthor(siteId).get(0);
         assertEquals(assessment.getPublishedAssessmentId(), summary.getPublishedAssessmentId());
         assertEquals(Map.of("group-without-editor", "Released group"), summary.getReleaseToGroups());
+        assertEquals(1, summary.getGroupCount());
+        summary.setReleaseToGroups(Map.of());
+        assertEquals(0, summary.getGroupCount());
+        summary.setReleaseToGroups(null);
+        assertEquals(0, summary.getGroupCount());
+    }
+
+    @Test
+    public void groupReleaseLookupsStayConstantAsAuthorListGrows() {
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("selected-group");
+        when(group.getTitle()).thenReturn("Selected group");
+        when(site.getGroups()).thenReturn(List.of(group));
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, "/site/" + siteId)).thenReturn(true);
+        Statistics statistics = sessionFactory.getStatistics();
+        boolean enabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        try {
+            long singleQueryCount = 0;
+            for (int count = 1; count <= 3; count++) {
+                PublishedAssessmentData published = count == 1 ? data() : (PublishedAssessmentData)
+                    createAssessment(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString(), null).getData();
+                published.getAssessmentAccessControl().setReleaseTo(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
+                ownerAuthorization("selected-group", "TAKE_PUBLISHED_ASSESSMENT", published.getPublishedAssessmentId().toString());
+                sessionFactory.getCurrentSession().flush();
+                sessionFactory.getCurrentSession().clear();
+                statistics.clear();
+                List<PublishedAssessmentFacade> summaries = service.getPublishedAssessmentsForAuthor(siteId);
+                assertEquals(count, summaries.size());
+                summaries.forEach(summary -> {
+                    assertEquals(Map.of("selected-group", "Selected group"), summary.getReleaseToGroups());
+                    assertEquals(1, summary.getGroupCount());
+                });
+                if (count == 1) singleQueryCount = statistics.getQueryExecutionCount();
+                assertEquals(singleQueryCount, statistics.getQueryExecutionCount());
+                assertEquals(0, statistics.getEntityLoadCount());
+                assertEquals(0, statistics.getCollectionFetchCount());
+            }
+        } finally {
+            statistics.setStatisticsEnabled(enabled);
+        }
     }
 
     @Test

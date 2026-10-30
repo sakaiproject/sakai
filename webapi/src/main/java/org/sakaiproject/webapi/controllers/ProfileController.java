@@ -254,9 +254,6 @@ public class ProfileController extends AbstractSakaiApiController {
     public ResponseEntity<byte[]> getNamePronunciation(@PathVariable("userId") String userId) {
 
         MimeTypeByteArray data = profileService.getUserNamePronunciation(userId);
-        if (data == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(data.getMimeType())).body(data.getBytes());
     }
 

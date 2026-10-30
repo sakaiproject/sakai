@@ -2802,6 +2802,9 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         // This is the real Assignments permission check, not a stubbed getSubmission call.
         Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmission(submission.getId()));
         Assert.assertEquals(submission.getId(), assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer").getId());
+        assignment.setDeleted(true);
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer"));
+        assignment.setDeleted(false);
         Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "other-reviewer"));
         when(sessionManager.getCurrentSessionUserId()).thenReturn("other-reviewer");
         Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer"));

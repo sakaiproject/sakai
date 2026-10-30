@@ -2728,6 +2728,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Assignment assignment = submission.getAssignment();
         String userId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(assessorId)
+                && !Boolean.TRUE.equals(assignment.getDeleted())
                 && !Boolean.TRUE.equals(assignment.getDraft())
                 && Boolean.TRUE.equals(assignment.getAllowPeerAssessment())
                 && assignment.getCloseDate() != null && assignment.getPeerAssessmentPeriodDate() != null

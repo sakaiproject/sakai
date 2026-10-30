@@ -22,10 +22,10 @@
 package org.sakaiproject.tasks.impl;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -34,13 +34,9 @@ import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupReferenceBuilder;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -49,13 +45,16 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.AssignationType;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskAssigned;
+import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.TaskPermissions;
 import org.sakaiproject.tasks.api.TaskService;
-import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.tasks.api.repository.TaskAssignedRepository;
 import org.sakaiproject.tasks.api.repository.TaskRepository;

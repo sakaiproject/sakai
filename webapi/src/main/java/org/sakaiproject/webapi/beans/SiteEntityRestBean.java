@@ -28,8 +28,8 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

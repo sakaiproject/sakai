@@ -115,7 +115,7 @@ public class PublishedAssessmentFacade
   private int submittedCount;
   private Date lastNeedResubmitDate;
   private int activeStatus = 0;
-  @Getter @Setter private Map<String, String> releaseToGroups;
+  @Getter private Map<String, String> releaseToGroups;
   @Setter private Set<String> groupReferences;
   private int enrolledStudentCount;
   private Integer timeLimit;
@@ -873,6 +873,11 @@ public class PublishedAssessmentFacade
 	  this.hasAssessmentGradingData = hasAssessmentGradingData;
   }
   
+  public void setReleaseToGroups(Map<String, String> releaseToGroups) {
+      this.releaseToGroups = releaseToGroups;
+      setGroupCount();
+  }
+
   public void setGroupCount() {
       if (releaseToGroups != null) {
           groupCount = releaseToGroups.size();

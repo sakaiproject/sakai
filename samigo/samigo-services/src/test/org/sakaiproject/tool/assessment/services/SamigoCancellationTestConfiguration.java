@@ -27,12 +27,12 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.ItemHashUtil;
+import org.sakaiproject.tool.assessment.facade.TypeFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries;
-import org.sakaiproject.tool.assessment.facade.TypeFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.authz.AuthzQueriesFacade;
-import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.integration.helper.impl.GradebookServiceHelperImpl;
+import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -41,8 +41,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import static org.mockito.Mockito.mock;
 

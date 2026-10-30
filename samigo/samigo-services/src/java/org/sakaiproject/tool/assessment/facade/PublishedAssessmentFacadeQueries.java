@@ -21,6 +21,9 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
+import org.sakaiproject.grading.api.GradingService;
+import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,9 +38,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -103,8 +103,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -1575,14 +1575,27 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
     @Override
     public List<PublishedAssessmentFacade> getBasicInfoOfPublishedAssessmentsForAuthor(String siteId) {
         List<PublishedAssessmentFacade> assessments = getBasicInfoOfAllPublishedAssessments("publishedAssessmentId", true, siteId, true);
-        Map<String, String> groupsForSite = null;
-        for (PublishedAssessmentFacade assessment : assessments) {
-            if (AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(assessment.getReleaseTo())) {
-                if (groupsForSite == null) {
-                    groupsForSite = getGroupsForSite(siteId);
+        Map<String, PublishedAssessmentFacade> groupAssessments = assessments.stream()
+            .filter(assessment -> AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(assessment.getReleaseTo()))
+            .collect(Collectors.toMap(assessment -> assessment.getPublishedAssessmentId().toString(), assessment -> assessment));
+        if (!groupAssessments.isEmpty()) {
+            Map<String, String> groupsForSite = getGroupsForSite(siteId);
+            Map<String, Map<String, String>> releases = new HashMap<>();
+            groupAssessments.keySet().forEach(id -> releases.put(id, new HashMap<>()));
+            if (!groupsForSite.isEmpty()) {
+                CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+                CriteriaQuery<Tuple> query = builder.createTupleQuery();
+                Root<AuthorizationData> authorization = query.from(AuthorizationData.class);
+                query.multiselect(authorization.get("qualifierId"), authorization.get("agentIdString"))
+                    .where(builder.equal(authorization.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"),
+                        authorization.get("qualifierId").in(groupAssessments.keySet()),
+                        authorization.get("agentIdString").in(groupsForSite.keySet()));
+                for (Tuple grant : sessionFactory.getCurrentSession().createQuery(query).getResultList()) {
+                    String groupId = grant.get(1, String.class);
+                    releases.get(grant.get(0, String.class)).put(groupId, groupsForSite.get(groupId));
                 }
-                assessment.setReleaseToGroups(getReleaseToGroups(groupsForSite, assessment.getPublishedAssessmentId()));
             }
+            groupAssessments.forEach((id, assessment) -> assessment.setReleaseToGroups(releases.get(id)));
         }
         return assessments;
     }

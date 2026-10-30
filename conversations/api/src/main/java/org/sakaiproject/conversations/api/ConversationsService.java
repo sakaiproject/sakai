@@ -26,13 +26,13 @@ import java.time.Instant;
 import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
-import org.sakaiproject.conversations.api.beans.TagTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
-import org.sakaiproject.conversations.api.model.ConvStatus;
 import org.sakaiproject.conversations.api.model.ConversationsComment;
+import org.sakaiproject.conversations.api.model.ConvStatus;
 import org.sakaiproject.conversations.api.model.ConversationsPost;
-import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.Settings;
+import org.sakaiproject.conversations.api.beans.TagTransferBean;
+import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 

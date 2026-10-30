@@ -24,9 +24,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.OpenForum;
@@ -59,9 +59,9 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.webapi.beans.SiteEntityRestBean.SiteEntityType;
 import org.sakaiproject.webapi.beans.SiteEntityRestBean;
 import org.sakaiproject.webapi.beans.TimeExceptionRestBean;
+import org.sakaiproject.webapi.beans.SiteEntityRestBean.SiteEntityType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -73,6 +73,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -99,6 +100,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
     @Autowired
     private PersistenceService persistenceService;
 
+    @Setter
     private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
 
@@ -114,7 +116,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
         Map<Long, List<ExtendedTime>> assessmentExtendedTimesMap = publishedAssessments.stream()
                 .map(assessment -> {
                     PublishedAssessmentData assessmentData = new PublishedAssessmentData();
-                    BeanUtils.copyProperties(assessment, assessmentData);
+                    assessmentData.setPublishedAssessmentId(assessment.getPublishedAssessmentId());
 
                     return new AbstractMap.SimpleEntry<Long, List<ExtendedTime>>(assessment.getPublishedAssessmentId(),
                         extendedTimeFacade.getEntriesForPub(assessmentData));

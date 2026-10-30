@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -28,11 +29,11 @@ import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskAssigned;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import org.sakaiproject.exception.IdUnusedException;
@@ -44,6 +45,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.annotation.Resource;
 
@@ -59,8 +61,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sakaiproject.authz.api.SecurityService;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestController

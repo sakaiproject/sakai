@@ -64,6 +64,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.WebApiAccessConfiguration;
 import org.sakaiproject.webapi.beans.SiteEntityRestBean;
@@ -97,7 +99,7 @@ public class WebApiAccessTests {
     @EnableWebMvc
     @Import({ WebApiAccessConfiguration.class, WebApiAccessInterceptor.class,
         LtiBearerTokenInterceptor.class, GlobalExceptionHandler.class, TestController.class,
-        EntityController.class, SiteEntityController.class,
+        EntityController.class,
         ConversationsController.class,
         PermissionsController.class })
     public static class TestConfiguration {
@@ -122,6 +124,12 @@ public class WebApiAccessTests {
         @Bean public ContentHostingService contentHostingService() { return mock(ContentHostingService.class); }
         @Bean public DiscussionForumManager discussionForumManager() { return mock(DiscussionForumManager.class); }
         @Bean public PersistenceService persistenceService() { return mock(PersistenceService.class); }
+        @Bean public PublishedAssessmentService publishedAssessmentService() { return mock(PublishedAssessmentService.class); }
+        @Bean public SiteEntityController siteEntityController(PublishedAssessmentService service) {
+            SiteEntityController controller = new SiteEntityController();
+            controller.setPublishedAssessmentService(service);
+            return controller;
+        }
     }
 
     @RestController
@@ -151,6 +159,8 @@ public class WebApiAccessTests {
     @Autowired private SiteService siteService;
     @Autowired private ConversationsService conversationsService;
     @Autowired private DiscussionForumManager forumManager;
+    @Autowired private PublishedAssessmentService assessmentService;
+    @Autowired private PersistenceService persistenceService;
     @Autowired private EntityManager entityManager;
     @Autowired private AuthzGroupService realms;
     @Autowired private FunctionManager functions;
@@ -160,7 +170,7 @@ public class WebApiAccessTests {
 
     @Before
     public void setup() {
-        reset(sessionManager, tokenService, siteService, entityManager, realms, functions, conversationsService, forumManager);
+        reset(sessionManager, tokenService, siteService, entityManager, realms, functions, conversationsService, forumManager, assessmentService, persistenceService);
         previous = mock(Session.class);
         current = new AtomicReference<>(previous);
         when(sessionManager.getCurrentSession()).thenAnswer(call -> current.get());
@@ -184,6 +194,28 @@ public class WebApiAccessTests {
         assertEquals(400, context.getBean(SiteEntityController.class).updateSiteEntities("course", batch).getStatusCode().value());
         verify(forumManager).getForumForUpdate("course", 1L);
         verify(forumManager, never()).updateForumAvailability(anyString(), anyLong(), anyBoolean(), any(), any());
+    }
+
+    @Test
+    public void assessmentGetRoutePreservesSelectedEmptyAndNullGroups() throws Exception {
+        when(previous.getUserId()).thenReturn("editor");
+        when(siteService.getOptionalSite("course")).thenReturn(Optional.of(mock(Site.class)));
+        PublishedAssessmentFacade selected = new PublishedAssessmentFacade(1L, "Selected", null,
+            null, null, Map.of("selected-group", "Selected group"));
+        PublishedAssessmentFacade empty = new PublishedAssessmentFacade(2L, "Empty", null,
+            null, null, Map.of());
+        PublishedAssessmentFacade unset = new PublishedAssessmentFacade(3L, "Unset", null,
+            null, null, (Map<String, String>) null);
+        when(assessmentService.getPublishedAssessmentsForAuthor("course")).thenReturn(List.of(selected, empty, unset));
+        ExtendedTimeFacade times = mock(ExtendedTimeFacade.class);
+        when(persistenceService.getExtendedTimeFacade()).thenReturn(times);
+        when(times.getEntriesForPub(any())).thenReturn(List.of());
+        mvc.perform(get("/sites/course/entities/assessments"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[?(@.id == '1')].groupRefs[0]").value("/site/course/group/selected-group"))
+            .andExpect(jsonPath("$[?(@.id == '2')].groupRefs[0]").doesNotExist())
+            .andExpect(jsonPath("$[?(@.id == '3')].groupRefs[0]").doesNotExist());
+        verify(assessmentService).getPublishedAssessmentsForAuthor("course");
     }
 
     @Test

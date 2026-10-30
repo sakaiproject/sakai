@@ -20,18 +20,18 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tags.api.Tag;
-import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.TagSummary;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.webapi.exception.ForbiddenAccessException;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.annotation.Resource;
 import java.util.List;
+import jakarta.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
