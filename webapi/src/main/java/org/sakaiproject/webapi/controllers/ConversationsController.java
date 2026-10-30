@@ -296,6 +296,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
         postBean.siteId = siteId;
         postBean.id = postId;
+        postBean.topic = topicId;
         return entityModelForPostBean(conversationsService.savePost(postBean, true));
     }
 
@@ -317,10 +318,10 @@ public class ConversationsController extends AbstractSakaiApiController {
     }
 
 	@GetMapping(value = "/sites/{siteId}/topics/{topicId}/posts/{postId}/unupvote")
-    public ResponseEntity unUpvotePost(@PathVariable("siteId") String siteId, @PathVariable("postId") String postId) throws ConversationsPermissionsException {
+    public ResponseEntity unUpvotePost(@PathVariable("siteId") String siteId, @PathVariable("topicId") String topicId, @PathVariable("postId") String postId) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
-        conversationsService.unUpvotePost(siteId, postId);
+        conversationsService.unUpvotePost(siteId, topicId, postId);
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -383,6 +384,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
 		checkSakaiSession();
         commentBean.postId = postId;
+        commentBean.topicId = topicId;
         commentBean.siteId = siteId;
         return conversationsService.saveComment(commentBean);
     }
@@ -394,6 +396,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
         commentBean.id = commentId;
         commentBean.postId = postId;
+        commentBean.topicId = topicId;
         commentBean.siteId = siteId;
         return conversationsService.saveComment(commentBean);
     }
