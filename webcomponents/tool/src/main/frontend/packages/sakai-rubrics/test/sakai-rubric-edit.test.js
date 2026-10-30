@@ -6,6 +6,20 @@ import fetchMock from "fetch-mock";
 
 describe("sakai-rubric-edit tests", () => {
 
+  it("closes when a title save completes while the new rubric is opening", async () => {
+    const el = await fixture(html`<sakai-rubric-edit .rubric=${{ ...data.rubric1 }}></sakai-rubric-edit>`);
+    await waitUntil(() => el.querySelector("button.edit-button"));
+    el.rubric = { ...data.rubric1, new: true };
+    await waitUntil(() => el.querySelector(".modal.show"));
+
+    el.addEventListener("update-rubric-title", () => el.saved(), { once: true });
+    el.querySelector("input[type=text]").value = "Saved title";
+    el.querySelector("button.btn-primary").click();
+
+    await oneEvent(el, "hidden.bs.modal");
+    expect(el.querySelector(".modal.show")).to.not.exist;
+  });
+
   beforeEach(() => {
     fetchMock.mockGlobal();
     fetchMock
