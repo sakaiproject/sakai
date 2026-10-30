@@ -240,8 +240,9 @@ public class WebApiAccessTests {
         mvc.perform(patch("/sites/course/entities").contentType("application/json")
                 .content("[{\"id\":\"1\",\"type\":\"FORUM\"}]"))
             .andExpect(status().isOk()).andExpect(jsonPath("$[0].dateRestricted").value(true))
-            .andExpect(jsonPath("$[0].openDate").exists()).andExpect(jsonPath("$[0].closeDate").exists());
-        verify(forumManager, never()).updateForumAvailability(anyString(), anyLong(), anyBoolean(), any(), any());
+            .andExpect(jsonPath("$[0].openDate").value((double) Instant.parse("2026-01-01T00:00:00Z").getEpochSecond()))
+            .andExpect(jsonPath("$[0].closeDate").value((double) Instant.parse("2026-01-02T00:00:00Z").getEpochSecond()));
+        verify(forumManager, never()).updateForumAvailability(any(), anyLong(), anyBoolean(), any(), any());
         verify(forum, never()).setAvailabilityRestricted(anyBoolean());
     }
 
