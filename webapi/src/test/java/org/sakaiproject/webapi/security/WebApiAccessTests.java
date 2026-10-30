@@ -227,6 +227,25 @@ public class WebApiAccessTests {
     }
 
     @Test
+    public void omittedForumAvailabilityPreservesExistingDatesWithoutSaving() throws Exception {
+        when(previous.getUserId()).thenReturn("editor");
+        when(siteService.getOptionalSite("course")).thenReturn(Optional.of(mock(Site.class)));
+        DiscussionForum forum = mock(DiscussionForum.class);
+        when(forum.getId()).thenReturn(1L);
+        when(forum.getTitle()).thenReturn("Scheduled forum");
+        when(forum.getAvailabilityRestricted()).thenReturn(true);
+        when(forum.getOpenDate()).thenReturn(Date.from(Instant.parse("2026-01-01T00:00:00Z")));
+        when(forum.getCloseDate()).thenReturn(Date.from(Instant.parse("2026-01-02T00:00:00Z")));
+        when(forumManager.getForumForUpdate("course", 1L)).thenReturn(forum);
+        mvc.perform(patch("/sites/course/entities").contentType("application/json")
+                .content("[{\"id\":\"1\",\"type\":\"FORUM\"}]"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$[0].dateRestricted").value(true))
+            .andExpect(jsonPath("$[0].openDate").exists()).andExpect(jsonPath("$[0].closeDate").exists());
+        verify(forumManager, never()).updateForumAvailability(anyString(), anyLong(), anyBoolean(), any(), any());
+        verify(forum, never()).setAvailabilityRestricted(anyBoolean());
+    }
+
+    @Test
     public void missingForumHasAClientResponse() throws Exception {
         when(previous.getUserId()).thenReturn("editor");
         when(siteService.getOptionalSite("course")).thenReturn(Optional.of(mock(Site.class)));
