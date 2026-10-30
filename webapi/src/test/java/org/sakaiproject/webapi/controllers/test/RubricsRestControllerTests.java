@@ -23,6 +23,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,6 +79,23 @@ public class RubricsRestControllerTests {
         when(sessionManager.getCurrentSession()).thenReturn(session);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler()).build();
+    }
+
+    @Test
+    public void unavailableRubricReturnsNotFound() throws Exception {
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.empty());
+        mockMvc.perform(get("/sites/site1/rubrics/1"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void rubricFromAnotherSiteStillReturnsForbidden() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("foreign-site");
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+        mockMvc.perform(get("/sites/site1/rubrics/1"))
+            .andExpect(status().isForbidden());
     }
 
     @Test

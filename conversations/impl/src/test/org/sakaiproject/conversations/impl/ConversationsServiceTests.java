@@ -329,6 +329,40 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void commentVisibilityRespectsTopicAndPostRestrictions() throws Exception {
+        switchToUser1();
+        topicBean.draft = false;
+        TopicTransferBean topic = conversationsService.saveTopic(topicBean, false);
+        postBean.topic = topic.id;
+        postBean.draft = false;
+        PostTransferBean post = conversationsService.savePost(postBean, false);
+        CommentTransferBean comment = new CommentTransferBean();
+        comment.siteId = site1Id;
+        comment.topicId = topic.id;
+        comment.postId = post.id;
+        comment.message = "A comment";
+        CommentTransferBean saved = conversationsService.saveComment(comment);
+        ConversationsComment storedComment = commentRepository.findById(saved.id).orElseThrow();
+        ConversationsTopic storedTopic = topicRepository.findById(topic.id).orElseThrow();
+        switchToUser2();
+        assertTrue(conversationsService.currentUserCanViewComment(storedComment));
+        for (String restriction : List.of("draft", "hidden", "instructors")) {
+            storedTopic.setDraft("draft".equals(restriction));
+            storedTopic.setHidden("hidden".equals(restriction));
+            storedTopic.setVisibility("instructors".equals(restriction) ? TopicVisibility.INSTRUCTORS : TopicVisibility.SITE);
+            topicRepository.save(storedTopic);
+            assertFalse(conversationsService.currentUserCanViewComment(storedComment));
+        }
+        storedTopic.setVisibility(TopicVisibility.SITE);
+        topicRepository.save(storedTopic);
+        assertTrue(conversationsService.currentUserCanViewComment(storedComment));
+        ConversationsPost storedPost = postRepository.findById(post.id).orElseThrow();
+        storedPost.setDraft(true);
+        postRepository.save(storedPost);
+        assertFalse(conversationsService.currentUserCanViewComment(storedComment));
+    }
+
+    @Test
     public void privateDraftReplyIsNotVisibleToItsParentAuthor() throws Exception {
         switchToUser1();
         topicBean.draft = false;
@@ -352,6 +386,11 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         assertFalse(conversationsService.currentUserCanViewPost(stored));
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvotePost(site1Id, topic.id, saved.id));
         assertFalse(conversationsService.getPostsByTopicId(site1Id, topic.id, 1, null, null).stream().anyMatch(p -> saved.id.equals(p.id)));
+        conversationsService.markPostsViewed(Set.of(parent.id), topic.id);
+        TopicTransferBean reloaded = conversationsService.getTopicsForSite(site1Id).get(0);
+        assertEquals(1, reloaded.numberOfPosts);
+        assertEquals(0, reloaded.numberOfUnreadPosts);
+        assertTrue(reloaded.viewed);
         stored.setDraft(false);
         postRepository.save(stored);
         assertTrue(conversationsService.currentUserCanViewPost(stored));

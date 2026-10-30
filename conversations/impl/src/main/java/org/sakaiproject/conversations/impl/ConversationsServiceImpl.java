@@ -1246,7 +1246,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         ConversationsPost post = postRepository.findById(comment.getPost().getId())
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + comment.getPost().getId()));
-        return canUserViewPost(post, currentUserId);
+        return currentUserCanViewTopic(post.getTopic()) && canUserViewPost(post, currentUserId);
     }
 
     private ConversationsTopic lockIfAfterLockDate(ConversationsTopic topic) {
@@ -2027,6 +2027,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             if (!p.getDraft() && securityService.isSuperUser()) return true;
 
             if (p.getMetadata().getCreator().equals(currentUserId)) return true;
+
+            if (p.getDraft()) return false;
 
             if (p.getPrivatePost()) {
                 String parentPostId = p.getParentPostId();

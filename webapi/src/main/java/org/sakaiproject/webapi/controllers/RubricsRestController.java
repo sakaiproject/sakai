@@ -593,7 +593,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
     private void requireRubricPath(String siteId, Long rubricId, Long criterionId) {
         RubricTransferBean rubric = rubricsService.getRubric(rubricId)
-            .orElseThrow(() -> new SecurityException("Rubric unavailable"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rubric unavailable"));
         if (!Objects.equals(siteId, rubric.getOwnerId()) || (criterionId != null
                 && rubric.getCriteria().stream().noneMatch(criterion -> criterionId.equals(criterion.getId())))) {
             throw new SecurityException("Rubric or criterion does not match request path");
