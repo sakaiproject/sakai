@@ -23,6 +23,8 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.ItemHashUtil;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueries;
@@ -172,6 +174,20 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         return queries;
     }
 
+    @Bean
+    public ExtendedTimeQueries extendedTimeQueries() {
+        ExtendedTimeQueries queries = new ExtendedTimeQueries();
+        queries.setSessionFactory(sessionFactory());
+        return queries;
+    }
+
+    @Bean
+    public ExtendedTimeFacade extendedTimeFacade() {
+        ExtendedTimeFacade facade = new ExtendedTimeFacade();
+        facade.setExtendedTimeQueries(extendedTimeQueries());
+        return facade;
+    }
+
     @Bean(name = "PersistenceService")
     public PersistenceService persistenceService() {
         ItemFacadeQueries items = applicationContext.getBean("itemFacadeQueries", ItemFacadeQueries.class);
@@ -187,6 +203,7 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         grades.setLocaleService(localeService());
         PersistenceService service = new PersistenceService();
         service.setTypeFacadeQueries(typeFacadeQueries());
+        service.setExtendedTimeFacade(extendedTimeFacade());
         service.setItemFacadeQueries(items);
         service.setPublishedItemFacadeQueries(publishedItems);
         service.setPublishedAssessmentFacadeQueries(publishedAssessmentFacadeQueries());

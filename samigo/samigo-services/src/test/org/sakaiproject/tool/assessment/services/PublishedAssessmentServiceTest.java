@@ -27,13 +27,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -66,6 +69,7 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     @Autowired private SessionFactory sessionFactory;
     @Autowired private org.sakaiproject.grading.api.GradingService gradebookService;
     @Autowired private SiteService siteService;
+    @Autowired private SecurityService securityService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private ApplicationContext applicationContext;
@@ -83,7 +87,8 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
 
     @Before
     public void setup() throws Exception {
-        reset(gradebookService, siteService, toolManager, userDirectoryService);
+        reset(gradebookService, siteService, toolManager, userDirectoryService, securityService);
+        ComponentManager.loadComponent(SecurityService.class, securityService);
         ComponentManager.loadComponent("agentHelper", applicationContext.getBean("agentHelper"));
         ComponentManager.loadComponent("gradebookServiceHelper", applicationContext.getBean("gradebookServiceHelper"));
         ComponentManager.loadComponent(org.sakaiproject.grading.api.GradingService.class,
@@ -107,6 +112,138 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         when(gradebookService.getGradebookUidByExternalId(anyString())).thenReturn(Collections.emptyList());
         assessment = createAssessment(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), 10L);
         itemId = service.preparePublishedItemHash(assessment).keySet().stream().min(Long::compareTo).get();
+        ExtendedTime accommodation = new ExtendedTime(data());
+        accommodation.setUser("synthetic-accommodated-student");
+        accommodation.setTimeMinutes(30);
+        sessionFactory.getCurrentSession().persist(accommodation);
+        sessionFactory.getCurrentSession().flush();
+    }
+
+    @Test
+    public void ordinaryReaderCannotLoadAuthorMetadata() {
+        assertThrows(SecurityException.class, () -> service.getPublishedAssessmentsForAuthor(siteId));
+    }
+
+    @Test
+    public void ownAssessmentEditorOnlySeesTheirAssessmentsWithoutSiteVisit() {
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN,
+            "/site/" + siteId)).thenReturn(true);
+        assertFalse(service.canEditPublishedAssessment(siteId, assessment));
+        List<PublishedAssessmentFacade> authored = service.getPublishedAssessmentsForAuthor(siteId);
+        assertEquals(1, authored.size());
+        PublishedAssessmentData authorized = new PublishedAssessmentData();
+        authorized.setPublishedAssessmentId(authored.get(0).getPublishedAssessmentId());
+        List<ExtendedTime> accommodations = persistenceService.getExtendedTimeFacade().getEntriesForPub(authorized);
+        assertEquals(1, accommodations.size());
+        assertEquals("synthetic-accommodated-student", accommodations.get(0).getUser());
+        data().setCreatedBy("another-author");
+        sessionFactory.getCurrentSession().flush();
+        assertTrue(service.getPublishedAssessmentsForAuthor(siteId).isEmpty());
+    }
+
+    @Test
+    public void anyAssessmentEditorSeesOtherAuthorsButCannotUseForeignSitePermission() {
+        data().setCreatedBy("another-author");
+        sessionFactory.getCurrentSession().flush();
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/" + siteId)).thenReturn(true);
+        assertEquals(1, service.getPublishedAssessmentsForAuthor(siteId).size());
+        assertThrows(SecurityException.class, () -> service.getPublishedAssessmentsForAuthor("foreign-site"));
+    }
+
+    @Test
+    public void assessmentDateEditorMustUseOwningSiteEvenWithEditAnyInBothSites() {
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/" + siteId)).thenReturn(true);
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/foreign-site")).thenReturn(true);
+        assertTrue(service.canEditPublishedAssessment(siteId, assessment));
+        assertFalse(service.canEditPublishedAssessment("foreign-site", assessment));
+    }
+
+    @Test
+    public void editorSeesOwnedAssessmentReleasedToAnotherGroup() {
+        String id = assessment.getPublishedAssessmentId().toString();
+        sessionFactory.getCurrentSession().createMutationQuery(
+            "update AuthorizationData set agentIdString = :group where qualifierId = :id and functionId = :function")
+            .setParameter("group", "group-without-editor").setParameter("id", id)
+            .setParameter("function", "TAKE_PUBLISHED_ASSESSMENT").executeUpdate();
+        data().getAssessmentAccessControl().setReleaseTo(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/" + siteId)).thenReturn(true);
+        assertTrue(persistenceService.getPublishedAssessmentFacadeQueries().getBasicInfoOfAllPublishedAssessments("publishedAssessmentId", true, siteId).isEmpty());
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("group-without-editor");
+        when(group.getTitle()).thenReturn("Released group");
+        when(site.getGroups()).thenReturn(List.of(group));
+        PublishedAssessmentFacade summary = service.getPublishedAssessmentsForAuthor(siteId).get(0);
+        assertEquals(assessment.getPublishedAssessmentId(), summary.getPublishedAssessmentId());
+        assertEquals(Map.of("group-without-editor", "Released group"), summary.getReleaseToGroups());
+        assertEquals(1, summary.getGroupCount());
+        summary.setReleaseToGroups(Map.of());
+        assertEquals(0, summary.getGroupCount());
+        summary.setReleaseToGroups(null);
+        assertEquals(0, summary.getGroupCount());
+    }
+
+    @Test
+    public void groupReleaseLookupsStayConstantAsAuthorListGrows() {
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("selected-group");
+        when(group.getTitle()).thenReturn("Selected group");
+        when(site.getGroups()).thenReturn(List.of(group));
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, "/site/" + siteId)).thenReturn(true);
+        Statistics statistics = sessionFactory.getStatistics();
+        boolean enabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        try {
+            long singleQueryCount = 0;
+            for (int count = 1; count <= 3; count++) {
+                PublishedAssessmentData published = count == 1 ? data() : (PublishedAssessmentData)
+                    createAssessment(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString(), null).getData();
+                published.getAssessmentAccessControl().setReleaseTo(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
+                ownerAuthorization("selected-group", "TAKE_PUBLISHED_ASSESSMENT", published.getPublishedAssessmentId().toString());
+                sessionFactory.getCurrentSession().flush();
+                sessionFactory.getCurrentSession().clear();
+                statistics.clear();
+                List<PublishedAssessmentFacade> summaries = service.getPublishedAssessmentsForAuthor(siteId);
+                assertEquals(count, summaries.size());
+                summaries.forEach(summary -> {
+                    assertEquals(Map.of("selected-group", "Selected group"), summary.getReleaseToGroups());
+                    assertEquals(1, summary.getGroupCount());
+                });
+                if (count == 1) singleQueryCount = statistics.getQueryExecutionCount();
+                assertEquals(singleQueryCount, statistics.getQueryExecutionCount());
+                assertEquals(0, statistics.getEntityLoadCount());
+                assertEquals(0, statistics.getCollectionFetchCount());
+            }
+        } finally {
+            statistics.setStatisticsEnabled(enabled);
+        }
+    }
+
+    @Test
+    public void authorListDoesNotLoadAssessmentEntitiesOrCollections() {
+        createAssessment(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString(), null);
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/" + siteId)).thenReturn(true);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Statistics statistics = sessionFactory.getStatistics();
+        boolean enabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            List<PublishedAssessmentFacade> summaries = service.getPublishedAssessmentsForAuthor(siteId);
+            assertEquals(2, summaries.size());
+            summaries.forEach(summary -> assertNull(summary.getReleaseToGroups()));
+            assertEquals(0, statistics.getEntityLoadCount());
+            assertEquals(0, statistics.getCollectionFetchCount());
+        } finally {
+            statistics.setStatisticsEnabled(enabled);
+        }
     }
 
     @Test
@@ -476,6 +613,9 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         access.setAssessment(data);
         access.setReleaseTo(siteId);
         data.setAssessmentAccessControl(access);
+        PublishedFeedback feedback = new PublishedFeedback();
+        feedback.setAssessment(data);
+        data.setAssessmentFeedback(feedback);
         PublishedSectionData section = new PublishedSectionData(0, 1, "Part 1", "", 1L, 1, "instructor", now, "instructor", now);
         section.setAssessment(data);
         section.setSectionMetaDataSet(new HashSet<>());

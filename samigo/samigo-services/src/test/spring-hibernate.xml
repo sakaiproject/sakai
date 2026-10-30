@@ -61,6 +61,7 @@
                 <value>org/sakaiproject/tool/assessment/data/dao/shared/TypeData.hbm.xml</value>
                 <value>org/sakaiproject/tool/assessment/data/dao/questionpool/QuestionPoolData.hbm.xml</value>
                 <value>org/sakaiproject/tool/assessment/data/dao/assessment/PublishedAssessment.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/assessment/ExtendedTime.hbm.xml</value>
                 <value>org/sakaiproject/tool/assessment/data/dao/assessment/PublishedItemData.hbm.xml</value>
                 <value>org/sakaiproject/tool/assessment/data/dao/grading/GradingData.hbm.xml</value>
                 <value>org/sakaiproject/tool/assessment/data/dao/grading/MediaData.hbm.xml</value>

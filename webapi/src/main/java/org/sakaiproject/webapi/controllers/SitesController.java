@@ -107,11 +107,21 @@ public class SitesController extends AbstractSakaiApiController {
     @GetMapping(value = "/sites/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getSite(@PathVariable("siteId") String siteId) {
 
+        checkSakaiSession();
+
+        Site site;
+        try {
+            site = siteService.getSiteVisit(siteId);
+        } catch (IdUnusedException e) {
+            return ResponseEntity.notFound().build();
+        } catch (PermissionException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
         List<UserNotificationTransferBean> notifications = userMessagingService.getNotifications();
         List<String> pinnedSites = portalService.getPinnedSites();
 
-        return siteService.getOptionalSite(siteId).map(s -> ResponseEntity.ok(this.getSiteMap(s, notifications, pinnedSites)))
-            .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(this.getSiteMap(site, notifications, pinnedSites));
     }
 
     @PostMapping(value = "/sites/{siteId}/image", produces = "text/plain")

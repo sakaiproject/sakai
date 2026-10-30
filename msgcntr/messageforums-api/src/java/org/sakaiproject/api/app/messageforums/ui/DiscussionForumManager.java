@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,10 @@ import org.sakaiproject.user.api.User;
  */
 public interface DiscussionForumManager
 {
+  DiscussionForum getForumForUpdate(String siteId, Long forumId);
+  DiscussionForum updateForumAvailability(String siteId, Long forumId, boolean restricted,
+      Instant openDate, Instant closeDate);
+
   public List searchTopicMessages(Long topicId, String searchText);
     
   public Topic getTopicByIdWithAttachments(Long topicId);

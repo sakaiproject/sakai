@@ -873,6 +873,11 @@ public class PublishedAssessmentFacade
 	  this.hasAssessmentGradingData = hasAssessmentGradingData;
   }
   
+  public void setReleaseToGroups(Map<String, String> releaseToGroups) {
+      this.releaseToGroups = releaseToGroups;
+      setGroupCount();
+  }
+
   public void setGroupCount() {
       if (releaseToGroups != null) {
           groupCount = releaseToGroups.size();

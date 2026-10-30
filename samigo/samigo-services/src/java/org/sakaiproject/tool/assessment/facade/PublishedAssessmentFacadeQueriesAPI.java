@@ -197,6 +197,12 @@ public interface PublishedAssessmentFacadeQueriesAPI
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String siteId);
 
+  /** Return assessment IDs and creators for assessments owned by the given site. */
+  Map<Long, String> getPublishedAssessmentAuthors(String siteId);
+
+  /** Published summaries owned by the site, independent of learner release permissions. */
+  List<PublishedAssessmentFacade> getBasicInfoOfPublishedAssessmentsForAuthor(String siteId);
+
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId);
   
   /**

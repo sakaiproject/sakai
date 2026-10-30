@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.webapi.beans.SebValidationBean;
+import org.sakaiproject.webapi.security.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -111,6 +112,7 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
         }
     }
 
+    @PublicApi("SEB bootstrap download is required before login and uses the sentinel site any.")
     @GetMapping(value = "/sites/{siteId}/assessments/published/{publishedAssessmentId}/sebConfig")
     public ResponseEntity<?> getSebConfig(@PathVariable("siteId") String siteId, @PathVariable("publishedAssessmentId") String publishedAssessmentId,
             @RequestParam(name = "launch", defaultValue = "false") boolean launch, HttpServletRequest request) {

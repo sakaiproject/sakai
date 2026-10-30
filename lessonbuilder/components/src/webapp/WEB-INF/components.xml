@@ -67,4 +67,12 @@
     <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
   </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.service.LessonItemService"
+      class="org.sakaiproject.lessonbuildertool.service.LessonItemServiceImpl">
+    <property name="dao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+  </bean>
+
 </beans>

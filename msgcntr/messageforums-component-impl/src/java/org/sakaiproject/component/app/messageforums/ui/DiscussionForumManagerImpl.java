@@ -20,9 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1114,6 +1116,32 @@ public class DiscussionForumManagerImpl implements DiscussionForumManager {
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForum(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
+  @Override
+  public DiscussionForum getForumForUpdate(String siteId, Long forumId) {
+      DiscussionForum forum = getForumById(forumId);
+      if (forum == null) {
+          throw new IllegalArgumentException("Forum not found");
+      }
+      if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+              || !uiPermissionsManager.isChangeSettings(forum, siteId)) {
+          throw new SecurityException("Not allowed to update this forum");
+      }
+      return forum;
+  }
+
+  @Override
+  public DiscussionForum updateForumAvailability(String siteId, Long forumId, boolean restricted,
+          Instant openDate, Instant closeDate) {
+      DiscussionForum forum = getForumForUpdate(siteId, forumId);
+      if (restricted && (openDate == null || closeDate == null || closeDate.isBefore(openDate))) {
+          throw new IllegalArgumentException("Invalid forum availability dates");
+      }
+      forum.setAvailabilityRestricted(restricted);
+      forum.setOpenDate(restricted ? Date.from(openDate) : null);
+      forum.setCloseDate(restricted ? Date.from(closeDate) : null);
+      return saveForum(siteId, forum);
+  }
+
   public DiscussionForum saveForum(DiscussionForum forum)
   {
     if (log.isDebugEnabled())

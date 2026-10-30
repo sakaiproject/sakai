@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -43,6 +45,9 @@ public class EntityController extends AbstractSakaiApiController {
     @GetMapping(value = "/tool-entities/tools/{toolId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<Map<String, String>>> getToolEntityMaps(@PathVariable("toolId") String toolId, @RequestParam("sites") List<String> sites) {
 
+        if (sites.stream().anyMatch(siteId -> !siteService.allowUpdateSite(siteId))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
         Map<String, List<Map<String, String>>> map = new HashMap<>();
         for (EntityProducer ep : entityManager.getEntityProducers()) {
             if (ep instanceof EntityTransferrer) {

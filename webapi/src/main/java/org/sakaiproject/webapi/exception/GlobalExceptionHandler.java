@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerMapping;
+import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.InUseException;
@@ -58,9 +60,24 @@ public class GlobalExceptionHandler {
         return createErrorResponse(HttpStatus.FORBIDDEN, "Access forbidden", ex, request);
     }
 
+    @ExceptionHandler(ConversationsPermissionsException.class)
+    public ResponseEntity<Object> handleConversationsPermissionsException(ConversationsPermissionsException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.FORBIDDEN, "Permission denied", ex, request);
+    }
+
     @ExceptionHandler(PermissionException.class)
     public ResponseEntity<Object> handlePermissionException(PermissionException ex, WebRequest request) {
         return createErrorResponse(HttpStatus.FORBIDDEN, "Permission denied", ex, request);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request", ex, request);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Resource not found", ex, request);
     }
 
     @ExceptionHandler(IdUnusedException.class)
@@ -120,7 +137,11 @@ public class GlobalExceptionHandler {
             body.put("detail", ex.getMessage());
         }
 
-        log.error("WEBAPI {}: {}", message, ex.toString());
+        if (status.is4xxClientError()) {
+            log.debug("WEBAPI {}: {}", message, ex.toString());
+        } else {
+            log.error("WEBAPI {}: {}", message, ex.toString());
+        }
         log.debug("WEBAPI full exception", ex);
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(body);
     }

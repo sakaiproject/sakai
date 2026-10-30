@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,8 @@ import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.TaskService;
@@ -67,6 +70,164 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
     private String student = "student";
     private String instructor = "instructor";
 
+    @Before
+    public void selectStudent() {
+        switchToStudent();
+    }
+
+    @Test
+    public void userAuthoredSiteTaskRequiresCreatePermission() throws Exception {
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setDescription("Unauthorized class task");
+        input.setSiteId(siteId);
+        input.setAssignationType("site");
+        input.setPriority(Priorities.HIGH);
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        assertThrows(SecurityException.class, () -> taskService.createUserAuthoredTask(input));
+        assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
+    }
+
+    @Test
+    public void siteTaskUsesStudentRecipientsAndCreatesOnlyOneSanitizedAuthorRow() throws Exception {
+        switchToInstructor();
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        Site site = mock(Site.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getUsersIsAllowed("section.role.student")).thenReturn(Set.of(student, instructor));
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setSiteId(siteId);
+        input.setAssignationType("site");
+        input.setDescription("Site task");
+        input.setNotes("Author notes");
+        input.setPriority(Priorities.HIGH);
+        input.setOwner("forged");
+        input.setUserId("forged");
+        input.setSystem(true);
+        input.setUserTaskId(-1L);
+        input.setTaskId(-1L);
+        taskService.createUserAuthoredTask(input);
+        List<UserTaskAdapterBean> authored = taskService.getCurrentTasksForCurrentUser();
+        assertEquals(1, authored.size());
+        UserTaskAdapterBean author = authored.get(0);
+        assertEquals(instructor, author.getUserId());
+        assertEquals(instructor, author.getOwner());
+        assertFalse(author.getSystem());
+        assertNotEquals(Long.valueOf(-1), author.getUserTaskId());
+        assertNotEquals(Long.valueOf(-1), author.getTaskId());
+        assertEquals("Author notes", author.getNotes());
+        switchToStudent();
+        assertEquals(1, taskService.getCurrentTasksForCurrentUser().size());
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("nonstudent");
+        assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
+    }
+
+    @Test
+    public void groupTaskCreatesOnlyOneAuthorRowWhenAuthorIsARecipient() throws Exception {
+        switchToInstructor();
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getGroup("selected")).thenReturn(group);
+        when(group.getUsers()).thenReturn(Set.of(student, instructor));
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setSiteId(siteId);
+        input.setAssignationType("group");
+        input.setSelectedGroups(new String[] { "selected" });
+        input.setDescription("Group task");
+        input.setNotes("Author notes");
+        input.setPriority(Priorities.HIGH);
+        taskService.createUserAuthoredTask(input);
+        assertEquals(1, taskService.getCurrentTasksForCurrentUser().size());
+        assertEquals("Author notes", taskService.getCurrentTasksForCurrentUser().get(0).getNotes());
+        switchToStudent();
+        assertEquals(1, taskService.getCurrentTasksForCurrentUser().size());
+    }
+
+    @Test
+    public void groupTaskRejectsMissingOrForeignGroupsBeforeCreatingTasks() throws Exception {
+        switchToInstructor();
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        Site site = mock(Site.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setSiteId(siteId);
+        input.setAssignationType("group");
+        input.setDescription("Invalid group task");
+        for (String[] selected : new String[][] { new String[0], new String[] { "foreign" } }) {
+            input.setSelectedGroups(selected);
+            assertThrows(IllegalArgumentException.class, () -> taskService.createUserAuthoredTask(input));
+            assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
+        }
+    }
+
+    @Test
+    public void emptyGroupTaskIsRejectedBeforeCreatingTasks() throws Exception {
+        switchToInstructor();
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        Site site = mock(Site.class);
+        Group empty = mock(Group.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getGroup("empty")).thenReturn(empty);
+        when(empty.getUsers()).thenReturn(Set.of());
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setSiteId(siteId);
+        input.setAssignationType("group");
+        input.setSelectedGroups(new String[] { "empty" });
+        input.setDescription("Empty group task");
+        assertThrows(IllegalArgumentException.class, () -> taskService.createUserAuthoredTask(input));
+        assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
+    }
+
+    @Test
+    public void existingPersonalTaskWithoutTaskOwnerCanStillBeEdited() {
+        Task legacy = new Task();
+        legacy.setReference("/user/" + student);
+        legacy.setDescription("Before upgrade");
+        legacy.setSystem(false);
+        taskService.createTask(legacy, Set.of(student), Priorities.HIGH);
+        UserTaskAdapterBean bean = taskService.getCurrentTasksForCurrentUser().get(0);
+        assertNull(bean.getOwner());
+        bean.setDescription("After upgrade");
+        taskService.saveUserTask(bean);
+        assertEquals("After upgrade", taskService.getCurrentTasksForCurrentUser().get(0).getDescription());
+    }
+
+    @Test
+    public void anotherUserCannotUpdateOrDeleteTask() {
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setDescription("Private task");
+        input.setPriority(Priorities.HIGH);
+        taskService.createSingleUserTask(input);
+        UserTaskAdapterBean task = taskService.getCurrentTasksForCurrentUser().get(0);
+        switchToInstructor();
+        task.setDescription("Changed by another user");
+        assertThrows(SecurityException.class, () -> taskService.saveUserTask(task));
+        assertThrows(SecurityException.class, () -> taskService.removeUserTask(task.getUserTaskId()));
+        switchToStudent();
+        assertEquals("Private task", taskService.getCurrentTasksForCurrentUser().get(0).getDescription());
+    }
+
+    @Test
+    public void updatingTaskCannotTransferOwnershipOrSystemIdentity() {
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setDescription("Private task");
+        input.setPriority(Priorities.HIGH);
+        taskService.createSingleUserTask(input);
+        UserTaskAdapterBean task = taskService.getCurrentTasksForCurrentUser().get(0);
+        String reference = task.getReference();
+        task.setUserId(instructor);
+        task.setOwner(instructor);
+        task.setSystem(true);
+        task.setReference("/forged");
+        taskService.saveUserTask(task);
+        UserTaskAdapterBean saved = taskService.getCurrentTasksForCurrentUser().get(0);
+        assertEquals(student, saved.getUserId());
+        assertEquals(student, saved.getOwner());
+        assertFalse(saved.getSystem());
+        assertEquals(reference, saved.getReference());
+    }
+
     private Task createTask(String reference) {
 
         String siteId = "python101";
@@ -79,6 +240,7 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         task.setSiteId(siteId);
         task.setReference(reference);
         task.setSystem(false);
+        task.setOwner(sessionManager.getCurrentSessionUserId());
         task.setDescription(description);
         return taskService.createTask(task, userIds, Priorities.HIGH);
     }

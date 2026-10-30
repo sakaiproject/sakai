@@ -207,7 +207,7 @@ public class TasksControllerTests extends BaseControllerTests {
         assigns.setType(AssignationType.site);
         when(taskService.getTaskAssignments(task.getId())).thenReturn(List.of(assigns));
 
-        when(taskService.createSingleUserTask(any())).thenReturn(userTask);
+        when(taskService.createUserAuthoredTask(any())).thenReturn(userTask);
 
         mockMvc.perform(post("/tasks").contentType("application/json").content(json))
             .andExpect(status().isOk())
@@ -221,6 +221,7 @@ public class TasksControllerTests extends BaseControllerTests {
     public void testCreateSingleUserTask() throws Exception {
 
         Map<String, Object> map = getUserTaskMap();
+        map.put("userTaskId", 1L);
 
         ObjectMapper jsonMapper = new ObjectMapper();
         String json = jsonMapper.writeValueAsString(map);
@@ -249,7 +250,7 @@ public class TasksControllerTests extends BaseControllerTests {
         assigns.setType(AssignationType.user);
         when(taskService.getTaskAssignments(task.getId())).thenReturn(List.of(assigns));
 
-        when(taskService.createSingleUserTask(any())).thenReturn(userTask);
+        when(taskService.createUserAuthoredTask(any())).thenReturn(userTask);
 
         mockMvc.perform(post("/tasks").contentType("application/json").content(json))
             .andExpect(status().isOk())
@@ -260,9 +261,20 @@ public class TasksControllerTests extends BaseControllerTests {
     }
 
     @Test
+    public void taskUpdateRejectsDifferentPathAndBodyIds() throws Exception {
+        Map<String, Object> input = getUserTaskMap();
+        input.put("userTaskId", 1L);
+        mockMvc.perform(put("/tasks/2").contentType("application/json")
+                .content(new ObjectMapper().writeValueAsString(input)))
+            .andExpect(status().isBadRequest());
+        verify(taskService, never()).saveUserTask(any());
+    }
+
+    @Test
     public void testUpdateTask() throws Exception {
 
         Map<String, Object> map = getUserTaskMap();
+        map.put("userTaskId", 1L);
 
         ObjectMapper jsonMapper = new ObjectMapper();
         String json = jsonMapper.writeValueAsString(map);

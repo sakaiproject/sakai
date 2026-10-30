@@ -29,6 +29,7 @@ import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -99,6 +100,35 @@ public class PublishedAssessmentService extends AssessmentService{
         getBasicInfoOfAllPublishedAssessments(orderBy, ascending, siteId);
   }
   
+  /** Author metadata, including accommodation identities, is only available to assessment editors. */
+  public List<PublishedAssessmentFacade> getPublishedAssessmentsForAuthor(String siteId) {
+    String userId = AgentFacade.getAgentString();
+    boolean canEditAny = PersistenceService.getInstance().getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
+    if (StringUtils.isBlank(userId)
+        || !(canEditAny
+            || PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN, siteId))) {
+      throw new SecurityException("Assessment editing permission required");
+    }
+    Map<Long, String> authors = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+        .getPublishedAssessmentAuthors(siteId);
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+        .getBasicInfoOfPublishedAssessmentsForAuthor(siteId).stream()
+        .filter(assessment -> authors.containsKey(assessment.getPublishedAssessmentId())
+            && (canEditAny || userId.equals(authors.get(assessment.getPublishedAssessmentId()))))
+        .collect(Collectors.toList());
+  }
+
+  public boolean canEditPublishedAssessment(String siteId, PublishedAssessmentFacade assessment) {
+    String userId = AgentFacade.getAgentString();
+    if (assessment == null || StringUtils.isBlank(userId)) {
+      return false;
+    }
+    return StringUtils.isNotBlank(siteId) && siteId.equals(assessment.getOwnerSiteId())
+        && PersistenceService.getInstance().getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
+  }
+
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId) {
 
 	  // 2. get all takeable assessment available

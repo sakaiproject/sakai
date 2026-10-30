@@ -49,7 +49,6 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
@@ -65,7 +64,6 @@ import org.sakaiproject.webapi.beans.TimeExceptionRestBean;
 import org.sakaiproject.webapi.beans.SiteEntityRestBean.SiteEntityType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -75,6 +73,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -96,15 +95,12 @@ public class SiteEntityController extends AbstractSakaiApiController {
     private DiscussionForumManager discussionForumManager;
 
     @Autowired
-    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
-    private SimplePageToolDao lessonService;
-
-    @Autowired
     private SecurityService securityService;
 
     @Autowired
     private PersistenceService persistenceService;
 
+    @Setter
     private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
 
@@ -115,13 +111,12 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
         ExtendedTimeFacade extendedTimeFacade = persistenceService.getExtendedTimeFacade();
 
-        List<PublishedAssessmentFacade> publishedAssessments = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments(
-                userId, "publishedAssessmentId", true, siteId);
+        List<PublishedAssessmentFacade> publishedAssessments = publishedAssessmentService.getPublishedAssessmentsForAuthor(siteId);
 
         Map<Long, List<ExtendedTime>> assessmentExtendedTimesMap = publishedAssessments.stream()
                 .map(assessment -> {
                     PublishedAssessmentData assessmentData = new PublishedAssessmentData();
-                    BeanUtils.copyProperties(assessment, assessmentData);
+                    assessmentData.setPublishedAssessmentId(assessment.getPublishedAssessmentId());
 
                     return new AbstractMap.SimpleEntry<Long, List<ExtendedTime>>(assessment.getPublishedAssessmentId(),
                         extendedTimeFacade.getEntriesForPub(assessmentData));
@@ -132,7 +127,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 .map(assessment -> SiteEntityRestBean.of(assessment,
                         assessmentExtendedTimesMap.get(assessment.getPublishedAssessmentId()).stream()
                                 .map(extendedTime -> TimeExceptionRestBean.of(siteId, extendedTime))
-                                .collect(Collectors.toSet())))
+                                .collect(Collectors.toSet()), siteId))
                 .collect(Collectors.toSet());
 
         return ResponseEntity.ok(assessmentSiteEntities);
@@ -201,7 +196,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.badRequest().build();
                     }
 
-                    if (!canUpdateAssessment(userId, assessment)) {
+                    if (!canUpdateAssessment(siteId, assessment)) {
                         log.debug("canUpdateAssessment failed", patchEntity.getId());
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     }
@@ -271,21 +266,15 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.badRequest().build();
                     }
 
-                    if (!isDateRestrictionPatchValid(patchEntity)) {
-                        log.debug("Date restriction invalid", patchEntity.getId());
+                    if (!isDateRestrictionPatchValid(patchEntity)
+                            || (Boolean.TRUE.equals(patchEntity.getDateRestricted())
+                                && patchEntity.getCloseDate().isBefore(patchEntity.getOpenDate()))) {
+                        log.debug("Invalid date restriction for forum {}", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
-                    Area forumArea = discussionForumManager.getDiscussionForumArea(siteId);
-
-                    Optional<OpenForum> optForum = findForumInArea(forumArea, patchEntity.getId());
-
-                    if (optForum.isEmpty()) {
-                        log.debug("Forum with id {} not found", patchEntity.getId());
-                        return ResponseEntity.badRequest().build();
-                    }
-
-                    toolEntities.put(entityKey(patchEntity), optForum.get());
+                    DiscussionForum forumForUpdate = discussionForumManager.getForumForUpdate(siteId, Long.valueOf(patchEntity.getId()));
+                    toolEntities.put(entityKey(patchEntity), forumForUpdate);
                     break;
                 default:
                     log.debug("Unhandled entity type {}", patchEntity.getType());
@@ -452,22 +441,9 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     updatedEntities.add(SiteEntityRestBean.of(updatedResource));
                     break;
                 case FORUM:
-                    DiscussionForum forum = (DiscussionForum) toolEntities.get(entityKey(patchEntity));
-
-                    if (dateRestricted != null && dateRestricted) {
-                        forum.setOpenDate(Date.from(patchEntity.getOpenDate()));
-                        forum.setCloseDate(Date.from(patchEntity.getCloseDate()));
-                        forum.setAvailabilityRestricted(true);
-                        forum.setAvailability(patchEntity.getOpenDate().isBefore(Instant.now())
-                                && patchEntity.getCloseDate().isAfter(Instant.now()));
-                    } else {
-                        forum.setOpenDate(null);
-                        forum.setCloseDate(null);
-                        forum.setAvailabilityRestricted(false);
-                        forum.setAvailability(false);
-                    }
-
-                    DiscussionForum updatedForum = discussionForumManager.saveForum(site.getId(), forum);
+                    DiscussionForum updatedForum = discussionForumManager.updateForumAvailability(site.getId(),
+                            Long.valueOf(patchEntity.getId()), Boolean.TRUE.equals(dateRestricted),
+                            patchEntity.getOpenDate(), patchEntity.getCloseDate());
                     updatedEntities.add(SiteEntityRestBean.of(updatedForum));
                     break;
                 default:
@@ -480,10 +456,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 .collect(Collectors.toSet()));
     }
 
-    private boolean canUpdateAssessment(String userId, PublishedAssessmentFacade assessment) {
-        String siteRef = SITE_SEGMENT + assessment.getOwnerSiteId();
-
-        return securityService.unlock(userId, SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteRef);
+    private boolean canUpdateAssessment(String siteId, PublishedAssessmentFacade assessment) {
+        return publishedAssessmentService.canEditPublishedAssessment(siteId, assessment);
     }
 
     private boolean canUpdateAssignment(String userId, Assignment assignment) {

@@ -22,17 +22,21 @@
 package org.sakaiproject.tasks.impl;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupReferenceBuilder;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -41,6 +45,9 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.AssignationType;
 import org.sakaiproject.tasks.api.Task;
@@ -141,15 +148,72 @@ public class TaskServiceImpl implements TaskService, Observer {
     }
 
     @Transactional
+    public UserTask createUserAuthoredTask(UserTaskAdapterBean transfer) throws IdUnusedException {
+        String userId = requireCurrentUser();
+        String siteId = transfer.getSiteId();
+        if (!canCurrentUserAddTask(StringUtils.trimToNull(siteId))) {
+            throw new SecurityException("Not allowed to create tasks in this site");
+        }
+        transfer.setUserId(userId);
+        transfer.setOwner(userId);
+        transfer.setSystem(false);
+        transfer.setUserTaskId(null);
+        transfer.setTaskId(null);
+        String assignation = transfer.getAssignationType();
+        if (!AssignationType.site.name().equals(assignation) && !AssignationType.group.name().equals(assignation)) {
+            return createSingleUserTask(transfer);
+        }
+        Site site = siteService.getSite(siteId);
+        Set<String> users = new HashSet<>();
+        List<String> groups = new ArrayList<>();
+        if (AssignationType.site.name().equals(assignation)) {
+            users.addAll(site.getUsersIsAllowed("section.role.student"));
+        } else {
+            if (transfer.getSelectedGroups() == null || transfer.getSelectedGroups().length == 0) {
+                throw new IllegalArgumentException("Select at least one group");
+            }
+            for (String groupId : transfer.getSelectedGroups()) {
+                Group group = site.getGroup(groupId);
+                if (group == null) {
+                    throw new IllegalArgumentException("Group does not belong to this site");
+                }
+                groups.add(groupId);
+                users.addAll(group.getUsers());
+            }
+        }
+        if (AssignationType.group.name().equals(assignation) && users.isEmpty()) {
+            throw new IllegalArgumentException("Selected groups have no members");
+        }
+        Task task = new Task();
+        task.setDescription(transfer.getDescription());
+        task.setDue(transfer.getDue());
+        task.setStarts(transfer.getStarts() == null ? Instant.now() : transfer.getStarts());
+        task.setSiteId(siteId);
+        task.setOwner(userId);
+        task.setSystem(false);
+        task.setReference("/user/" + userId + "/" + UUID.randomUUID());
+        users.remove(userId);
+        Task saved = createTask(task, users, transfer.getPriority());
+        UserTask authorTask = createUserTask(saved, transfer);
+        if (AssignationType.site.name().equals(assignation)) {
+            assignTask(saved, AssignationType.site, siteId);
+        } else {
+            assignTask(saved, AssignationType.group, groups);
+        }
+        return authorTask;
+    }
+
+    @Transactional
     public UserTask createSingleUserTask(UserTaskAdapterBean transfer) {
 
-        String userId = sessionManager.getCurrentSessionUserId();
+        String userId = requireCurrentUser();
         sanitizeUserTaskAdapterBean(transfer);
 
         Task task = new Task();
         BeanUtils.copyProperties(transfer, task);
         task.setReference("/user/" + userId);
         task.setSystem(false);
+        task.setOwner(userId);
         task.setStarts(Instant.now());
         task = taskRepository.save(task);
 
@@ -205,17 +269,25 @@ public class TaskServiceImpl implements TaskService, Observer {
         }
 
         UserTask userTask = optionalUserTask.get();
+        requireUserTaskOwner(userTask);
         sanitizeUserTaskAdapterBean(transfer);
 
         // Trigger the load of the Task entity
         Task task = userTask.getTask();
-        if (!task.getSystem()) {
-            BeanUtils.copyProperties(transfer, task);
+        String userId = requireCurrentUser();
+        boolean legacyPersonalTask = task.getOwner() == null && ("/user/" + userId).equals(task.getReference());
+        if (!task.getSystem() && (StringUtils.equals(userId, task.getOwner()) || legacyPersonalTask
+                || (StringUtils.isNotBlank(task.getSiteId()) && canCurrentUserAddTask(task.getSiteId())))) {
+            task.setDescription(transfer.getDescription());
+            task.setStarts(transfer.getStarts());
+            task.setDue(transfer.getDue());
             taskRepository.save(task);
         }
 
-        // Update the user task and merge it back in
-        BeanUtils.copyProperties(transfer, userTask);
+        userTask.setNotes(transfer.getNotes());
+        userTask.setPriority(transfer.getPriority());
+        userTask.setComplete(transfer.getComplete());
+        userTask.setSoftDeleted(transfer.getSoftDeleted());
         return userTaskRepository.save(userTask);
     }
     
@@ -230,7 +302,24 @@ public class TaskServiceImpl implements TaskService, Observer {
 
     @Transactional
     public void removeUserTask(Long userTaskId) {
-        userTaskRepository.deleteById(userTaskId);
+        userTaskRepository.findById(userTaskId).ifPresent(userTask -> {
+            requireUserTaskOwner(userTask);
+            userTaskRepository.delete(userTask);
+        });
+    }
+
+    private String requireCurrentUser() {
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (StringUtils.isBlank(userId)) {
+            throw new SecurityException("A logged-in user is required");
+        }
+        return userId;
+    }
+
+    private void requireUserTaskOwner(UserTask task) {
+        if (!StringUtils.equals(requireCurrentUser(), task.getUserId())) {
+            throw new SecurityException("Not allowed to change another user's task");
+        }
     }
 
     @Transactional

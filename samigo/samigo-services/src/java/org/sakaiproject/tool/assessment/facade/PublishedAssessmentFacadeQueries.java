@@ -119,6 +119,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
@@ -1568,9 +1569,40 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 * @return
 	 */
 	public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, final String siteId) {
-		String orderField = orderBy;
-		boolean ascendingOrder = ascending;
-		final List<String> groupIds = getSiteGroupIdsForCurrentUser(siteId);
+        return getBasicInfoOfAllPublishedAssessments(orderBy, ascending, siteId, false);
+    }
+
+    @Override
+    public List<PublishedAssessmentFacade> getBasicInfoOfPublishedAssessmentsForAuthor(String siteId) {
+        List<PublishedAssessmentFacade> assessments = getBasicInfoOfAllPublishedAssessments("publishedAssessmentId", true, siteId, true);
+        Map<String, PublishedAssessmentFacade> groupAssessments = assessments.stream()
+            .filter(assessment -> AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(assessment.getReleaseTo()))
+            .collect(Collectors.toMap(assessment -> assessment.getPublishedAssessmentId().toString(), assessment -> assessment));
+        if (!groupAssessments.isEmpty()) {
+            Map<String, String> groupsForSite = getGroupsForSite(siteId);
+            Map<String, Map<String, String>> releases = new HashMap<>();
+            groupAssessments.keySet().forEach(id -> releases.put(id, new HashMap<>()));
+            if (!groupsForSite.isEmpty()) {
+                CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+                CriteriaQuery<Tuple> query = builder.createTupleQuery();
+                Root<AuthorizationData> authorization = query.from(AuthorizationData.class);
+                query.multiselect(authorization.get("qualifierId"), authorization.get("agentIdString"))
+                    .where(builder.equal(authorization.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"),
+                        authorization.get("qualifierId").in(groupAssessments.keySet()),
+                        authorization.get("agentIdString").in(groupsForSite.keySet()));
+                for (Tuple grant : sessionFactory.getCurrentSession().createQuery(query).getResultList()) {
+                    String groupId = grant.get(1, String.class);
+                    releases.get(grant.get(0, String.class)).put(groupId, groupsForSite.get(groupId));
+                }
+            }
+            groupAssessments.forEach((id, assessment) -> assessment.setReleaseToGroups(releases.get(id)));
+        }
+        return assessments;
+    }
+
+    private List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(
+            String orderBy, boolean ascending, String siteId, boolean forAuthor) {
+        List<String> groupIds = forAuthor ? Collections.emptyList() : getSiteGroupIdsForCurrentUser(siteId);
 
 		try {
 			Session session = sessionFactory.getCurrentSession();
@@ -1622,7 +1654,8 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				cb.equal(pRoot.get("status"), 1),
 				cb.equal(pRoot.get("status"), 3)));
 
-			predicates.add(cb.equal(azRoot.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(azRoot.get("functionId"),
+                forAuthor ? "OWN_PUBLISHED_ASSESSMENT" : "TAKE_PUBLISHED_ASSESSMENT"));
 			predicates.add(cb.equal(azRoot.get("qualifierId"), pRoot.get("publishedAssessmentId").as(String.class)));
 
 			Predicate sitePredicate = cb.equal(azRoot.get("agentIdString"), siteId);
@@ -1661,6 +1694,24 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			return new ArrayList<>();
 		}
 	}
+
+    @Override
+    public Map<Long, String> getPublishedAssessmentAuthors(String siteId) {
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = builder.createTupleQuery();
+        Root<PublishedAssessmentData> assessment = query.from(PublishedAssessmentData.class);
+        Root<AuthorizationData> ownership = query.from(AuthorizationData.class);
+        query.multiselect(assessment.get("publishedAssessmentId"), assessment.get("createdBy"))
+            .where(builder.equal(ownership.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                builder.equal(ownership.get("agentIdString"), siteId),
+                builder.equal(ownership.get("qualifierId"), assessment.get("publishedAssessmentId").as(String.class)));
+        Map<Long, String> authors = new HashMap<>();
+        for (Tuple row : session.createQuery(query).getResultList()) {
+            authors.put(row.get(0, Long.class), row.get(1, String.class));
+        }
+        return authors;
+    }
 
 	// This is for instructors view (author index page)
 	public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String sortString, boolean ascending, final String siteAgentId) {
