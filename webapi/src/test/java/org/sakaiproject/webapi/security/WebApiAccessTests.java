@@ -193,7 +193,7 @@ public class WebApiAccessTests {
             .openDate(Instant.parse("2026-01-02T00:00:00Z")).closeDate(Instant.parse("2026-01-01T00:00:00Z")).build());
         assertEquals(400, context.getBean(SiteEntityController.class).updateSiteEntities("course", batch).getStatusCode().value());
         verify(forumManager).getForumForUpdate("course", 1L);
-        verify(forumManager, never()).updateForumAvailability(anyString(), anyLong(), anyBoolean(), any(), any());
+        verify(forumManager, never()).updateForumAvailability(any(), anyLong(), anyBoolean(), any(), any());
     }
 
     @Test
