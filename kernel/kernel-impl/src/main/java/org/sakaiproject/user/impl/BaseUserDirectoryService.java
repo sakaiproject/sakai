@@ -1321,6 +1321,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public void cancelEdit(UserEdit user)
 	{
+		// nothing to cancel if no edit was obtained (e.g. editUser() threw and the caller passed null)
+		if (user == null)
+		{
+			log.warn("cancelEdit(): null UserEdit");
+			return;
+		}
+
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
