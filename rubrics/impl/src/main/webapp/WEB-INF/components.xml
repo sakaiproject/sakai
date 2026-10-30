@@ -42,7 +42,6 @@
         class="org.sakaiproject.rubrics.impl.RubricsServiceImpl"
         init-method="init">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
-        <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService" />
         <property name="associationRepository" ref="org.sakaiproject.rubrics.api.repository.AssociationRepository"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="criterionRepository" ref="org.sakaiproject.rubrics.api.repository.CriterionRepository"/>

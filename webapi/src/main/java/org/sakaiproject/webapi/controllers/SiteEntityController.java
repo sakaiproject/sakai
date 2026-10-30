@@ -441,11 +441,9 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     updatedEntities.add(SiteEntityRestBean.of(updatedResource));
                     break;
                 case FORUM:
-                    DiscussionForum updatedForum = dateRestricted == null
-                            ? (DiscussionForum) toolEntities.get(entityKey(patchEntity))
-                            : discussionForumManager.updateForumAvailability(site.getId(),
-                                    Long.valueOf(patchEntity.getId()), dateRestricted,
-                                    patchEntity.getOpenDate(), patchEntity.getCloseDate());
+                    DiscussionForum updatedForum = discussionForumManager.updateForumAvailability(site.getId(),
+                            Long.valueOf(patchEntity.getId()), Boolean.TRUE.equals(dateRestricted),
+                            patchEntity.getOpenDate(), patchEntity.getCloseDate());
                     updatedEntities.add(SiteEntityRestBean.of(updatedForum));
                     break;
                 default:

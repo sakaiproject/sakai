@@ -99,7 +99,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.sort.AnonymousSubmissionComparator;
@@ -2716,33 +2715,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         log.debug("Submission ID does not exist {}", submissionId);
         return null;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public AssignmentSubmission getSubmissionForPeerAssessment(String submissionId, String assessorId) throws PermissionException {
-        AssignmentSubmission submission = StringUtils.isBlank(submissionId) ? null : assignmentRepository.findSubmission(submissionId);
-        if (submission == null) {
-            return null;
-        }
-        Assignment assignment = submission.getAssignment();
-        String userId = sessionManager.getCurrentSessionUserId();
-        if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(assessorId)
-                && !Boolean.TRUE.equals(assignment.getDeleted())
-                && !Boolean.TRUE.equals(assignment.getDraft())
-                && Boolean.TRUE.equals(assignment.getAllowPeerAssessment())
-                && assignment.getCloseDate() != null && assignment.getPeerAssessmentPeriodDate() != null
-                && isPeerAssessmentOpen(assignment)
-                && (Objects.equals(userId, assessorId)
-                    || Objects.equals(getSubmitterIdForAssignment(assignment, userId), assessorId))) {
-            PeerAssessmentItem peer = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, assessorId);
-            if (peer != null && !Boolean.TRUE.equals(peer.getRemoved())
-                    && Objects.equals(assignment.getId(), peer.getAssignmentId())) {
-                return submission;
-            }
-        }
-        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-        throw new PermissionException(userId, SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
     }
 
     private String getTimeSheetEntryReference(Long timeSheetId) {

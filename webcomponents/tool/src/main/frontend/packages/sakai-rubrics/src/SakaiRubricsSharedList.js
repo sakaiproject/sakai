@@ -110,8 +110,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
   confirmDelete(e) {
 
     e.stopPropagation();
-    const selectedRubric = this._rubrics.find(r => r.id === this.rubricIdToDelete);
-    const url = `/api/sites/${selectedRubric.ownerId}/rubrics/${this.rubricIdToDelete}`;
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricIdToDelete}`;
     fetch(url, {
       method: "DELETE",
       credentials: "include",
