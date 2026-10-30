@@ -23,6 +23,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,8 +82,27 @@ public class RubricsRestControllerTests {
     }
 
     @Test
+    public void unavailableRubricReturnsNotFound() throws Exception {
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.empty());
+        mockMvc.perform(get("/sites/site1/rubrics/1"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void rubricFromAnotherSiteStillReturnsForbidden() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("foreign-site");
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+        mockMvc.perform(get("/sites/site1/rubrics/1"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
     public void staleRubricPatchReturnsConflictBeforeApplyingRemovedCriterion() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
         rubric.setVersion(1L);
         when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
 
@@ -101,6 +121,12 @@ public class RubricsRestControllerTests {
         criterion.setVersion(0L);
         criterion.setRubricVersion(1L);
         when(rubricsService.getCriterion(1L, "site1")).thenReturn(Optional.of(criterion));
+        criterion.setId(1L);
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(2L);
+        rubric.setOwnerId("site1");
+        rubric.setCriteria(List.of(criterion));
+        when(rubricsService.getRubric(2L)).thenReturn(Optional.of(rubric));
 
         mockMvc.perform(patch("/sites/site1/rubrics/2/criteria/1")
                 .header("If-Match", "\"0\"")
@@ -129,6 +155,8 @@ public class RubricsRestControllerTests {
     @Test
     public void currentRubricPatchSavesWithTheHeaderRevisionAndReturnsJson() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
         rubric.setVersion(1L);
         when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
         when(rubricsService.saveRubric(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -147,6 +175,8 @@ public class RubricsRestControllerTests {
     @Test
     public void draftPatchAcceptsMatchingCriterionIds() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
         rubric.setVersion(1L);
         rubric.setDraft(false);
         CriterionTransferBean criterion = new CriterionTransferBean();
@@ -171,6 +201,8 @@ public class RubricsRestControllerTests {
     @Test
     public void draftPatchRejectsMismatchedCriterionIds() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
         rubric.setVersion(1L);
         CriterionTransferBean criterion = new CriterionTransferBean();
         criterion.setId(14L);
@@ -190,6 +222,8 @@ public class RubricsRestControllerTests {
     @Test
     public void testOfRemovedCriterionReturnsConflict() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
         rubric.setVersion(1L);
         when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
 
@@ -205,6 +239,8 @@ public class RubricsRestControllerTests {
     @Test
     public void failedReplaceAfterSuccessfulTestStillReturnsServerError() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
         rubric.setVersion(1L);
         when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
 
@@ -221,6 +257,8 @@ public class RubricsRestControllerTests {
     @Test
     public void patchTestsSeePrecedingChanges() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
         rubric.setVersion(1L);
         rubric.setTitle("Original");
         when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
@@ -238,6 +276,8 @@ public class RubricsRestControllerTests {
     @Test
     public void aServiceConflictAfterLoadingStillReturnsConflict() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
         rubric.setVersion(1L);
         when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
         when(rubricsService.saveRubric(any())).thenThrow(new RubricsConflictException());
@@ -250,4 +290,31 @@ public class RubricsRestControllerTests {
 
         verify(rubricsService).saveRubric(any());
     }
+    @Test
+    public void rubricPatchCannotReplaceItsResourceIdentity() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
+        rubric.setVersion(1L);
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+        mockMvc.perform(patch("/sites/site1/rubrics/1").header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json")
+                .content("[{\"op\":\"replace\",\"path\":\"/id\",\"value\":2}]"))
+            .andExpect(status().isBadRequest());
+        verify(rubricsService, never()).saveRubric(any());
+    }
+
+    @Test
+    public void foreignRubricCannotBePatchedUnderAccessibleSite() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("foreign-site");
+        rubric.setVersion(1L);
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+        mockMvc.perform(patch("/sites/site1/rubrics/1").header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json").content("[]"))
+            .andExpect(status().isForbidden());
+        verify(rubricsService, never()).saveRubric(any());
+    }
+
 }
