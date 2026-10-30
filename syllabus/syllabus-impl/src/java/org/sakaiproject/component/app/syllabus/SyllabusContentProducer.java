@@ -23,10 +23,12 @@ package org.sakaiproject.component.app.syllabus;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -78,6 +80,8 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 			SyllabusService.EVENT_SYLLABUS_DELETE_POST, SearchBuilderItem.ACTION_DELETE
 	);
 	
+	static final String ATTACHMENT_NAMES = "attachment_names";
+
 	@Setter
 	private SiteService siteService;
 	
@@ -160,11 +164,42 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 		if (title != null) sb.append(title).append(" ");
 		if (content != null) sb.append(content);
 		for (SyllabusAttachment attachment : syllabusManager.getSyllabusAttachmentsForSyllabusData(syllabusData)) {
-			if (attachment.getName() != null) sb.append(" ").append(attachment.getName());
-			sb.append(" ").append(getAttachmentText(attachment.getAttachmentId()));
+			String name = attachment.getName();
+			String text = getAttachmentText(attachment.getAttachmentId());
+			// the PDF digester already starts its text with the file name
+			if (name != null && !text.contains(name)) sb.append(" ").append(name);
+			sb.append(" ").append(text);
 		}
 		return sb.toString();
  	}
+
+	/**
+	 * Search results show the content, so the words of the attachment names go in a field of their own,
+	 * searched but not shown.
+	 */
+	@Override
+	public Map<String, ?> getCustomProperties(String reference) {
+		Reference ref = getReference(reference);
+		SyllabusData syllabusData = ref != null ? getSyllabusData(ref) : null;
+		if (syllabusData == null) return null;
+
+		List<String> names = new ArrayList<>();
+		for (SyllabusAttachment attachment : syllabusManager.getSyllabusAttachmentsForSyllabusData(syllabusData)) {
+			if (attachment.getName() != null) names.add(getNameWords(attachment.getName()));
+		}
+		return names.isEmpty() ? null : Map.of(ATTACHMENT_NAMES, names);
+	}
+
+	/**
+	 * The analyzer keeps a name like Course_ReadingGuide.pdf as one word, so its parts are listed too:
+	 * Course_ReadingGuide Course ReadingGuide Reading Guide
+	 */
+	static String getNameWords(String name) {
+		String baseName = StringUtils.substringBeforeLast(name, ".");
+		String parts = baseName.replaceAll("[\\p{Punct}\\s]+", " ").trim();
+		String words = parts.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
+		return String.join(" ", new LinkedHashSet<>(List.of(baseName, parts, words)));
+	}
 
 	/**
 	 * Attachments live in content hosting, so the producer registered for their references (Resources) extracts
