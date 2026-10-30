@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.lessonbuildertool.service;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,8 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
@@ -35,6 +38,7 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -147,7 +151,8 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
 		if (item != null) {
-			return item.getHtml();
+			// a subpage is found by its title
+			return item.getType() == SimplePageItem.PAGE ? item.getName() : item.getHtml();
         }
 		else {
 			log.info("Could not getContent for reference  "+id);
@@ -162,11 +167,16 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		long id = idFromRef(reference);
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
-		String ret = "";
-		if (item != null) { 
-			ret = SearchUtils.appendCleanString(item.getName(), null).toString();
+		if (item == null) {
+			return "";
 		}
-		return ret;
+		String title = item.getName();
+		if (StringUtils.isBlank(title)) {
+			// text boxes have no name, so they take the title of the page they are on
+			SimplePage page = simplePageToolDao.getPage(item.getPageId());
+			title = page != null ? StringUtils.defaultString(page.getTitle()) : "";
+		}
+		return SearchUtils.appendCleanString(title, null).toString().trim();
 
 	}
 
@@ -202,6 +212,16 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 
 	public String getUrl(String reference)
 	{
+		SimplePageItem item = simplePageToolDao.findItem(idFromRef(reference));
+		if (item != null) {
+			// open the page the item is on, or for a subpage the subpage itself
+			long pageId = item.getType() == SimplePageItem.PAGE ? NumberUtils.toLong(item.getSakaiId()) : item.getPageId();
+			String pageUrl = simplePageToolDao.getPageUrl(pageId);
+			if (pageUrl != null) {
+				return pageUrl;
+			}
+		}
+
 		Reference ref = getReference(reference);
 		//Need to implement public String getEntityUrl(Reference ref)
 
@@ -254,17 +274,17 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 	
 	public Iterator getSiteContentIterator(String context)
 	{
-		//Limit index to text items
-		List <SimplePageItem> pages = simplePageToolDao.findTextItemsInSite(context);
-		final Iterator<SimplePageItem> allPageItemsIterator = pages.iterator();
+		List<Long> itemIds = new ArrayList<>();
+		simplePageToolDao.findTextItemsInSite(context).forEach(item -> itemIds.add(item.getId()));
+		itemIds.addAll(simplePageToolDao.findSubpageItemIdsInSite(context));
+		final Iterator<Long> itemIdsIterator = itemIds.iterator();
 		return new Iterator() {
 			public boolean hasNext() {
-				return allPageItemsIterator.hasNext(); 
+				return itemIdsIterator.hasNext();
 			}
 			
 			public Object next() {
-				SimplePageItem pageItem = (SimplePageItem) allPageItemsIterator.next();
-				return makeReference("item",pageItem.getId());
+				return makeReference("item", itemIdsIterator.next());
 			}
 			
 			public void remove() {
@@ -275,16 +295,13 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 
 	public boolean isForIndex(String reference)
 	{
-		//Not entirely sure why you wouldn't want these to be indexed . . . Maybe if they're not a lessons page type?
 		long id = idFromRef(reference);
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
 	
-		if (item != null && (SimplePageItem.TEXT == item.getType() || SimplePageItem.PAGE == item.getType() || SimplePageItem.COMMENTS == item.getType() ||
-				SimplePageItem.STUDENT_CONTENT == item.getType())) {
-			return true;
-		}
-		return false;
+		// the same items getSiteContentIterator lists; top-level pages are in the site navigation already
+		return item != null && item.getPageId() != 0L
+				&& (SimplePageItem.TEXT == item.getType() || SimplePageItem.PAGE == item.getType());
 	}
 
 	public boolean canRead(String reference)

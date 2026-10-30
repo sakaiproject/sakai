@@ -130,10 +130,14 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.lti.ContentItem;
 import org.tsugi.lti.LTIUtil;
@@ -514,7 +518,8 @@ public class SimplePageBean {
     @Autowired @Setter private TaskService taskService;
     @Autowired @Setter private ToolManager toolManager;
     @Autowired @Setter private UserDirectoryService userDirectoryService;
-    @Autowired @Setter private UserTimeService userTimeService;
+    // TimeService is a UserTimeService too
+    @Autowired @Qualifier("org.sakaiproject.time.api.UserTimeService") @Setter private UserTimeService userTimeService;
 
 	// Caches
 
@@ -566,8 +571,32 @@ public class SimplePageBean {
 	 */
 	public SimplePageBean(boolean withAutoWireAndInit) {
 		if (withAutoWireAndInit) {
-			SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+			autowire();
 			init();
+		}
+	}
+
+	/**
+	 * Autowires from the Lessons context, whichever webapp the caller is in (search, gradebook, /access).
+	 * That context has no annotation config, so the qualifiers need a resolver of their own.
+	 */
+	private void autowire() {
+		Thread thread = Thread.currentThread();
+		ClassLoader callerClassLoader = thread.getContextClassLoader();
+		thread.setContextClassLoader(SimplePageBean.class.getClassLoader());
+		try {
+			WebApplicationContext context = ContextLoader.getCurrentWebApplicationContext();
+			if (context == null) {
+				log.warn("No Lessons application context to autowire SimplePageBean from");
+				return;
+			}
+			DefaultListableBeanFactory factory = new DefaultListableBeanFactory(context.getAutowireCapableBeanFactory());
+			factory.setAutowireCandidateResolver(new QualifierAnnotationAutowireCandidateResolver());
+			AutowiredAnnotationBeanPostProcessor processor = new AutowiredAnnotationBeanPostProcessor();
+			processor.setBeanFactory(factory);
+			processor.processInjection(this);
+		} finally {
+			thread.setContextClassLoader(callerClassLoader);
 		}
 	}
 

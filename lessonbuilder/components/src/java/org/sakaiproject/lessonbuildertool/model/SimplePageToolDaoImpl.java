@@ -286,6 +286,17 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 	    return items;
 	}
 
+	public List<Long> findSubpageItemIdsInSite(String siteId) {
+	    return sqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.type = 2", new Object[] {siteId}, result -> {
+		    try {
+			return result.getLong(1);
+		    } catch (SQLException e) {
+			log.warn("findSubpageItemIdsInSite: {}", e.toString());
+			return null;
+		    }
+		});
+	}
+
     // because they don't come from hibernate, you can't use update on them.
     // we need to be able to update the HTML field
 
@@ -1232,10 +1243,12 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 			return null;
 		}
 		String toolId = tools.iterator().next().getId();
+		// as the portal subpage navigation does, so a subpage opens with its breadcrumb
+		String path = page.getParent() != null && page.getParent() != 0L ? "clear_and_push" : "0";
 		StringBuilder sb = new StringBuilder(serverConfigurationService.getPortalUrl());
 		sb.append("/site/").append(siteId).append("/tool/").append(toolId)
 			.append("/ShowPage?returnView=&studentItemId=0&sendingPage=").append(pageId)
-			.append("&newTopLevel=false&postedComment=false&path=0&itemId=").append(pageItemId)
+			.append("&newTopLevel=false&postedComment=false&path=").append(path).append("&itemId=").append(pageItemId)
 			.append("&addTool=-1");
 		return sb.toString();
 	}
