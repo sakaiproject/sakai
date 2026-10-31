@@ -118,6 +118,8 @@
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="default-update-timestamps-region"/>
+                    <!-- Invalidation timestamps must outlive every cached query result. -->
+                    <property name="expiryPolicyFactory" ref="org.sakaiproject.ignite.cache.eternalExpiryPolicy"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="default-query-results-region"/>
