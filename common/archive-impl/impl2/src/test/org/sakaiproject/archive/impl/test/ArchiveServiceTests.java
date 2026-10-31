@@ -239,7 +239,9 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         Path siteXmlPath = Paths.get(Objects.requireNonNull(ArchiveServiceTests.class.getResource("/archive/site.xml")).toURI());
         assertNotNull(siteXmlPath);
         Path archiveSiteXmlPath = Paths.get(archiveBasePath, File.separator, "site.xml");
-        Files.copy(siteXmlPath, archiveSiteXmlPath, StandardCopyOption.REPLACE_EXISTING);
+        // Older archives used the sakai prefix without declaring its namespace.
+        Files.writeString(archiveSiteXmlPath, Files.readString(siteXmlPath)
+                .replace(" xmlns:sakai=\"https://www.sakailms.org/xmlns/archive/\"", ""));
 
         Path userXmlPath = Paths.get(Objects.requireNonNull(ArchiveServiceTests.class.getResource("/archive/user.xml")).toURI());
         assertNotNull(userXmlPath);
@@ -280,6 +282,7 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         archiveService.merge(siteId + "-archive", toSiteId, "admin");
 
+        verify(siteService).merge(eq(toSiteId), argThat(element -> "site".equals(element.getTagName())), eq("admin"));
         verify(userProducer).merge(any(), any(), any(), any(), any());
         verify(rubricsProducer).merge(any(), any(), any(), any(), any());
         verify(conversationsProducer).merge(any(), any(), any(), any(), any());
