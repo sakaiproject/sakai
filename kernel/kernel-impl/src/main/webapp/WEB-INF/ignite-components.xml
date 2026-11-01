@@ -94,16 +94,6 @@
         <property name="metricsEnabled" value="true"/>
     </bean>
 
-    <!-- Hibernate invalidation timestamps must not be evicted with ordinary cached data. -->
-    <bean id="org.sakaiproject.ignite.DataRegionConfiguration.HibernateTimestampsRegion"
-          class="org.apache.ignite.configuration.DataRegionConfiguration">
-        <property name="name" value="hibernate_timestamps_region"/>
-        <property name="initialSize" value="#{10L * 1024 * 1024}"/>
-        <property name="maxSize" value="#{32L * 1024 * 1024}"/>
-        <property name="pageEvictionMode" value="DISABLED"/>
-        <property name="persistenceEnabled" value="false"/>
-    </bean>
-
     <bean id="org.sakaiproject.ignite.SakaiIgniteConfiguration"
           class="org.sakaiproject.ignite.IgniteConfigurationAdapter">
         <property name="dataStorageConfiguration">
@@ -112,7 +102,6 @@
                 <property name="dataRegionConfigurations">
                     <list>
                         <ref bean="org.sakaiproject.ignite.DataRegionConfiguration.HibernateL2Region"/>
-                        <ref bean="org.sakaiproject.ignite.DataRegionConfiguration.HibernateTimestampsRegion"/>
                     </list>
                 </property>
             </bean>
@@ -129,9 +118,6 @@
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="default-update-timestamps-region"/>
-                    <property name="dataRegionName" value="hibernate_timestamps_region"/>
-                    <!-- Invalidation timestamps must outlive every cached query result. -->
-                    <property name="expiryPolicyFactory" ref="org.sakaiproject.ignite.cache.eternalExpiryPolicy"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="default-query-results-region"/>

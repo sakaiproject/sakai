@@ -24,12 +24,12 @@ import org.sakaiproject.user.api.repository.PreferencesRepository;
 public class PreferencesRepositoryImpl extends SpringCrudRepositoryImpl<PreferencesRecord, String> implements PreferencesRepository {
 
     @Override
-    public Optional<PreferencesRecord> findCurrentById(String id) {
+    public Optional<PreferencesRecord> findCurrentById(String id, boolean cacheable) {
         return sessionFactory.getCurrentSession()
                 .createQuery("select new org.sakaiproject.user.api.model.PreferencesRecord(p.id, p.xml, p.version) "
                         + "from PreferencesRecord p where p.id = :id", PreferencesRecord.class)
                 .setParameter("id", id)
-                .setCacheable(true)
+                .setCacheable(cacheable)
                 .uniqueResultOptional();
     }
 

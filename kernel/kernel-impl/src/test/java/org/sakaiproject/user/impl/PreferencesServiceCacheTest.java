@@ -16,18 +16,14 @@
 package org.sakaiproject.user.impl;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.sql.DataSource;
 
 import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;
-import org.apache.ignite.configuration.DataPageEvictionMode;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
@@ -39,13 +35,11 @@ import org.junit.Test;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.expression.StandardBeanExpressionResolver;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -56,29 +50,11 @@ import static org.mockito.Mockito.when;
 
 public class PreferencesServiceCacheTest {
 
-    private static final int EXPIRY_SECONDS = 12;
-
     @Test
-    public void keepsTimestampsEternalInARegisteredNonEvictingRegion() {
-        DefaultListableBeanFactory beans = productionBeans();
-        CacheConfiguration<?, ?> timestamps = Arrays.stream(hibernateCaches(beans))
-                .filter(cache -> "default-update-timestamps-region".equals(cache.getName())).findFirst().orElseThrow();
-        DataStorageConfiguration storage = hibernateStorage(beans);
-        DataRegionConfiguration region = Arrays.stream(storage.getDataRegionConfigurations())
-                .filter(candidate -> timestamps.getDataRegionName().equals(candidate.getName())).findFirst().orElseThrow();
-
-        assertEquals("hibernate_timestamps_region", timestamps.getDataRegionName());
-        assertTrue(timestamps.getExpiryPolicyFactory().create().getExpiryForCreation().isEternal());
-        assertEquals(DataPageEvictionMode.DISABLED, region.getPageEvictionMode());
-    }
-
-    @Test
-    public void savesFreshPreferencesAfterTheOriginalTimestampDeadline() throws Exception {
+    public void editsFreshPreferencesWhenDisplayReadsAreStale() throws Exception {
         String name = "preferences-cache-" + UUID.randomUUID();
         try (Ignite ignite = Ignition.start(igniteConfiguration(name));
                 AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-            assertEquals("hibernate_timestamps_region", ignite.cache("default-update-timestamps-region")
-                    .getConfiguration(CacheConfiguration.class).getDataRegionName());
             context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("cache-test", Map.of(
                     "test.ignite.name", name,
                     "hibernate.connection.url", "jdbc:hsqldb:mem:" + name,
@@ -92,26 +68,19 @@ public class PreferencesServiceCacheTest {
             jdbc.update("INSERT INTO SAKAI_PREFERENCES(PREFERENCES_ID,XML,VERSION) VALUES(?,?,?)", userId,
                     "<preferences id='" + userId + "'><properties><property name='value' value='old'/></properties></preferences>", 0L);
 
-            // Establish the table timestamp before this user's query enters the cache.
-            assertTrue(service.applyEditWithAutoCommit("bootstrap-" + UUID.randomUUID(),
-                    edit -> edit.getPropertiesEdit().addProperty("bootstrap", "yes")));
-            long timestampCreated = System.nanoTime();
-            Thread.sleep(4000);
-            PreferencesEdit first = service.edit(userId);
-            first.getPropertiesEdit().addProperty("value", "new");
-            service.commit(first);
+            assertEquals("old", service.getPreferences(userId).getProperties().getProperty("value"));
+            // An external database update leaves the actual Hibernate query cache stale.
+            assertEquals(1, jdbc.update("UPDATE SAKAI_PREFERENCES SET XML=?,VERSION=1 WHERE PREFERENCES_ID=?",
+                    "<preferences id='" + userId + "'><properties><property name='value' value='new'/>"
+                            + "<property name='preserved' value='latest'/></properties></preferences>", userId));
             assertEquals(Long.valueOf(1), version(jdbc, userId));
-
-            // CreatedExpiryPolicy updates retain the original deadline. Query results are newer.
-            while (System.nanoTime() - timestampCreated < TimeUnit.SECONDS.toNanos(EXPIRY_SECONDS) + TimeUnit.MILLISECONDS.toNanos(500)) {
-                Thread.sleep(100);
-            }
-            assertTrue("The cached query must survive the original timestamp deadline",
-                    ignite.cache("default-query-results-region").size() > 0);
+            assertTrue(ignite.cache("default-query-results-region").size() > 0);
+            assertEquals("old", service.getPreferences(userId).getProperties().getProperty("value"));
             assertEquals(1, ignite.cluster().nodes().size());
             for (int attempt = 1; attempt <= 2; attempt++) {
-                assertEquals("new", service.getPreferences(userId).getProperties().getProperty("value"));
                 PreferencesEdit edit = service.edit(userId);
+                assertEquals("new", edit.getProperties().getProperty("value"));
+                assertEquals("latest", edit.getProperties().getProperty("preserved"));
                 edit.getPropertiesEdit().addProperty("attempt", Integer.toString(attempt));
                 service.commit(edit);
                 assertEquals(Long.valueOf(attempt + 1), version(jdbc, userId));
@@ -124,14 +93,6 @@ public class PreferencesServiceCacheTest {
     }
 
     private IgniteConfiguration igniteConfiguration(String name) {
-        DefaultListableBeanFactory beans = productionBeans();
-        DataStorageConfiguration storage = hibernateStorage(beans);
-        storage.getDefaultDataRegionConfiguration().setInitialSize(32L * 1024 * 1024).setMaxSize(128L * 1024 * 1024);
-        for (DataRegionConfiguration region : storage.getDataRegionConfigurations()) {
-            if (!"hibernate_timestamps_region".equals(region.getName())) {
-                region.setInitialSize(32L * 1024 * 1024).setMaxSize(128L * 1024 * 1024).setEmptyPagesPoolSize(1000);
-            }
-        }
         TcpDiscoveryVmIpFinder finder = new TcpDiscoveryVmIpFinder();
         finder.setAddresses(List.of("127.0.0.1:48573"));
         return new IgniteConfiguration().setIgniteInstanceName(name).setConsistentId(name).setLocalHost("127.0.0.1")
@@ -142,32 +103,18 @@ public class PreferencesServiceCacheTest {
                 .setMetricsLogFrequency(0).setPublicThreadPoolSize(2).setSystemThreadPoolSize(2)
                 .setStripedPoolSize(2).setServiceThreadPoolSize(2).setDataStreamerThreadPoolSize(1)
                 .setQueryThreadPoolSize(2).setAsyncCallbackPoolSize(2).setRebalanceThreadPoolSize(1)
-                .setDataStorageConfiguration(storage)
-                .setCacheConfiguration(hibernateCaches(beans));
-    }
-
-    private DefaultListableBeanFactory productionBeans() {
-        DefaultListableBeanFactory beans = new DefaultListableBeanFactory();
-        beans.setBeanExpressionResolver(new StandardBeanExpressionResolver());
-        new XmlBeanDefinitionReader(beans).loadBeanDefinitions("classpath:/WEB-INF/ignite-components.xml");
-        return beans;
-    }
-
-    private DataStorageConfiguration hibernateStorage(DefaultListableBeanFactory beans) {
-        BeanDefinitionHolder storage = (BeanDefinitionHolder) beans.getBeanDefinition("org.sakaiproject.ignite.SakaiIgniteConfiguration")
-                .getPropertyValues().getPropertyValue("dataStorageConfiguration").getValue();
-        beans.registerBeanDefinition("testDataStorage", storage.getBeanDefinition());
-        return beans.getBean("testDataStorage", DataStorageConfiguration.class);
+                .setDataStorageConfiguration(new DataStorageConfiguration().setDefaultDataRegionConfiguration(
+                        new DataRegionConfiguration().setInitialSize(32L * 1024 * 1024).setMaxSize(128L * 1024 * 1024)))
+                .setCacheConfiguration(hibernateCaches());
     }
 
     @SuppressWarnings("unchecked")
-    private CacheConfiguration<?, ?>[] hibernateCaches(DefaultListableBeanFactory beans) {
+    private CacheConfiguration<?, ?>[] hibernateCaches() {
+        DefaultListableBeanFactory beans = new DefaultListableBeanFactory();
+        new XmlBeanDefinitionReader(beans).loadBeanDefinitions("classpath:/WEB-INF/ignite-components.xml");
         List<CacheConfiguration<?, ?>> caches = (List<CacheConfiguration<?, ?>>) beans.getBean("org.sakaiproject.ignite.cache.list.hibernate");
         for (CacheConfiguration<?, ?> cache : caches) {
-            // Preserve the production choice of eternal versus finite expiry, shortening only finite deadlines.
-            if (!cache.getExpiryPolicyFactory().create().getExpiryForCreation().isEternal()) {
-                cache.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new javax.cache.expiry.Duration(TimeUnit.SECONDS, EXPIRY_SECONDS)));
-            }
+            cache.setDataRegionName(null);
         }
         return caches.toArray(new CacheConfiguration<?, ?>[0]);
     }

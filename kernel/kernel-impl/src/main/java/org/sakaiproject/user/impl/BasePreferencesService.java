@@ -240,7 +240,7 @@ public class BasePreferencesService implements PreferencesService
     @Override
     public PreferencesEdit edit(String id) throws PermissionException, InUseException, IdUnusedException {
         unlock(SECURE_EDIT_PREFS, preferencesReference(id));
-        BasePreferences edit = fromRecord(findRecord(id, transactionTemplate));
+        BasePreferences edit = fromRecord(findRecord(id, transactionTemplate, false));
         if (edit == null) {
             unlock(SECURE_ADD_PREFS, preferencesReference(id));
             edit = new BasePreferences(id);
@@ -326,7 +326,7 @@ public class BasePreferencesService implements PreferencesService
 		}
 
 		try {
-			return fromRecord(findRecord(id, readTransactionTemplate));
+			return fromRecord(findRecord(id, readTransactionTemplate, true));
 		} catch (IllegalStateException e) {
 			log.warn("Ignoring invalid preferences for user {}: {}", id, e.getMessage());
 			return null;
@@ -376,7 +376,7 @@ public class BasePreferencesService implements PreferencesService
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_PREFS, preferencesReference(id));
 
-        if (findRecord(id, transactionTemplate) != null) {
+        if (findRecord(id, transactionTemplate, false) != null) {
             throw new IdUsedException(id);
         }
         BasePreferences edit = new BasePreferences(id);
@@ -462,8 +462,8 @@ public class BasePreferencesService implements PreferencesService
 	}
 
     // Finish each transaction before returning an edit or reporting a successful save.
-    private PreferencesRecord findRecord(String id, TransactionTemplate transaction) {
-        return transaction.execute(status -> repository.findCurrentById(id).orElse(null));
+    private PreferencesRecord findRecord(String id, TransactionTemplate transaction, boolean cacheable) {
+        return transaction.execute(status -> repository.findCurrentById(id, cacheable).orElse(null));
     }
 
     private void savePreferences(PreferencesRecord record) {
@@ -474,7 +474,7 @@ public class BasePreferencesService implements PreferencesService
         } catch (OptimisticLockException | OptimisticLockingFailureException e) {
             throw new PreferencesConflictException(record.getId(), e);
         } catch (DataIntegrityViolationException e) {
-            if (inserting && findRecord(record.getId(), transactionTemplate) != null) {
+            if (inserting && findRecord(record.getId(), transactionTemplate, false) != null) {
                 throw new PreferencesConflictException(record.getId(), e);
             }
             throw e;
