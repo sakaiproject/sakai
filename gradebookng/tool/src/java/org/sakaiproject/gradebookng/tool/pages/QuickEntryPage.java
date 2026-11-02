@@ -222,19 +222,19 @@ public class QuickEntryPage extends BasePage {
             final List<String> gradableUserIds = this.businessService.getGradeableUsers(gradebookUid, siteId, null);
             final List<User> gradableUsers = this.businessService.getUsers(gradableUserIds);
             Map<String, List<String>> groupContainer = this.businessService.getGroupMemberships(gradebookUid, siteId);
+            final Set<String> groupMembers = params.get("groupNow").isNull() ? null : new HashSet<>(
+                    groupContainer.get("/site/" + getCurrentSiteId() + "/group/" + params.get("groupNow").toString()));
+            final List<User> visibleUsers = gradableUsers.stream()
+                    .filter(user -> groupMembers == null || groupMembers.contains(user.getId())).toList();
             List<QuickEntryRowModel> rows = new ArrayList<>();
             final Map<String, GradeDefinition> grades = this.businessService.getGradesForStudentsForItem(
-                    gradebookUid, siteId, this.assignmentNow.getId(), gradableUserIds);
+                    gradebookUid, siteId, this.assignmentNow.getId(), visibleUsers.stream().map(User::getId).toList());
 
-            int totalstudents = 0;
+            int totalstudents = gradableUsers.size();
             int studentsnow = 0;
-            for (User userNow: gradableUsers) {
+            for (User userNow: visibleUsers) {
                 final String uid = userNow.getId();
                 QuickEntryRowModel rowNow = new QuickEntryRowModel();
-                totalstudents++;
-                if(!params.get("groupNow").isNull() && !groupContainer.get("/site/" + getCurrentSiteId() + "/group/"+params.get("groupNow").toString()).contains(uid)){
-                    continue;
-                }
                 studentsnow++;
                 rowNow.setName(userNow.getLastName() + ", " + userNow.getFirstName() + " (" + userNow.getDisplayId() + ')');
                 final GradeDefinition grade = grades.get(uid);

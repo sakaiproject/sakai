@@ -987,6 +987,14 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals("Comment only", byStudent.get(user2).getGradeComment());
         assertFalse(byStudent.get(user2).isExcused());
 
+        List<GradeDefinition> filteredGrades = gradingService.getGradesForStudentsForItem(
+                gradebook.getUid(), siteId, assignmentId, new ArrayList<>(List.of(user2)));
+        assertEquals(1, filteredGrades.size());
+        assertEquals(user2, filteredGrades.get(0).getStudentUid());
+        assertEquals("Comment only", filteredGrades.get(0).getGradeComment());
+        assertTrue(gradingService.getGradesForStudentsForItem(
+                gradebook.getUid(), siteId, assignmentId, new ArrayList<>()).isEmpty());
+
         switchToUser2();
         assertThrows(GradingSecurityException.class, () -> gradingService.getGradesForStudentsForItem(
                 gradebook.getUid(), siteId, assignmentId, new ArrayList<>(List.of(user1))));

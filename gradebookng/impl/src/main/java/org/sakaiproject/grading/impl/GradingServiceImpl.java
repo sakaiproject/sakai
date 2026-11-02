@@ -1711,7 +1711,7 @@ public class GradingServiceImpl implements GradingService {
             }
 
             // now, we can populate the grade information
-            final List<String> studentsWithGradeRec = new ArrayList<>();
+            final Set<String> studentsWithGradeRec = new HashSet<>();
             final List<AssignmentGradeRecord> gradeRecs = getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIds);
             if (gradeRecs != null) {
                 if (Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradebook.getGradeType())) {
