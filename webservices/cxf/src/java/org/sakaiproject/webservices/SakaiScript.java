@@ -224,12 +224,16 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session session = establishSession(sessionid);
 
+        UserEdit userEdit = null;
         try {
-            UserEdit userEdit = null;
             String userid = userDirectoryService.getUserByEid(eid).getId();
             userEdit = userDirectoryService.editUser(userid);
             userDirectoryService.removeUser(userEdit);
         } catch (Exception e) {
+            // release the edit lock if we obtained it but the removal failed, otherwise the user stays locked
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -274,8 +278,10 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setPassword(password);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
-            log.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
+            log.error("WS changeUserInfo(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -340,7 +346,9 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setLastName(lastname);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS changeUserName(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -373,7 +381,9 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setEmail(email);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS changeUserEmail(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -406,7 +416,9 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setType(type);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS changeUserType(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -439,7 +451,9 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setPassword(password);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS changeUserPassword(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -4072,13 +4086,18 @@ public class SakaiScript extends AbstractWebService {
             throw new RuntimeException("WS setUserProperty(): Permission denied. Restricted to super users.");
         }
 
+        UserEdit user = null;
         try {
             String userid = userDirectoryService.getUserByEid(eid).getId();
-            UserEdit user = userDirectoryService.editUser(userid);
+            user = userDirectoryService.editUser(userid);
             user.getPropertiesEdit().addProperty(key, value);
             userDirectoryService.commitEdit(user);
         }
         catch (Exception e) {
+            // release the edit lock if we obtained it but the commit failed, otherwise the user stays locked
+            if (user != null && user.isActiveEdit()) {
+                userDirectoryService.cancelEdit(user);
+            }
             log.warn("WS setUserProperty(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return "failure";
         }
