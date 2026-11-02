@@ -140,7 +140,6 @@ class RubricsTest extends SakaiUiTestBase {
 
         softDeleteSiteRubric(siteRubricByTitle(trashTitle));
         openDeletedRubrics();
-        deletedRubric = deletedRubricByTitle(trashTitle);
         assertThat(deletedRubric).hasCount(1);
         deletedRubric.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
             .setName(Pattern.compile("^Permanently delete\\b"))).click();
