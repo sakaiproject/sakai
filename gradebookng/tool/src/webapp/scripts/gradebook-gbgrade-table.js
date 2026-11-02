@@ -2516,7 +2516,10 @@ GbGradeTable.setupKeyboardNavigation = function() {
       if (GbGradeTable.isBoundaryCell(rowIndex, colIndex)) {
         if (!inBoundaryCell) {
           inBoundaryCell = true;
-          return;
+          // Only skip navigation on entry; grade editing must handle the first key.
+          if (["Tab", "ArrowRight", "ArrowLeft"].includes(event.key)) {
+            return;
+          }
         }
   
         if ((event.key === "Tab" || event.key === "ArrowRight") && colIndex === totalColumns - 1) {
