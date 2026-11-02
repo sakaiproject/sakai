@@ -392,7 +392,7 @@ public class StatisticsService {
                 itemStatistics = getItemStatisticsForFillInItem(item, submissionSet, publishedAnswers);
                 break;
             case MATCHING_ID:
-                itemStatistics = getItemStatisticsForMatchingItem(submissionSet, publishedAnswers);
+                itemStatistics = getItemStatisticsForMatchingItem(item, submissionSet, publishedAnswers);
                 break;
             case EXTENDED_MATCHING_ITEMS_ID:
                 itemStatistics = getItemStatisticsForExtendedMatchingItem(item, submissionSet, publishedAnswers);
@@ -834,7 +834,7 @@ public class StatisticsService {
                 .build();
     }
 
-    private ItemStatistics getItemStatisticsForMatchingItem(Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
+    private ItemStatistics getItemStatisticsForMatchingItem(ItemDataIfc item, Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
         Map<Long, Set<ItemGradingData>> itemgradingDataByAssessmentGradingId = gradingData.stream()
                 .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toSet()));
 
@@ -856,6 +856,18 @@ public class StatisticsService {
                     // With a blank answer there should only one ItemGradingData per submission
                     // But to be safe, let's break out of the loop to avoid double counting
                     blankAnswers++;
+                    continue;
+                }
+
+                // None of the Above has no PublishedAnswer; it is correct only for a distractor prompt.
+                if (answerId < 0) {
+                    for (ItemTextIfc itemText : item.getItemTextSet()) {
+                        if (itemText.getId().equals(itemGradingData.getPublishedItemTextId())
+                                && gradingService.isDistractor(itemText)) {
+                            correctAnswers++;
+                            break;
+                        }
+                    }
                     continue;
                 }
 
