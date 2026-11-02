@@ -818,7 +818,11 @@ function clickInsertLink(field){
   if (match) {
     const currentQuestionsCount = document.querySelectorAll("[id^='assessmentForm:parts:" + match[1] + ":parts:'][id$=':modify']").length;
     const targetFocusId = 'assessmentForm:parts:' + match[1] + ':parts:' + currentQuestionsCount + ':modify';
-    sessionStorage.setItem('pendingFocusId', targetFocusId);
+    try {
+      sessionStorage.setItem('pendingFocusId', targetFocusId);
+    } catch (error) {
+      console.warn("Could not save to sessionStorage:", error);
+    }
   }
 
   var insertlinkid = field.id.replace("changeQType", "hiddenlink");
