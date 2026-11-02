@@ -3993,9 +3993,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String getDeepLink(String context, String assignmentId, String userId) throws Exception {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
-        boolean allowReadAssignment = permissionCheck(SECURE_ACCESS_ASSIGNMENT, resourceString, userId);
+        Assignment assignment = getAssignment(assignmentId);
+        boolean allowReadAssignment = permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, userId);
         boolean allowAddAssignment = permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, userId) || (!getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, userId).isEmpty());
-        boolean allowSubmitAssignment = permissionCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, userId);
+        boolean allowSubmitAssignment = permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment, userId);
         boolean allowGradeAssignment = permissionCheck(SECURE_GRADE_ASSIGNMENT_SUBMISSION, resourceString, userId);
 
         return getDeepLinkWithPermissions(context, assignmentId, allowReadAssignment, allowAddAssignment, allowSubmitAssignment, allowGradeAssignment);

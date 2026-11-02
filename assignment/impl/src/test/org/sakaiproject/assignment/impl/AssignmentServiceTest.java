@@ -3740,9 +3740,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void releasedFeedbackEmailsUseStudentLinksForEachSubmitter() throws Exception {
+    public void releasedFeedbackEmailsUseRecipientPermissionsForEachSubmitter() throws Exception {
         String context = UUID.randomUUID().toString();
-        Set<String> studentIds = Set.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        String submittingStudentId = UUID.randomUUID().toString();
+        String readOnlyStudentId = UUID.randomUUID().toString();
+        Set<String> studentIds = Set.of(submittingStudentId, readOnlyStudentId);
         AssignmentSubmission submission = createNewGroupSubmission(context, UUID.randomUUID().toString(), studentIds);
         Assignment assignment = submission.getAssignment();
         Site site = siteService.getSite(context);
@@ -3752,16 +3754,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(site.getUsers()).thenReturn(studentIds);
         when(serverConfigurationService.getPortalUrl()).thenReturn("https://sakai.example/portal");
 
-        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String groupReference = assignment.getGroups().iterator().next();
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
         for (String studentId : studentIds) {
             User student = mock(User.class);
             when(student.getId()).thenReturn(studentId);
             when(userDirectoryService.getUser(studentId)).thenReturn(student);
-            when(securityService.unlock(studentId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, contextReference)).thenReturn(true);
-            when(securityService.unlock(studentId, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, contextReference)).thenReturn(true);
+            when(securityService.unlock(studentId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, groupReference)).thenReturn(true);
         }
+        when(securityService.unlock(submittingStudentId, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, groupReference)).thenReturn(true);
 
         assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
                 AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
@@ -3795,12 +3797,27 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         for (int i = 0; i < recipients.getAllValues().size(); i++) {
             Set<User> users = recipients.getAllValues().get(i);
             Assert.assertEquals(1, users.size());
-            notifiedIds.add(users.iterator().next().getId());
+            String recipientId = users.iterator().next().getId();
+            notifiedIds.add(recipientId);
+            String action = submittingStudentId.equals(recipientId) ? "doView_submission" : "doView_assignment_as_student";
             Assert.assertEquals("https://sakai.example/portal/directtool/assignments-tool?assignmentId="
                     + assignment.getId() + "&assignmentReference=" + assignmentReference
-                    + "&panel=Main&sakai_action=doView_submission", replacements.getAllValues().get(i).get("url"));
+                    + "&panel=Main&sakai_action=" + action, replacements.getAllValues().get(i).get("url"));
         }
         Assert.assertEquals(studentIds, notifiedIds);
+
+        Mockito.clearInvocations(userMessagingService);
+        when(site.getToolForCommonId(AssignmentConstants.TOOL_ID)).thenReturn(null);
+        assignmentService.updateSubmission(submission);
+        recipients = ArgumentCaptor.forClass(Set.class);
+        replacements = ArgumentCaptor.forClass(Map.class);
+        verify(userMessagingService, Mockito.times(2)).message(recipients.capture(), Mockito.any(Message.class),
+                eq(List.of(MessageMedium.EMAIL)), replacements.capture(), eq(NotificationService.NOTI_REQUIRED));
+        for (Map<String, Object> replacement : replacements.getAllValues()) {
+            Assert.assertEquals("", replacement.get("url"));
+            Assert.assertNotNull(replacement.get("bundle"));
+            Assert.assertEquals(assignment.getTitle(), replacement.get("title"));
+        }
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {

@@ -62,6 +62,8 @@ public class EmailUtil {
     public Map<String, Object> getReleaseGradeReplacements(AssignmentSubmission submission, String siteId, String userId) {
 
         Map<String, Object> map = new HashMap<>();
+        map.put("url", "");
+        map.put("bundle", resourceLoader);
         try {
             Assignment a = submission.getAssignment();
             Site site = siteService.getSite(siteId);
@@ -69,7 +71,6 @@ public class EmailUtil {
             map.put("siteUrl", site.getUrl());
             map.put("title", a.getTitle());
             map.put("url", assignmentService.getDeepLink(siteId, a.getId(), userId));
-            map.put("bundle", resourceLoader);
         } catch (Exception e) {
             log.warn("Failed to get email replacements", e);
         }
