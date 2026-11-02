@@ -2492,7 +2492,8 @@ public class ExtractionHelper
 
         String label = "" + answerLabel++;
         answer.setLabel(label); // up to 26, is this a problem?
-        answer.setText(makeFCKAttachment(answerText));
+        // Fill-in-the-blank answer keys are plain text, not formatted question content.
+        answer.setText(TypeIfc.FILL_IN_BLANK.equals(item.getTypeId()) ? answerText : makeFCKAttachment(answerText));
         answer.setItemText(itemText);
 
         // correct answer and score
