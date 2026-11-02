@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -140,7 +141,11 @@ public class ElasticSearchResult implements SearchResult {
             }
 
             String highlighted = highlight(content, 5);
-            return highlighted != null ? highlighted : "";
+            if (StringUtils.isNotBlank(highlighted)) {
+                return highlighted;
+            }
+            // the match was in another field, such as the title, so show the start of the content
+            return StringEscapeUtils.escapeHtml4(StringUtils.abbreviate(content.trim(), 200));
         } catch (Exception e) {
             log.warn("Failed to highlight search result for [{}]: {}", searchTerms, e.getMessage());
             return "";
