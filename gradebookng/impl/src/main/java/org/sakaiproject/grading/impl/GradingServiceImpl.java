@@ -5709,41 +5709,28 @@ public class GradingServiceImpl implements GradingService {
         }
     }
 
-    // What this part does is search in one gradebook or several (if isGradebookGroupEnabled is active)
-    // for the category that contains the assignment. When it finds it, it retrieves the points for the
-    // category (category.getPointsForCategory()) and stores them in a HashMap that keeps track
-    // of the gradebook + category score. In the end, instead of using the old Double,
-    // we will iterate through the HashMap, using the Double from each entry, and perform
-    // the same check as before.
     @Override
     public void buildGradebookPointsMap(String gbUid, String siteId, String assignmentRef,
-    Map<String, Double> gradebookPointsMap, String newCategoryString) {
-        Long catRef = -1L;
-
-        List<CategoryDefinition> categoryDefinitions = getCategoryDefinitions(gbUid, siteId);
-        if (!newCategoryString.equals("-1") || assignmentRef.isEmpty()) {
-            // NO DEBERÍA EJECUTARSE
-            // TODO JUANMA CATEGORIA VACIA
-            // catRefList = newCategoryString;
-        } else {
-            for (CategoryDefinition categorie : categoryDefinitions) {
-                if (categorie.isAssignmentInThisCategory(assignmentRef)) {
-                    catRef = categorie.getId();
+            Map<String, Double> gradebookPointsMap, String newCategoryString) {
+        List<String> selectedCategoryIds = Arrays.stream(newCategoryString.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+        for (CategoryDefinition category : getCategoryDefinitions(gbUid, siteId)) {
+            // Published assignments retain their existing category when none is submitted.
+            boolean selected = "-1".equals(newCategoryString)
+                    ? StringUtils.isNotBlank(assignmentRef) && category.isAssignmentInThisCategory(assignmentRef)
+                    : selectedCategoryIds.contains(category.getId().toString());
+            if (!selected) {
+                continue;
+            }
+            if (category.getDropKeepEnabled() && !category.getEqualWeight()) {
+                Double points = category.getPointsForCategory();
+                if (points != null) {
+                    gradebookPointsMap.put(gbUid, points);
                 }
             }
-        }
-
-        if (catRef != -1) {
-            for (CategoryDefinition thisCategoryDefinition : categoryDefinitions) {
-                if (Objects.equals(thisCategoryDefinition.getId(), catRef)) {
-                    if (thisCategoryDefinition.getDropKeepEnabled() && !thisCategoryDefinition.getEqualWeight()) {
-                        Double thisCategoryPoints = thisCategoryDefinition.getPointsForCategory();
-                        if (thisCategoryPoints != null) {
-                            gradebookPointsMap.put(gbUid, thisCategoryPoints);
-                        }
-                    }
-                }
-            }
+            // Saving also uses the first matching category in Gradebook order.
+            break;
         }
     }
 

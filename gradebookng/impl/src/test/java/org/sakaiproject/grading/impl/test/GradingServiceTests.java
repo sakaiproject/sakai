@@ -390,6 +390,83 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertRejectedCancellationUpdate(gradebook, categoryId);
     }
 
+    @Test
+    public void gradebookPointsMapUsesSelectedCategoryForNewAndEditedAssignments() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        for (String assignmentRef : List.of("", "first")) {
+            Map<String, Double> points = new HashMap<>();
+            gradingService.buildGradebookPointsMap(siteId, siteId, assignmentRef, points, categoryId.toString());
+            assertEquals(Map.of(siteId, 3D), points);
+        }
+        Map<String, Double> points = new HashMap<>();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "first", points, "-1");
+        assertEquals(Map.of(siteId, 3D), points);
+    }
+
+    @Test
+    public void gradebookPointsMapResolvesSelectedCategoriesInEachGradebook() {
+        Gradebook gradebook = createGradebook();
+        Gradebook groupGradebook = createGroupGradebook();
+        Long categoryId = cancellationCategory(gradebook, 1, 0, 0, false);
+        Long groupCategoryId = cancellationCategory(groupGradebook, 0, 1, 0, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(groupGradebook, "second", groupCategoryId, 5D);
+        Map<String, Double> points = new HashMap<>();
+        String selectedCategories = categoryId + ", " + groupCategoryId;
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, selectedCategories);
+        gradingService.buildGradebookPointsMap(groupId, siteId, "", points, selectedCategories);
+        assertEquals(Map.of(siteId, 3D, groupId, 5D), points);
+    }
+
+    @Test
+    public void gradebookPointsMapAllowsEmptyOrdinaryAndEqualWeightCategories() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        Map<String, Double> points = new HashMap<>();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, categoryId.toString());
+        assertTrue(points.isEmpty());
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, "-1");
+        assertTrue(points.isEmpty());
+        for (boolean equalWeight : List.of(false, true)) {
+            categoryId = cancellationCategory(gradebook, 0, 0, equalWeight ? 2 : 0, equalWeight);
+            addCancellationAssessment(gradebook, "allowed-" + equalWeight, categoryId, 3D);
+            gradingService.buildGradebookPointsMap(siteId, siteId, "", points, categoryId.toString());
+            assertTrue(points.isEmpty());
+        }
+    }
+
+    @Test
+    public void gradebookPointsMapUsesTheSameCategoryAsSavingForDuplicateSelections() {
+        Gradebook gradebook = createGradebook();
+        addCategories(gradebook);
+        GradebookInformation settings = gradingService.getGradebookInformation(siteId, siteId);
+        List<CategoryDefinition> categories = gradingService.getCategoryDefinitions(siteId, siteId);
+        categories.forEach(category -> category.setKeepHighest(1));
+        settings.setCategoryType(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY);
+        settings.setCategories(categories);
+        gradingService.updateGradebookSettings(siteId, siteId, settings);
+        Long firstCategoryId = categories.get(0).getId();
+        Long secondCategoryId = categories.get(1).getId();
+        addCancellationAssessment(gradebook, "first", firstCategoryId, 3D);
+        addCancellationAssessment(gradebook, "second", secondCategoryId, 5D);
+        String selectedCategories = secondCategoryId + "," + firstCategoryId;
+        assertEquals(firstCategoryId.toString(),
+                gradingService.buildCategoryGradebookMap(List.of(siteId), selectedCategories, siteId).get(siteId));
+        Map<String, Double> points = new HashMap<>();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, selectedCategories);
+        assertEquals(Map.of(siteId, 3D), points);
+
+        // An unrestricted first category must not inherit a later category's restriction.
+        categories.get(0).setKeepHighest(0);
+        gradingService.updateGradebookSettings(siteId, siteId, settings);
+        points.clear();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, selectedCategories);
+        assertTrue(points.isEmpty());
+    }
+
     private Long cancellationCategory(Gradebook gradebook, int dropHighest, int dropLowest, int keepHighest, boolean equalWeight) {
         CategoryDefinition category = new CategoryDefinition();
         category.setName("Quizzes");
