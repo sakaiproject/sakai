@@ -904,7 +904,8 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
         cq.select(forum)
           .where(
               cb.equal(forum.get("typeUuid"), area.getTypeUuid()),
-              cb.equal(forum.get("area").get("contextId"), area.getContextId())
+              cb.equal(forum.get("area").get("contextId"), area.getContextId()),
+              cb.isTrue(forum.get("faqForum"))
           );
 
         return session.createQuery(cq)
