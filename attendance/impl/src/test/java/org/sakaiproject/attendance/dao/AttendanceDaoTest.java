@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = AttendanceTestConfiguration.class)
-@Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager")
+@Transactional
 public class AttendanceDaoTest {
     @Autowired private AttendanceDao dao;
     @Autowired @Qualifier("attendanceEntityManager") private EntityManager entityManager;

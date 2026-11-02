@@ -56,7 +56,7 @@ import org.sakaiproject.user.api.User;
  */
 @Setter
 @Slf4j
-@Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager")
+@Transactional
 public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
 
     private static final String REFERENCE_ROOT = "/attendance";
@@ -119,7 +119,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public AttendanceEvent getAttendanceEvent(long id) {
         return dao.getAttendanceEvent(id);
     }
@@ -127,7 +127,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<AttendanceEvent> getAttendanceEventsForSite(AttendanceSite aS) {
         return safeAttendanceEventListReturn(dao.getAttendanceEventsForSite(aS));
     }
@@ -196,7 +196,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public AttendanceRecord getAttendanceRecord(Long id) {
         if(id == null) {
             return null;
@@ -229,7 +229,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<AttendanceStatus> getActiveStatusesForSite(AttendanceSite attendanceSite) {
         return safeAttendanceStatusListReturn(dao.getActiveStatusesForSite(attendanceSite));
     }
@@ -237,7 +237,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<AttendanceStatus> getAllStatusesForSite(AttendanceSite attendanceSite) {
         return safeAttendanceStatusListReturn(dao.getAllStatusesForSite(attendanceSite));
     }
@@ -245,7 +245,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public AttendanceStatus getAttendanceStatusById(Long id) {
         return dao.getAttendanceStatusById(id);
     }
@@ -412,7 +412,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public AttendanceItemStats getStatsForEvent(AttendanceEvent event) {
         AttendanceItemStats itemStats = dao.getAttendanceItemStats(event);
 
@@ -454,7 +454,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<AttendanceUserStats> getUserStatsForSite(AttendanceSite aS, String group) {
         List<AttendanceUserStats> userStatsList = dao.getAttendanceUserStatsForSite(aS);
 		List<String> users;
@@ -589,7 +589,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public int getStatsForStatus(AttendanceStats stats, Status status) {
         int stat = 0;
 
@@ -639,7 +639,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<GradingRule> getGradingRulesForSite(AttendanceSite attendanceSite) {
         return dao.getGradingRulesForSite(attendanceSite);
     }
@@ -997,31 +997,27 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
 			// Maybe wait until soft delete is confirmed everywhere
 		}
 
-		try {
-			// TODO: consider bringing over the statuses from the original site
+		// TODO: consider bringing over the statuses from the original site
 
-			List<AttendanceEvent> fromEvents = getAttendanceEventsForSite(fromSite);
-			for (AttendanceEvent fromEvent : fromEvents) {
-				AttendanceEvent toEvent = new AttendanceEvent();
-				toEvent.setAttendanceSite(toSite);
-				toEvent.setName(fromEvent.getName());
-				toEvent.setIsReoccurring(fromEvent.getIsReoccurring());
-				toEvent.setIsRequired(fromEvent.getIsRequired());
+		List<AttendanceEvent> fromEvents = getAttendanceEventsForSite(fromSite);
+		for (AttendanceEvent fromEvent : fromEvents) {
+			AttendanceEvent toEvent = new AttendanceEvent();
+			toEvent.setAttendanceSite(toSite);
+			toEvent.setName(fromEvent.getName());
+			toEvent.setIsReoccurring(fromEvent.getIsReoccurring());
+			toEvent.setIsRequired(fromEvent.getIsRequired());
 
-				if (fromEvent.getStartDateTime() != null) {
-					toEvent.setStartDateTime(fromEvent.getStartDateTime());
-				}
-				if (fromEvent.getEndDateTime() != null) {
-					toEvent.setEndDateTime(fromEvent.getEndDateTime());
-				}
-
-				addAttendanceEventNow(toEvent);
-				log.info("transferCopyEntities: new attendance event ({})", toEvent.getName());
-
-				transversalMap.put("attendance/" + fromEvent.getId(), "attendance/" + toEvent.getId());
+			if (fromEvent.getStartDateTime() != null) {
+				toEvent.setStartDateTime(fromEvent.getStartDateTime());
 			}
-		} catch (Exception e) {
-			log.error("transferCopyEntities error", e);
+			if (fromEvent.getEndDateTime() != null) {
+				toEvent.setEndDateTime(fromEvent.getEndDateTime());
+			}
+
+			addAttendanceEventNow(toEvent);
+			log.info("transferCopyEntities: new attendance event ({})", toEvent.getName());
+
+			transversalMap.put("attendance/" + fromEvent.getId(), "attendance/" + toEvent.getId());
 		}
 
 		return transversalMap;

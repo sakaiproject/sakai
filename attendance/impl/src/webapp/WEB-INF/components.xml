@@ -42,11 +42,11 @@
 
     <!-- DAO uses the Sakai-managed DataSource via the global SessionFactory -->
 
-    <!-- Kernel enables transaction annotations. Attendance explicitly selects the JPA
-         manager on its beans without changing the shared context's default manager. -->
+    <!-- Use the global Hibernate transaction manager so Attendance joins site imports.
+         Its EntityManager uses the same native factory to share the transaction's session. -->
 
     <bean id="attendanceEntityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
+        <property name="entityManagerFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     </bean>
 
 	<!-- Attendance DAO joins service transactions and supports standalone scheduled reads. -->
@@ -133,6 +133,6 @@
 		<property name="dao" ref="org.sakaiproject.attendance.dao.AttendanceDao" />
 		<property name="sakaiProxy" ref="org.sakaiproject.attendance.logic.SakaiProxy" />
 		<property name="attendanceLogic" ref="org.sakaiproject.attendance.logic.AttendanceLogic" />
-		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager" />
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 	</bean>
 </beans>

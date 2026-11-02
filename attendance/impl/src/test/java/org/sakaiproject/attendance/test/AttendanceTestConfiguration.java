@@ -17,20 +17,22 @@ package org.sakaiproject.attendance.test;
 
 import static org.mockito.Mockito.mock;
 
+import java.io.IOException;
+
 import jakarta.persistence.EntityManagerFactory;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.attendance.model.*;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
-import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
+import org.sakaiproject.springframework.orm.hibernate.HibernateSessionFactoryBean;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.user.api.PreferencesService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 /** Loads Attendance's production beans and mappings, with mocks only at Sakai boundaries. */
 @Configuration
@@ -38,23 +40,24 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 @ImportResource("classpath:WEB-INF/components.xml")
 @PropertySource("classpath:hibernate.properties")
 public class AttendanceTestConfiguration extends SakaiTestConfiguration {
-    @Override
-    protected AdditionalHibernateMappings getAdditionalHibernateMappings() {
-        AdditionalHibernateMappingsImpl mappings = new AdditionalHibernateMappingsImpl();
-        mappings.setAnnotatedClasses(new Class<?>[] { AttendanceSite.class, AttendanceEvent.class,
-                AttendanceRecord.class, AttendanceStatus.class, AttendanceGrade.class,
-                AttendanceItemStats.class, AttendanceUserStats.class, GradingRule.class });
-        return mappings;
-    }
-
     @Bean
-    public static org.springframework.beans.factory.config.BeanFactoryPostProcessor entityManagerFactoryAlias() {
-        return beans -> beans.registerAlias("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory", "entityManagerFactory");
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setDataSource(dataSource());
+        factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        factory.setEntityManagerFactoryInterface(EntityManagerFactory.class);
+        factory.setJpaProperties(hibernateProperties());
+        factory.setPackagesToScan("org.sakaiproject.attendance.model");
+        return factory;
     }
 
-    @Bean(name = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager")
-    public JpaTransactionManager jpaTransactionManager(EntityManagerFactory entityManagerFactory) {
-        return new JpaTransactionManager(entityManagerFactory);
+    // Match production: JPA bootstrap plus the native Hibernate factory exposed to legacy callers.
+    @Override
+    @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    public SessionFactory sessionFactory() throws IOException {
+        HibernateSessionFactoryBean factory = new HibernateSessionFactoryBean();
+        factory.setEntityManagerFactory(entityManagerFactory().getObject());
+        return factory.getObject();
     }
 
     @Bean(name = "org.sakaiproject.util.api.LocaleService")
