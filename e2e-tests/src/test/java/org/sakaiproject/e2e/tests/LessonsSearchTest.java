@@ -16,13 +16,20 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.RequestOptions;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Order;
@@ -97,6 +104,37 @@ class LessonsSearchTest extends AbstractToolSearchTest {
         sakai.gotoPath(subpage.get("url").getAsString().replaceFirst("^https?://[^/]+", ""));
 
         assertThat(page.locator("#subpage-breadcrumb-div")).containsText(subpageTitle);
+    }
+
+    @Test
+    @Order(4)
+    void membersFindTheContentAndOutsidersDoNot() {
+        sakai.login(author());
+        String studentId = JsonParser.parseString(page.request().get("/direct/user/student0011.json").text())
+            .getAsJsonObject().get("id").getAsString();
+        APIResponse membership = page.request().post("/direct/membership/new", RequestOptions.create().setForm(FormData.create()
+            .set("locationReference", "/site/" + siteId).set("userId", studentId).set("memberRole", "Student").set("active", "true")));
+        assertTrue(membership.ok(), membership.text());
+
+        sakai.login("student0011");
+        assertNotNull(findItem(search(bodyWord)), "member did not find the text");
+        assertNotNull(await("'" + titleWord + "' to find the subpage for a member", () -> subpageResult(search(titleWord)), r -> r != null));
+
+        becomeNewUser();
+        assertNull(findItem(search(bodyWord)), "outsider found the text");
+        assertNull(findItem(search(bodyWord, "&site=" + siteId)), "outsider found the text by naming the site");
+        assertNull(subpageResult(search(titleWord)), "outsider found the subpage");
+    }
+
+    // a user in no site, as the seeded users may come with a site's roster
+    private void becomeNewUser() {
+        sakai.login("admin");
+        String eid = uniqueWord();
+        APIResponse user = page.request().post("/direct/user/new", RequestOptions.create().setForm(FormData.create()
+            .set("eid", eid).set("firstName", "Search").set("lastName", "Outsider").set("email", eid + "@example.com").set("type", "registered")));
+        assertTrue(user.ok(), user.text());
+        APIResponse become = page.request().get("/direct/session/becomeuser/" + eid + ".json");
+        assertTrue(become.ok(), become.text());
     }
 
     private JsonObject subpageResult(JsonArray results) {

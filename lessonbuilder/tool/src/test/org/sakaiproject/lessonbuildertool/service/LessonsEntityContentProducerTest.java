@@ -19,6 +19,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -27,18 +29,28 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class LessonsEntityContentProducerTest {
 
     private static final long PAGE_ID = 20L;
     private static final long SUBPAGE_ID = 30L;
+    private static final String SITE_REFERENCE = "/site/site";
 
     private SimplePageToolDao dao;
+    private SecurityService securityService;
+    private SiteService siteService;
+    private LessonsAccess lessonsAccess;
     private LessonsEntityContentProducer producer;
 
     @Before
@@ -46,6 +58,13 @@ public class LessonsEntityContentProducerTest {
         dao = mock(SimplePageToolDao.class);
         producer = new LessonsEntityContentProducer();
         producer.setSimplePageToolDao(dao);
+        securityService = mock(SecurityService.class);
+        siteService = mock(SiteService.class);
+        lessonsAccess = mock(LessonsAccess.class);
+        producer.setSecurityService(securityService);
+        producer.setSiteService(siteService);
+        producer.setLessonsAccess(lessonsAccess);
+        when(siteService.siteReference("site")).thenReturn(SITE_REFERENCE);
 
         SimplePage page = new SimplePageImpl("toolpage", "site", "Week 1", null, null);
         page.setPageId(PAGE_ID);
@@ -87,20 +106,18 @@ public class LessonsEntityContentProducerTest {
     @Test
     public void subpageResultOpensTheSubpage() {
         item(5L, PAGE_ID, SimplePageItem.PAGE, Long.toString(SUBPAGE_ID), "Readings", null);
-        when(dao.getPageUrl(SUBPAGE_ID)).thenReturn("https://sakai/page30");
+        when(dao.getPageUrl(SUBPAGE_ID, 5L)).thenReturn("https://sakai/page30");
 
         assertEquals("https://sakai/page30", producer.getUrl("/lessonbuilder/item/5"));
     }
 
     @Test
-    public void onlyTextAndSubpagesAreIndexed() {
+    public void topLevelPagesAndOtherItemsAreNotIndexed() {
         item(6L, 0L, SimplePageItem.PAGE, Long.toString(PAGE_ID), "Week 1", null);
         item(7L, PAGE_ID, SimplePageItem.RESOURCE, "/group/site/file.pdf", "file.pdf", null);
-        item(8L, PAGE_ID, SimplePageItem.COMMENTS, null, "", null);
 
         assertFalse("top-level page", producer.isForIndex("/lessonbuilder/item/6"));
         assertFalse(producer.isForIndex("/lessonbuilder/item/7"));
-        assertFalse(producer.isForIndex("/lessonbuilder/item/8"));
     }
 
     @Test
@@ -115,6 +132,45 @@ public class LessonsEntityContentProducerTest {
         iterator.forEachRemaining(references::add);
 
         assertEquals(List.of("/lessonbuilder/item/9", "/lessonbuilder/item/10"), references);
+    }
+
+    @Test
+    public void memberWhoCanSeeTheItemCanReadIt() {
+        item(20L, PAGE_ID, SimplePageItem.TEXT, null, "", "<p>body</p>");
+        when(securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, SITE_REFERENCE)).thenReturn(true);
+        when(lessonsAccess.isItemAccessible(20L, "site", "user", null)).thenReturn(true);
+        User user = mock(User.class);
+        when(user.getId()).thenReturn("user");
+
+        try (MockedStatic<UserDirectoryService> users = mockStatic(UserDirectoryService.class)) {
+            users.when(UserDirectoryService::getCurrentUser).thenReturn(user);
+            assertTrue(producer.canRead("/lessonbuilder/item/20"));
+        }
+    }
+
+    @Test
+    public void userWhoCannotVisitTheSiteCannotRead() throws Exception {
+        item(21L, PAGE_ID, SimplePageItem.TEXT, null, "", "<p>body</p>");
+        when(siteService.getSiteVisit("site")).thenThrow(new PermissionException("user", "site.visit", "site"));
+
+        assertFalse(producer.canRead("/lessonbuilder/item/21"));
+        verifyNoInteractions(lessonsAccess);
+    }
+
+    @Test
+    public void userWithoutLessonsReadPermissionCannotRead() {
+        item(22L, PAGE_ID, SimplePageItem.TEXT, null, "", "<p>body</p>");
+
+        assertFalse(producer.canRead("/lessonbuilder/item/22"));
+        verifyNoInteractions(lessonsAccess);
+    }
+
+    @Test
+    public void failedAccessCheckDeniesTheResult() {
+        item(23L, PAGE_ID, SimplePageItem.TEXT, null, "", "<p>body</p>");
+        when(securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, SITE_REFERENCE)).thenThrow(new IllegalStateException("broken"));
+
+        assertFalse(producer.canRead("/lessonbuilder/item/23"));
     }
 
     private void item(long id, long pageId, int type, String sakaiId, String name, String html) {

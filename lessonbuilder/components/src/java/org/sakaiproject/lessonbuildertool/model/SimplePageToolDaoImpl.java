@@ -1216,8 +1216,15 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 				return null;
 			}
 		}
-		long pageItemId = pageItems.get(0).getId();
+		return getPageUrl(pageId, pageItems.get(0).getId());
+	}
+
+	public String getPageUrl(long pageId, long pageItemId) {
 		SimplePage page = getPage(pageId);
+		if (page == null) {
+			log.warn("No lessons page with id: {}. Returning null ...", pageId);
+			return null;
+		}
 		SitePage sitePage = siteService.findPage(page.getToolId());
 		if (sitePage == null) {
 			log.error("Failed to find Sakai SitePage for lessons page with id: {}. Returning null ...", pageId);

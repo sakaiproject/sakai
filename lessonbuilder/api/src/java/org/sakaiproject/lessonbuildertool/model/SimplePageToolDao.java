@@ -214,6 +214,9 @@ public interface SimplePageToolDao {
 
 	public String getPageUrl(long pageId);
 
+	// opens the page through the given item linking to it
+	public String getPageUrl(long pageId, long pageItemId);
+
 	// list of all pages in the site, not just top level
 	public List<SimplePage> getSitePages(String siteId);
 

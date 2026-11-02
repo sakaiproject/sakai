@@ -31,6 +31,10 @@ import java.util.Set;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+
 import uk.org.ponder.messageutil.MessageLocator;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -55,7 +59,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 // for use in services where individual checks aren't needed.
 // In general this will be used by services such as /access or /direct
 @Slf4j
-public class LessonsAccess {
+public class LessonsAccess implements BeanFactoryAware {
     // Sakai Service Beans
     @Setter private SimplePageToolDao dao;
     @Setter private MessageLocator messageLocator;
@@ -69,6 +73,7 @@ public class LessonsAccess {
     @Setter private ConditionService conditionService;
     @Setter private ContentHostingService contentHostingService;
     @Setter private GradebookIfc gradebookIfc;
+    private AutowireCapableBeanFactory beanFactory;
 
     @Setter private LessonEntity forumEntity;
     @Setter private LessonEntity quizEntity;
@@ -351,9 +356,14 @@ public class LessonsAccess {
                 .toList();
     }
 
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+	this.beanFactory = (AutowireCapableBeanFactory) beanFactory;
+    }
+
     public SimplePageBean makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage) {
 	if (simplePageBean == null) {
-	    simplePageBean = new SimplePageBean(true);
+	    simplePageBean = new SimplePageBean(beanFactory);
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());

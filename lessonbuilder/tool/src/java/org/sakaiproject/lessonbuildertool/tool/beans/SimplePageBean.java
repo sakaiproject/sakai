@@ -130,14 +130,10 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.lti.ContentItem;
 import org.tsugi.lti.LTIUtil;
@@ -556,48 +552,22 @@ public class SimplePageBean {
 	private int remainingMultimediaFilesToAdd = 0;
 
 	public SimplePageBean() {
-		this(false);
 	}
 
 	/**
-	 * Constructs a new {@code SimplePageBean}, optionally autowiring its dependencies and initializing it.
+	 * Constructs a new {@code SimplePageBean} outside the UI rendering lifecycle, autowired and initialized.
 	 * <p>
-	 * This constructor does not use RSF to fully construct the bean as it would during a UI render.
-	 * Use it only when a {@code SimplePageBean} is needed outside the UI rendering lifecycle and shared
-	 * Sakai dependencies must be injected.
+	 * Callers run in other webapps' threads (search, gradebook, /access), so they pass the Lessons bean factory
+	 * rather than relying on the current web application context. Its annotation config honors the qualifiers.
 	 *
-	 * @param withAutoWireAndInit {@code true} to autowire dependencies and call {@link #init()};
-	 *        {@code false} to skip autowiring and initialization
+	 * @param beanFactory the Lessons application context's bean factory
 	 */
-	public SimplePageBean(boolean withAutoWireAndInit) {
-		if (withAutoWireAndInit) {
-			autowire();
-			init();
+	public SimplePageBean(AutowireCapableBeanFactory beanFactory) {
+		beanFactory.autowireBean(this);
+		if (simplePageToolDao == null) {
+			throw new IllegalStateException("SimplePageBean was not autowired, the Lessons context needs its annotation config");
 		}
-	}
-
-	/**
-	 * Autowires from the Lessons context, whichever webapp the caller is in (search, gradebook, /access).
-	 * That context has no annotation config, so the qualifiers need a resolver of their own.
-	 */
-	private void autowire() {
-		Thread thread = Thread.currentThread();
-		ClassLoader callerClassLoader = thread.getContextClassLoader();
-		thread.setContextClassLoader(SimplePageBean.class.getClassLoader());
-		try {
-			WebApplicationContext context = ContextLoader.getCurrentWebApplicationContext();
-			if (context == null) {
-				log.warn("No Lessons application context to autowire SimplePageBean from");
-				return;
-			}
-			DefaultListableBeanFactory factory = new DefaultListableBeanFactory(context.getAutowireCapableBeanFactory());
-			factory.setAutowireCandidateResolver(new QualifierAnnotationAutowireCandidateResolver());
-			AutowiredAnnotationBeanPostProcessor processor = new AutowiredAnnotationBeanPostProcessor();
-			processor.setBeanFactory(factory);
-			processor.processInjection(this);
-		} finally {
-			thread.setContextClassLoader(callerClassLoader);
-		}
+		init();
 	}
 
 	public void init () {

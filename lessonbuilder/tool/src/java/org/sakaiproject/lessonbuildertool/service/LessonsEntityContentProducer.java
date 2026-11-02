@@ -37,6 +37,8 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -214,9 +216,10 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 	{
 		SimplePageItem item = simplePageToolDao.findItem(idFromRef(reference));
 		if (item != null) {
-			// open the page the item is on, or for a subpage the subpage itself
-			long pageId = item.getType() == SimplePageItem.PAGE ? NumberUtils.toLong(item.getSakaiId()) : item.getPageId();
-			String pageUrl = simplePageToolDao.getPageUrl(pageId);
+			// open the page the item is on, or a subpage through the link that was found
+			String pageUrl = item.getType() == SimplePageItem.PAGE
+					? simplePageToolDao.getPageUrl(NumberUtils.toLong(item.getSakaiId()), item.getId())
+					: simplePageToolDao.getPageUrl(item.getPageId());
 			if (pageUrl != null) {
 				return pageUrl;
 			}
@@ -277,20 +280,7 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		List<Long> itemIds = new ArrayList<>();
 		simplePageToolDao.findTextItemsInSite(context).forEach(item -> itemIds.add(item.getId()));
 		itemIds.addAll(simplePageToolDao.findSubpageItemIdsInSite(context));
-		final Iterator<Long> itemIdsIterator = itemIds.iterator();
-		return new Iterator() {
-			public boolean hasNext() {
-				return itemIdsIterator.hasNext();
-			}
-			
-			public Object next() {
-				return makeReference("item", itemIdsIterator.next());
-			}
-			
-			public void remove() {
-				throw new UnsupportedOperationException("Remove not supported");
-			}
-		};
+		return itemIds.stream().map(id -> makeReference("item", id)).iterator();
 	}
 
 	public boolean isForIndex(String reference)
@@ -299,25 +289,47 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
 	
-		// the same items getSiteContentIterator lists; top-level pages are in the site navigation already
+		// top-level pages are in the site navigation already
 		return item != null && item.getPageId() != 0L
-				&& (SimplePageItem.TEXT == item.getType() || SimplePageItem.PAGE == item.getType());
+				&& (SimplePageItem.TEXT == item.getType() || SimplePageItem.PAGE == item.getType()
+				|| SimplePageItem.COMMENTS == item.getType() || SimplePageItem.STUDENT_CONTENT == item.getType());
 	}
 
 	public boolean canRead(String reference)
 	{
-		//Looks like /lessonbuilder/item/39
-		long itemId = idFromRef(reference);
-		log.debug("canRead:" + reference + " itemId:" + itemId);
-		//Does this need to be synchronized?
-		boolean isVisible = false;
-		synchronized(this) {
-			//For optimization it was suggested to use the following
-			//lessonAccess.makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage);
-			//But I'm not sure if that's possible in this context since the page is likely to always change?
-			isVisible=lessonsAccess.isItemAccessible(itemId, null, UserDirectoryService.getCurrentUser().getId(), null);
+		try {
+			//Looks like /lessonbuilder/item/39
+			long itemId = idFromRef(reference);
+			log.debug("canRead:" + reference + " itemId:" + itemId);
+			SimplePageItem item = simplePageToolDao.findItem(itemId);
+			SimplePage page = item != null ? simplePageToolDao.getPage(item.getPageId()) : null;
+			if (page == null || !canReadLessonsInSite(page.getSiteId())) {
+				return false;
+			}
+			//Does this need to be synchronized?
+			boolean isVisible = false;
+			synchronized(this) {
+				//For optimization it was suggested to use the following
+				//lessonAccess.makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage);
+				//But I'm not sure if that's possible in this context since the page is likely to always change?
+				isVisible=lessonsAccess.isItemAccessible(itemId, page.getSiteId(), UserDirectoryService.getCurrentUser().getId(), null);
+			}
+			return isVisible;
+		} catch (Exception e) {
+			// deny this result rather than fail the search for every tool
+			log.error("Could not check access to {}", reference, e);
+			return false;
 		}
-		return isVisible;
+	}
+
+	// isItemAccessible doesn't check site permissions, and search covers every site unless told otherwise
+	private boolean canReadLessonsInSite(String siteId) {
+		try {
+			siteService.getSiteVisit(siteId);
+		} catch (IdUnusedException | PermissionException e) {
+			return false;
+		}
+		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, siteService.siteReference(siteId));
 	}
 
 	public Map getCustomProperties(String ref)
