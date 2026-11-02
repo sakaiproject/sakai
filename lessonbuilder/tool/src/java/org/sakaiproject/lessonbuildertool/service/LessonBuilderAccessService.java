@@ -91,9 +91,6 @@ import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.SiteService;
@@ -108,7 +105,7 @@ import org.sakaiproject.util.Web;
  * </p>
  */
 @Slf4j
-public class LessonBuilderAccessService implements BeanFactoryAware {
+public class LessonBuilderAccessService {
 
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
@@ -122,7 +119,6 @@ public class LessonBuilderAccessService implements BeanFactoryAware {
 	public static final String RFC1123_DATE = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	public static final Locale LOCALE_US = Locale.US;
 
-	private AutowireCapableBeanFactory beanFactory;
 	@Setter private AuthzGroupService authzGroupService;
 	@Setter private CacheManager cacheManager = null;
 	@Setter private ConditionService conditionService;
@@ -130,6 +126,7 @@ public class LessonBuilderAccessService implements BeanFactoryAware {
 	@Setter private GradebookIfc gradebookIfc = null;
 	@Setter private LessonBuilderAccessAPI lessonBuilderAccessAPI = null;
 	@Setter private LessonEntity scormEntity = null;
+	@Setter private LessonsAccess lessonsAccess;
 	@Setter private MessageLocator messageLocator;
 	@Setter private SessionManager sessionManager = null;
 	@Setter private ToolManager toolManager;
@@ -205,11 +202,6 @@ public class LessonBuilderAccessService implements BeanFactoryAware {
 		    }
 		}
 	    };
-
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) {
-		this.beanFactory = (AutowireCapableBeanFactory) beanFactory;
-	}
 
 	public void init() {
 		lessonBuilderAccessAPI.setHttpAccess(getHttpAccess());
@@ -528,10 +520,7 @@ public class LessonBuilderAccessService implements BeanFactoryAware {
 						// but don't do this unless the item needs checking
 
 						if (!canSeeAll(currentPage.getSiteId())) {
-						SimplePageBean simplePageBean = new SimplePageBean(beanFactory);
-						simplePageBean.setCurrentSiteId(currentPage.getSiteId());
-						simplePageBean.setCurrentPage(currentPage);
-						simplePageBean.setCurrentPageId(currentPage.getPageId());
+						SimplePageBean simplePageBean = lessonsAccess.makeSimplePageBean(null, currentPage.getSiteId(), currentPage);
 
 						if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 							throw new EntityPermissionException(null, null, null);

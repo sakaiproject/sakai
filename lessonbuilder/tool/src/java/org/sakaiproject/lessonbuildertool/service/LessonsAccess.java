@@ -361,9 +361,13 @@ public class LessonsAccess implements BeanFactoryAware {
 	this.beanFactory = (AutowireCapableBeanFactory) beanFactory;
     }
 
+    public SimplePageBean newSimplePageBean() {
+	return new SimplePageBean(beanFactory);
+    }
+
     public SimplePageBean makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage) {
 	if (simplePageBean == null) {
-	    simplePageBean = new SimplePageBean(beanFactory);
+	    simplePageBean = newSimplePageBean();
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());

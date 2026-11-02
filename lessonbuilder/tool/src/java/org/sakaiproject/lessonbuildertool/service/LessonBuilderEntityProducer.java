@@ -130,9 +130,6 @@ import org.sakaiproject.util.MergeConfig;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.LinkMigrationHelper;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.MessageSource;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
@@ -153,7 +150,7 @@ import uk.org.ponder.messageutil.MessageLocator;
  */
 @Slf4j
 public class LessonBuilderEntityProducer extends AbstractEntityProvider
-	implements EntityProducer, EntityTransferrer, Serializable, BeanFactoryAware,
+	implements EntityProducer, EntityTransferrer, Serializable,
 			   CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable, ToolApi  {
 	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
 	private static final String VERSION_ATTR = "version";
@@ -167,8 +164,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
 	public final static String ENTITY_PREFIX = "lessonbuilder";
-
-	private transient AutowireCapableBeanFactory beanFactory;
 
 	public final static String REF_LB = "lessonbuilder/fix/";
 	public final static String REF_LB_ASSIGNMENT = "lessonbuilder/fix/assignment/";
@@ -187,6 +182,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private SiteService siteService;
 	private ContentHostingService contentHostingService;
 	private SimplePageToolDao simplePageToolDao;
+	private LessonsAccess lessonsAccess;
 	private PageIndexService pageIndexService;
 	private RemovedPageService removedPageService;
 	private LessonEntity forumEntity;
@@ -255,11 +251,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	final String ITEMDUMMY = "http://lessonbuilder.sakaiproject.org/";
 
-
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) {
-		this.beanFactory = (AutowireCapableBeanFactory) beanFactory;
-	}
 
 	public void init() {
 		log.info("init()");
@@ -2725,6 +2716,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		simplePageToolDao = (SimplePageToolDao) dao;
 	}
 
+	public void setLessonsAccess(LessonsAccess access) {
+		lessonsAccess = access;
+	}
+
 	public void setPageIndexService(PageIndexService service) {
 		pageIndexService = service;
 	}
@@ -3082,7 +3077,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	SimplePageBean makeSimplePageBean(String siteId) {
-		SimplePageBean simplePageBean = new SimplePageBean(beanFactory);
+		SimplePageBean simplePageBean = lessonsAccess.newSimplePageBean();
 		simplePageBean.setMessageLocator(messageLocator);
 		simplePageBean.setToolManager(toolManager);
 		simplePageBean.setSecurityService(securityService);
