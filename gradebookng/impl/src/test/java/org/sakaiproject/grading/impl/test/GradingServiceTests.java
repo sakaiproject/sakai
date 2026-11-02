@@ -49,6 +49,9 @@ import org.sakaiproject.grading.api.repository.CourseGradeRepository;
 import org.sakaiproject.grading.api.repository.LetterGradePercentMappingRepository;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.impl.GradingServiceImpl;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -76,6 +79,7 @@ import org.springframework.test.util.AopTestUtils;
 @ContextConfiguration(classes = {GradingTestConfiguration.class})
 public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired private SectionAwareness sectionAwareness;
     @Autowired private SessionFactory sessionFactory;
     @Autowired private CourseGradeRepository courseGradeRepository;
     @Autowired private GradingService gradingService;
@@ -113,6 +117,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Before
     public void setup() {
 
+        reset(sectionAwareness);
         reset(sessionManager);
         reset(securityService);
         reset(userDirectoryService);
@@ -949,6 +954,62 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         grades = gradingService.getCourseGradeForStudents(gradebook.getUid(), siteId, Arrays.asList(user1), gradeMapping);
         assertEquals(1, grades.size());
         assertEquals("20.0", grades.get(user1).getCalculatedGrade());
+    }
+
+    @Test
+    public void getGradesForStudentsForItemIncludesCommentsAndExcuses() {
+        Gradebook gradebook = createGradebook();
+        Long assignmentId = createAssignment1(gradebook);
+        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assignmentId, user1, "3.0", "Feedback");
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user1, "3.0", true);
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, user2, "Comment only");
+
+        List<EnrollmentRecord> enrollments = new ArrayList<>();
+        for (String studentId : List.of(user1, user2, "ungraded")) {
+            org.sakaiproject.section.api.coursemanagement.User student = mock(org.sakaiproject.section.api.coursemanagement.User.class);
+            when(student.getUserUid()).thenReturn(studentId);
+            EnrollmentRecord enrollment = mock(EnrollmentRecord.class);
+            when(enrollment.getUser()).thenReturn(student);
+            enrollments.add(enrollment);
+        }
+        when(sectionAwareness.getSiteMembersInRole(siteId, Role.STUDENT)).thenReturn(enrollments);
+        when(securityService.unlock(instructorUser, GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(true);
+
+        List<GradeDefinition> grades = gradingService.getGradesForStudentsForItem(gradebook.getUid(), siteId,
+                assignmentId, new ArrayList<>(List.of(user1, user2, "ungraded", "not-enrolled")));
+        assertEquals(2, grades.size());
+        Map<String, GradeDefinition> byStudent = new HashMap<>();
+        grades.forEach(grade -> byStudent.put(grade.getStudentUid(), grade));
+        assertEquals("3.0", byStudent.get(user1).getGrade());
+        assertEquals("Feedback", byStudent.get(user1).getGradeComment());
+        assertTrue(byStudent.get(user1).isExcused());
+        assertNull(byStudent.get(user2).getGrade());
+        assertEquals("Comment only", byStudent.get(user2).getGradeComment());
+        assertFalse(byStudent.get(user2).isExcused());
+
+        switchToUser2();
+        assertThrows(GradingSecurityException.class, () -> gradingService.getGradesForStudentsForItem(
+                gradebook.getUid(), siteId, assignmentId, new ArrayList<>(List.of(user1))));
+    }
+
+    @Test
+    public void getCourseGradeForStudentsIncludesCommentPresence() {
+        Gradebook gradebook = createGradebook();
+        Long assignmentId = createAssignment1(gradebook);
+        Long courseGradeId = gradingService.getCourseGradeId(gradebook.getId());
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), courseGradeId, user1, "Course feedback");
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), courseGradeId, user2, " ");
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, "assignment-only", "Item feedback");
+
+        Map<String, CourseGradeTransferBean> grades = gradingService.getCourseGradeForStudents(
+                gradebook.getUid(), siteId, List.of(user1, user2, "assignment-only", "ungraded"), Map.of());
+
+        assertEquals(4, grades.size());
+        assertTrue(grades.get(user1).isHasComment());
+        assertFalse(grades.get(user2).isHasComment());
+        assertFalse(grades.get("assignment-only").isHasComment());
+        assertFalse(grades.get("ungraded").isHasComment());
+        assertTrue(gradingService.getCourseGradeForStudents(gradebook.getUid(), siteId, List.of(), Map.of()).isEmpty());
     }
 
     @Test

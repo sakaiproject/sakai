@@ -43,6 +43,7 @@ public class CourseGradeTransferBean implements Serializable {
     private Date dateRecorded;
     private String autoCalculatedGrade;
     private String displayString;
+    private boolean hasComment;
 
     /**
      * Helper to get a grade override preferentially, or fallback to the standard mapped grade.

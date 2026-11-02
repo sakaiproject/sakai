@@ -56,7 +56,7 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Lon
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> findByGradableObjectAndStudentIdIn(GradebookAssignment assignment, Collection<String> studentIds) {
+    public List<Comment> findByGradableObjectAndStudentIdIn(GradableObject assignment, Collection<String> studentIds) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();

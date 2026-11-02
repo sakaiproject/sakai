@@ -1129,7 +1129,7 @@ public class GradebookNgBusinessService {
 				gbCourseGrade.setDisplayString(courseGradeFormatter.format(courseGrade));
 			}
 			sg.setCourseGrade(gbCourseGrade);
-			sg.setHasCourseGradeComment(StringUtils.isNotBlank(getAssignmentGradeComment(gradebook.getUid(), courseGrade.getId(),uid)));
+			sg.setHasCourseGradeComment(courseGrade.isHasComment());
 			// Add to map so we can build on it later
 			matrix.put(uid, sg);
 		}
@@ -2243,6 +2243,20 @@ public class GradebookNgBusinessService {
 
 		log.debug("Retrieved grades for {} assignments for student: {}", rval.size(), studentUuid);
 		return rval;
+	}
+
+	/**
+	 * Gets existing grades, comments and excuses keyed by student UUID.
+	 * Students without a grade record or comment are absent from the result.
+	 */
+	public Map<String, GradeDefinition> getGradesForStudentsForItem(final String gradebookUid, final String siteId,
+			final Long assignmentId, final List<String> studentIds) {
+		final Map<String, GradeDefinition> grades = new HashMap<>();
+		// The grading service filters its input list according to the current user's permissions.
+		for (GradeDefinition grade : gradingService.getGradesForStudentsForItem(gradebookUid, siteId, assignmentId, new ArrayList<>(studentIds))) {
+			grades.put(grade.getStudentUid(), grade);
+		}
+		return grades;
 	}
 
 	public GradeDefinition getGradeForStudentForItem(String gradebookUid, String siteId, String studentId, Long assignmentId) {

@@ -3380,7 +3380,12 @@ public class GradingServiceImpl implements GradingService {
             final List<GradebookAssignment> assignments = getAssignmentsCounted(gradebook.getId());
 
             // this takes care of drop/keep scores
-            final List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), userUuids);
+            final CourseGrade courseGrade = getCourseGrade(gradebook.getId());
+            final List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, userUuids);
+            final List<String> studentIds = gradeRecords.stream().map(CourseGradeRecord::getStudentId).collect(Collectors.toList());
+            final Set<String> studentsWithComments = getComments(courseGrade, studentIds).stream()
+                    .filter(comment -> StringUtils.isNotBlank(comment.getCommentText()))
+                    .map(Comment::getStudentId).collect(Collectors.toSet());
 
             // gradeMap MUST be sorted for the grade mapping to apply correctly
             final Map<String, Double> sortedGradeMap = GradeMappingDefinition.sortGradeMapping(gradeMap);
@@ -3391,6 +3396,7 @@ public class GradingServiceImpl implements GradingService {
 
                 // ID of the course grade item
                 cg.setId(gr.getCourseGrade().getId());
+                cg.setHasComment(studentsWithComments.contains(gr.getStudentId()));
 
                 // set entered grade
                 cg.setEnteredGrade(gr.getEnteredGrade());
@@ -5616,7 +5622,7 @@ public class GradingServiceImpl implements GradingService {
         return equivPoints.doubleValue();
     }
 
-    private List<Comment> getComments(GradebookAssignment assignment, Collection<String> studentIds) {
+    private List<Comment> getComments(GradableObject assignment, Collection<String> studentIds) {
 
         if (studentIds.isEmpty()) {
             return Collections.<Comment>emptyList();
