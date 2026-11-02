@@ -25,8 +25,9 @@ public interface PreferencesRepository extends SpringCrudRepository<PreferencesR
     /**
      * Read the stored row, bypassing the session's persistence context.
      * The returned record is not managed by the session.
+     * @param cacheable whether the query may use cached results
      */
-    Optional<PreferencesRecord> findCurrentById(String id);
+    Optional<PreferencesRecord> findCurrentById(String id, boolean cacheable);
 
     /**
      * Delete the row only if it still has the given version.
