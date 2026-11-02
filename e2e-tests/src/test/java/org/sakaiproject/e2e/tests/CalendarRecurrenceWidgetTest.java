@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -25,6 +26,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
@@ -58,6 +60,19 @@ class CalendarRecurrenceWidgetTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Event").setExact(true)).click();
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Event").setExact(true))).isVisible();
+
+        Boolean startsAtMidnight = (Boolean) page.evaluate("""
+            async ({siteUrl, title, dates}) => {
+                const siteId = siteUrl.split('/').pop();
+                const response = await fetch(`/api/sites/${siteId}/calendar`);
+                if (!response.ok) throw new Error(`Calendar request failed: ${response.status}`);
+                const {events} = await response.json();
+                return dates.every(date => events.some(event => event.title === title
+                    && event.start === new Date(`${date}T00:00:00`).getTime()));
+            }
+            """, Map.of("siteUrl", siteUrl, "title", title,
+                "dates", List.of(first.toString(), first.plusDays(1).toString())));
+        assertTrue(startsAtMidnight, "The recurring events must start at midnight in the browser timezone");
 
         sakai.toolClick("Dashboard");
         assertOccurrence(first, title);
