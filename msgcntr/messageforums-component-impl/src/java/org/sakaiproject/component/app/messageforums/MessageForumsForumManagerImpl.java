@@ -528,8 +528,8 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
       CriteriaBuilder cb = session.getCriteriaBuilder();
 
       CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
-      Root<BaseForumImpl> forum = cq.from(BaseForumImpl.class);
-      Join<BaseForumImpl, AreaImpl> area = forum.join("area");
+      Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
+      Join<OpenForumImpl, AreaImpl> area = forum.join("area");
 
       forum.fetch("topicsSet", JoinType.LEFT);
 
@@ -582,8 +582,8 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
         CriteriaBuilder cb = session.getCriteriaBuilder();
 
         CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
-        Root<BaseForumImpl> forum = cq.from(BaseForumImpl.class);
-        Join<BaseForumImpl, AreaImpl> area = forum.join("area");
+        Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
 
         forum.fetch("topicsSet", JoinType.LEFT);
 

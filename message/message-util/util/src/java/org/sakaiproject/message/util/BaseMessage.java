@@ -1789,6 +1789,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					{
 						Site site = siteService.getSite(siteId);
 						ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic." + getLabel());
+						if (synTool == null) {
+							continue;
+						}
 						Properties synProps = synTool.getPlacementConfig();
 
 						NodeList synPropNodes = element2.getChildNodes();
