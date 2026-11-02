@@ -167,7 +167,10 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 			String name = attachment.getName();
 			String text = getAttachmentText(attachment.getAttachmentId());
 			// the PDF digester already starts its text with the file name
-			if (name != null && !text.contains(name)) sb.append(" ").append(name);
+			String normalizedText = text.stripLeading();
+			boolean hasNamePrefix = name != null
+					&& (normalizedText.equals(name) || normalizedText.startsWith(name + " "));
+			if (name != null && !hasNamePrefix) sb.append(" ").append(name);
 			sb.append(" ").append(text);
 		}
 		return sb.toString();
@@ -194,10 +197,11 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 	 * The analyzer keeps a name like Course_ReadingGuide.pdf as one word, so its parts are listed too:
 	 * Course_ReadingGuide Course ReadingGuide Reading Guide
 	 */
-	static String getNameWords(String name) {
+	private static String getNameWords(String name) {
 		String baseName = StringUtils.substringBeforeLast(name, ".");
 		String parts = baseName.replaceAll("[\\p{Punct}\\s]+", " ").trim();
-		String words = parts.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
+		String words = StringUtils.normalizeSpace(
+				String.join(" ", StringUtils.splitByCharacterTypeCamelCase(parts)));
 		return String.join(" ", new LinkedHashSet<>(List.of(baseName, parts, words)));
 	}
 

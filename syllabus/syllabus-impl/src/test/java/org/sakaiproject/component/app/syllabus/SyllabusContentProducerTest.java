@@ -96,10 +96,11 @@ public class SyllabusContentProducerTest {
     public void attachmentNameIsIncludedOnceWhenTheTextStartsWithIt() {
         attach("/attachment/site1/Syllabus/notes.pdf", "notes.pdf");
         when(searchIndexBuilder.newEntityContentProducer("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn(resourcesProducer);
-        when(resourcesProducer.getContent("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn("notes.pdf Photosynthesis lecture");
+        when(resourcesProducer.getContent("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn(" notes.pdf Photosynthesis lecture");
 
         String content = producer.getContent(REFERENCE);
 
+        assertTrue(content, content.contains("notes.pdf"));
         assertEquals(content, content.indexOf("notes.pdf"), content.lastIndexOf("notes.pdf"));
     }
 
@@ -113,12 +114,44 @@ public class SyllabusContentProducerTest {
     }
 
     @Test
-    public void wordsOfTheAttachmentName() {
-        assertEquals("Course_Syllabus_2026 Course Syllabus 2026", SyllabusContentProducer.getNameWords("Course_Syllabus_2026.pdf"));
-        assertEquals("SyllabusTest Syllabus Test", SyllabusContentProducer.getNameWords("SyllabusTest.pdf"));
-        assertEquals("week-one reading week one reading", SyllabusContentProducer.getNameWords("week-one reading.pdf"));
-        assertEquals("notes", SyllabusContentProducer.getNameWords("notes.pdf"));
-        assertEquals("README", SyllabusContentProducer.getNameWords("README"));
+    public void wordsOfTheAttachmentNamesAreIncludedInCustomProperties() {
+        for (String name : List.of("Course_Syllabus_2026.pdf", "SyllabusTest.pdf", "week-one reading.pdf",
+                "notes.pdf", "README", "HTTPGuide.pdf", "Week1Notes.pdf")) {
+            attach("/attachment/site1/Syllabus/" + name, name);
+        }
+
+        assertEquals(Map.of("attachment_names", List.of(
+            "Course_Syllabus_2026 Course Syllabus 2026",
+            "SyllabusTest Syllabus Test",
+            "week-one reading week one reading",
+            "notes",
+            "README",
+            "HTTPGuide HTTP Guide",
+            "Week1Notes Week 1 Notes")), producer.getCustomProperties(REFERENCE));
+    }
+
+    @Test
+    public void filenameInsideAnotherWordDoesNotSuppressTheAttachmentName() {
+        attach("/attachment/site1/Syllabus/notes.pdf", "notes.pdf");
+        when(searchIndexBuilder.newEntityContentProducer("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn(resourcesProducer);
+        when(resourcesProducer.getContent("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn("oldnotes.pdf lecture");
+
+        String content = producer.getContent(REFERENCE);
+
+        assertTrue(content, content.contains(" notes.pdf "));
+        assertTrue(content, content.endsWith("oldnotes.pdf lecture"));
+    }
+
+    @Test
+    public void filenameOnlyTextDoesNotDuplicateTheAttachmentName() {
+        attach("/attachment/site1/Syllabus/notes.pdf", "notes.pdf");
+        when(searchIndexBuilder.newEntityContentProducer("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn(resourcesProducer);
+        when(resourcesProducer.getContent("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn(" notes.pdf");
+
+        String content = producer.getContent(REFERENCE);
+
+        assertTrue(content, content.contains("notes.pdf"));
+        assertEquals(content, content.indexOf("notes.pdf"), content.lastIndexOf("notes.pdf"));
     }
 
     @Test
