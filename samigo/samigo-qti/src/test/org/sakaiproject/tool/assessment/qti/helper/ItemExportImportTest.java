@@ -39,10 +39,12 @@ import org.mockito.Mockito;
 import org.sakaiproject.component.cover.ComponentManager;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -180,6 +182,34 @@ public class ItemExportImportTest {
     addAnswer(item, "red|blue", "A", true, null);
     addAnswer(item, "red|blue", "B", true, null);
     assertEquals("true", exportAndImport(item).getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB));
+  }
+
+  @Test
+  public void selectionFeedbackSurvivesExportImportForAllMultipleChoiceTypes() throws Exception {
+    for (Long typeId : new Long[] {TypeIfc.MULTIPLE_CHOICE, TypeIfc.MULTIPLE_CORRECT,
+        TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION}) {
+      ItemData item = newItem(typeId, "Choose an answer");
+      addAnswer(item, "First", "A", true, null);
+      addAnswer(item, "Second", "B", false, null);
+      for (AnswerIfc answer : item.getItemTextSet().iterator().next().getAnswerSet()) {
+        AnswerFeedback feedback = new AnswerFeedback();
+        feedback.setAnswer(answer);
+        feedback.setTypeId(AnswerFeedbackIfc.GENERAL_FEEDBACK);
+        feedback.setText("Feedback for " + answer.getLabel());
+        answer.getAnswerFeedbackSet().add(feedback);
+      }
+
+      String xml = XmlUtil.getDOMString(export(item).getDocument());
+      AuthoringHelper helper = new AuthoringHelper(QTIVersion.VERSION_1_2);
+      Item reloaded = new Item(helper.readXMLDocument(
+          new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))).getDocument(), QTIVersion.VERSION_1_2);
+      Map<String, String> feedbackByLabel = new HashMap<>();
+      for (AnswerIfc answer : importItem(reloaded).getItemTextSet().iterator().next().getAnswerSet()) {
+        feedbackByLabel.put(answer.getLabel(), answer.getGeneralAnswerFeedback());
+      }
+      assertEquals("type " + typeId,
+          Map.of("A", "Feedback for A", "B", "Feedback for B"), feedbackByLabel);
+    }
   }
 
   private ItemFacade exportAndImport(ItemData item) {
