@@ -40,6 +40,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries;
@@ -641,6 +642,33 @@ public class StatisticsServiceTest {
         assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
         assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
         assertEquals(Integer.valueOf(100), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testClassifyMutuallyExclusiveFillInBlankSubmission() {
+        StatisticsService service = new StatisticsService(new GradingService(), cacheManager,
+                new QuestionPoolService(), new StatisticsFacadeQueries());
+        PublishedItemData item = item(1L, TypeIfc.FILL_IN_BLANK);
+        item.addItemMetaData(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB, "true");
+        Map<Long, PublishedAnswer> answers = Map.of(
+                1L, answer(1L, true, 1L, "red|blue", null),
+                2L, answer(2L, true, 2L, "red|blue", null));
+        ItemGradingData firstBlank = gradingData(1L, 1L, 1L);
+        firstBlank.setAnswerText("red");
+        ItemGradingData secondBlank = gradingData(2L, 2L, 1L);
+        secondBlank.setAnswerText("blue");
+        List<ItemGradingData> submission = List.of(firstBlank, secondBlank);
+
+        assertEquals(SubmissionOutcome.CORRECT, service.classifySubmission(item, submission, answers));
+        // Used answers must not leak into a subsequent classification.
+        assertEquals(SubmissionOutcome.CORRECT, service.classifySubmission(item, submission, answers));
+
+        secondBlank.setAnswerText("red");
+        assertEquals(SubmissionOutcome.INCORRECT, service.classifySubmission(item, submission, answers));
+
+        item.getItemMetaDataSet().clear();
+        item.addItemMetaData(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB, "false");
+        assertEquals(SubmissionOutcome.CORRECT, service.classifySubmission(item, submission, answers));
     }
 
     @Test
