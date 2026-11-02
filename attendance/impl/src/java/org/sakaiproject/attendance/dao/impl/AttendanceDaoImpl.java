@@ -43,7 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author David Bauer [dbauer1 (at) udayton (dot) edu]
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
-@Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager")
+@Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
 public class AttendanceDaoImpl implements AttendanceDao {
 
     @Setter

@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = AttendanceTestConfiguration.class)
-@Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager")
+@Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
 public class AttendanceLogicTest {
     @Autowired private AttendanceLogic logic;
     @Autowired private SakaiProxy sakaiProxy;
@@ -153,7 +153,7 @@ public class AttendanceLogicTest {
     }
 
     @Test
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager", propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
+    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
     public void initializesStatusesWhenFirstEntryPointIsAnEventsRead() {
         String siteId = UUID.randomUUID().toString();
         org.sakaiproject.tool.api.Placement placement = org.mockito.Mockito.mock(org.sakaiproject.tool.api.Placement.class);
