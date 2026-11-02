@@ -814,6 +814,13 @@ function resetSelectMenus(){
 }
 
 function clickInsertLink(field){
+  const match = field.id.match(/assessmentForm:parts:(\d+).*:changeQType/);
+  if (match) {
+    const currentQuestionsCount = document.querySelectorAll("[id^='assessmentForm:parts:" + match[1] + ":parts:'][id$=':modify']").length;
+    const targetFocusId = 'assessmentForm:parts:' + match[1] + ':parts:' + currentQuestionsCount + ':modify';
+    sessionStorage.setItem('pendingFocusId', targetFocusId);
+  }
+
   var insertlinkid = field.id.replace("changeQType", "hiddenlink");
   var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
   $(hiddenSelector)[0].click()

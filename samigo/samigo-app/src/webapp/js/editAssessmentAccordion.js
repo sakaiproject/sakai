@@ -45,4 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  const idToFocus = sessionStorage.getItem('pendingFocusId');
+  if (idToFocus) {
+      sessionStorage.removeItem('pendingFocusId');
+      const element = document.getElementById(idToFocus);
+      if (element) { setTimeout(function() { element.focus(); }, 200); }
+  }
 });
