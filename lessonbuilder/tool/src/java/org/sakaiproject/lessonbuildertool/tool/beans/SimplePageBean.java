@@ -6029,7 +6029,7 @@ public class SimplePageBean {
 				if (!item.getSubrequirement()) {
 					completeCache.put(itemId, true);
 					return true;
-				} else if (submission.getGradeString() != null) {
+				} else if (submission != null && submission.getGradeString() != null) {
 				    // assume that assignments always use string grade. this may change
 					boolean ret = isAssignmentComplete(type, assignment, submission, item.getRequirementText());
 					completeCache.put(itemId, ret);
