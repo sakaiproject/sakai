@@ -70,6 +70,7 @@ import java.util.zip.ZipInputStream;
 
 import jakarta.annotation.Resource;
 
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -119,9 +120,13 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.messaging.api.Message;
+import org.sakaiproject.messaging.api.MessageMedium;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
@@ -193,6 +198,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private UserMessagingService userMessagingService;
     private ResourceLoader resourceLoader;
 
     @Before
@@ -3731,6 +3737,87 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         Assert.assertEquals(1, entryNames.size());
         Assert.assertTrue(entryNames.get(0).endsWith("/grades.csv"));
+    }
+
+    @Test
+    public void releasedFeedbackEmailsUseRecipientPermissionsForEachSubmitter() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String submittingStudentId = UUID.randomUUID().toString();
+        String readOnlyStudentId = UUID.randomUUID().toString();
+        Set<String> studentIds = Set.of(submittingStudentId, readOnlyStudentId);
+        AssignmentSubmission submission = createNewGroupSubmission(context, UUID.randomUUID().toString(), studentIds);
+        Assignment assignment = submission.getAssignment();
+        Site site = siteService.getSite(context);
+        ToolConfiguration tool = mock(ToolConfiguration.class);
+        when(tool.getId()).thenReturn("assignments-tool");
+        when(site.getToolForCommonId(AssignmentConstants.TOOL_ID)).thenReturn(tool);
+        when(site.getUsers()).thenReturn(studentIds);
+        when(serverConfigurationService.getPortalUrl()).thenReturn("https://sakai.example/portal");
+
+        String groupReference = assignment.getGroups().iterator().next();
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        for (String studentId : studentIds) {
+            User student = mock(User.class);
+            when(student.getId()).thenReturn(studentId);
+            when(userDirectoryService.getUser(studentId)).thenReturn(student);
+            when(securityService.unlock(studentId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, groupReference)).thenReturn(true);
+        }
+        when(securityService.unlock(submittingStudentId, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, groupReference)).thenReturn(true);
+
+        assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now().minusSeconds(120));
+        submission.setReturned(true);
+        submission.setDateReturned(Instant.now());
+        submission.setGraded(false);
+        submission.setFeedbackComment("Feedback for the group");
+        submission.setGradeReleased(false);
+        Mockito.clearInvocations(userMessagingService);
+
+        assignmentService.updateSubmission(submission);
+        Mockito.verifyNoInteractions(userMessagingService);
+
+        submission.setGradeReleased(true);
+        assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_NONE);
+        assignmentService.updateSubmission(submission);
+        Mockito.verifyNoInteractions(userMessagingService);
+
+        assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+        assignmentService.updateSubmission(submission);
+
+        ArgumentCaptor<Set<User>> recipients = ArgumentCaptor.forClass(Set.class);
+        ArgumentCaptor<Map<String, Object>> replacements = ArgumentCaptor.forClass(Map.class);
+        verify(userMessagingService, Mockito.times(2)).message(recipients.capture(), Mockito.any(Message.class),
+                eq(List.of(MessageMedium.EMAIL)), replacements.capture(), eq(NotificationService.NOTI_REQUIRED));
+        Set<String> notifiedIds = new HashSet<>();
+        for (int i = 0; i < recipients.getAllValues().size(); i++) {
+            Set<User> users = recipients.getAllValues().get(i);
+            Assert.assertEquals(1, users.size());
+            String recipientId = users.iterator().next().getId();
+            notifiedIds.add(recipientId);
+            String action = submittingStudentId.equals(recipientId) ? "doView_submission" : "doView_assignment_as_student";
+            Assert.assertEquals("https://sakai.example/portal/directtool/assignments-tool?assignmentId="
+                    + assignment.getId() + "&assignmentReference=" + assignmentReference
+                    + "&panel=Main&sakai_action=" + action, replacements.getAllValues().get(i).get("url"));
+        }
+        Assert.assertEquals(studentIds, notifiedIds);
+
+        Mockito.clearInvocations(userMessagingService);
+        when(site.getToolForCommonId(AssignmentConstants.TOOL_ID)).thenReturn(null);
+        assignmentService.updateSubmission(submission);
+        recipients = ArgumentCaptor.forClass(Set.class);
+        replacements = ArgumentCaptor.forClass(Map.class);
+        verify(userMessagingService, Mockito.times(2)).message(recipients.capture(), Mockito.any(Message.class),
+                eq(List.of(MessageMedium.EMAIL)), replacements.capture(), eq(NotificationService.NOTI_REQUIRED));
+        for (Map<String, Object> replacement : replacements.getAllValues()) {
+            Assert.assertEquals("", replacement.get("url"));
+            Assert.assertNotNull(replacement.get("bundle"));
+            Assert.assertEquals(assignment.getTitle(), replacement.get("title"));
+        }
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {
