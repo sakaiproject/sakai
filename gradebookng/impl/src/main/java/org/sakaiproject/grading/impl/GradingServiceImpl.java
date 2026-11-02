@@ -5720,12 +5720,17 @@ public class GradingServiceImpl implements GradingService {
             boolean selected = "-1".equals(newCategoryString)
                     ? StringUtils.isNotBlank(assignmentRef) && category.isAssignmentInThisCategory(assignmentRef)
                     : selectedCategoryIds.contains(category.getId().toString());
-            if (selected && category.getDropKeepEnabled() && !category.getEqualWeight()) {
+            if (!selected) {
+                continue;
+            }
+            if (category.getDropKeepEnabled() && !category.getEqualWeight()) {
                 Double points = category.getPointsForCategory();
                 if (points != null) {
                     gradebookPointsMap.put(gbUid, points);
                 }
             }
+            // Saving also uses the first matching category in Gradebook order.
+            break;
         }
     }
 

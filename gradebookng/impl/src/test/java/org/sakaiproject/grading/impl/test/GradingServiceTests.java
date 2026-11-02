@@ -438,6 +438,35 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         }
     }
 
+    @Test
+    public void gradebookPointsMapUsesTheSameCategoryAsSavingForDuplicateSelections() {
+        Gradebook gradebook = createGradebook();
+        addCategories(gradebook);
+        GradebookInformation settings = gradingService.getGradebookInformation(siteId, siteId);
+        List<CategoryDefinition> categories = gradingService.getCategoryDefinitions(siteId, siteId);
+        categories.forEach(category -> category.setKeepHighest(1));
+        settings.setCategoryType(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY);
+        settings.setCategories(categories);
+        gradingService.updateGradebookSettings(siteId, siteId, settings);
+        Long firstCategoryId = categories.get(0).getId();
+        Long secondCategoryId = categories.get(1).getId();
+        addCancellationAssessment(gradebook, "first", firstCategoryId, 3D);
+        addCancellationAssessment(gradebook, "second", secondCategoryId, 5D);
+        String selectedCategories = secondCategoryId + "," + firstCategoryId;
+        assertEquals(firstCategoryId.toString(),
+                gradingService.buildCategoryGradebookMap(List.of(siteId), selectedCategories, siteId).get(siteId));
+        Map<String, Double> points = new HashMap<>();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, selectedCategories);
+        assertEquals(Map.of(siteId, 3D), points);
+
+        // An unrestricted first category must not inherit a later category's restriction.
+        categories.get(0).setKeepHighest(0);
+        gradingService.updateGradebookSettings(siteId, siteId, settings);
+        points.clear();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, selectedCategories);
+        assertTrue(points.isEmpty());
+    }
+
     private Long cancellationCategory(Gradebook gradebook, int dropHighest, int dropLowest, int keepHighest, boolean equalWeight) {
         CategoryDefinition category = new CategoryDefinition();
         category.setName("Quizzes");
