@@ -87,6 +87,8 @@ List your images by
 ## Starting MariaDB/MySQL
 You'll need to have MySQL/MariaDB started up first. The default config of the sakai.properties if for MariaDB on localhost.
 
+The bundled development configuration explicitly uses `sslMode=disable` because this example does not configure database TLS. For production, configure TLS and remove this option to use MariaDB Connector/J 4.0's default `sslMode=verify-full`. Configure `serverSslCert` or a trust store when the server certificate is not already trusted.
+
 Here's a sample to startup MySQL from Docker
 
 ```bash
