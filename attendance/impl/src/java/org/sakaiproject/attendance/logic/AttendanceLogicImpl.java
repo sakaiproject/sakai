@@ -56,7 +56,7 @@ import org.sakaiproject.user.api.User;
  */
 @Setter
 @Slf4j
-@Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+@Transactional
 public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
 
     private static final String REFERENCE_ROOT = "/attendance";
@@ -119,7 +119,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public AttendanceEvent getAttendanceEvent(long id) {
         return dao.getAttendanceEvent(id);
     }
@@ -127,7 +127,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<AttendanceEvent> getAttendanceEventsForSite(AttendanceSite aS) {
         return safeAttendanceEventListReturn(dao.getAttendanceEventsForSite(aS));
     }
@@ -196,7 +196,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public AttendanceRecord getAttendanceRecord(Long id) {
         if(id == null) {
             return null;
@@ -229,7 +229,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<AttendanceStatus> getActiveStatusesForSite(AttendanceSite attendanceSite) {
         return safeAttendanceStatusListReturn(dao.getActiveStatusesForSite(attendanceSite));
     }
@@ -237,7 +237,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<AttendanceStatus> getAllStatusesForSite(AttendanceSite attendanceSite) {
         return safeAttendanceStatusListReturn(dao.getAllStatusesForSite(attendanceSite));
     }
@@ -245,7 +245,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public AttendanceStatus getAttendanceStatusById(Long id) {
         return dao.getAttendanceStatusById(id);
     }
@@ -412,7 +412,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public AttendanceItemStats getStatsForEvent(AttendanceEvent event) {
         AttendanceItemStats itemStats = dao.getAttendanceItemStats(event);
 
@@ -454,7 +454,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<AttendanceUserStats> getUserStatsForSite(AttendanceSite aS, String group) {
         List<AttendanceUserStats> userStatsList = dao.getAttendanceUserStatsForSite(aS);
 		List<String> users;
@@ -589,7 +589,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public int getStatsForStatus(AttendanceStats stats, Status status) {
         int stat = 0;
 
@@ -639,7 +639,7 @@ public class AttendanceLogicImpl implements AttendanceLogic, EntityTransferrer {
     /**
      * {@inheritDoc}
      */
-    @Transactional(transactionManager = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", readOnly = true)
+    @Transactional(readOnly = true)
     public List<GradingRule> getGradingRulesForSite(AttendanceSite attendanceSite) {
         return dao.getGradingRulesForSite(attendanceSite);
     }
