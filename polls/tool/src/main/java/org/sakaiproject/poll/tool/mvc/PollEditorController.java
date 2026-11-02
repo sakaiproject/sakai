@@ -365,7 +365,7 @@ public class PollEditorController {
     private PollForm editPollForm(Poll poll, ZoneId zoneId) {
         PollForm form = new PollForm();
         form.setPollId(poll.getId());
-        form.setText(poll.getText());
+        form.setText(formattedText.unEscapeHtml(poll.getText()));
         form.setDetails(poll.getDescription());
         form.setPublic(poll.isPublic());
         form.setMinOptions(poll.getMinOptions());

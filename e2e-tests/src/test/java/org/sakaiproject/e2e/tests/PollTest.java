@@ -94,6 +94,7 @@ class PollTest extends SakaiUiTestBase {
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator(".sak-banner-success")).isVisible();
+        assertThat(page.locator("#poll-text")).hasValue(POLL_TITLE);
 
         Locator addOptionButton = addOptionControl();
         if (!isVisible(addOptionButton, 5_000)) {
@@ -111,6 +112,7 @@ class PollTest extends SakaiUiTestBase {
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator(".sak-banner-success")).isVisible();
+        assertThat(page.locator("#poll-text")).hasValue(POLL_TITLE);
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator(".sak-banner-success")).containsText("Poll saved successfully");
