@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.common.type.TypeManager;
 import org.sakaiproject.api.common.type.Type;
@@ -39,6 +40,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -52,6 +54,28 @@ public class MessageForumsForumManagerTests extends AbstractTransactionalJUnit4S
     @Autowired private SessionFactory sessionFactory;
     @Autowired private TypeManager types;
     @Autowired @Qualifier("org.sakaiproject.tool.api.ToolManager") private ToolManager toolManager;
+
+    @Test
+    public void getFaqForumForAreaOnlyFindsFaqForumsInRequestedSiteAndType() {
+        Type type = mock(Type.class);
+        when(type.getUuid()).thenReturn("discussion");
+        when(types.createType(any(), any(), any(), any(), any())).thenReturn(type);
+        DiscussionForum ordinary = persistForum("faq-site", "discussion");
+        persistForum("other-site", "discussion").setFaqForum(true);
+        persistForum("faq-site", "other-type").setFaqForum(true);
+        Session session = sessionFactory.getCurrentSession();
+        session.flush();
+        session.clear();
+
+        assertNull(forums.getFaqForumForArea(ordinary.getArea()));
+
+        DiscussionForum faq = persistForum(ordinary.getArea());
+        faq.setFaqForum(true);
+        session.flush();
+        session.clear();
+
+        assertEquals(faq.getId(), forums.getFaqForumForArea(faq.getArea()).getId());
+    }
 
     @Test
     public void findForumsByTypeAndContextIncludesTopicsAndExcludesOtherSitesAndTypes() {
@@ -112,9 +136,14 @@ public class MessageForumsForumManagerTests extends AbstractTransactionalJUnit4S
         area.setPostFirst(false);
         sessionFactory.getCurrentSession().persist(area);
 
+        return persistForum(area);
+    }
+
+    private DiscussionForum persistForum(Area area) {
+        Date now = Date.from(Instant.now());
         DiscussionForum forum = forums.createDiscussionForum();
         forum.setUuid(UUID.randomUUID().toString());
-        forum.setTypeUuid(type);
+        forum.setTypeUuid(area.getTypeUuid());
         forum.setTitle("Imported forum");
         forum.setArea(area);
         forum.setCreatedBy("importer");
