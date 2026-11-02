@@ -113,12 +113,8 @@ class RubricsTest extends SakaiUiTestBase {
     @Order(4)
     void canSoftDeleteRestoreAndPermanentlyDeleteRubric() {
         sakai.createRubric("instructor1", sakaiUrl);
-
-        Locator cancelButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
-            .setName(Pattern.compile("^Cancel$", Pattern.CASE_INSENSITIVE)));
-        if (cancelButton.count() > 0) {
-            cancelButton.first().click(new Locator.ClickOptions().setForce(true));
-        }
+        page.locator("sakai-rubric-edit .modal.show .btn-close").click();
+        assertThat(page.locator("sakai-rubric-edit .modal.show")).hasCount(0);
 
         Locator siteRubrics = page.locator("#site_rubrics sakai-rubric");
         int siteRubricsBefore = siteRubrics.count();
@@ -150,9 +146,10 @@ class RubricsTest extends SakaiUiTestBase {
     }
 
     private void softDeleteLastSiteRubric() {
-        page.locator("sakai-item-delete.sakai-rubric").last().click(new Locator.ClickOptions().setForce(true));
-        Locator confirmRemove = page.locator(".modal.show").getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName(Pattern.compile("^Remove$", Pattern.CASE_INSENSITIVE)));
+        Locator deleteControl = page.locator("#site_rubrics sakai-item-delete.sakai-rubric").last();
+        deleteControl.locator("button[data-bs-toggle='modal']").click();
+        Locator confirmRemove = deleteControl.locator(".modal.show").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName(Pattern.compile("^(Remove|Quitar)$", Pattern.CASE_INSENSITIVE)));
         page.waitForResponse(
             response -> response.url().matches(".*/rubrics/\\d+$")
                 && "DELETE".equals(response.request().method())
