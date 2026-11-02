@@ -29,7 +29,7 @@ class LessonsQuestionResponseTest extends SakaiUiTestBase {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void studentAnswerSurvivesReload(boolean shortAnswer) {
+    void answersSurviveReloadAndInstructorResubmission(boolean shortAnswer) {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
         sakai.addMemberToSite(siteUrl, "student0011", "Student");
@@ -49,20 +49,20 @@ class LessonsQuestionResponseTest extends SakaiUiTestBase {
             page.locator(".question-multiplechoice-answer:visible").nth(1).fill("μ");
         }
         page.locator("#question-correct-text").fill("Your answer was saved.");
+        page.locator("#question-incorrect-text").fill("Try again.");
         page.locator("#update-question").click();
         assertThat(page.locator(".questionText").filter(new Locator.FilterOptions().setHasText(prompt))).isVisible();
         String lessonsUrl = page.url();
+        Locator question = page.locator(".questionDiv").filter(new Locator.FilterOptions().setHasText(prompt));
+
+        submitAnswer(question, shortAnswer, false);
+        assertThat(question.locator(".questionStatusText")).hasText("Try again.");
+        submitAnswer(question, shortAnswer, true);
+        assertThat(question.locator(".questionStatusText")).hasText("Your answer was saved.");
 
         sakai.login("student0011");
         page.navigate(lessonsUrl);
-        Locator question = page.locator(".questionDiv").filter(new Locator.FilterOptions().setHasText(prompt));
-        if (shortAnswer) {
-            question.locator(".shortAnswerInput").fill("lambda");
-        } else {
-            question.getByRole(AriaRole.RADIO, new Locator.GetByRoleOptions().setName("A : λ").setExact(true)).check();
-        }
-        question.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Submit Answer").setExact(true)).click();
-        page.reload();
+        submitAnswer(question, shortAnswer, true);
 
         assertThat(question.locator(".questionStatusText")).hasText("Your answer was saved.");
         assertThat(question.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Submit Answer").setExact(true)))
@@ -73,5 +73,16 @@ class LessonsQuestionResponseTest extends SakaiUiTestBase {
             assertThat(question.getByRole(AriaRole.RADIO,
                 new Locator.GetByRoleOptions().setName("A : λ").setExact(true))).isChecked();
         }
+    }
+
+    private void submitAnswer(Locator question, boolean shortAnswer, boolean correct) {
+        if (shortAnswer) {
+            question.locator(".shortAnswerInput").fill(correct ? "lambda" : "mu");
+        } else {
+            question.getByRole(AriaRole.RADIO, new Locator.GetByRoleOptions()
+                .setName(correct ? "A : λ" : "B : μ").setExact(true)).check();
+        }
+        question.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Submit Answer").setExact(true)).click();
+        page.reload();
     }
 }
