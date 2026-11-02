@@ -68,7 +68,7 @@ public class RubricRepositoryImpl extends SpringCrudRepositoryImpl<Rubric, Long>
         Root<Rubric> rubric = query.from(Rubric.class);
         query.where(cb.and(
                 cb.equal(rubric.get("shared"), shared),
-                cb.or(cb.isFalse(rubric.get("softDeleted")), cb.isNull(rubric.get("softDeleted")))));
+                cb.isNull(rubric.get("softRemovedDate"))));
 
         List<Rubric> rubrics = session.createQuery(query).list();
         rubrics.forEach(this::determineRubricLock);
@@ -91,21 +91,21 @@ public class RubricRepositoryImpl extends SpringCrudRepositoryImpl<Rubric, Long>
     }
 
     @Transactional(readOnly = true)
-    public List<Rubric> findByOwnerIdAndSoftDeleted(String ownerId, Boolean softDeleted) {
+    public List<Rubric> findByOwnerIdAndSoftRemoved(String ownerId, boolean softRemoved) {
 
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Rubric> query = cb.createQuery(Rubric.class);
         Root<Rubric> rubric = query.from(Rubric.class);
-        if (Boolean.TRUE.equals(softDeleted)) {
+        if (softRemoved) {
             query.where(cb.and(
                     cb.equal(rubric.get("ownerId"), ownerId),
-                    cb.isTrue(rubric.get("softDeleted"))));
+                    cb.isNotNull(rubric.get("softRemovedDate"))));
         } else {
             query.where(cb.and(
                     cb.equal(rubric.get("ownerId"), ownerId),
-                    cb.or(cb.isFalse(rubric.get("softDeleted")), cb.isNull(rubric.get("softDeleted")))));
+                    cb.isNull(rubric.get("softRemovedDate"))));
         }
 
         List<Rubric> rubrics = session.createQuery(query).list();

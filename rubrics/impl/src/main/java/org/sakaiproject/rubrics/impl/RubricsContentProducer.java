@@ -158,7 +158,7 @@ public class RubricsContentProducer implements EntityContentProducer, EntityCont
 
     @Override
     public Iterator<String> getSiteContentIterator(String siteId) {
-        return transactionTemplate.execute(status -> rubricRepository.findByOwnerIdAndSoftDeleted(siteId, false).stream()
+        return transactionTemplate.execute(status -> rubricRepository.findByOwnerIdAndSoftRemoved(siteId, false).stream()
                 .filter(RubricsContentProducer::isListed)
                 .map(rubric -> RubricsService.rubricReference(siteId, rubric.getId()))
                 .toList()
@@ -179,7 +179,7 @@ public class RubricsContentProducer implements EntityContentProducer, EntityCont
 
     // Ad hoc and soft-deleted rubrics are never listed in the rubrics tool or search index
     private static boolean isListed(Rubric rubric) {
-        return !Boolean.TRUE.equals(rubric.getAdhoc()) && !Boolean.TRUE.equals(rubric.getSoftDeleted());
+        return !Boolean.TRUE.equals(rubric.getAdhoc()) && !rubric.isSoftDeleted();
     }
 
     /** The rubric title followed by the text of every criterion and rating. The indexer strips any markup. */
