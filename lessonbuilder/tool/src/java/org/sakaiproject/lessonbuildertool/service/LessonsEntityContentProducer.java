@@ -300,21 +300,14 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		try {
 			//Looks like /lessonbuilder/item/39
 			long itemId = idFromRef(reference);
-			log.debug("canRead:" + reference + " itemId:" + itemId);
+			log.debug("canRead:{} itemId:{}", reference, itemId);
 			SimplePageItem item = simplePageToolDao.findItem(itemId);
 			SimplePage page = item != null ? simplePageToolDao.getPage(item.getPageId()) : null;
 			if (page == null || !canReadLessonsInSite(page.getSiteId())) {
 				return false;
 			}
-			//Does this need to be synchronized?
-			boolean isVisible = false;
-			synchronized(this) {
-				//For optimization it was suggested to use the following
-				//lessonAccess.makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage);
-				//But I'm not sure if that's possible in this context since the page is likely to always change?
-				isVisible=lessonsAccess.isItemAccessible(itemId, page.getSiteId(), UserDirectoryService.getCurrentUser().getId(), null);
-			}
-			return isVisible;
+			// no lock needed, each check builds its own bean and LessonsAccess only holds services
+			return lessonsAccess.isItemAccessible(itemId, page.getSiteId(), UserDirectoryService.getCurrentUser().getId(), null);
 		} catch (Exception e) {
 			// deny this result rather than fail the search for every tool
 			log.error("Could not check access to {}", reference, e);
