@@ -6105,12 +6105,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         if (released && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE))) {
-            // send email to every submitters
-            if (!filteredUsers.isEmpty()) {
-                // send the message immediately
-                userMessagingService.message(filteredUsers,
+            for (User user : filteredUsers) {
+                userMessagingService.message(Collections.singleton(user),
                         Message.builder().tool(AssignmentConstants.TOOL_ID).type("releasegrade").build(),
-                        Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getReleaseGradeReplacements(submission, siteId), NotificationService.NOTI_REQUIRED);
+                        Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getReleaseGradeReplacements(submission, siteId, user.getId()), NotificationService.NOTI_REQUIRED);
             }
         }
         if (StringUtils.isNotBlank(resubmitNumber) && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE))) {
