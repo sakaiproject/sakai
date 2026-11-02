@@ -2159,7 +2159,8 @@ public class ExtractionHelper
 				  // prepare answer feedback - daisyf added this on 2/21/05
 				  // need to check if this works for question type other than
 				  // MC
-				  if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) || item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT)) {
+				  if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) || item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT)
+					  || item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
 					  HashSet set = new HashSet();
 					  if (answerFeedbackList != null) {
 						  AnswerFeedback answerFeedback = new AnswerFeedback();
