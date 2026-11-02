@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Properties;
 import java.util.Stack;
 
@@ -63,6 +64,33 @@ public class XmlTest {
         Document doc = Xml.readDocument(tempFile.getPath());
         assertNotNull("Document should be read from file", doc);
         assertEquals("root", doc.getDocumentElement().getTagName());
+    }
+
+    @Test
+    public void testReadLegacyArchiveDocument() throws IOException {
+        Files.writeString(tempFile.toPath(), "<archive><sakai:site><site id='legacy'/></sakai:site></archive>");
+
+        assertNull("Default reader must still require bound namespace prefixes", Xml.readDocument(tempFile.getPath()));
+        Document doc = Xml.readDocument(tempFile.getPath(), false);
+        assertNotNull(doc);
+        assertEquals("legacy", ((Element) doc.getElementsByTagName("site").item(0)).getAttribute("id"));
+        assertEquals(1, doc.getElementsByTagName("sakai:site").getLength());
+    }
+
+    @Test
+    public void testReadLegacyArchiveDocumentFallsBackToLatin1() throws IOException {
+        Files.write(tempFile.toPath(), "<archive><sakai:site title='caf\u00e9'/></archive>".getBytes(StandardCharsets.ISO_8859_1));
+
+        Document doc = Xml.readDocument(tempFile.getPath(), false);
+        assertNotNull(doc);
+        assertEquals("caf\u00e9", ((Element) doc.getElementsByTagName("sakai:site").item(0)).getAttribute("title"));
+    }
+
+    @Test
+    public void testReadLegacyArchiveDocumentRejectsDoctype() throws IOException {
+        Files.writeString(tempFile.toPath(), "<!DOCTYPE archive [<!ENTITY xxe SYSTEM 'file:///xml-test-missing-entity'>]><archive>&xxe;</archive>");
+
+        assertNull(Xml.readDocument(tempFile.getPath(), false));
     }
 
     @Test

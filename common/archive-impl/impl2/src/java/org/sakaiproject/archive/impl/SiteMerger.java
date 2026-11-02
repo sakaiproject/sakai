@@ -239,7 +239,7 @@ public class SiteMerger {
 		}
 
 		// read the whole file into a DOM
-		Document doc = Xml.readDocument(filePath);
+		Document doc = Xml.readDocument(filePath, false);
 		if (doc == null)
 		{
 			results.append("Error reading xml from: " + filePath + "\n");
@@ -350,7 +350,7 @@ public class SiteMerger {
 			log.debug("merge(): processing file: " + fileName);
 
 		// read the whole file into a DOM
-		Document doc = Xml.readDocument(fileName);
+		Document doc = Xml.readDocument(fileName, false);
 		if (doc == null)
 		{
 			results.append("Error reading xml from: " + fileName + "\n");

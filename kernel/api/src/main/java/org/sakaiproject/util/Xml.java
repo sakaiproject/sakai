@@ -119,35 +119,38 @@ public class Xml
 	 */
 	public static Document readDocument(String name)
 	{
+		return readDocument(name, true);
+	}
+
+	/**
+	 * Read a DOM Document from a file with the requested namespace mode.
+	 * Use namespace-unaware mode for legacy formats with unbound prefixes.
+	 * XML security restrictions apply in both modes.
+	 *
+	 * @param name the XML file name
+	 * @param namespaceAware whether the parser should process XML namespaces
+	 * @return the parsed document, or null if parsing fails
+	 */
+	public static Document readDocument(String name, boolean namespaceAware)
+	{
 		Document doc = null;
 		// first try using whatever character encoding the XML itself specifies
-		InputStream fis = null;
-		try
+		try (InputStream fis = new FileInputStream(name))
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
-			fis = new FileInputStream(name);
+			DocumentBuilder docBuilder = createSecureDocumentBuilderFactory(namespaceAware).newDocumentBuilder();
 			doc = docBuilder.parse(fis);
 		}
 		catch (Exception e)
 		{
 			doc = null;
 		}
-		finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (IOException e) {
-				}
-			}
-		}
 
 		if (doc != null) return doc;
 
 		// OK, that didn't work - the document is probably ISO-8859-1
-		try
+		try (InputStreamReader in = new InputStreamReader(new FileInputStream(name), "ISO-8859-1"))
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(name), "ISO-8859-1");
+			DocumentBuilder docBuilder = createSecureDocumentBuilderFactory(namespaceAware).newDocumentBuilder();
 			InputSource inputSource = new InputSource(in);
 			doc = docBuilder.parse(inputSource);
 		}
@@ -159,10 +162,9 @@ public class Xml
 		if (doc != null) return doc;
 
 		// try forcing UTF-8
-		try
+		try (InputStreamReader in = new InputStreamReader(new FileInputStream(name), "UTF-8"))
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(name), "UTF-8");
+			DocumentBuilder docBuilder = createSecureDocumentBuilderFactory(namespaceAware).newDocumentBuilder();
 			InputSource inputSource = new InputSource(in);
 			doc = docBuilder.parse(inputSource);
 		}
