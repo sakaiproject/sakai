@@ -83,6 +83,8 @@ class LessonsQuestionResponseTest extends SakaiUiTestBase {
                 .setName(correct ? "A : λ" : "B : μ").setExact(true)).check();
         }
         question.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Submit Answer").setExact(true)).click();
+        assertThat(question.locator(".questionStatusText"))
+            .hasText(correct ? "Your answer was saved." : "Try again.");
         page.reload();
     }
 }
