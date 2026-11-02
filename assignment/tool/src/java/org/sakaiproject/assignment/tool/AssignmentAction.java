@@ -8061,14 +8061,6 @@ public class AssignmentAction extends PagedResourceActionII {
                                 }
                             }
 
-                            List<Gradebook> gbList = gradingService.getGradebookGroupInstances(siteId);
-                            List<String> existingGradebookUids = gbList.stream().map(Gradebook::getUid).collect(Collectors.toList());
-
-                            for (String gbUid : existingGradebookUids) {
-                                gradingService.buildGradebookPointsMap(gbUid, siteId, assignmentRef, gradebookPointsMap, newCategoryString);
-                            }
-                        } else {
-                            gradingService.buildGradebookPointsMap(siteId, siteId, assignmentRef, gradebookPointsMap, catInt.toString());
                         }
                         break;
                     case GRADEBOOK_INTEGRATION_ASSOCIATE:
@@ -8138,6 +8130,15 @@ public class AssignmentAction extends PagedResourceActionII {
                         break;
                     default:
                         break;
+                }
+                // Published assignments use "associate" and retain their Gradebook category.
+                String selectedCategories = GRADEBOOK_INTEGRATION_ADD.equals(grading)
+                        ? (isGradebookGroupEnabled ? newCategoryString : catInt.toString()) : "-1";
+                List<String> gradebookUids = isGradebookGroupEnabled
+                        ? gradingService.getGradebookGroupInstances(siteId).stream().map(Gradebook::getUid).collect(Collectors.toList())
+                        : List.of(siteId);
+                for (String gradebookUid : gradebookUids) {
+                    gradingService.buildGradebookPointsMap(gradebookUid, siteId, assignmentRef, gradebookPointsMap, selectedCategories);
                 }
             }
         }
