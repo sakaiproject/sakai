@@ -34,6 +34,8 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
@@ -575,6 +577,51 @@ class AssignmentTest extends SakaiUiTestBase {
         editAssignment(title);
         assertThat(selector.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true))).isVisible();
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void canSavePrivateNoteAfterDeletingAndReplacingIt(boolean existingAssignment) {
+        String courseUrl = ensureCourseUrl();
+        String title = "Replacement private note " + System.currentTimeMillis();
+        sakai.login("instructor1");
+        sakai.gotoPath(courseUrl);
+        sakai.toolClick("Assignments");
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(title);
+        page.locator("#gradeAssignment").uncheck();
+        fillAssignmentInstructions("<p>Private note replacement regression.</p>");
+        page.locator("#note_add").click();
+        savePrivateNote("Original private note");
+        if (existingAssignment) {
+            submitAssignmentForm();
+            editAssignment(title);
+            page.locator("#note_edit").click();
+            assertThat(page.locator("#note_text")).hasValue("Original private note");
+            page.locator("#note_cancel").click();
+        }
+
+        page.locator("#note_delete").click();
+        page.locator("#note_add").click();
+        savePrivateNote("Replacement private note");
+        submitAssignmentForm();
+        editAssignment(title);
+        page.locator("#note_edit").click();
+        assertThat(page.locator("#note_text")).hasValue("Replacement private note");
+        assertThat(page.locator("#note_to")).hasValue("1");
+
+        page.locator("#note_cancel").click();
+        page.locator("#note_delete").click();
+        submitAssignmentForm();
+        editAssignment(title);
+        assertThat(page.locator("#note_add")).isVisible();
+        assertThat(page.locator("#note_edit")).isHidden();
+    }
+
+    private void savePrivateNote(String text) {
+        page.locator("#note_text").fill(text);
+        page.locator("#note_to").selectOption(new SelectOption().setLabel("Keep private to myself"));
+        page.locator("#note_save").click();
     }
 
     private void openReorderAssignments() {
