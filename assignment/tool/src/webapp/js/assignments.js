@@ -236,6 +236,7 @@ ASN.setupAssignNew = function(){
             }
             
             if (validation === 'ok') {
+                document.getElementById(nodeType + '_to_delete').value = 'false';
                 if (titleOK) {
                     $('#' + nodeType + '_title_holder').val(Title);
                 }
