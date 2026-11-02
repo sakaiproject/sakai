@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.tool.assessment.qti.helper;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -47,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -153,6 +156,20 @@ public class ItemExportImportTest {
       addAnswer(item, "b", "B", true, null);
       addAnswer(item, "c", "C", false, null);
       assertEquals(mcmsPartialCredit, exportAndImport(item).getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT));
+    }
+  }
+
+  @Test
+  public void fillInBlankAnswerCharactersSurviveExportImport() throws Exception {
+    for (String answerText : new String[] {"b<a", "b>a", "b<a|b>a", "fish & chips", "literal &lt;"}) {
+      ItemData item = newItem(TypeIfc.FILL_IN_BLANK, "Compare: {" + answerText + "}");
+      addAnswer(item, answerText, "A", true, null);
+      String xml = XmlUtil.getDOMString(export(item).getDocument());
+      AuthoringHelper helper = new AuthoringHelper(QTIVersion.VERSION_1_2);
+      Item reloaded = new Item(helper.readXMLDocument(
+          new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))).getDocument(), QTIVersion.VERSION_1_2);
+      AnswerIfc imported = importItem(reloaded).getItemTextSet().iterator().next().getAnswerSet().iterator().next();
+      assertEquals(answerText, imported.getText());
     }
   }
 
