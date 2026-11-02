@@ -61,7 +61,7 @@ export class SakaiCalendar extends LionCalendar {
   }
 
   _setDaysEvents(time) {
-    this._daysEvents = (this._events || []).filter(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
+    this._daysEvents = (this._events || []).filter(e => e.start >= time && e.start < (time + 24 * 60 * 60 * 1000));
   }
 
   _tileW() {
@@ -310,7 +310,7 @@ export class SakaiCalendar extends LionCalendar {
       if (c.date && this._events) {
         const time = c.date.getTime();
 
-        const matchingEvent = this._events.find(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
+        const matchingEvent = this._events.find(e => e.start >= time && e.start < (time + 24 * 60 * 60 * 1000));
         if (matchingEvent) {
           c.classList.add("has-events");
           if (matchingEvent.type === "deadline") {

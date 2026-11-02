@@ -6,17 +6,53 @@ import fetchMock from "fetch-mock";
 
 describe("sakai-calendar tests", () => {
 
+  let events;
+
   beforeEach(() => {
+    events = data.userCalendarEvents.events;
     fetchMock.mockGlobal()
       .get(data.i18nUrl, data.i18n)
       .get(sitePickerData.i18nUrl, sitePickerData.i18n)
-      .get(data.userCalendarUrl, { "events": data.userCalendarEvents.events, "sites": sitePickerData.sites })
-      .get(data.siteCalendarUrl, { "events": data.userCalendarEvents.events })
+      .get(data.userCalendarUrl, () => ({ events, sites: sitePickerData.sites }))
+      .get(data.siteCalendarUrl, () => ({ events }))
       .get("*", 500);
   });
 
   afterEach(() => {
     fetchMock.hardReset();
+  });
+
+  [ undefined, data.siteId ].forEach(siteId => {
+    it (`includes midnight events in the list and markers in ${siteId ? "site" : "user"} mode`, async () => {
+
+      const first = new Date(2026, 10, 2);
+      const second = new Date(2026, 10, 3);
+      const third = new Date(2026, 10, 4);
+      events = [
+        { title: "First midnight", start: first.getTime() },
+        { title: "Second midnight", start: second.getTime() },
+      ];
+      const el = await fixture(html`
+        <sakai-calendar dashboard .siteId=${siteId} .centralDate=${first}></sakai-calendar>
+      `);
+      await waitUntil(() => el._events && el._i18n);
+      await elementUpdated(el);
+
+      const dayButton = date => [ ...el.renderRoot.querySelectorAll(".calendar__day-button") ]
+        .find(button => button.date?.getTime() === date.getTime());
+      dayButton(first).click();
+      await elementUpdated(el);
+      expect(el.renderRoot.querySelector("#days-events").textContent).to.contain("First midnight");
+      expect(el.renderRoot.querySelector("#days-events").textContent).not.to.contain("Second midnight");
+      expect(dayButton(first).classList.contains("has-events")).to.be.true;
+      expect(dayButton(second).classList.contains("has-events")).to.be.true;
+      expect(dayButton(third).classList.contains("has-events")).to.be.false;
+
+      dayButton(second).click();
+      await elementUpdated(el);
+      expect(el.renderRoot.querySelector("#days-events").textContent).to.contain("Second midnight");
+      expect(el.renderRoot.querySelector("#days-events").textContent).not.to.contain("First midnight");
+    });
   });
 
   it ("renders in user mode correctly", async () => {
