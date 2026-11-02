@@ -47,6 +47,7 @@ class LessonsQuestionResponseTest extends SakaiUiTestBase {
             page.locator("input[name='question-multiplechoice-answer-correct']").check();
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add New Answer").setExact(true)).click();
             page.locator(".question-multiplechoice-answer:visible").nth(1).fill("μ");
+            page.locator("#question-show-poll").check();
         }
         page.locator("#question-correct-text").fill("Your answer was saved.");
         page.locator("#question-incorrect-text").fill("Try again.");
@@ -57,8 +58,16 @@ class LessonsQuestionResponseTest extends SakaiUiTestBase {
 
         submitAnswer(question, shortAnswer, false);
         assertThat(question.locator(".questionStatusText")).hasText("Try again.");
+        if (!shortAnswer) {
+            assertThat(question.locator(".questionPollNumber")).hasText(new String[] {"0", "1"});
+        }
         submitAnswer(question, shortAnswer, true);
         assertThat(question.locator(".questionStatusText")).hasText("Your answer was saved.");
+        if (!shortAnswer) {
+            assertThat(question.locator(".questionPollNumber")).hasText(new String[] {"1", "0"});
+            submitAnswer(question, false, true);
+            assertThat(question.locator(".questionPollNumber")).hasText(new String[] {"1", "0"});
+        }
 
         sakai.login("student0011");
         page.navigate(lessonsUrl);
@@ -72,6 +81,7 @@ class LessonsQuestionResponseTest extends SakaiUiTestBase {
         } else {
             assertThat(question.getByRole(AriaRole.RADIO,
                 new Locator.GetByRoleOptions().setName("A : λ").setExact(true))).isChecked();
+            assertThat(question.locator(".questionPollNumber")).hasText(new String[] {"2", "0"});
         }
     }
 

@@ -8545,8 +8545,8 @@ public class SimplePageBean {
 		}
 		
 		long responseId = Long.valueOf(questionResponse);
+		long previousResponseId = response.getMultipleChoiceId();
 		response.setMultipleChoiceId(responseId);
-		simplePageToolDao.incrementQRCount(questionId, responseId);
 		
 		SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(question, response.getMultipleChoiceId());
 		response.setOriginalText(answer.getText());
@@ -8557,6 +8557,12 @@ public class SimplePageBean {
 		this.completeUserTask(questionId, userId);
 
 		boolean saved = newResponse ? saveItem(response) : update(response);
+		if (saved && (newResponse || previousResponseId != responseId)) {
+			if (!newResponse) {
+				simplePageToolDao.decrementQRCount(questionId, previousResponseId);
+			}
+			simplePageToolDao.incrementQRCount(questionId, responseId);
+		}
 		return saved ? "success" : "failure";
 	}
 	
