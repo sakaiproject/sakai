@@ -134,11 +134,6 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     @Column
     private Boolean adhoc = Boolean.FALSE;
 
-    @Column(name = "SOFT_DELETED", nullable = false)
-    @ColumnDefault("0")
-    @JsonIgnore
-    private Boolean softDeleted = Boolean.FALSE;
-
     @Column(name = "SOFT_REMOVED_DATE")
     @JsonIgnore
     private Instant softRemovedDate;
@@ -146,6 +141,11 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     @Transient
     @JsonIgnore
     private Boolean locked = Boolean.FALSE;
+
+    @JsonIgnore
+    public boolean isSoftDeleted() {
+        return softRemovedDate != null;
+    }
 
     public Rubric clone(String siteId) {
 

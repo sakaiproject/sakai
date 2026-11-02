@@ -295,7 +295,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 throw new SecurityException("Not allowed to copy this rubric");
             }
 
-            if (Boolean.TRUE.equals(source.getSoftDeleted())) {
+            if (source.isSoftDeleted()) {
                 throw new IllegalArgumentException("Cannot copy soft-deleted rubric: " + rubricId);
             }
 
@@ -321,7 +321,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return Collections.emptyList();
         }
 
-        return rubricRepository.findByOwnerIdAndSoftDeleted(siteId, false).stream()
+        return rubricRepository.findByOwnerIdAndSoftRemoved(siteId, false).stream()
             .filter(r -> r.getAdhoc() == null || !r.getAdhoc())
             .map(r -> {
                 RubricTransferBean bean = decorateRubricBean(new RubricTransferBean(r));
@@ -347,7 +347,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return Collections.emptyList();
         }
 
-        return rubricRepository.findByOwnerIdAndSoftDeleted(siteId, true).stream()
+        return rubricRepository.findByOwnerIdAndSoftRemoved(siteId, true).stream()
             .filter(r -> r.getAdhoc() == null || !r.getAdhoc())
             .map(r -> decorateRubricBean(new RubricTransferBean(r)))
             .collect(Collectors.toList());
@@ -370,7 +370,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         Rubric rubric = optRubric.get();
 
-        if (Boolean.TRUE.equals(rubric.getSoftDeleted())) {
+        if (rubric.isSoftDeleted()) {
             log.warn("Rubric {} is already soft-deleted", rubricId);
             return false;
         }
@@ -389,7 +389,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         softDeleteRubricAssociations(rubric);
         rubric.setShared(false);
-        rubric.setSoftDeleted(true);
         rubric.setSoftRemovedDate(Instant.now());
         rubric.setModified(Instant.now());
         rubric.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
@@ -408,7 +407,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         Rubric rubric = optRubric.get();
 
-        if (!Boolean.TRUE.equals(rubric.getSoftDeleted())) {
+        if (!rubric.isSoftDeleted()) {
             log.warn("Rubric {} is not soft-deleted", rubricId);
             return false;
         }
@@ -421,7 +420,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         checkVersion(version, rubric.getVersion());
 
         restoreSoftDeletedRubricAssociations(rubric);
-        rubric.setSoftDeleted(false);
         rubric.setSoftRemovedDate(null);
         rubric.setModified(Instant.now());
         rubric.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
@@ -440,7 +438,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         Rubric rubric = optRubric.get();
 
-        if (!Boolean.TRUE.equals(rubric.getSoftDeleted())) {
+        if (!rubric.isSoftDeleted()) {
             log.warn("Rubric {} must be soft-deleted before permanent deletion", rubricId);
             return false;
         }
@@ -472,15 +470,20 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void softDeleteRubricAssociations(Rubric rubric) {
         for (ToolItemRubricAssociation association : rubric.getAssociations()) {
+            // Only associations that are active because of this rubric belong to the rubric trash.
+            // Associations that were already inactive must keep their state, so they are not
+            // reactivated when the rubric is restored.
+            if (!Boolean.TRUE.equals(association.getActive())) {
+                continue;
+            }
             association.setActive(false);
-            association.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, 1);
+            association.getParameters().put(RubricsConstants.RBCS_RUBRIC_SOFT_DELETED, 1);
         }
     }
 
     private void restoreSoftDeletedRubricAssociations(Rubric rubric) {
         for (ToolItemRubricAssociation association : rubric.getAssociations()) {
-            Integer softDeleted = association.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED);
-            if (softDeleted == null || softDeleted != 1) {
+            if (!Integer.valueOf(1).equals(association.getParameters().get(RubricsConstants.RBCS_RUBRIC_SOFT_DELETED))) {
                 continue;
             }
             boolean itemHasOtherActiveAssociation = associationRepository.findByToolIdAndItemId(
@@ -490,7 +493,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             if (!itemHasOtherActiveAssociation) {
                 association.setActive(true);
             }
-            association.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, 0);
+            association.getParameters().remove(RubricsConstants.RBCS_RUBRIC_SOFT_DELETED);
         }
     }
 
@@ -775,7 +778,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         if (bean.getId() != null) {
             Rubric existing = rubricRepository.findById(bean.getId())
                     .orElseThrow(() -> new IllegalArgumentException("No rubric with id " + bean.getId()));
-            if (Boolean.TRUE.equals(existing.getSoftDeleted())) {
+            if (existing.isSoftDeleted()) {
                 throw new IllegalStateException("Cannot edit soft-deleted rubric " + bean.getId());
             }
         }
@@ -1033,7 +1036,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         return rubricRepository.findById(rubricId).map(rubric -> {
 
-            if (Boolean.TRUE.equals(rubric.getSoftDeleted())) {
+            if (rubric.isSoftDeleted()) {
                 return isCurrentUserEditor(rubric.getOwnerId())
                         ? decorateRubricBean(new RubricTransferBean(rubric))
                         : null;
@@ -1543,7 +1546,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         log.debug("Creating new association for rubric [{}], tool [{}], item[{}]", requestedRubricId, toolId, toolItemId);
         Optional<Rubric> rubric = rubricRepository.findById(requestedRubricId);
         if (rubric.isPresent()) {
-            if (Boolean.TRUE.equals(rubric.get().getSoftDeleted())) {
+            if (rubric.get().isSoftDeleted()) {
                 log.warn("Requested rubric [{}] is soft-deleted and cannot be associated", requestedRubricId);
                 return Optional.empty();
             }
@@ -1566,7 +1569,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     private ToolItemRubricAssociation reactivateRubricAssociation(ToolItemRubricAssociation association) {
 
         Rubric rubric = association.getRubric();
-        if (Boolean.TRUE.equals(rubric.getSoftDeleted())) {
+        if (rubric.isSoftDeleted()) {
             throw new IllegalStateException("Cannot reactivate association for soft-deleted rubric " + rubric.getId());
         }
         if (Boolean.TRUE.equals(rubric.getDraft())) {
@@ -2036,7 +2039,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     @Override
     public List<Map<String, String>> getEntityMap(String fromContext) {
 
-        return rubricRepository.findByOwnerIdAndSoftDeleted(fromContext, false).stream()
+        return rubricRepository.findByOwnerIdAndSoftRemoved(fromContext, false).stream()
             .map(r -> Map.of("id", r.getId().toString(), "title", r.getTitle())).collect(Collectors.toList());
     }
 
@@ -2049,7 +2052,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 
         Map<String, String> traversalMap = new HashMap<>();
-        rubricRepository.findByOwnerIdAndSoftDeleted(fromContext, false).forEach(rubric -> {
+        rubricRepository.findByOwnerIdAndSoftRemoved(fromContext, false).forEach(rubric -> {
 
             if (CollectionUtils.isEmpty(ids) || ids.contains(rubric.getId().toString())) {
 
@@ -2098,7 +2101,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         stack.peek().appendChild(rubrics);
         stack.push(rubrics);
 
-        rubricRepository.findByOwnerIdAndSoftDeleted(siteId, false).stream().sorted((r1, r2) -> r1.getTitle().compareTo(r2.getTitle())).forEach(rubric -> {
+        rubricRepository.findByOwnerIdAndSoftRemoved(siteId, false).stream().sorted((r1, r2) -> r1.getTitle().compareTo(r2.getTitle())).forEach(rubric -> {
 
             try {
                 // false here means we get cdata nodes without them being nested in text elements

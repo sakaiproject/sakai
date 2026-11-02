@@ -7,7 +7,6 @@ describe("sakai-rubrics-deleted-list", () => {
 
   const deletedRubric = {
     ...data.rubric1,
-    softDeleted: true,
     softRemovedDate: Date.now(),
     formattedSoftRemovedDate: "29 Oct 2026",
   };
