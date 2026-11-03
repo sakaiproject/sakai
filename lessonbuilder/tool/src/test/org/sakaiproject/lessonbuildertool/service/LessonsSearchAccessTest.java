@@ -50,6 +50,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
@@ -210,7 +211,7 @@ public class LessonsSearchAccessTest {
 
         assertFalse(canReadText());
 
-        var entry = dao.makeLogEntry(USER_ID, required.getId(), null);
+        SimplePageLogEntry entry = dao.makeLogEntry(USER_ID, required.getId(), null);
         entry.setComplete(true);
         assertTrue(dao.quickSaveItem(entry));
 
