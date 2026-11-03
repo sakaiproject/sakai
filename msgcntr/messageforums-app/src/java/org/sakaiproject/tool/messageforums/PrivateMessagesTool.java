@@ -2524,7 +2524,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	    	}
     	    }
     	    
-    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(getDetailMsg().getMsg()), null, true, NotificationService.NOTI_OPTIONAL, statement);
+            Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
     	    eventTrackingService.post(event);
     	}
     	//reset contents
@@ -3219,7 +3219,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	          		log.error(e.getMessage(), e);
 	        	  }
 	          }
-     		  Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
+              Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
 	          eventTrackingService.post(event);
 		  }
 		  //reset contents
