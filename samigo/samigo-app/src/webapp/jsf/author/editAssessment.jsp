@@ -383,7 +383,7 @@ $(window).load( function() {
         <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
         <h:outputText value="&#160;" escape="false" />
         <!-- each selectItem stores the itemtype, current sequence -->
-        <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
+        <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this, #{partBean.sectionAuthorType == null || partBean.sectionAuthorTypeString == '1'});"  value="#{itemauthor.itemTypeString}">
              <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{partBean.itemContents.size()}"/>
              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
              <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
@@ -545,7 +545,7 @@ $(window).load( function() {
 	      <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
           <h:outputText value="&#160;" escape="false" />
           <!-- each selectItem stores the itemtype, current sequence -->
-          <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);" value="#{itemauthor.itemTypeString}" >
+          <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this, #{partBean.sectionAuthorType == null || partBean.sectionAuthorTypeString == '1'});" value="#{itemauthor.itemTypeString}" >
             <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
             <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{question.itemData.sequence}"/>
             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />

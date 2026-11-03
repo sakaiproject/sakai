@@ -813,9 +813,9 @@ function resetSelectMenus(){
   }
 }
 
-function clickInsertLink(field){
+function clickInsertLink(field, storeFocus = true){
   const match = field.id.match(/assessmentForm:parts:(\d+).*:changeQType/);
-  if (match) {
+  if (match && storeFocus) {
     const currentQuestionsCount = document.querySelectorAll("[id^='assessmentForm:parts:" + match[1] + ":parts:'][id$=':modify']").length;
     const targetFocusId = 'assessmentForm:parts:' + match[1] + ':parts:' + currentQuestionsCount + ':modify';
     try {
