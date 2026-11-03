@@ -143,28 +143,28 @@ class PollTest extends SakaiUiTestBase {
         // blank min — form re-renders on error, no new navigation needed for subsequent checks
         page.locator("input[name=\"minOptions\"]").fill("");
         page.locator("input[name=\"maxOptions\"]").fill("2");
-        saveButton.click(new Locator.ClickOptions().setForce(true));
+        sakai.submitForm(saveButton::click);
         assertThat(page.locator("#min-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("minimum number of options is a required field", Pattern.CASE_INSENSITIVE));
 
         // blank max
         page.locator("input[name=\"minOptions\"]").fill("1");
         page.locator("input[name=\"maxOptions\"]").fill("");
-        saveButton.click(new Locator.ClickOptions().setForce(true));
+        sakai.submitForm(saveButton::click);
         assertThat(page.locator("#max-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("maximum number of options is a required field", Pattern.CASE_INSENSITIVE));
 
         // min greater than max
         page.locator("input[name=\"minOptions\"]").fill("5");
         page.locator("input[name=\"maxOptions\"]").fill("2");
-        saveButton.click(new Locator.ClickOptions().setForce(true));
+        sakai.submitForm(saveButton::click);
         assertThat(page.locator("#min-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("less than or equal to", Pattern.CASE_INSENSITIVE));
 
         // fix min/max to values that will exceed the number of available options, then proceed
         page.locator("input[name=\"minOptions\"]").fill("6");
         page.locator("input[name=\"maxOptions\"]").fill("6");
-        saveButton.click(new Locator.ClickOptions().setForce(true));
+        sakai.submitForm(saveButton::click);
 
         assertThat(page.locator("textarea")).isVisible();
 

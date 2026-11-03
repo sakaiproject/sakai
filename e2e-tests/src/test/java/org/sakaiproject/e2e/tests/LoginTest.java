@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class LoginTest extends SakaiUiTestBase {
@@ -111,5 +112,30 @@ class LoginTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName("Time Zone").setExact(true)).click();
         assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
             new Page.GetByRoleOptions().setName("Time Zone").setExact(true))).isVisible();
+    }
+
+    @Test
+    @Order(6)
+    void toolNavigationExpandsASavedCollapsedSidebar() {
+        try (TestUser user = sakai.createUser("sidebar-navigation")) {
+            sakai.login(user.username());
+            page.navigate("/portal/site/~" + user.username());
+            if ("false".equals(page.locator("#sidebar-collapse-button")
+                    .getAttribute("data-portal-sidebar-collapsed"))) {
+                page.waitForResponse(response -> response.request().method().equals("PUT")
+                        && response.url().contains("sidebarCollapsed=true") && response.ok(),
+                    () -> page.locator("#sidebar-collapse-button").click());
+            }
+            page.reload();
+            assertThat(page.locator("#sidebar-collapse-button"))
+                .hasAttribute("data-portal-sidebar-collapsed", "true");
+
+            sakai.toolClick("Preferences");
+
+            assertThat(page.locator("#sidebar-collapse-button"))
+                .hasAttribute("data-portal-sidebar-collapsed", "false");
+            assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName("Notifications").setExact(true))).isVisible();
+        }
     }
 }

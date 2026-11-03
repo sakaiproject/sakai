@@ -174,7 +174,6 @@
             const action = form.getAttribute('action') || '';
             const m = action.match(/\/videos\/([^\/]+)\/(favorite|watch-later|delete|publish|withdraw|archive|restore-draft|submit-approval|reject-approval)(?:$|\?)/);
             if (!m) return;
-            const videoId = m[1];
             const verb = m[2];
 
             form.addEventListener('submit', function (ev) {
@@ -365,7 +364,8 @@
                     'reject-approval': 'DRAFT'
                 };
                 if (statusMap[verb]) {
-                    const ajaxUrl = '/videos/' + videoId + '/status/ajax';
+                    const ajaxUrl = new URL(action, window.location.href);
+                    ajaxUrl.pathname = ajaxUrl.pathname.replace(/\/[^/]+$/, '/status/ajax');
                     const formData = new FormData();
                     formData.append('status', statusMap[verb]);
                     fetch(ajaxUrl, {

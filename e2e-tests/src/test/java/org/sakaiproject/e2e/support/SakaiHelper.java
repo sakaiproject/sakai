@@ -128,7 +128,16 @@ public class SakaiHelper {
 
     public void toolClick(String label) {
         // Tool actions can refresh the portal; wait before inspecting its navigation.
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.LOAD);
+        Locator collapsedSidebar = page.locator("#sidebar-collapse-button[data-portal-sidebar-collapsed='true']");
+        if (collapsedSidebar.isVisible()) {
+            page.waitForResponse(response -> "PUT".equals(response.request().method())
+                    && response.url().contains("sidebarCollapsed=false") && response.ok(),
+                collapsedSidebar::click);
+            assertThat(page.locator("#sidebar-collapse-button"))
+                .hasAttribute("data-portal-sidebar-collapsed", "false");
+        }
+
         Locator expandButtons = page.locator("li.site-list-item.is-current-site button[data-bs-toggle='collapse'][aria-expanded='false']");
         if (expandButtons.count() > 0 && expandButtons.first().isVisible()) {
             expandButtons.first().click();
@@ -146,6 +155,14 @@ public class SakaiHelper {
         if (!clickToolByText(label)) {
             throw new IllegalStateException("Unable to click tool navigation item: " + label);
         }
+    }
+
+    /** Waits for a full form POST and the resulting document, including same-URL validation errors. */
+    public void submitForm(Runnable action) {
+        page.waitForRequestFinished(new Page.WaitForRequestFinishedOptions().setPredicate(request ->
+            request.isNavigationRequest() && request.frame().equals(page.mainFrame())
+                && "POST".equals(request.method())), action);
+        page.waitForLoadState();
     }
 
     public void selectDate(String selector, String value) {
