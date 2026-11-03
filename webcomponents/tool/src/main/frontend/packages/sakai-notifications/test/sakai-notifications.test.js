@@ -30,6 +30,29 @@ describe("sakai-notifications tests", () => {
   }
 
 
+  it ("renders replies as received messages", async () => {
+
+    setRoutes([ {
+      event: "messages.reply",
+      from: "student",
+      fromDisplayName: "Student Example",
+      siteTitle: "Biology 101",
+      id: "reply-notification",
+      title: "Re: Question",
+      url: "http://example.com/messages/2",
+    } ]);
+
+    const el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+    await el.loadNotifications();
+    await elementUpdated(el);
+
+    expect(el.querySelector(".toast-body").textContent).to.contain("Student Example sent you a message");
+    expect(el.querySelector(".toast-body a").getAttribute("href")).to.equal("http://example.com/messages/2");
+    expect(el.notifications[0].title).to.equal("Re: Question");
+  });
+
   it ("renders correctly", async () => {
 
     window.Notification = { permission: "granted" };

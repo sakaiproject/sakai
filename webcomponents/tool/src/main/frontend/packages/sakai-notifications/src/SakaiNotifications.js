@@ -229,7 +229,7 @@ export class SakaiNotifications extends SakaiElement {
 
   _decorateMessageNotification(noti) {
 
-    if (noti.event === "messages.new") {
+    if (noti.event === "messages.new" || noti.event === "messages.reply") {
       noti.title = this._i18n.message_received.replace("{0}", noti.fromDisplayName).replace("{1}", noti.siteTitle);
     } else if (noti.event === "messages.read.receipt") {
       noti.title = this._i18n.message_read.replace("{0}", noti.fromDisplayName).replace("{1}", noti.siteTitle);

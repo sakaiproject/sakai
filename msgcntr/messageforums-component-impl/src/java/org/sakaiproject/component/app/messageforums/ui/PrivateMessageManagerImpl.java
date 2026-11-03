@@ -2549,7 +2549,7 @@ return topicTypeUuid;
 				  log.error(e.getMessage(), e);
 			  }
 
-			  Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(currentMessage, DiscussionForumService.MESSAGES_TOOL_ID, rrepMsg.getAuthorId(), ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId()), contextId, true, NotificationService.NOTI_OPTIONAL, statement);
+			  Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg, DiscussionForumService.MESSAGES_TOOL_ID, rrepMsg.getAuthorId(), ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId()), contextId, true, NotificationService.NOTI_OPTIONAL, statement);
 			  eventTrackingService.post(event);
 		  }
 	  }
