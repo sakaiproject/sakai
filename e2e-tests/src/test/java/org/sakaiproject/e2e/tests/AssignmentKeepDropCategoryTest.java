@@ -37,7 +37,7 @@ class AssignmentKeepDropCategoryTest extends SakaiUiTestBase {
     @CsvSource({"Categories only, keepHighest, keephighest", "Categories & weighting, dropLowest, droplowest"})
     void mismatchedPointsAreBlockedBeforeCreatingOrUpdatingAssignment(String categoryMode, String rule, String column) {
         sakai.login("instructor1");
-        String siteUrl = sakai.createSiteThroughUi("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.gradebookng"), "course");
+        String siteUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.gradebookng"));
         page.navigate(siteUrl);
         sakai.toolClick("Gradebook");
         configureCategory(categoryMode, rule, column);

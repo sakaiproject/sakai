@@ -180,6 +180,12 @@ public class SakaiHelper {
         return createSite(username, toolIds, "course");
     }
 
+    /** Create an isolated course while reusing the empty course template. */
+    public String createFreshCourse(String username, List<String> toolIds) {
+        COURSE_URL_CACHE.remove(siteCacheKey(resolveUser(username), toolIds, "course"));
+        return createCourse(username, toolIds);
+    }
+
     public void addMemberToSite(String siteUrl, String username, String role) {
         callSakaiScript("addMemberToSiteWithRole", fixtureSession(), Map.of(
             "siteid", siteIdFromUrl(siteUrl), "eid", resolveUser(username), "roleid", role));
