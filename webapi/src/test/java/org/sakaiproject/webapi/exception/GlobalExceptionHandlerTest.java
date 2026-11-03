@@ -14,6 +14,13 @@
 package org.sakaiproject.webapi.exception;
 
 import org.junit.Test;
+import org.sakaiproject.webapi.WebMvcConfiguration;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -34,4 +41,29 @@ public class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Resource not found"));
     }
+
+    @Test
+    public void missingStaticResourceReturnsNotFound() throws Exception {
+        try (AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext()) {
+            context.setServletContext(new MockServletContext());
+            context.register(ResourceConfiguration.class, GlobalExceptionHandler.class);
+            context.refresh();
+            MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
+
+            mvc.perform(get("/docs/missing.html"))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.status").value(404))
+                    .andExpect(jsonPath("$.message").value("Resource not found"));
+        }
+    }
+
+    @Configuration
+    @EnableWebMvc
+    static class ResourceConfiguration implements WebMvcConfigurer {
+        @Override
+        public void addResourceHandlers(ResourceHandlerRegistry registry) {
+            new WebMvcConfiguration().addResourceHandlers(registry);
+        }
+    }
+
 }
