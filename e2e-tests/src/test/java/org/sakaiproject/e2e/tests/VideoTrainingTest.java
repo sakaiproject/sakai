@@ -216,7 +216,7 @@ class VideoTrainingTest extends SakaiUiTestBase {
         Locator row = videoTableRow(title);
         assertThat(row).isVisible();
         page.waitForResponse(response -> "POST".equals(response.request().method())
-                && response.url().endsWith("/publish/ajax") && response.ok(),
+                && response.url().endsWith("/status/ajax") && response.ok(),
             () -> row.locator("form[action$='/publish'] button[type='submit']").first().click());
         assertThat(videoTableRow(title).locator("td").nth(2)).containsText(Pattern.compile("PUBLISHED"));
     }
