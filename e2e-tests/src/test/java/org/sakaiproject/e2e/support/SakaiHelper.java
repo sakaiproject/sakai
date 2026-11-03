@@ -131,7 +131,9 @@ public class SakaiHelper {
         page.waitForLoadState(LoadState.LOAD);
         Locator collapsedSidebar = page.locator("#sidebar-collapse-button[data-portal-sidebar-collapsed='true']");
         if (collapsedSidebar.isVisible()) {
-            collapsedSidebar.click();
+            page.waitForResponse(response -> "PUT".equals(response.request().method())
+                    && response.url().contains("sidebarCollapsed=false") && response.ok(),
+                collapsedSidebar::click);
             assertThat(page.locator("#sidebar-collapse-button"))
                 .hasAttribute("data-portal-sidebar-collapsed", "false");
         }

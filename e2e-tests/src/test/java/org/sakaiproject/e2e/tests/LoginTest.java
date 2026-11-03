@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class LoginTest extends SakaiUiTestBase {
@@ -116,23 +117,25 @@ class LoginTest extends SakaiUiTestBase {
     @Test
     @Order(6)
     void toolNavigationExpandsASavedCollapsedSidebar() {
-        sakai.login(effectiveUsername());
-        page.navigate("/portal/site/~" + effectiveUsername());
-        if ("false".equals(page.locator("#sidebar-collapse-button")
-                .getAttribute("data-portal-sidebar-collapsed"))) {
-            page.waitForResponse(response -> response.request().method().equals("PUT")
-                    && response.url().contains("sidebarCollapsed=true") && response.ok(),
-                () -> page.locator("#sidebar-collapse-button").click());
+        try (TestUser user = sakai.createUser("sidebar-navigation")) {
+            sakai.login(user.username());
+            page.navigate("/portal/site/~" + user.username());
+            if ("false".equals(page.locator("#sidebar-collapse-button")
+                    .getAttribute("data-portal-sidebar-collapsed"))) {
+                page.waitForResponse(response -> response.request().method().equals("PUT")
+                        && response.url().contains("sidebarCollapsed=true") && response.ok(),
+                    () -> page.locator("#sidebar-collapse-button").click());
+            }
+            page.reload();
+            assertThat(page.locator("#sidebar-collapse-button"))
+                .hasAttribute("data-portal-sidebar-collapsed", "true");
+
+            sakai.toolClick("Preferences");
+
+            assertThat(page.locator("#sidebar-collapse-button"))
+                .hasAttribute("data-portal-sidebar-collapsed", "false");
+            assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName("Notifications").setExact(true))).isVisible();
         }
-        page.reload();
-        assertThat(page.locator("#sidebar-collapse-button"))
-            .hasAttribute("data-portal-sidebar-collapsed", "true");
-
-        sakai.toolClick("Preferences");
-
-        assertThat(page.locator("#sidebar-collapse-button"))
-            .hasAttribute("data-portal-sidebar-collapsed", "false");
-        assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
-            new Page.GetByRoleOptions().setName("Notifications").setExact(true))).isVisible();
     }
 }
