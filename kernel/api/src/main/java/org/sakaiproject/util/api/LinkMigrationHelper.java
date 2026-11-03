@@ -20,7 +20,8 @@ import java.util.Set;
 import org.sakaiproject.util.MergeConfig;
 
 /**
- * From SAK-22283:
+ * Link bracketing is disabled by default. The LinkMigrationHelper.linksToBracket property can enable
+ * the legacy publication reminders described in SAK-22283:
  * <p>
  * What LinkMigrationHelper does in the two cases mentioned here is
  * to surround certain links kinds of links (Assignments and Msgcntr) links with brackets [link] to indicate to the instructor

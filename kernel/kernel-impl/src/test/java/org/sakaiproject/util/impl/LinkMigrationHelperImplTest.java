@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.util.impl;
 
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,11 +58,42 @@ public class LinkMigrationHelperImplTest {
 
         assertEquals("This  [Link] .", impl.bracketAndNullifySelectedLinks("This <a href='/url/posts/'>Link</a>."));
 
-        assertEquals("This  [<a href='/url/forum/'>Link</a>] .", impl.bracketAndNullifySelectedLinks("This <a href='/url/forum/'>Link</a>."));
+        assertEquals("This <a href='/url/forum/'>Link</a>.", impl.bracketAndNullifySelectedLinks("This <a href='/url/forum/'>Link</a>."));
+        assertEquals("This <a href='/direct/assignment/123'>Assignment</a>.", impl.bracketAndNullifySelectedLinks("This <a href='/direct/assignment/123'>Assignment</a>."));
+        assertEquals("This  [Quiz] .", impl.bracketAndNullifySelectedLinks("This <a href='/samigo/sam_pub/123'>Quiz</a>."));
+    }
+
+    @Test
+    public void testMigrateAllLinksPreservesLabels() {
+        Map<String, String> links = Map.of(
+                "/direct/assignment/old", "/direct/assignment/new",
+                "/direct/forum_topic/old", "/direct/forum_topic/new",
+                "/access/content/group/old", "/access/content/group/new");
+        String content = "<p><a href='/direct/assignment/old'>Homework</a></p>"
+                + "<p><a href='/direct/forum_topic/old'>Discussion</a></p>"
+                + "<p><a href='/access/content/group/old/file.pdf'>Resource</a></p>";
+        String expected = "<p><a href='/direct/assignment/new'>Homework</a></p>"
+                + "<p><a href='/direct/forum_topic/new'>Discussion</a></p>"
+                + "<p><a href='/access/content/group/new/file.pdf'>Resource</a></p>";
+        String migrated = impl.migrateAllLinks(links.entrySet(), content);
+        assertEquals(expected, migrated);
+        assertEquals(expected, impl.migrateAllLinks(links.entrySet(), migrated));
+    }
+
+    @Test
+    public void testExplicitLinkBracketingConfiguration() throws Exception {
+        when(serverConfigurationService.getString("LinkMigrationHelper.linksToBracket", ""))
+                .thenReturn("assignment,forum");
+        assertEquals(" [<a href='/direct/assignment/123'>Homework</a>] ",
+                impl.bracketAndNullifySelectedLinks("<a href='/direct/assignment/123'>Homework</a>"));
+        assertEquals(" [<a href='/direct/forum_topic/123'>Discussion</a>] ",
+                impl.bracketAndNullifySelectedLinks("<a href='/direct/forum_topic/123'>Discussion</a>"));
     }
 
     @Test
     public void testBracketAndNullifySelectedLinksIdempotent() throws Exception {
+        when(serverConfigurationService.getString("LinkMigrationHelper.linksToBracket", ""))
+                .thenReturn("assignment,forum");
         String once = impl.bracketAndNullifySelectedLinks("This <a href='/url/forum/'>Link</a>.");
         assertEquals(once, impl.bracketAndNullifySelectedLinks(once));
     }
