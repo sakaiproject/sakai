@@ -8533,6 +8533,7 @@ public class SimplePageBean {
 		SimplePageItem question = findItem(questionId);
 
 		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
+		boolean newResponse = response == null;
 		if(response != null) {
 			if(!canEditPage()) {
 				// Don't let students re-answer questions.
@@ -8544,8 +8545,8 @@ public class SimplePageBean {
 		}
 		
 		long responseId = Long.valueOf(questionResponse);
+		long previousResponseId = response.getMultipleChoiceId();
 		response.setMultipleChoiceId(responseId);
-		simplePageToolDao.incrementQRCount(questionId, responseId);
 		
 		SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(question, response.getMultipleChoiceId());
 		response.setOriginalText(answer.getText());
@@ -8555,9 +8556,14 @@ public class SimplePageBean {
 		// Complete user task
 		this.completeUserTask(questionId, userId);
 
-		saveItem(response);
-		
-		return "success";
+		boolean saved = newResponse ? saveItem(response) : update(response);
+		if (saved && (newResponse || previousResponseId != responseId)) {
+			if (!newResponse) {
+				simplePageToolDao.decrementQRCount(questionId, previousResponseId);
+			}
+			simplePageToolDao.incrementQRCount(questionId, responseId);
+		}
+		return saved ? "success" : "failure";
 	}
 	
 	public String answerShortanswerQuestion() {
@@ -8569,6 +8575,7 @@ public class SimplePageBean {
 		    return "permission-failed";
 
 		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
+		boolean newResponse = response == null;
 		if(response != null) {
 			if(!canEditPage()) {
 				// Don't let students re-answer questions.
@@ -8589,9 +8596,8 @@ public class SimplePageBean {
 		// Complete user task
 		this.completeUserTask(questionId, userId);
 		
-		saveItem(response);
-		
-		return "success";
+		boolean saved = newResponse ? saveItem(response) : update(response);
+		return saved ? "success" : "failure";
 	}
 	
 	public String updateStudent() {

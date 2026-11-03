@@ -1639,11 +1639,19 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 	}
 
 	public void incrementQRCount(long questionId, long responseId) {
+		adjustQRCount(questionId, responseId, 1L);
+	}
+
+	public void decrementQRCount(long questionId, long responseId) {
+		adjustQRCount(questionId, responseId, -1L);
+	}
+
+	private void adjustQRCount(long questionId, long responseId, long change) {
 		Session session = currentSession();
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaUpdate<SimplePageQuestionResponseTotalsImpl> update = cb.createCriteriaUpdate(SimplePageQuestionResponseTotalsImpl.class);
 		Root<SimplePageQuestionResponseTotalsImpl> root = update.from(SimplePageQuestionResponseTotalsImpl.class);
-		update.set(root.<Long>get("count"), cb.sum(root.<Long>get("count"), 1L));
+		update.set(root.<Long>get("count"), cb.sum(root.<Long>get("count"), change));
 		update.where(cb.equal(root.get("questionId"), questionId), cb.equal(root.get("responseId"), responseId));
 		session.createMutationQuery(update).executeUpdate();
 	}
