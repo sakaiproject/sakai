@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.deque.html.axecore.playwright.AxeBuilder;
@@ -26,6 +27,7 @@ import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -305,6 +307,52 @@ class GradebookTest extends SakaiUiTestBase {
         // deleting the text, as the native clear button does, shows every student again
         filter.fill("");
         assertThat(students).hasCount(all);
+    }
+
+    @Test
+    @Order(9)
+    void studentCellKeyboardDoesNotThrowOrOpenSummaryTwice() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+        List<String> errors = new ArrayList<>();
+        List<String> summaryRequests = new ArrayList<>();
+        page.onPageError(errors::add);
+        page.onRequest(request -> {
+            if (request.url().contains("viewGradeSummary")) {
+                summaryRequests.add(request.url());
+            }
+        });
+
+        Locator studentCell = page.locator(".tabulator-cell").filter(new Locator.FilterOptions()
+            .setHas(page.locator(".gb-view-grade-summary"))).first();
+        // Select the cell's padding without activating its summary link.
+        studentCell.click(new Locator.ClickOptions().setPosition(2, 2));
+        assertThat(studentCell).hasClass(Pattern.compile(".*tabulator-range-only-cell-selected.*"));
+        studentCell.press("Space");
+        assertTrue(errors.isEmpty(), "Space on a student cell must not throw: " + errors);
+        assertThat(page.locator(".dropdown-menu.show")).hasCount(0);
+
+        studentCell.press("Enter");
+        Locator summary = page.locator(".gb-modal-dialog:visible");
+        assertThat(summary).isVisible();
+        // Count the actual AJAX requests after both keyboard handling and modal loading finish.
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        assertEquals(1, summaryRequests.size(), "One Enter must request one student summary");
+        summary.locator(".gb-summary-close").click();
+        assertThat(summary).isHidden();
+
+        Locator scoreCell = page.locator(".tabulator-cell.tabulator-editable").first();
+        studentCell.click(new Locator.ClickOptions().setPosition(2, 2));
+        int scoreColumn = Integer.parseInt(scoreCell.getAttribute("data-col-index"));
+        for (int column = 0; column < scoreColumn; column++) {
+            page.keyboard().press("ArrowRight");
+        }
+        assertThat(scoreCell).hasClass(Pattern.compile(".*tabulator-range-only-cell-selected.*"));
+        assertThat(scoreCell).isFocused();
+        page.keyboard().press("Space");
+        assertThat(scoreCell.locator(".dropdown-toggle")).hasAttribute("aria-expanded", "true");
+        assertTrue(errors.isEmpty(), "Score-cell menus must still work: " + errors);
     }
 
     private void assertNoAxeContrastViolations(String theme) {

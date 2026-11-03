@@ -2463,6 +2463,10 @@ GbGradeTable.isBoundaryCell = function(rowIndex, colIndex) {
   return colIndex === 0 || colIndex === totalColumns - 1;
 };
 
+/**
+ * Set up grade-table navigation and score editing. Native summary links handle
+ * Enter themselves; cell actions use the selected range and available menus.
+ */
 GbGradeTable.setupKeyboardNavigation = function() {
 
   $(GbGradeTable.domElement).on("keydown", function(event) {
@@ -2505,7 +2509,11 @@ GbGradeTable.setupKeyboardNavigation = function() {
       // Handle Enter key for non-editable cells with links
       if (!current.classList.contains("tabulator-editable") && event.key === "Enter") {
         const link = current.querySelector("a, link");
-        if (link) link.click();
+        if (link) {
+          iGotThis();
+          link.click();
+          return;
+        }
       }
       
       // Allow accessibility shortcuts
@@ -2549,16 +2557,16 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
       // Space - open menu
       if (!editing && event.keyCode == 32) {
-        iGotThis();
-
         // Ctrl+Space to open the header menu
         const dropdownToggle = event.ctrlKey 
           ? document.querySelector("#gradeTableWrapper .tabulator-col.tabulator-range-highlight .dropdown-toggle")
           : current.querySelector(".dropdown-toggle");
 
-        dropdownToggle.addEventListener("shown.bs.dropdown", GbGradeTable.dropdownShownHandler);
-
-        bootstrap.Dropdown.getOrCreateInstance(dropdownToggle).toggle();
+        if (dropdownToggle) {
+          iGotThis();
+          dropdownToggle.addEventListener("shown.bs.dropdown", GbGradeTable.dropdownShownHandler);
+          bootstrap.Dropdown.getOrCreateInstance(dropdownToggle).toggle();
+        }
       }
       // Handle input and navigation
       if (!editing && (/^[0-9]$/.test(event.key) || event.key === "Enter")) {
@@ -2614,13 +2622,6 @@ GbGradeTable.setupKeyboardNavigation = function() {
        GbGradeTable.instance.getRanges().forEach(range => range.remove());
       }
 
-      if (event.keyCode == 13) {
-        const gradeSummary = current.querySelector('.gb-view-grade-summary');
-        if (gradeSummary) {
-          iGotThis();
-          gradeSummary.click();
-        }
-      }
     }
   });
 };
