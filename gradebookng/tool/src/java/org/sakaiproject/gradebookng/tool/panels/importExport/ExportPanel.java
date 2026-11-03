@@ -382,7 +382,7 @@ public class ExportPanel extends BasePanel {
 					}
 					if (!isCustomExport || this.includeGradeItemComments) {
 						header.add(getString("importExport.export.csv.headers.example.nopoints"));
-						header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"), "[50]"));
+						header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.points")));
 					}
 					// ignore
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
