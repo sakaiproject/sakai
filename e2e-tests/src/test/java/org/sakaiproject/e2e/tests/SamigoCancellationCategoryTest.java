@@ -272,8 +272,8 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
             confirmation.first().click();
         }
         assertThat(page.locator("input[id$='answerptr']")).hasCount(3);
-        // Authoring cancellation handlers are attached on window.load, including keyboard activation.
-        page.waitForLoadState(LoadState.LOAD);
+        // Wait for the portal's delayed focus before keyboard activation of the cancellation link.
+        sakai.waitForPortalFocus();
     }
 
     private void openCancellation() {
