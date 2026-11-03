@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -83,7 +84,9 @@ public class LessonBuilderServiceTestConfiguration extends SakaiTestConfiguratio
         return mock(SqlService.class);
     }
 
+    // it is a ToolManager too, which the kernel only defines once
     @Bean(name = "org.sakaiproject.tool.api.ActiveToolManager")
+    @Primary
     public ActiveToolManager activeToolManager() {
         return mock(ActiveToolManager.class);
     }
@@ -143,9 +146,11 @@ public class LessonBuilderServiceTestConfiguration extends SakaiTestConfiguratio
 
     @Bean(name = "org.sakaiproject.lessonbuildertool.service.LessonsAccess")
     public LessonsAccess lessonsAccess(SimplePageToolDao dao,
+            org.sakaiproject.authz.api.AuthzGroupService authzGroupService,
             org.sakaiproject.authz.api.SecurityService securityService,
             org.sakaiproject.site.api.SiteService siteService) {
         LessonsAccess lessonsAccess = new LessonsAccess();
+        lessonsAccess.setAuthzGroupService(authzGroupService);
         lessonsAccess.setDao(dao);
         lessonsAccess.setSecurityService(securityService);
         lessonsAccess.setSiteService(siteService);

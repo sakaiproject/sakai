@@ -30,6 +30,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.RequestOptions;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Order;
@@ -110,11 +111,7 @@ class LessonsSearchTest extends AbstractToolSearchTest {
     @Order(4)
     void membersFindTheContentAndOutsidersDoNot() {
         sakai.login(author());
-        String studentId = JsonParser.parseString(page.request().get("/direct/user/student0011.json").text())
-            .getAsJsonObject().get("id").getAsString();
-        APIResponse membership = page.request().post("/direct/membership/new", RequestOptions.create().setForm(FormData.create()
-            .set("locationReference", "/site/" + siteId).set("userId", studentId).set("memberRole", "Student").set("active", "true")));
-        assertTrue(membership.ok(), membership.text());
+        addStudent(siteId, "student0011");
 
         sakai.login("student0011");
         assertNotNull(findItem(search(bodyWord)), "member did not find the text");
@@ -124,6 +121,102 @@ class LessonsSearchTest extends AbstractToolSearchTest {
         assertNull(findItem(search(bodyWord)), "outsider found the text");
         assertNull(findItem(search(bodyWord, "&site=" + siteId)), "outsider found the text by naming the site");
         assertNull(subpageResult(search(titleWord)), "outsider found the subpage");
+    }
+
+    // these two make their own sites, after the shared fixture is done with
+
+    @Test
+    @Order(100)
+    void textBoxTitleFollowsItsPageWhenThePageIsRenamed() {
+        sakai.login(author());
+        String renameSite = sakai.siteIdFromUrl(sakai.createCourse(author(), List.of(toolId(), "sakai\\.search")));
+        String oldWord = uniqueWord();
+        String newWord = uniqueWord();
+        String body = uniqueWord();
+        String text = createItem(renameSite, "Week " + oldWord, "Reading " + body);
+        assertTrue(awaitItem(body, text).get("title").getAsString().contains(oldWord));
+
+        page.locator("#edit-title").click();
+        Locator dialog = page.locator("#edit-title-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#pageTitle").fill("Introduction " + newWord);
+        dialog.locator("button[type=submit], input[type=submit]").first().click();
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(newWord);
+
+        await("'" + body + "' to carry the new page title", () -> findItem(search(body), text),
+            result -> result != null && result.get("title").getAsString().contains(newWord));
+    }
+
+    @Test
+    @Order(100)
+    void membersOfEitherGroupOpenTheResultThroughTheirOwnLink() {
+        sakai.login(author());
+        String siteUrl = sakai.createCourse(author(), List.of(toolId(), "sakai\\.search"));
+        String linksSite = sakai.siteIdFromUrl(siteUrl);
+        for (String student : List.of("student0011", "student0012", "student0013")) {
+            addStudent(linksSite, student);
+        }
+        String groupA = "Group A " + uniqueWord();
+        String groupB = "Group B " + uniqueWord();
+        sakai.addGroup(siteUrl, groupA, "student0011");
+        sakai.addGroup(siteUrl, groupB, "student0012");
+
+        String title = "Shared " + uniqueWord();
+        String body = uniqueWord();
+        String text = createItem(linksSite, title, "Reading " + body);
+
+        openLessons(linksSite);
+        addLinkToExistingPage(title);
+        restrictLinkToGroup(title, 0, groupA);
+        restrictLinkToGroup(title, 1, groupB);
+
+        // the indexed url names the same link for everyone, so it is someone else's for one of them
+        for (String student : List.of("student0011", "student0012")) {
+            sakai.login(student);
+            JsonObject result = awaitItem(body, text);
+            sakai.gotoPath(result.get("url").getAsString().replaceFirst("^https?://[^/]+", ""));
+            assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
+            assertThat(page.locator("#content")).containsText(body);
+        }
+
+        sakai.login("student0013");
+        assertNull(findItem(search(body), text), "a student in neither group found the text");
+    }
+
+    private void addStudent(String siteId, String eid) {
+        String studentId = JsonParser.parseString(page.request().get("/direct/user/" + eid + ".json").text())
+            .getAsJsonObject().get("id").getAsString();
+        APIResponse membership = page.request().post("/direct/membership/new", RequestOptions.create().setForm(FormData.create()
+            .set("locationReference", "/site/" + siteId).set("userId", studentId).set("memberRole", "Student").set("active", "true")));
+        assertTrue(membership.ok(), membership.text());
+    }
+
+    private void addLinkToExistingPage(String title) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        Locator addContentDialog = page.locator("#addContentDiv");
+        assertThat(addContentDialog).isVisible();
+        addContentDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add Subpage").setExact(true)).click();
+        page.locator("#subpage-dialog #subpage-choose").click();
+        page.locator(".page-picker-item").filter(new Locator.FilterOptions().setHasText(title)).first()
+            .locator("input[type=radio]").check();
+        page.locator(".PagePicker").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("Use selected item", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.locator("#content a.itemlink").filter(new Locator.FilterOptions().setHasText(title))).hasCount(2);
+    }
+
+    private void restrictLinkToGroup(String title, int link, String group) {
+        Locator row = page.locator("#content a.itemlink").filter(new Locator.FilterOptions().setHasText(title)).nth(link)
+            .locator("xpath=ancestor::*[.//a[contains(@class,'edit-link')]][1]");
+        row.hover();
+        row.locator(".edit-col a.edit-link").first().click();
+        Locator dialog = page.locator("#edit-item-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#editgroups a").click();
+        dialog.locator("#grouplist p.checkbox").filter(new Locator.FilterOptions().setHasText(group))
+            .locator("input[type=checkbox]").check();
+        dialog.locator("button[type=submit].btn-primary").first().click();
+        assertThat(dialog).isHidden();
     }
 
     // a user in no site, as the seeded users may come with a site's roster

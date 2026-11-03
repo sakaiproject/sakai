@@ -37,6 +37,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
@@ -70,11 +71,14 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
 			LessonBuilderEvents.ITEM_CREATE, SearchBuilderItem.ACTION_ADD,
 			LessonBuilderEvents.ITEM_UPDATE, SearchBuilderItem.ACTION_ADD,
-			LessonBuilderEvents.ITEM_DELETE, SearchBuilderItem.ACTION_DELETE
+			LessonBuilderEvents.ITEM_DELETE, SearchBuilderItem.ACTION_DELETE,
+			// pages aren't indexed, but the text boxes on them take their title
+			LessonBuilderEvents.PAGE_UPDATE, SearchBuilderItem.ACTION_UNKNOWN
 	);
-	
+
 	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
-    
+
+	private EventTrackingService eventTrackingService;
 	private SecurityService securityService;
 	private ToolManager toolManager;
 	private SessionManager sessionManager;
@@ -88,6 +92,10 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
+	}
+
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
 	}
 
 	public void setSecurityService(SecurityService securityService) {
@@ -199,7 +207,19 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 	
 	public Integer getAction(Event event)
 	{
+		if (LessonBuilderEvents.PAGE_UPDATE.equals(event.getEvent())) {
+			reindexTextBoxes(idFromRef(event.getResource()));
+		}
 		return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
+	}
+
+	// the event is only handed to the index, not posted, so this doesn't show up as users editing these items
+	private void reindexTextBoxes(long pageId) {
+		for (SimplePageItem item : simplePageToolDao.findItemsOnPage(pageId)) {
+			if (item.getType() == SimplePageItem.TEXT && StringUtils.isBlank(item.getName())) {
+				searchIndexBuilder.addResource(null, eventTrackingService.newEvent(LessonBuilderEvents.ITEM_UPDATE, makeReference("item", item.getId()), false));
+			}
+		}
 	}
 
 	public boolean matches(Event event)

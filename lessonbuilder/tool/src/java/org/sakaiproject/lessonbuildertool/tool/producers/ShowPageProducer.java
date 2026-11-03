@@ -544,6 +544,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		SimplePageItem pageItem = null;
 		if (currentPage != null) {
 			pageItem = simplePageBean.getCurrentPageItem(params.getItemId());
+			if (pageItem != null) {
+				SimplePageItem accessibleLink = simplePageBean.findAccessibleLink(pageItem);
+				if (accessibleLink != pageItem) {
+					pageItem = simplePageBean.getCurrentPageItem(accessibleLink.getId());
+				}
+			}
 		}
 		// one more security check: make sure the item actually involves this
 		// page.

@@ -18,9 +18,13 @@ package org.sakaiproject.lessonbuildertool.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -31,15 +35,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.springframework.test.util.ReflectionTestUtils;
 
 public class LessonsEntityContentProducerTest {
 
@@ -171,6 +181,33 @@ public class LessonsEntityContentProducerTest {
         when(securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, SITE_REFERENCE)).thenThrow(new IllegalStateException("broken"));
 
         assertFalse(producer.canRead("/lessonbuilder/item/23"));
+    }
+
+    @Test
+    public void renamingAPageReindexesOnlyTheTextBoxesThatTakeItsTitle() {
+        SearchIndexBuilder searchIndexBuilder = mock(SearchIndexBuilder.class);
+        EventTrackingService eventTrackingService = mock(EventTrackingService.class);
+        ReflectionTestUtils.setField(producer, "searchIndexBuilder", searchIndexBuilder);
+        producer.setEventTrackingService(eventTrackingService);
+        Event reindex = mock(Event.class);
+        when(eventTrackingService.newEvent(LessonBuilderEvents.ITEM_UPDATE, "/lessonbuilder/item/30", false)).thenReturn(reindex);
+        SimplePageItem untitled = new SimplePageItemImpl(PAGE_ID, 1, SimplePageItem.TEXT, null, "");
+        untitled.setId(30L);
+        SimplePageItem named = new SimplePageItemImpl(PAGE_ID, 2, SimplePageItem.TEXT, null, "Intro");
+        named.setId(31L);
+        SimplePageItem subpage = new SimplePageItemImpl(PAGE_ID, 3, SimplePageItem.PAGE, "40", "");
+        subpage.setId(32L);
+        when(dao.findItemsOnPage(PAGE_ID)).thenReturn(List.of(untitled, named, subpage));
+        Event pageUpdate = mock(Event.class);
+        when(pageUpdate.getEvent()).thenReturn(LessonBuilderEvents.PAGE_UPDATE);
+        when(pageUpdate.getResource()).thenReturn("/lessonbuilder/page/" + PAGE_ID);
+
+        assertTrue(producer.matches(pageUpdate));
+        assertEquals(SearchBuilderItem.ACTION_UNKNOWN, producer.getAction(pageUpdate));
+
+        verify(searchIndexBuilder).addResource(null, reindex);
+        verifyNoMoreInteractions(searchIndexBuilder);
+        verify(eventTrackingService, never()).post(any(Event.class));
     }
 
     private void item(long id, long pageId, int type, String sakaiId, String name, String html) {

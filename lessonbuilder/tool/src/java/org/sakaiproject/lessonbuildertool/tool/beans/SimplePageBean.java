@@ -2891,6 +2891,25 @@ public class SimplePageBean {
 		return ret;
 	}
 
+	/**
+	 * A page can have several links with different restrictions, and the URL in a search result is shared by
+	 * everyone, so it names one that this user may not be able to follow.
+	 *
+	 * @return the given link if this user can follow it, otherwise another link to the same page that they can
+	 */
+	public SimplePageItem findAccessibleLink(SimplePageItem link) {
+		if (link.getType() != SimplePageItem.PAGE || (isItemVisible(link) && isItemAvailable(link, link.getPageId()))) {
+			return link;
+		}
+		for (SimplePageItem other : simplePageToolDao.findPageItemsBySakaiId(link.getSakaiId())) {
+			if (other.getId() != link.getId()
+					&& lessonsAccess.isItemAccessible(other.getId(), getCurrentSiteId(), getCurrentUserId(), this)) {
+				return other;
+			}
+		}
+		return link;
+	}
+
     // called at the start of showpageproducer, with page info for the page about to be displayed
     // updates the breadcrumbs, which are kept in session variables.
     // returns string version of the new path
