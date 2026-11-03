@@ -787,20 +787,9 @@ class SamigoTest extends SakaiUiTestBase {
     }
 
     private void ensureAssessmentsTable(String testsUrl) {
-        Locator assessmentsTable = page.locator("#authorIndexForm\\:coreAssessments");
-        if (isVisible(assessmentsTable, 10_000)) {
-            return;
-        }
-
-        clickFirstVisibleIfPresent(page.locator("a:has-text(\"Assessments\")"));
-        if (isVisible(assessmentsTable, 10_000)) {
-            return;
-        }
-
+        // Reloading the Publish POST response would publish another copy of the quiz.
         page.navigate(testsUrl);
-        sakai.toolClick("Tests");
-        clickFirstVisibleIfPresent(page.locator("a:has-text(\"Assessments\")"));
-        assertThat(assessmentsTable).isVisible();
+        assertThat(page.locator("#authorIndexForm\\:coreAssessments")).isVisible();
     }
 
     private void editWorkingCopyFromAssessmentsTable() {
