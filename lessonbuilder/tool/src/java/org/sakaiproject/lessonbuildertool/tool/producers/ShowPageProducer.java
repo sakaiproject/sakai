@@ -3156,6 +3156,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UILink.make(tableRow, "edit-calendar", (String) null, "");
 					}	
 				}else if(i.getType() == SimplePageItem.QUESTION) {
+					boolean available = simplePageBean.isItemAvailable(i);
+					if (!available) {
+						UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage(canSeeAll
+								? "simplepage.fake-item-unavailable" : "simplepage.complete_required"));
+						if (!canSeeAll) {
+							continue;
+						}
+					}
 				 	String itemGroupString = null;
 					String itemGroupTitles = null;
 					if (canSeeAll) {
@@ -3174,7 +3182,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					UIOutput.make(tableRow, "questionSpan");
 
-					boolean isAvailable = simplePageBean.isItemAvailable(i) || canSeeAll;
+					boolean isAvailable = available || canSeeAll;
 					
 					UIOutput.make(tableRow, "questionDiv");
 					
