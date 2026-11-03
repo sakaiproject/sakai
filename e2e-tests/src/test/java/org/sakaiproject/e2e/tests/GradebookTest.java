@@ -219,7 +219,13 @@ class GradebookTest extends SakaiUiTestBase {
         dialog.locator("button.gb-create-or-save").click();
         assertThat(dialog).isHidden();
 
-        // Keyboard activation avoids the table moving the link during pointer selection.
+        // Reproduce Enter on a summary link while the newly created score cell is selected.
+        Locator newColumn = page.locator(".tabulator-col[data-assignment-id]")
+            .filter(new Locator.FilterOptions().setHasText(itemTitle));
+        assertThat(newColumn).isVisible();
+        String assignmentId = newColumn.getAttribute("data-assignment-id");
+        Locator newCell = page.locator(".tabulator-cell[data-assignment-id=\"" + assignmentId + "\"]").first();
+        assertThat(newCell).hasClass(Pattern.compile(".*tabulator-range-only-cell-selected.*"));
         page.locator(".gb-view-grade-summary").first().press("Enter");
         Locator summary = page.locator(".gb-modal-dialog:visible");
         assertThat(summary).isVisible();

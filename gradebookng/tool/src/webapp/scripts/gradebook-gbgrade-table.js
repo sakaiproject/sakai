@@ -2490,6 +2490,11 @@ GbGradeTable.setupKeyboardNavigation = function() {
     const current = document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-range-only-cell-selected");
     const focus = document.activeElement;
 
+    // Focused summary links must activate themselves, not edit the selected score cell.
+    if (event.key === "Enter" && event.target.closest(".gb-view-grade-summary")) {
+      return;
+    }
+
     if (event.key === "Escape") {
       focus.blur();
       current.focus();

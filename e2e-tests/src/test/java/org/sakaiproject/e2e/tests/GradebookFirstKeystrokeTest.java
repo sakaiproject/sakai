@@ -18,6 +18,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -53,6 +54,9 @@ class GradebookFirstKeystrokeTest extends SakaiUiTestBase {
         Locator cell = page.locator(".tabulator-cell[data-assignment-id=\"" + assignmentId + "\"]").first();
         // Wait for the new-item selection before interacting with the table.
         assertThat(cell).hasClass(Pattern.compile(".*tabulator-range-only-cell-selected.*"));
+        page.waitForLoadState(LoadState.LOAD);
+        // The portal moves focus 50 ms after load; let that finish before opening an editor.
+        page.waitForTimeout(100);
         cell.click();
         cell.press(firstKey);
         Locator editor = cell.locator("input.tabulator-input");
