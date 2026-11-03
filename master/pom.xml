@@ -25,7 +25,7 @@
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons.configuration2.version>2.15.1</sakai.commons.configuration2.version>
     <sakai.commons.net>3.13.0</sakai.commons.net>
-    <sakai.opensearch.version>2.19.5</sakai.opensearch.version>
+    <sakai.opensearch.version>2.19.7</sakai.opensearch.version>
     <sakai.hibernate.version>6.6.56.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>7.1.0</sakai.hikaricp.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
