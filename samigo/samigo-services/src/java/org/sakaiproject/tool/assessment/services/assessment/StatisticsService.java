@@ -771,6 +771,7 @@ public class StatisticsService {
             int blankAnswers = 0;
             boolean hasNullAnswer = false;
 
+            Map<Long, Set<String>> usedAnswers = new HashMap<>();
             for (ItemGradingData itemGradingData : submissionItemGradingData) {
                 Long answerId = itemGradingData.getPublishedAnswerId();
                 if (answerId == null) {
@@ -797,7 +798,7 @@ public class StatisticsService {
 
                 // Check the result using the GradingServe, switching between FIB and FIN
                 if ((TypeIfc.FILL_IN_BLANK.equals(typeId)
-                                && gradingService.getFIBResult(itemGradingData, Collections.emptyMap(), item, answerMap))
+                                && gradingService.getFIBResult(itemGradingData, usedAnswers, item, answerMap))
                         || (TypeIfc.FILL_IN_NUMERIC.equals(typeId)
                                 && gradingService.getFINResult(itemGradingData, item, answerMap))) {
                     correctAnswers++;
