@@ -29,59 +29,74 @@ describe("sakai-rubric-criteria tests", () => {
   });
 
 
-  it ("validates rating points with and without a configured range", async () => {
+  for (const locale of [ "en-US", "es-ES", "ar-EG" ]) {
+    it (`validates rating points with and without a configured range (${locale})`, async () => {
 
-    const rubric = structuredClone(data.rubric4);
-    rubric.criteria[1].pointrange = { low: 0, high: 2 };
-    const el = await fixture(html`
-      <sakai-rubric site-id="${data.siteId}" .rubric=${rubric}></sakai-rubric>
-    `);
+      const rubric = structuredClone(data.rubric4);
+      rubric.criteria[1].pointrange = { low: 0, high: 2 };
+      const el = await fixture(html`
+        <sakai-rubric site-id="${data.siteId}" .rubric=${rubric}></sakai-rubric>
+      `);
 
-    await waitUntil(() => el.querySelector(".rubric-toggle"));
-    el.querySelector(".rubric-toggle").click();
-    await waitUntil(() => el.querySelectorAll("sakai-rubric-criterion-rating-edit button").length);
+      await waitUntil(() => el.querySelector(".rubric-toggle"));
+      el.querySelector(".rubric-toggle").click();
+      await waitUntil(() => el.querySelectorAll("sakai-rubric-criterion-rating-edit button").length);
 
-    for (const criterion of rubric.criteria) {
-      const rating = criterion.ratings[0];
-      const url = `/api/sites/${rubric.ownerId}/rubrics/${rubric.id}/criteria/${criterion.id}/ratings/${rating.id}`;
-      fetchMock.post(url, ({ options }) => ({
-        ...JSON.parse(options.body),
-        version: (rating.version ?? 0) + 1,
-        rubricVersion: (rubric.version ?? 0) + 1,
-      }));
-      const editor = el.querySelector(`[data-rating-id="${rating.id}"] sakai-rubric-criterion-rating-edit`);
-      const modal = editor.querySelector(".modal");
-      const shown = oneEvent(modal, "shown.bs.modal");
-      editor.querySelector("button[data-bs-toggle=modal]").click();
-      await shown;
+      for (const criterion of rubric.criteria) {
+        const rating = criterion.ratings[0];
+        const url = `/api/sites/${rubric.ownerId}/rubrics/${rubric.id}/criteria/${criterion.id}/ratings/${rating.id}`;
+        fetchMock.post(url, ({ options }) => ({
+          ...JSON.parse(options.body),
+          version: (rating.version ?? 0) + 1,
+          rubricVersion: (rubric.version ?? 0) + 1,
+        }));
+        const editor = el.querySelector(`[data-rating-id="${rating.id}"] sakai-rubric-criterion-rating-edit`);
+        const modal = editor.querySelector(".modal");
+        const shown = oneEvent(modal, "shown.bs.modal");
+        editor.querySelector("button[data-bs-toggle=modal]").click();
+        await shown;
 
-      const input = editor.querySelector("input[type=number]");
-      const save = modal.querySelector("button.btn-primary");
-      input.value = "";
-      save.click();
-      expect(input.validity.valid).to.be.false;
-      expect(fetchMock.callHistory.calls(url)).to.have.length(0);
-      expect(modal.classList.contains("show")).to.be.true;
-
-      if (criterion.pointrange) {
-        input.value = "3";
+        editor.locale = locale;
+        editor.requestUpdate();
+        await editor.updateComplete;
+        const input = editor.renderRoot.querySelector("input[name=quantity]");
+        const save = modal.querySelector("button.btn-primary");
+        // Existing integer ratings must remain editable with ASCII digits in every locale.
+        expect(input.value).to.equal(String(rating.points));
+        input.value = "";
         save.click();
-        expect(input.validity.rangeOverflow).to.be.true;
+        expect(input.validity.valid).to.be.false;
         expect(fetchMock.callHistory.calls(url)).to.have.length(0);
         expect(modal.classList.contains("show")).to.be.true;
-      }
 
-      const points = criterion.pointrange ? 1.5 : 2.5;
-      input.value = String(points);
-      const hidden = oneEvent(modal, "hidden.bs.modal");
-      save.click();
-      expect(input.validity.valid).to.be.true;
-      await hidden;
-      await waitUntil(() => fetchMock.callHistory.calls(url).length === 1);
-      const saved = JSON.parse(fetchMock.callHistory.lastCall(url).options.body);
-      expect(Number(saved.points)).to.equal(points);
-    }
-  });
+        if (criterion.pointrange) {
+          for (const outsideRange of [ "-1", "3" ]) {
+            input.value = outsideRange;
+            save.click();
+            expect(input.validity.customError).to.be.true;
+            expect(fetchMock.callHistory.calls(url)).to.have.length(0);
+            expect(modal.classList.contains("show")).to.be.true;
+          }
+        }
+
+        for (const invalid of [ "abc", "1,2,3", "1.2.3" ]) {
+          input.value = invalid;
+          save.click();
+          expect(input.validity.valid).to.be.false;
+          expect(fetchMock.callHistory.calls(url)).to.have.length(0);
+        }
+        const points = criterion.pointrange ? 1.5 : 2.5;
+        input.value = locale === "es-ES" ? String(points).replace(".", ",") : String(points);
+        const hidden = oneEvent(modal, "hidden.bs.modal");
+        save.click();
+        expect(input.validity.valid).to.be.true;
+        await hidden;
+        await waitUntil(() => fetchMock.callHistory.calls(url).length === 1);
+        const saved = JSON.parse(fetchMock.callHistory.lastCall(url).options.body);
+        expect(saved.points).to.equal(points);
+      }
+    });
+  }
 
   for (const { draft, weights, canSave } of [
     { draft: true, weights: [20, 30], canSave: true },

@@ -59,6 +59,18 @@ describe("sakai-rubric-association tests", () => {
     expect(el.renderRoot.querySelector("#dont-associate-radio").checked).to.be.true;
   });
 
+  it ("formats rubric points using the Sakai locale", async () => {
+    fetchMock.removeRoutes();
+    fetchMock.get(data.i18nUrl, data.i18n).get(data.rubricsUrl, [
+      { ...structuredClone(data.rubric1), draft: false, maxPoints: 12.5 },
+    ]);
+    const el = await fixture(html`
+      <sakai-rubric-association site-id="${data.siteId}" .locale=${"es-ES"}></sakai-rubric-association>
+    `);
+    await waitUntil(() => el.renderRoot.querySelector("select"));
+    expect(el.renderRoot.querySelector("option").textContent).to.contain("(12,5 ");
+  });
+
   it ("renders a rubric association correctly", async () => {
 
     let el = await fixture(html`
