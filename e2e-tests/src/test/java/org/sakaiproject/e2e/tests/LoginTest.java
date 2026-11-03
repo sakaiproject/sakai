@@ -112,4 +112,27 @@ class LoginTest extends SakaiUiTestBase {
         assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
             new Page.GetByRoleOptions().setName("Time Zone").setExact(true))).isVisible();
     }
+
+    @Test
+    @Order(6)
+    void toolNavigationExpandsASavedCollapsedSidebar() {
+        sakai.login(effectiveUsername());
+        page.navigate("/portal/site/~" + effectiveUsername());
+        if ("false".equals(page.locator("#sidebar-collapse-button")
+                .getAttribute("data-portal-sidebar-collapsed"))) {
+            page.waitForResponse(response -> response.request().method().equals("PUT")
+                    && response.url().contains("sidebarCollapsed=true") && response.ok(),
+                () -> page.locator("#sidebar-collapse-button").click());
+        }
+        page.reload();
+        assertThat(page.locator("#sidebar-collapse-button"))
+            .hasAttribute("data-portal-sidebar-collapsed", "true");
+
+        sakai.toolClick("Preferences");
+
+        assertThat(page.locator("#sidebar-collapse-button"))
+            .hasAttribute("data-portal-sidebar-collapsed", "false");
+        assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName("Notifications").setExact(true))).isVisible();
+    }
 }

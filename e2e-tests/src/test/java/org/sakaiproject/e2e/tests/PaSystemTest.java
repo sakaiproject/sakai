@@ -320,6 +320,7 @@ class PaSystemTest extends SakaiUiTestBase {
         page.locator("form select#type").selectOption("medium");
         page.locator("form input#active").check();
         page.locator("form input[name=\"save\"]").click();
+        page.waitForLoadState();
     }
 
     private void deleteBanner(String message) {

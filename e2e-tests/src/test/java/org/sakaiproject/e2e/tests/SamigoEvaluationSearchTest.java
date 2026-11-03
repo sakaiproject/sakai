@@ -79,7 +79,7 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
 
     /** Waits for navigation and the portal's delayed focus before the next input action. */
     private void submits(Runnable action) {
-        page.waitForNavigation(action);
+        sakai.submitForm(action);
         sakai.waitForPortalFocus();
     }
 
