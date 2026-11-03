@@ -217,11 +217,6 @@
             <version>3.0.2</version>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>reflectutils</artifactId>
-            <version>${reflectutils.version}</version>
-        </dependency>
-        <dependency>
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
         </dependency>
