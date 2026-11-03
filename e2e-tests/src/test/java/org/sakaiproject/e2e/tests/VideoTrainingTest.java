@@ -212,11 +212,12 @@ class VideoTrainingTest extends SakaiUiTestBase {
     }
 
     private void publishVideo(String title) {
+        sakai.waitForPortalFocus();
         Locator row = videoTableRow(title);
         assertThat(row).isVisible();
-        row.locator("form[action$='/publish'] button[type='submit']").first()
-            .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.waitForResponse(response -> "POST".equals(response.request().method())
+                && response.url().endsWith("/publish/ajax") && response.ok(),
+            () -> row.locator("form[action$='/publish'] button[type='submit']").first().click());
         assertThat(videoTableRow(title).locator("td").nth(2)).containsText(Pattern.compile("PUBLISHED"));
     }
 
