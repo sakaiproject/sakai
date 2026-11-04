@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 
+import freemarker.core.TemplateClassResolver;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
@@ -68,6 +69,7 @@ public class TextTemplateLogicUtils {
 
       // setup freemarker
       Configuration cfg = new Configuration();
+      cfg.setNewBuiltinClassResolver(TemplateClassResolver.ALLOWS_NOTHING_RESOLVER);
 
       // Specify how templates will see the data-model
       cfg.setObjectWrapper(new DefaultObjectWrapper()); 
