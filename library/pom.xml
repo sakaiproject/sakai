@@ -234,13 +234,6 @@
 			<version>4.1.0</version>
 			<scope>runtime</scope>
 		</dependency>
-		<!--Used in Private messages, Tests&Quizzes, selector of multiple items (users, groups), group manager tool -->
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>select2</artifactId>
-            <version>4.0.13</version>
-            <scope>runtime</scope>
-        </dependency>
 		<!--Used in Lessons, embed calendar item. New Calendar UI. -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
@@ -760,6 +753,11 @@
 						js/portal/src/**,
                         bundled-js/**
 					</warSourceExcludes>
+                    <!-- DataTables Editor field adapters are unused by Sakai. -->
+                    <packagingExcludes>
+                        webjars/datatables.net-plugins/*/editorFields/**,
+                        WEB-INF/lib/datatables.net-plugins-*.jar
+                    </packagingExcludes>
 					<webResources>
 						<resource>
 							<directory>src/webapp-filtered</directory>
