@@ -103,6 +103,9 @@ jobs:
             --output sakai/sakai.properties "$NIGHTLY_CONFIG_URL/cypress.properties" \
             --output conf/context.xml "$NIGHTLY_CONFIG_URL/context.xml" \
             --output conf/catalina.properties "$NIGHTLY_CONFIG_URL/catalina.properties"
+          printf '%s\n' \
+            'cardgame.showOfficialPhoto=false' 'cardgame.skipNoImageUsers=true' \
+            'profile2.picture.change.enabled=true' 'profile2.picture.type=upload' >> sakai/local.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai";
           cd ..

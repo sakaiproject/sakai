@@ -225,6 +225,36 @@ describe("sakai-tag-selector", () => {
     expect(tags).to.have.length(2);
   });
 
+  it("distinguishes removal buttons for tags with the same name", async () => {
+    const tags = [
+      { code: "one", name: "Algebra", collection: "Math" },
+      { code: "two", name: "Algebra", collection: "Science" },
+    ];
+    const el = await fixture(html`<sakai-tag-selector .selectedTags=${tags}></sakai-tag-selector>`);
+    await ready(el);
+    const buttons = Array.from(el.renderRoot.querySelectorAll("button.tag"));
+    expect(buttons.map(button => button.getAttribute("aria-label"))).to.deep.equal([
+      "Deselect: Algebra (Math)", "Deselect: Algebra (Science)",
+    ]);
+    buttons[1].click();
+    expect(el.selectedTags).to.deep.equal([ tags[0] ]);
+  });
+
+  it("keeps search focus on pointer activation of Load more", async () => {
+    const el = await fixture(html`<sakai-tag-selector .searchTags=${async (_query, page) => ({
+      tags: [ { code: String(page), name: "Algebra " + page } ], more: page === 1,
+    })}></sakai-tag-selector>`);
+    const input = await search(el, "Algebra");
+    input.focus();
+    await waitUntil(() => el.renderRoot.querySelector("button.more"));
+    const more = el.renderRoot.querySelector("button.more");
+    const down = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+    expect(more.dispatchEvent(down)).to.equal(false);
+    more.click();
+    await waitUntil(() => el.renderRoot.querySelectorAll("[role=option]").length === 2);
+    expect(el.renderRoot.activeElement).to.equal(input);
+  });
+
   it("keeps remote tag results open for multiple selections", async () => {
     const tags = [ { code: "one", name: "Algebra I" }, { code: "two", name: "Algebra II" } ];
     const el = await fixture(html`<sakai-tag-selector .searchTags=${async () => ({ tags, more: false })}></sakai-tag-selector>`);

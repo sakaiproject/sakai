@@ -256,7 +256,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
       <div class="picker" @focusout=${this._focusout}>
         <div class="selector" aria-busy=${Boolean(this._loading)}>
           ${this._selectedTags.map(tag => html`
-            <button class="tag" type="button" aria-label="${this._i18n.deselect}: ${tag.name}"
+            <button class="tag" type="button" aria-label="${this._i18n.deselect}: ${tag.name}${tag.collection ? ` (${tag.collection})` : ""}"
                 ?disabled=${this._loading || (!this.searchTags && this._error)}
                 @click=${() => this._removeTag(tag)}>
               ${tag.name}${tag.collection ? html` <small>(${tag.collection})</small>` : nothing} <span aria-hidden="true">×</span>
@@ -297,7 +297,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
         </ul>
         ${this._searching ? html`<p role="status">${this._i18n.loading}</p>` : nothing}
         ${this._more && !this._error ? html`
-          <button type="button" class="more" ?disabled=${this._searching} @click=${() => {
+          <button type="button" class="more" ?disabled=${this._searching} @mousedown=${event => event.preventDefault()} @click=${() => {
                     this.focus();
                     this._loadSearchPage(this._page + 1);
                   }}>${this._i18n.load_more}</button>` : nothing}
