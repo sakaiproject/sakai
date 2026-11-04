@@ -5,7 +5,7 @@
         <h:outputLabel value="#{authorMessages.tag_question}"/><br/>
         <div class="samigo-tag-picker">
             <input type="hidden" class="samigo-tag-site" value="<h:outputText value="#{author.currentSiteId}"/>"/>
-            <input type="hidden" class="samigo-tag-data" value="<h:outputText value="#{itemauthor.tagsListToJson}"/>"/>
+            <textarea hidden class="samigo-tag-data"><h:outputText value="#{itemauthor.tagsListToJson}" escape="true"/></textarea>
             <select hidden name="tag_selector[]" multiple="multiple"></select>
             <sakai-tag-selector label="<h:outputText value="#{authorMessages.tag_question}"/>"></sakai-tag-selector>
         </div>
@@ -29,12 +29,12 @@
         <h:outputLabel value="#{authorMessages.tag_title}"/><br/>
         <i><h:outputLabel value="#{authorMessages.tag_previous}"/></i><br/>
         <div class="samigo-readonly-tags">
-            <input type="hidden" class="samigo-tag-data" value="<h:outputText value="#{itemauthor.tagsListToJson}"/>"/>
+            <textarea hidden class="samigo-tag-data"><h:outputText value="#{itemauthor.tagsListToJson}" escape="true"/></textarea>
         </div>
         <i><h:outputLabel value="#{authorMessages.tag_question_new}"/></i><br/>
         <div class="samigo-tag-picker">
             <input type="hidden" class="samigo-tag-site" value="<h:outputText value="#{author.currentSiteId}"/>"/>
-            <input type="hidden" class="samigo-tag-data" value="<h:outputText value="#{itemauthor.tagsTempListToJson}"/>"/>
+            <textarea hidden class="samigo-tag-data"><h:outputText value="#{itemauthor.tagsTempListToJson}" escape="true"/></textarea>
             <select hidden name="tag_selector[]" multiple="multiple"></select>
             <sakai-tag-selector label="<h:outputText value="#{authorMessages.tag_question_new}"/>"></sakai-tag-selector>
         </div>
