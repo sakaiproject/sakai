@@ -62,6 +62,66 @@ class MessagesTest extends SakaiUiTestBase {
     }
 
     @Test
+    void bindsRecipientPickersInReplyReplyAllAndForward() {
+        sakai.login("instructor1");
+        String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.messages"));
+        page.navigate(courseUrl);
+        sakai.toolClick("Messages");
+        page.locator("#messagesComposeMenuLink").click();
+        String recipient = sakai.resolveUsername("student0011");
+        String blindRecipient = sakai.resolveUsername("student0012");
+        selectRecipient("compose", "list1", recipient);
+        page.locator("#compose\\:bcc_toggle").check();
+        selectRecipient("compose", "list2", blindRecipient);
+
+        String subject = "Reply picker fixture " + sakai.randomId();
+        page.locator("#compose\\:subject").fill(subject);
+        assertTrue(sakai.typeFirstCkEditorIfPresent("<p>Testing reply recipient controls.</p>"));
+        Locator emailCopy = page.locator("#compose\\:send_email_out");
+        if (emailCopy.isVisible()) {
+            if (emailCopy.isEnabled()) {
+                emailCopy.uncheck();
+            }
+            assertThat(emailCopy).not().isChecked();
+        }
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Send").setExact(true)).click();
+
+        sakai.login("student0011");
+        page.navigate(courseUrl);
+        sakai.toolClick("Messages");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Received").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(subject).setExact(true)).click();
+        assertThat(page.locator("th:text-is('Bcc')")).hasCount(0);
+
+        for (String action : List.of("Reply", "Reply to all", "Forward")) {
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(action).setExact(true)).first().click();
+            String formId = "Reply".equals(action) ? "pvtMsgReply" : "pvtMsgForward";
+            String bccToggle = "Reply to all".equals(action) ? "bcc_checkbox" : "bcc_toggle";
+            if (!"Reply to all".equals(action)) {
+                assertThat(recipientPicker(formId, "list1").getByRole(AriaRole.COMBOBOX)).isVisible();
+            }
+            page.locator("[id='" + formId + ":" + bccToggle + "']").check();
+            selectRecipient(formId, "list2", blindRecipient);
+            Locator bcc = recipientPicker(formId, "list2");
+            assertThat(bcc.getByRole(AriaRole.COMBOBOX)).hasAccessibleName("Bcc");
+            bcc.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(blindRecipient)).press("Enter");
+            assertThat(bcc.getByRole(AriaRole.BUTTON)).hasCount(0);
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+        }
+    }
+
+    private Locator recipientPicker(String formId, String listId) {
+        return page.locator("[id='" + formId + ":" + listId + "'] + sakai-user-picker");
+    }
+
+    private void selectRecipient(String formId, String listId, String username) {
+        Locator picker = recipientPicker(formId, listId);
+        picker.getByRole(AriaRole.COMBOBOX).fill(username);
+        picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(username)).click();
+        assertThat(picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(username))).isVisible();
+    }
+
+    @Test
     void canSaveAndRemoveDraftTags() {
         sakai.login("instructor1");
         String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.messages"));
