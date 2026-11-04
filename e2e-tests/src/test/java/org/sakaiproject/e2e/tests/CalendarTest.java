@@ -212,7 +212,7 @@ class CalendarTest extends SakaiUiTestBase {
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("#group-manager-form a").filter(new Locator.FilterOptions().setHasText(groupTitle)).click();
         assertThat(picker.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName(Pattern.compile(Pattern.quote(memberEid))))).isVisible();
+            new Locator.GetByRoleOptions().setName(memberEid))).isVisible();
         page.locator("#create-group-cancel-button").click();
     }
 
