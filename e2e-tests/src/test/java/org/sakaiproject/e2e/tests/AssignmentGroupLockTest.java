@@ -48,7 +48,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        assertThat(page.locator("sakai-user-picker").getByRole(AriaRole.COMBOBOX)).isVisible();
         sakai.waitForPortalFocus();
         // Use real key events after the form's member picker has initialized.
         page.locator("#groupTitle").pressSequentially(groupTitle);
