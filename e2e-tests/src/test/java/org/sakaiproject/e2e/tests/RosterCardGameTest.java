@@ -17,6 +17,7 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -38,20 +39,23 @@ class RosterCardGameTest extends SakaiUiTestBase {
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.site\\.roster2"));
         sakai.gotoPath(siteUrl);
         sakai.toolClick("Roster");
-        page.locator("#navbar_card_game_link a").click();
-
-        Locator scope = page.locator("#card-game [data-select-scope]");
-        if (scope.isVisible()) {
-            scope.click();
-        }
-        Locator game = page.locator("#card-game");
-        Locator picker = game.locator("sakai-user-picker");
-        Locator input = picker.getByRole(AriaRole.COMBOBOX);
-        assertThat(input).isVisible();
-
         APIResponse response = page.request().get("/api/sites/" + sakai.siteIdFromUrl(siteUrl) + "/card-game/users");
         assertTrue(response.ok(), response.text());
         JsonArray users = JsonParser.parseString(response.text()).getAsJsonArray();
+        assumeTrue(users.size() >= 2,
+            "Card-game fixtures need two eligible students with photos, or cardgame.skipNoImageUsers=false");
+
+        page.locator("#navbar_card_game_link a").click();
+        Locator game = page.locator("#card-game");
+        Locator scope = game.locator("[data-select-scope]");
+        Locator picker = game.locator("sakai-user-picker");
+        Locator input = picker.getByRole(AriaRole.COMBOBOX);
+        assertThat(scope.or(input)).isVisible();
+        if (scope.isVisible()) {
+            scope.click();
+        }
+        assertThat(input).isVisible();
+
         selectGuess(game, picker, users, true);
         game.locator("[data-check]").click();
         assertThat(game.locator("#feedback-banner.sak-banner-success")).isVisible();
