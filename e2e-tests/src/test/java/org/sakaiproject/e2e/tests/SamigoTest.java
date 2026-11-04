@@ -461,6 +461,8 @@ class SamigoTest extends SakaiUiTestBase {
 
     private void selectQuestionTag(Locator picker, String tag, String collection) {
         Locator input = picker.getByRole(AriaRole.COMBOBOX);
+        assertThat(input).isVisible();
+        sakai.waitForPortalFocus();
         Response response = page.waitForResponse(r -> r.url().contains("/getTagsPaginatedByPrefixInLabel.json"),
             () -> input.fill(tag));
         assertEquals(200, response.status(), response.url());
