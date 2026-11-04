@@ -31,6 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (savedState === "closed") {
         details.removeAttribute("open");
       }
+      const idToFocus = sessionStorage.getItem('pendingFocusId');
+      if (idToFocus) {
+          sessionStorage.removeItem('pendingFocusId');
+          const element = document.getElementById(idToFocus);
+          if (element) { setTimeout(function() { element.focus(); }, 200); }
+      }
     } catch (error) {
       console.warn("Could not read from sessionStorage:", error);
     }
