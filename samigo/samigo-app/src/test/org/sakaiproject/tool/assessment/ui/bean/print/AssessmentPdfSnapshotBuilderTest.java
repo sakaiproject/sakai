@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -381,6 +382,54 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertEquals("{\"x\":10,\"y\":20}", click.getAnswerText());
         assertEquals(Long.valueOf(9001L), click.getPublishedItemTextId());
         assertEquals(Integer.valueOf(1), click.getSequence());
+    }
+
+    @Test
+    public void buildStudentReportModelMarksImageMapClickResponseAsAnswered() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, null);
+        ItemGradingData grading = new ItemGradingData();
+        grading.setAnswerText("{\"click\":true,\"x\":105,\"y\":105}");
+        item.setItemGradingDataArray(new java.util.ArrayList<>(List.of(grading)));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+
+        assertFalse(model.getParts().get(0).getQuestions().get(0).isUnanswered());
+    }
+
+    @Test
+    public void buildStudentReportModelMarksLegacyImageMapResponseAsAnswered() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, null);
+        ItemGradingData grading = new ItemGradingData();
+        grading.setAnswerText("{\"x\":96,\"y\":97}");
+        item.setItemGradingDataArray(new java.util.ArrayList<>(List.of(grading)));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+
+        assertFalse(model.getParts().get(0).getQuestions().get(0).isUnanswered());
+    }
+
+    @Test
+    public void buildStudentReportModelMarksUnparseableImageMapResponseAsUnanswered() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, null);
+        ItemGradingData grading = new ItemGradingData();
+        grading.setAnswerText("undefined");
+        item.setItemGradingDataArray(new java.util.ArrayList<>(List.of(grading)));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+
+        assertTrue(model.getParts().get(0).getQuestions().get(0).isUnanswered());
     }
 
     @Test
