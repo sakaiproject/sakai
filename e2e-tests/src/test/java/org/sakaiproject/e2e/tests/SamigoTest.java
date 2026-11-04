@@ -437,17 +437,15 @@ class SamigoTest extends SakaiUiTestBase {
         selectQuestionTag(picker, tagLabel, collectionName);
         Locator removeTag = picker.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true));
+        saveQuestionAndWaitForAssessment();
+        edit.click();
+        assertThat(removeTag).isVisible();
         removeTag.click();
         assertThat(removeTag).hasCount(0);
         saveQuestionAndWaitForAssessment();
         edit.click();
         assertThat(picker.getByRole(AriaRole.COMBOBOX)).isVisible();
         assertThat(removeTag).hasCount(0);
-
-        selectQuestionTag(picker, tagLabel, collectionName);
-        saveQuestionAndWaitForAssessment();
-        edit.click();
-        assertThat(removeTag).isVisible();
         saveQuestionAndWaitForAssessment();
 
         selectQuestionType(Pattern.compile("^Search questions$", Pattern.CASE_INSENSITIVE));
