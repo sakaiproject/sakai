@@ -134,7 +134,8 @@ export class SakaiUserPicker extends SakaiShadowElement {
       }
     } else if (event.key === "Enter" && this._open) {
       event.preventDefault();
-      if (choices[this._active]) { this._choose(choices[this._active]); }
+      const choice = choices[this._active] || (this._query.trim() ? choices.find(option => !option.disabled) : undefined);
+      if (choice) { this._choose(choice); }
     }
   }
 

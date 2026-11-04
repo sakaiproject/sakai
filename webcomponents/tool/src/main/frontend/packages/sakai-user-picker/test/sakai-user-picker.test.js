@@ -83,15 +83,19 @@ describe("sakai-user-picker", () => {
 
   it("keeps multi-select results open and refreshes them when options change", async () => {
     const picker = await fixture(html`<sakai-user-picker multiple .options=${[
+      { id: "disabled", name: "Alex Jones", disabled: true },
       { id: "a", name: "Alex Kim" }, { id: "b", name: "Alex Lee" },
     ]}></sakai-user-picker>`);
     await waitUntil(() => input(picker));
+    await search(picker, "");
+    key(picker, "Enter");
+    expect(picker.values).to.deep.equal([]);
     await search(picker, "Alex");
-    results(picker)[0].click();
+    key(picker, "Enter");
     await elementUpdated(picker);
     expect(input(picker).value).to.equal("Alex");
     expect(input(picker).getAttribute("aria-expanded")).to.equal("true");
-    results(picker)[1].click();
+    results(picker)[2].click();
     await elementUpdated(picker);
     expect(picker.values).to.deep.equal([ "a", "b" ]);
 

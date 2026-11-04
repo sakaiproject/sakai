@@ -97,7 +97,7 @@
               <optgroup th:if="${!sectionList.isEmpty()}" th:label="#{groups.picker.sections}">
                 <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
               </optgroup>
-              <optgroup th:label="#{groups.assigned.members}">
+              <optgroup th:if="${!selectableMemberList.isEmpty()}" th:label="#{groups.picker.members}">
                 <option th:attr="data-name=${siteMember.displayName},data-username=${siteMember.eid}" th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${selectableMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
               </optgroup>
             </select>
