@@ -24,6 +24,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
@@ -101,6 +102,11 @@ public class PollsServiceTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
     public LinkMigrationHelper linkMigrationHelper() {
         return Mockito.mock(LinkMigrationHelper.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchIndexBuilder")
+    public SearchIndexBuilder searchIndexBuilder() {
+        return Mockito.mock(SearchIndexBuilder.class);
     }
 
     @Bean(name = "org.sakaiproject.event.api.UsageSessionService")

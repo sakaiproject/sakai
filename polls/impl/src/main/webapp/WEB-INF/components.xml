@@ -67,6 +67,17 @@
         </property>
     </bean>
 
+    <bean id="org.sakaiproject.poll.impl.search.PollsContentProducer"
+          class="org.sakaiproject.poll.impl.search.PollsContentProducer"
+          init-method="init">
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="pollsService" ref="org.sakaiproject.poll.api.service.PollsService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+
     <!-- Job to back-fill Poll options' order -->
     <bean id="pollOrderOptionBackFillJob"
           class="org.sakaiproject.poll.impl.logic.PollOrderOptionBackFillJob">
