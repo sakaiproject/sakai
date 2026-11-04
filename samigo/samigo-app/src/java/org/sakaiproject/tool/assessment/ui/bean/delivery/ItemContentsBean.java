@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -406,8 +407,7 @@ public class ItemContentsBean implements Serializable {
 				}
 			}
 			else if (TypeIfc.IMAGEMAP_QUESTION.equals(typeId)) {
-				if (StringUtils.isNotEmpty(data.getAnswerText())
-						&& data.getAnswerText().matches("\\{\"x\":-?\\d+,\"y\":-?\\d+\\}")) {
+				if (ImageMapCoordinates.parseStudentPoint(data.getAnswerText()).isPresent()) {
 					return false;
 				}
 			}

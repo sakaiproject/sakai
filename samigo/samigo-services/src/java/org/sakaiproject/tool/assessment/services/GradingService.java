@@ -1357,7 +1357,7 @@ public class GradingService
           return true;
         }
     } else if(TypeIfc.IMAGEMAP_QUESTION.equals(type)) {
-        if (StringUtils.isNotEmpty(data.getAnswerText()) && data.getAnswerText().matches("\\{\"x\":-?\\d+,\"y\":-?\\d+\\}")) {
+        if (ImageMapCoordinates.parseStudentPoint(data.getAnswerText()).isPresent()) {
           return true;
         }
     } else {
