@@ -11,6 +11,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
     options: { attribute: false },
     values: { attribute: false },
     multiple: { type: Boolean },
+    bulkActions: { attribute: "bulk-actions", type: Boolean },
     disabled: { type: Boolean },
     label: { type: String },
     placeholder: { type: String },
@@ -115,6 +116,19 @@ export class SakaiUserPicker extends SakaiShadowElement {
       : [ option.id ], this.multiple);
   }
 
+  _setMatchingSelection(selected) {
+    const values = new Set(this.values);
+    for (const option of this._matches) {
+      if (option.disabled) { continue; }
+      if (selected) {
+        values.add(option.id);
+      } else {
+        values.delete(option.id);
+      }
+    }
+    this._change([ ...values ], true);
+  }
+
   _key(event, choices) {
     if (event.isComposing) { return; }
     if (event.key === "Escape" && this._open) {
@@ -148,6 +162,8 @@ export class SakaiUserPicker extends SakaiShadowElement {
     const choices = matches.slice(0, 100);
     const selected = this.values.map(value => this._optionsById.get(value)).filter(Boolean);
     const selectedIds = new Set(this.values);
+    const bulkActions = this.multiple && this.bulkActions;
+    const compact = bulkActions && selected.length > 3;
     const noResults = this.options.length ? this._i18n.no_results : this._i18n.no_options;
     const truncated = matches.length > choices.length;
     const resultStatus = truncated ? this.tr("truncated_results", { shown: choices.length, total: matches.length })
@@ -171,7 +187,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
       }
     }}>
         <div class="field">
-          ${selected.map(option => {
+          ${compact ? html`<span class="selection-summary">${this.tr("selected_count", [ selected.length ])}</span>` : selected.map(option => {
       const duplicateName = option.username && this._nameCounts.get(option.name) > 1;
       const identity = option.username ? `${option.name} (${option.username})` : option.name;
       return html`
@@ -195,6 +211,11 @@ export class SakaiUserPicker extends SakaiShadowElement {
               @keydown=${event => this._key(event, choices)}>
         </div>
         <div class="results" ?hidden=${!open}>
+          ${bulkActions && choices.length ? html`
+            <div class="matching-actions">
+              <button type="button" @click=${() => this._setMatchingSelection(true)}>${this._i18n.select_matching}</button>
+              <button type="button" @click=${() => this._setMatchingSelection(false)}>${this._i18n.clear_matching}</button>
+            </div>` : nothing}
           ${truncated || !choices.length ? html`<p>${resultStatus}</p>` : nothing}
           <div id="options" role="listbox" aria-label=${label}
               aria-multiselectable=${this.multiple ? "true" : nothing}>
@@ -229,7 +250,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
     }
     .field { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; padding: .375rem; }
     input {
-      flex: 1 1 12rem;
+      flex: 1 1 var(--sakai-user-picker-input-basis, 12rem);
       min-inline-size: 0;
       border: 0;
       padding: .375rem;
@@ -237,6 +258,23 @@ export class SakaiUserPicker extends SakaiShadowElement {
       color: inherit;
       font: inherit;
     }
+    .selection-summary { padding-inline: .375rem; }
+    .matching-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .375rem;
+      padding: .375rem;
+      border-block-end: 1px solid var(--sakai-border-color, #767676);
+    }
+    .matching-actions button {
+      border: 0;
+      border-radius: .25rem;
+      padding: .375rem;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+    }
+    .matching-actions button:hover { background: var(--sakai-background-color-2, #eee); }
     .chip {
       max-inline-size: 100%;
       overflow-wrap: anywhere;

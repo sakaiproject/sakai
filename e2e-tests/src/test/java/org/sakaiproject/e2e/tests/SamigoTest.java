@@ -91,14 +91,15 @@ class SamigoTest extends SakaiUiTestBase {
         Locator picker = page.locator("sakai-group-picker");
         Locator assessment = page.locator("table.table-assessments").getByText(title, new Locator.GetByTextOptions().setExact(true));
         assertThat(assessment).isVisible();
-        picker.getByRole(AriaRole.SEARCHBOX).fill("North");
-        assertThat(picker.locator("option:not([hidden])")).hasCount(1);
+        assertThat(picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear matching groups"))).isHidden();
+        picker.getByRole(AriaRole.COMBOBOX).fill("North");
+        assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(1);
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear matching groups")).click();
-        assertThat(picker.locator("option:checked:not([hidden])")).hasCount(0);
-        assertThat(picker.locator("option:checked[hidden]")).not().hasCount(0);
+        assertThat(picker.getByRole(AriaRole.OPTION)).hasAttribute("aria-selected", "false");
+        assertThat(picker.locator("select option:checked")).not().hasCount(0);
         assertThat(assessment).isHidden();
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Select matching groups")).click();
-        assertThat(picker.locator("option:checked:not([hidden])")).hasCount(1);
+        assertThat(picker.getByRole(AriaRole.OPTION)).hasAttribute("aria-selected", "true");
         assertThat(assessment).isVisible();
     }
 

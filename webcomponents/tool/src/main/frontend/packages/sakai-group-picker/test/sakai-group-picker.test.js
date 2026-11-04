@@ -14,30 +14,42 @@ describe("sakai-group-picker tests", () => {
 
   afterEach(() => {
     fetchMock.hardReset();
+    sessionStorage.removeItem("user-picker");
   });
 
   it("filters a bound select and updates only matching choices", async () => {
+    sessionStorage.setItem("user-picker", JSON.stringify({
+      search: "Search", remove: "Remove {}", one_result: "1 result", result_count: "{} results",
+      no_options: "No choices", no_results: "No matches", selected_count: "{} selected",
+      select_matching: "Select matching groups", clear_matching: "Clear matching groups",
+    }));
     const form = await fixture(html`<form>
       <select name="groups" multiple>
         <option value="north" selected>North</option>
         <option value="south" selected>South</option>
+        <option value="east" selected>East</option>
+        <option value="west" selected>West</option>
         <option value="north-2" disabled>North 2</option>
       </select>
     </form>`);
     const select = form.querySelector("select");
     const picker = document.createElement("sakai-group-picker");
     picker.bindSelect(select);
-    await waitUntil(() => picker.querySelector("input"));
-    const input = picker.querySelector("input");
+    await waitUntil(() => select.hidden);
+    const root = picker.querySelector("sakai-user-picker").renderRoot;
+    expect(root.querySelector(".results").hidden).to.be.true;
+    expect(root.querySelector(".selection-summary").textContent).to.equal("4 selected");
+    const input = root.querySelector("input");
     input.value = "NORTH";
     input.dispatchEvent(new Event("input"));
-    expect(select.options[1].hidden).to.be.true;
+    await waitUntil(() => !root.querySelector(".results").hidden);
+    expect(root.querySelectorAll("[role=option]")).to.have.length(2);
     const cleared = oneEvent(form, "change");
-    picker.querySelectorAll("button")[1].click();
+    root.querySelectorAll(".matching-actions button")[1].click();
     expect((await cleared).target).to.equal(select);
-    expect(new FormData(form).getAll("groups")).to.deep.equal([ "south" ]);
-    picker.querySelectorAll("button")[0].click();
-    expect(new FormData(form).getAll("groups")).to.deep.equal([ "north", "south" ]);
+    expect(new FormData(form).getAll("groups")).to.deep.equal([ "south", "east", "west" ]);
+    root.querySelectorAll(".matching-actions button")[0].click();
+    expect(new FormData(form).getAll("groups")).to.deep.equal([ "north", "south", "east", "west" ]);
   });
 
   it ("renders with site and group id", async () => {

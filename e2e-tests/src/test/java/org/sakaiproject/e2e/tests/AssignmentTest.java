@@ -72,10 +72,12 @@ class AssignmentTest extends SakaiUiTestBase {
 
         assumeTrue(page.locator("#filterByGroup").count() > 0, "Assignment group filtering must be enabled");
         Locator picker = page.locator("sakai-group-picker");
-        picker.getByRole(AriaRole.SEARCHBOX).fill("North");
-        Locator select = picker.locator("#filterByGroup");
-        assertThat(select.locator("option:not([hidden])")).hasCount(1);
-        select.selectOption(groupId);
+        Locator search = picker.getByRole(AriaRole.COMBOBOX);
+        assertThat(search).isVisible();
+        sakai.waitForPortalFocus();
+        search.fill("North");
+        assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(1);
+        picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions().setName("North seminar")).click();
         assertThat(picker.locator("#filterByGroup")).hasValue(groupId);
     }
 
