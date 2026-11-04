@@ -1,3 +1,16 @@
+/** Render tag labels and collections as text in read-only views. */
+export function tagLabel(text, collectionName) {
+    const label = document.createElement("span");
+    label.textContent = text;
+    if (collectionName) {
+        const collection = document.createElement("span");
+        collection.className = "collection";
+        collection.textContent = ` (${collectionName})`;
+        label.append(collection);
+    }
+    return label;
+}
+
 const readTags = container => JSON.parse(container.querySelector(".samigo-tag-data")?.value || "[]")
     .map(tag => ({ code: tag.tagId, name: tag.tagLabel, collection: tag.tagCollectionName }));
 
@@ -9,7 +22,7 @@ for (const container of document.querySelectorAll(".samigo-readonly-tags")) {
     for (const tag of tags) {
         const item = document.createElement("li");
         item.className = "list-inline-item";
-        item.textContent = tag.collection ? `${tag.name} (${tag.collection})` : tag.name;
+        item.append(tagLabel(tag.name, tag.collection));
         list.append(item);
     }
     container.append(list);

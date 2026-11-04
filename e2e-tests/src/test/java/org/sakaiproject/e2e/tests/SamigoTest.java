@@ -404,6 +404,67 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(page.locator("#questionpool\\:TreeTable")).containsText(poolName);
     }
 
+    @Test
+    @Order(7)
+    @EnabledIfSystemProperty(named = "sakai.test.samigoQuestionTags", matches = "true")
+    void canSaveClearAndSearchQuestionTags() {
+        sakai.login("instructor1");
+        String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.samigo", "sakai\\.tagservice"));
+        page.navigate(courseUrl);
+        sakai.toolClick("Tags Service");
+        String collectionName = "Quiz collection " + RUN_ID;
+        String tagLabel = "Quiz tag " + RUN_ID;
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag Collection").setExact(true)).click();
+        page.locator("#name").fill(collectionName);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag Collection").setExact(true)).click();
+        page.locator(".tagservice-table tbody tr").filter(new Locator.FilterOptions().setHasText(collectionName))
+            .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("View Tags").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag").setExact(true)).click();
+        page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
+        assertThat(page.getByText(tagLabel, new Page.GetByTextOptions().setExact(true))).isVisible();
+
+        sakai.toolClick("Tests");
+        openNewAssessmentForm();
+        page.locator("#authorIndexForm\\:title").fill("Question tags " + RUN_ID);
+        page.locator("#authorIndexForm\\:createnew").click();
+        addMultipleChoiceQuestion("1", "What is the test question?", List.of("This", "That"), 0);
+
+        Locator edit = page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify");
+        edit.click();
+        Locator picker = page.locator(".samigo-tag-picker sakai-tag-selector");
+        selectQuestionTag(picker, tagLabel, collectionName);
+        saveQuestionAndWaitForAssessment();
+        edit.click();
+        Locator removeTag = picker.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true));
+        assertThat(removeTag).isVisible();
+        removeTag.click();
+        saveQuestionAndWaitForAssessment();
+        edit.click();
+        assertThat(picker.getByRole(AriaRole.COMBOBOX)).isVisible();
+        assertThat(removeTag).hasCount(0);
+        selectQuestionTag(picker, tagLabel, collectionName);
+        saveQuestionAndWaitForAssessment();
+
+        Locator searchAction = page.locator("select:visible").filter(new Locator.FilterOptions()
+            .setHas(page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName("Search questions").setExact(true))));
+        searchAction.selectOption(new com.microsoft.playwright.options.SelectOption().setLabel("Search questions"));
+        selectQuestionTag(picker, tagLabel, collectionName);
+        page.locator("#editform\\:searchByTagAND").click();
+        assertThat(page.locator("#editform\\:tags_searched_results")).containsText(tagLabel);
+    }
+
+    private void selectQuestionTag(Locator picker, String tag, String collection) {
+        Locator input = picker.getByRole(AriaRole.COMBOBOX);
+        Response response = page.waitForResponse(r -> r.url().contains("/getTagsPaginatedByPrefixInLabel.json"),
+            () -> input.fill(tag));
+        assertEquals(200, response.status(), response.url());
+        Locator option = picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(tag));
+        assertThat(option).containsText(collection);
+        option.click();
+    }
+
     private void assertPoolTagRequest(Runnable navigation) {
         Response response = page.waitForResponse(r -> r.url().contains("/api/sites/")
             && r.url().contains("/tags/"), navigation);
