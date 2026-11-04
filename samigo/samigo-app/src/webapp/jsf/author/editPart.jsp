@@ -71,10 +71,11 @@
           });
       });
       </script>
-    <script>
+<script>includeWebjarLibrary("select2");</script>
+<script>
     document.addEventListener("DOMContentLoaded", () => {
         for (const id of ["modifyPartForm:assignToPool", "modifyPartForm:assignToPoolFixed"]) {
-            document.getElementById(id)?.addEventListener("change", () => {
+            $(document.getElementById(id)).select2().on("change", () => {
                 mySetMainFrameHeight("<%= org.sakaiproject.util.Web.escapeJavascript(thisId) %>");
             });
         }

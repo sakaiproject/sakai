@@ -731,6 +731,11 @@ function includeWebjarLibrary(library, options = {}) {
 			jsReferences.push('/dist/min/dropzone.min.js');
 			cssReferences.push('/dist/min/dropzone.min.css');
 			break;
+		case 'select2':
+			libraryVersion = "4.0.13";
+			jsReferences.push('/js/select2.full.min.js');
+			cssReferences.push('/css/select2.min.css');
+			break;
 		case 'ckeditor4':
 			libraryVersion = "4.22.1";
 			jsReferences.push('/ckeditor.js');

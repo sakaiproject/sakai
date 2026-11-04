@@ -6,10 +6,11 @@ if (thisId == null) {
   thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
 }
 %>
+<script>includeWebjarLibrary("select2");</script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         for (const id of ["itemForm:assignToPool", "itemForm:assignToPoolFixed"]) {
-            document.getElementById(id)?.addEventListener("change", () => {
+            $(document.getElementById(id)).select2().on("change", () => {
                 mySetMainFrameHeight("<%= org.sakaiproject.util.Web.escapeJavascript(thisId) %>");
             });
         }

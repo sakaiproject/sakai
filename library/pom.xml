@@ -234,6 +234,13 @@
 			<version>4.1.0</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- Used for question-pool search in Tests & Quizzes. -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>select2</artifactId>
+			<version>4.0.13</version>
+			<scope>runtime</scope>
+		</dependency>
 		<!--Used in Lessons, embed calendar item. New Calendar UI. -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>

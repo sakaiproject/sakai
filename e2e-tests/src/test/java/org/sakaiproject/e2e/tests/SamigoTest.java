@@ -350,6 +350,28 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#itemForm textarea").first().fill("Edited question text");
         saveQuestionAndWaitForPoolEditor();
         assertThat(page.locator("#editform\\:questionpool-questions a[title=\"Edit Question\"]")).hasCount(1);
+
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+        openNewAssessmentForm();
+        page.locator("#authorIndexForm\\:title").fill("Random draw " + RUN_ID);
+        page.locator("#authorIndexForm\\:createnew").click();
+        page.locator("#assessmentForm\\:addPart").click();
+        page.locator("#modifyPartForm\\:title").fill("Pool draw");
+        page.locator("input[name='modifyPartForm:typeTable'][value='3']").check();
+        searchQuestionPool("assignToPoolFixed", poolName);
+        assertThat(page.locator("[id='modifyPartForm:questionpool-questions']")).containsText("Edited question text");
+        page.locator("input[name='modifyPartForm:typeTable'][value='2']").check();
+        searchQuestionPool("assignToPool", poolName);
+        page.locator("[id='modifyPartForm:numSelected']").fill("1");
+        clickSubmit("Save");
+        assertThat(page.locator("#assessmentForm")).containsText("Pool draw");
+    }
+
+    private void searchQuestionPool(String selectId, String poolName) {
+        page.locator("[id='modifyPartForm:" + selectId + "'] + .select2-container .select2-selection").click();
+        page.locator(".select2-search__field").fill(poolName);
+        page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName(poolName)).click();
     }
 
     @Test
