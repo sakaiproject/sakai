@@ -50,7 +50,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
         <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
         <script src="/library/js/spinner.js"></script>
-        <script>includeWebjarLibrary('select2');</script>
+        <script type="module" src="/samigo-app/js/tag-display.js"></script>
 
         <script>
             function initPage()
@@ -69,7 +69,9 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                     if ("<h:outputText value="#{searchQuestionBean.lastSearchType}"/>"  == "text"){
                         document.getElementById('editform:textToSearch').focus();
                     }else{
-                        $(".tag_selector").focus();
+                        customElements.whenDefined("sakai-tag-selector").then(() => {
+                            document.querySelector("sakai-tag-selector")?.focus();
+                        });
                      }
                 }
 
@@ -77,82 +79,15 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
             window.onload = initPage;
         </script>
 
-        <script type="module">
-            import { tagLabel } from "/samigo-app/js/tag-display.js";
-
-
-            $(document).ready(function() {
-                $('#editform\\:textToSearch').keypress(function(event){
-                    if(event.keyCode == 13){
-                        $('#editform\\:searchByTextAND').click();
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                document.getElementById("editform:textToSearch").addEventListener("keydown", event => {
+                    if (event.key === "Enter" && !event.isComposing) {
+                        event.preventDefault();
+                        document.getElementById("editform:searchByTextAND").click();
                     }
                 });
-                $(".tag_selector").select2({
-                    width: '100%',
-                    language: "<h:outputText value="#{itemauthor.language}"/>",
-                    closeOnSelect: false,
-                    ajax: {
-                        url: "/direct/tagservice/getTagsPaginatedByPrefixInLabel.json",
-                        dataType: 'json',
-                        delay: 500,
-                        data: function (params) {
-                            return {
-                                siteId: "<h:outputText value='#{author.currentSiteId}'/>",
-                            prefix: params.term || "", // search term
-                                page:params.page
-                            };
-                        },
-                        processResults: function (data, params) {
-                            // parse the results into the format expected by Select2
-                            // since we are using custom formatting functions we do not need to
-                            // alter the remote JSON data, except to indicate that infinite
-                            // scrolling can be used
-                            params.page = params.page || 1;
-
-                            return {
-                                results: $.map(data.data.tags, function (item) {
-                                    return {
-                                        text: item.tagLabel,
-                                        description: item.tagDescription,
-                                        id: item.tagId,
-                                        collection:item.collectionName
-                                    }
-                                }),
-                                pagination: {more: (params.page * 30) < data.data.total}
-                            };
-                        },
-                        cache: true
-                    },
-                    escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-                    minimumInputLength: 1,
-                    templateResult: formatRepo,
-                    templateSelection: formatRepoSelection
-                })
-
-                $('.tag_selector').on("select2:unselect", function(e){
-                    $('.tag_selector option').each(function() {
-                        if ( $(this).val() == e.params.data.id ) {
-                            $(this).remove();
-                        }
-                    });
-                }).trigger('change');
             });
-
-            function formatRepo (repo) {
-                var $tag_formatted = $(tagLabel(repo.text, repo.collection));
-                return $tag_formatted;
-            }
-
-            function formatRepoSelection (repo) {
-                if (typeof repo.collection != 'undefined') {
-                    var $tag_formatted = $(tagLabel(repo.text, repo.collection));
-                }else{
-                    var $tag_formatted = $(tagLabel(repo.text));
-                }
-                return $tag_formatted;
-            }
-
-
         </script>
     </head>
 
@@ -168,9 +103,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                     <h3><h:outputText value="#{authorMessages.tag_search}"/></h3>
                 </div>
                 <br/>
-                <div class="col-xs-12 col-md-6">
-                    <select class="tag_selector" name="tag_selector[]" id="tag_selector" multiple="multiple">
-                    </select>
+                <div class="col-xs-12 col-md-6 samigo-tag-picker">
+                    <input type="hidden" class="samigo-tag-site" value="<h:outputText value="#{author.currentSiteId}"/>"/>
+                    <select hidden name="tag_selector[]" multiple="multiple"></select>
+                    <sakai-tag-selector label="<h:outputText value="#{authorMessages.tag_search}"/>"></sakai-tag-selector>
                 </div>
                 </br>
                 <div class="col-xs-12 col-md-6">

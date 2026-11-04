@@ -1,12 +1,43 @@
-/** Build a Select2 tag label without interpreting its text or collection as HTML. */
-export function tagLabel(text, collectionName) {
-    const label = document.createElement("span");
-    label.textContent = text;
-    if (collectionName !== undefined) {
-        const collection = document.createElement("span");
-        collection.className = "collection";
-        collection.textContent = ` (${collectionName})`;
-        label.append(collection);
+const readTags = container => JSON.parse(container.querySelector(".samigo-tag-data")?.value || "[]")
+    .map(tag => ({ code: tag.tagId, name: tag.tagLabel, collection: tag.tagCollectionName }));
+
+for (const container of document.querySelectorAll(".samigo-readonly-tags")) {
+    const tags = readTags(container);
+    if (!tags.length) { continue; }
+    const list = document.createElement("ul");
+    list.className = "list-inline mb-1";
+    for (const tag of tags) {
+        const item = document.createElement("li");
+        item.className = "list-inline-item";
+        item.textContent = tag.collection ? `${tag.name} (${tag.collection})` : tag.name;
+        list.append(item);
     }
-    return label;
+    container.append(list);
+    container.hidden = false;
 }
+
+customElements.whenDefined("sakai-tag-selector").then(() => {
+    for (const container of document.querySelectorAll(".samigo-tag-picker")) {
+        const picker = container.querySelector("sakai-tag-selector");
+        const select = container.querySelector("select");
+        const siteId = container.querySelector(".samigo-tag-site").value;
+        const saveSelection = tags => {
+            select.replaceChildren(...tags.map(tag => new Option(tag.name, tag.code, true, true)));
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+        };
+
+        picker.searchTags = async (prefix, page, signal) => {
+            const params = new URLSearchParams({ siteId, prefix, page });
+            const response = await fetch(`/direct/tagservice/getTagsPaginatedByPrefixInLabel.json?${params}`, { signal });
+            if (!response.ok) { throw new Error(`Unable to search for tags: ${response.status}`); }
+            const { data } = await response.json();
+            return {
+                tags: data.tags.map(tag => ({ code: tag.tagId, name: tag.tagLabel, collection: tag.collectionName })),
+                more: page * 30 < data.total,
+            };
+        };
+        picker.selectedTags = readTags(container);
+        saveSelection(picker.selectedTags);
+        picker.addEventListener("tags-changed", event => saveSelection(event.detail.value));
+    }
+});
