@@ -110,6 +110,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
   _resetSearch() {
     this._query = "";
     if (this.searchTags) {
+      clearTimeout(this._searchTimer);
       this._request?.abort();
       this._options = [];
       this._searching = false;
@@ -199,10 +200,14 @@ export class SakaiTagSelector extends SakaiShadowElement {
   }
 
   _input(event) {
+    if (this.searchTags) { this._resetSearch(); }
     this._query = event.target.value;
     this._active = -1;
     this._open = true;
-    if (this.searchTags) { this._loadSearchPage(); }
+    if (this.searchTags && this._query.trim()) {
+      this._searching = true;
+      this._searchTimer = setTimeout(() => this._loadSearchPage(), 300);
+    }
   }
 
   _keydown(event) {

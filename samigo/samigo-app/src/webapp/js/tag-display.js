@@ -29,16 +29,18 @@ for (const container of document.querySelectorAll(".samigo-readonly-tags")) {
     container.hidden = false;
 }
 
-customElements.whenDefined("sakai-tag-selector").then(() => {
-    for (const container of document.querySelectorAll(".samigo-tag-picker")) {
-        const picker = container.querySelector("sakai-tag-selector");
-        const select = container.querySelector("select");
-        const siteId = container.querySelector(".samigo-tag-site").value;
-        const saveSelection = tags => {
-            select.replaceChildren(...tags.map(tag => new Option(tag.name, tag.code, true, true)));
-            select.dispatchEvent(new Event("change", { bubbles: true }));
-        };
+for (const container of document.querySelectorAll(".samigo-tag-picker")) {
+    const picker = container.querySelector("sakai-tag-selector");
+    const select = container.querySelector("select");
+    const siteId = container.querySelector(".samigo-tag-site").value;
+    const saveSelection = tags => {
+        select.replaceChildren(...tags.map(tag => new Option(tag.name, tag.code, true, true)));
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+    const savedTags = readTags(container);
+    saveSelection(savedTags);
 
+    customElements.whenDefined("sakai-tag-selector").then(() => {
         picker.searchTags = async (prefix, page, signal) => {
             const params = new URLSearchParams({ siteId, prefix, page });
             const response = await fetch(`/direct/tagservice/getTagsPaginatedByPrefixInLabel.json?${params}`, { signal });
@@ -49,8 +51,7 @@ customElements.whenDefined("sakai-tag-selector").then(() => {
                 more: page * 30 < data.total,
             };
         };
-        picker.selectedTags = readTags(container);
-        saveSelection(picker.selectedTags);
+        picker.selectedTags = savedTags;
         picker.addEventListener("tags-changed", event => saveSelection(event.detail.value));
-    }
-});
+    });
+}

@@ -54,7 +54,8 @@ export class SakaiUserPicker extends SakaiShadowElement {
       select.dispatchEvent(new Event("change", { bubbles: true }));
     });
     select.addEventListener("change", syncSelection);
-    select.form?.addEventListener("reset", () => queueMicrotask(syncSelection));
+    // Native reset restores the defaults after the reset event.
+    select.form?.addEventListener("reset", () => setTimeout(syncSelection, 0));
     select.labels?.[0]?.addEventListener("click", event => {
       if (select.hidden) {
         event.preventDefault();

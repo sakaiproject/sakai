@@ -225,6 +225,27 @@ describe("sakai-tag-selector", () => {
     expect(tags).to.have.length(2);
   });
 
+  it("debounces remote queries and cancels a scheduled search when cleared", async () => {
+    const queries = [];
+    const searchTags = async query => {
+      queries.push(query);
+      return { tags: [ { code: query, name: query } ], more: false };
+    };
+    const el = await fixture(html`<sakai-tag-selector .searchTags=${searchTags}></sakai-tag-selector>`);
+    await search(el, "Al");
+    await search(el, "Algebra");
+    expect(queries).to.deep.equal([]);
+    await waitUntil(() => el.renderRoot.querySelector("[role=option]"));
+    expect(queries).to.deep.equal([ "Algebra" ]);
+
+    await search(el, "Biology");
+    expect(el.renderRoot.querySelector("[role=option]")).to.equal(null);
+    expect(el.renderRoot.querySelector("[role=status]").textContent).to.equal("Loading tags...");
+    el.clear();
+    await new Promise(resolve => setTimeout(resolve, 350));
+    expect(queries).to.deep.equal([ "Algebra" ]);
+  });
+
   it("renders tag labels as text and meets accessible combobox semantics", async () => {
     const el = await fixture(html`<sakai-tag-selector site-id="site" tool="samigo" collection-id="owner"
         extra-options=${"<img src=x onerror=alert(1)>"}></sakai-tag-selector>`);

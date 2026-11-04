@@ -1,4 +1,5 @@
 import "../sakai-user-picker.js";
+import { sendKeys } from "@web/test-runner-commands";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 
 const translations = `search=Search by name or username
@@ -91,6 +92,7 @@ describe("sakai-user-picker", () => {
         <select id="bcc" name="bcc" multiple>
           <option value="a">Alice</option><option value="b" selected>Bob</option>
         </select>
+        <button type="reset">Reset</button>
       </form>`);
     const to = document.createElement("sakai-user-picker");
     const bcc = document.createElement("sakai-user-picker");
@@ -107,8 +109,11 @@ describe("sakai-user-picker", () => {
     await elementUpdated(bcc);
     expect(input(bcc).disabled).to.be.true;
     expect(root(bcc).querySelector("button").disabled).to.be.true;
-    form.reset();
+    form.querySelector("button[type=reset]").focus();
+    await sendKeys({ press: "Enter" });
+    await waitUntil(() => to.values.length === 1);
     await elementUpdated(to);
+    expect(new FormData(form).getAll("to")).to.deep.equal([ "a" ]);
     expect(to.values).to.deep.equal([ "a" ]);
     expect(bcc.values).to.deep.equal([ "b" ]);
   });
