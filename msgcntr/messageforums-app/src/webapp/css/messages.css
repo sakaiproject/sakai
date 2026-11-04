@@ -1,21 +1,3 @@
-/*Add pointer cursor to multi-select box when nothing is selected
-  https://github.com/select2/select2/issues/167
-*/
-.select2-container--default .select2-selection--multiple:before {
-  content: ' ';
-  display: block;
-  position: absolute;
-  border-color: var(--sakai-border-color) transparent transparent transparent;
-  border-style: solid;border-width: 5px 4px 0 4px;
-  height: 0;
-  right: 6px;
-  margin-left: -4px;
-  margin-top: -2px;
-  top: 50%;
-  width: 0;
-  cursor: pointer
-}  
-
 .composeFormTable tr td:nth-child(2) {
   width: 90%;
 }

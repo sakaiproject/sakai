@@ -25,7 +25,7 @@
 		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
-		<script>includeWebjarLibrary('select2');</script>
+		<script type="module" src="/webcomponents/bundles/user-picker.js"></script>
 	<h:form id="pvtMsgForward">
 		<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<script>
@@ -35,7 +35,7 @@
 					{
 						selectObject.options[i].selected=false;
 					}
-					changeSelect(selectObject);
+					selectObject.dispatchEvent(new Event('change', { bubbles: true }));
 					handleSelectionChange(selectObject, selectObject.id + '_clear');
 				}
 				
@@ -59,8 +59,8 @@
 				}
 				
 				$(document).ready(function() {
-				  	addTagSelector(document.getElementById('pvtMsgForward:list1'));
-				  	addTagSelector(document.getElementById('pvtMsgForward:list2'));
+					bindRecipientPicker(document.getElementById('pvtMsgForward:list1'));
+					bindRecipientPicker(document.getElementById('pvtMsgForward:list2'));
 				  	
 				  	// Initial selection check
 				  	handleSelectionChange(document.getElementById('pvtMsgForward:list1'), 'pvtMsgForward:list1_clear');
@@ -148,7 +148,7 @@
 							</h:outputLabel>
 						</h:panelGroup>
 						<div class="row" id="bcc_box" style="display: none;">
-							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}" onchange="handleSelectionChange(this, 'pvtMsgForward:list2_clear')">
+							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}" onchange="handleSelectionChange(this, 'pvtMsgForward:list2_clear')">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
 							<span id="pvtMsgForward:list2_clear" class="delete_selection" style="display: none;">

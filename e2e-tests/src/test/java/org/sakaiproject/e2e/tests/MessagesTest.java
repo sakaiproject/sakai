@@ -30,6 +30,38 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class MessagesTest extends SakaiUiTestBase {
 
     @Test
+    void restoresIndependentDraftRecipientSelections() {
+        sakai.login("instructor1");
+        String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.messages"));
+        page.navigate(courseUrl);
+        sakai.toolClick("Messages");
+        page.locator("#messagesComposeMenuLink").click();
+
+        Locator to = page.locator("#compose\\:list1 + sakai-user-picker");
+        Locator bcc = page.locator("#compose\\:list2 + sakai-user-picker");
+        Locator toSearch = to.getByRole(AriaRole.COMBOBOX);
+        toSearch.click();
+        Locator toOption = to.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText("student0011"));
+        assertThat(toOption).isVisible();
+        toOption.click();
+        page.locator("#compose\\:bcc_toggle").check();
+        bcc.getByRole(AriaRole.COMBOBOX).fill("student0012");
+        bcc.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText("student0012")).click();
+
+        String subject = "Recipient draft " + sakai.randomId();
+        page.locator("#compose\\:subject").fill(subject);
+        assertTrue(sakai.typeFirstCkEditorIfPresent("<p>Testing saved recipients.</p>"));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Draft").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Draft").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(subject).setExact(true)).click();
+
+        assertThat(to.getByRole(AriaRole.BUTTON)).hasCount(1);
+        assertThat(bcc.getByRole(AriaRole.BUTTON)).hasCount(1);
+        assertThat(to.getByRole(AriaRole.BUTTON)).containsText("student0011");
+        assertThat(bcc.getByRole(AriaRole.BUTTON)).containsText("student0012");
+    }
+
+    @Test
     void canSaveAndRemoveDraftTags() {
         sakai.login("instructor1");
         String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.messages"));
