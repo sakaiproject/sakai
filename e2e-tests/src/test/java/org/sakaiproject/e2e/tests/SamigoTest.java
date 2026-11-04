@@ -364,6 +364,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("input[name='modifyPartForm:typeTable'][value='2']").check();
         searchQuestionPool("assignToPool", poolName);
         page.locator("[id='modifyPartForm:numSelected']").fill("1");
+        page.locator("[id='modifyPartForm:numPointsRandom']").fill("1");
         clickSubmit("Save");
         assertThat(page.locator("#assessmentForm")).containsText("Pool draw");
     }
