@@ -21,9 +21,13 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +58,7 @@ import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchConstants;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -448,6 +453,19 @@ public class ElasticSearchTest {
             log.error(e.getMessage(), e);
             fail();
         }
+    }
+
+    @Test
+    public void searchWithResultsQueriesTheIndexOnce() throws InvalidSearchQueryException {
+        elasticSearchIndexBuilder.addResource(notification, event);
+        elasticSearchIndexBuilder.refreshIndex();
+
+        SearchList list = elasticSearchService.search("asdf", siteIds, null, 0, 10);
+
+        assertEquals(1, list.size());
+        assertEquals(resourceName, list.get(0).getReference());
+        assertEquals(1, list.getFullSize());
+        verify(eventTrackingService, times(1)).newEvent(eq(SearchService.EVENT_SEARCH), anyString(), eq(true), anyInt());
     }
 
     @Test

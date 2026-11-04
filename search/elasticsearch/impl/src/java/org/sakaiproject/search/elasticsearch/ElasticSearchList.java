@@ -22,15 +22,12 @@ import java.util.List;
 
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;
-import org.opensearch.search.SearchHits;
 import org.opensearch.search.aggregations.bucket.terms.Terms;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 
 import com.google.common.collect.ForwardingList;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by IntelliJ IDEA.
@@ -39,42 +36,25 @@ import lombok.extern.slf4j.Slf4j;
  * Time: 2:19 PM
  * To change this template use File | Settings | File Templates.
  */
-@Slf4j
 public class ElasticSearchList extends ForwardingList<SearchResult> implements SearchList {
     private final List<SearchResult> results;
     private final SearchResponse response;
     private final SearchItemFilter filter;
 
-    public ElasticSearchList(String searchTerms, SearchResponse response, ElasticSearchService elasticSearchService, ElasticSearchIndexBuilder searchIndexBuilder, String facetName, SearchItemFilter filter) {
+    public ElasticSearchList(String searchTerms, SearchResponse response, ElasticSearchIndexBuilder searchIndexBuilder, String facetName, SearchItemFilter filter) {
         this.response = response;
         this.filter = filter;
         results = new ArrayList<>();
-        List<String> references = new ArrayList<>();
 
-        SearchHits hits = response.getHits();
-        if (hits.getTotalHits().value > 0) {
-            for (SearchHit hit : hits) {
-                references.add(searchIndexBuilder.getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit));
+        int i = 0;
+        for (SearchHit hit : response.getHits()) {
+            Terms facet = null;
+            if (searchIndexBuilder.getUseFacetting()) {
+                facet = response.getAggregations().get(facetName);
             }
-
-            SearchResponse highlightedResponse;
-            try {
-                highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<>(), new ArrayList(), 0, references.size(), references, searchIndexBuilder.getName());
-            } catch (Exception e) {
-                log.error("problem running hightlighted and facetted search: {}", e);
-                return;
-            }
-
-            int i = 0;
-            for (SearchHit hit : highlightedResponse.getHits()) {
-                Terms facet = null;
-                if (searchIndexBuilder.getUseFacetting()) {
-                    facet = highlightedResponse.getAggregations().get(facetName);
-                }
-                ElasticSearchResult result = new ElasticSearchResult(hit, facet, searchIndexBuilder, searchTerms);
-                result.setIndex(i++);
-                results.add(filter.filter(result));
-            }
+            ElasticSearchResult result = new ElasticSearchResult(hit, facet, searchIndexBuilder, searchTerms);
+            result.setIndex(i++);
+            results.add(filter.filter(result));
         }
     }
 
