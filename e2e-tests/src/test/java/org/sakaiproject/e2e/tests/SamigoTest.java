@@ -366,7 +366,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("[id='modifyPartForm:numSelected']").fill("1");
         page.locator("[id='modifyPartForm:numPointsRandom']").fill("1");
         clickSubmit("Save");
-        assertThat(page.locator("#assessmentForm")).containsText("Pool draw");
+        assertThat(page.locator("#assessmentForm")).containsText("Random draw from " + poolName);
     }
 
     private void searchQuestionPool(String selectId, String poolName) {
