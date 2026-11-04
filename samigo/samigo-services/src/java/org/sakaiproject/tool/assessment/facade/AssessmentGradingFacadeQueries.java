@@ -2896,6 +2896,23 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     if (l.size() > 1)
                         Collections.sort(l, new AnswerComparator(publishedAnswerHash));
 
+                    ItemGradingData firstGrade = l.isEmpty() ? null : (ItemGradingData) l.get(0);
+                    Long layoutItemId = firstGrade == null ? null : firstGrade.getPublishedItemId();
+                    ItemDataIfc layoutItem = layoutItemId == null ? null : (ItemDataIfc) publishedItemHash.get(layoutItemId);
+                    boolean isMatrixItem = layoutItem != null && TypeIfc.MATRIX_CHOICES_SURVEY.equals(layoutItem.getTypeId());
+                    boolean itemHasRationale = layoutItem != null
+                            && (TypeIfc.MULTIPLE_CHOICE.equals(layoutItem.getTypeId())
+                                || TypeIfc.MULTIPLE_CORRECT.equals(layoutItem.getTypeId())
+                                || TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.equals(layoutItem.getTypeId())
+                                || TypeIfc.TRUE_FALSE.equals(layoutItem.getTypeId()))
+                            && Boolean.TRUE.equals(layoutItem.getHasRationale());
+                    boolean itemHasResponseComment = isMatrixItem && layoutItem instanceof PublishedItemData
+                            && ((PublishedItemData) layoutItem).getAddCommentFlag();
+                    int matrixResponseCount = 0;
+                    if (isMatrixItem && layoutItem.getItemTextArray() != null) {
+                        matrixResponseCount = layoutItem.getItemTextArray().size();
+                    }
+
                     String maintext = "";
                     String rationale = "";
                     String responseComment = "";
@@ -2925,7 +2942,6 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                             continue;
                         }
                         if (grade instanceof EmptyItemGrading) {
-                            responseList.add(CellValue.STRING("-"));
                             continue;
                         }
                         if (grade.getAutoScore() != null) {
@@ -2938,14 +2954,9 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                         Long publishedItemId = grade.getPublishedItemId();
                         ItemDataIfc publishedItemData = publishedItemHash.get(publishedItemId);
                         Long typeId = publishedItemData.getTypeId();
-                        if (count == 0) {
-                            if (!TypeIfc.MATRIX_CHOICES_SURVEY.equals(typeId)) {
-                                responseList.add(CellValue.STRING(publishedItemData.getText())); // The Text of the question
-                            } else if (!textOfQuestionIncluded) {
-                                // type MATRIX_CHOICES_SURVEY
-                                responseList.add(CellValue.STRING(publishedItemData.getText())); // The Text of the question
-                                textOfQuestionIncluded = true;
-                            }
+                        if (!textOfQuestionIncluded) {
+                            responseList.add(CellValue.STRING(publishedItemData.getText())); // The Text of the question
+                            textOfQuestionIncluded = true;
                         }
                         questionNumber = publishedItemData.getSequence();
                         if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC) || typeId.equals(
@@ -3181,62 +3192,79 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                         }
                     }
                     Integer sectionSequenceNumber;
-                    if (grade == null || EmptyItemGrading.class.isInstance(grade)) {
+                    boolean questionNotPresented = grade == null || EmptyItemGrading.class.isInstance(grade);
+                    if (questionNotPresented) {
                         sectionSequenceNumber = EmptyItemGrading.class.cast(grade).getSectionSequence();
                         questionNumber = EmptyItemGrading.class.cast(grade).getItemSequence();
-                        // indicate that the student was not presented with this question
-                        maintext = "-";
+                        responseList.add(CellValue.STRING("-")); // question text
+                        if (isMatrixItem) {
+                            for (int i = 0; i < matrixResponseCount; i++) {
+                                responseList.add(CellValue.EMPTY());
+                            }
+                            if (itemHasRationale) {
+                                responseList.add(CellValue.EMPTY());
+                            }
+                            if (itemHasResponseComment) {
+                                responseList.add(CellValue.EMPTY());
+                            }
+                            responseList.add(CellValue.EMPTY()); // grader comments
+                        } else {
+                            responseList.add(CellValue.EMPTY()); // response
+                            responseList.add(CellValue.DOUBLE(0.0d)); // points
+                            if (itemHasRationale) {
+                                responseList.add(CellValue.EMPTY());
+                            }
+                            responseList.add(CellValue.EMPTY()); // grader comments
+                        }
                     } else {
                         sectionSequenceNumber = updateSectionScore(sectionItems,
                                 sectionScores,
                                 grade.getPublishedItemId(),
                                 itemScore);
-                    }
 
-                    if (isFinFib && maintext.contains("No Answer") && count == 1) {
-                        maintext = "No Answer";
-                    } else if ("".equals(maintext)) {
-                        maintext = "No Answer";
-                    }
-                    // if question type is not matrix choices apply the original code
-                    if (!matrixChoices) {
-                        responseList.add(CellValue.STRING(maintext));
-                        responseList.add(CellValue.DOUBLE(itemScore));
-                    } else {
-                        // if there are questions not answered, a no answer response is added to the map
-                        ItemDataIfc correspondingPublishedItemData = publishedItemHash.get(grade.getPublishedItemId());
-                        List correspondingItemTextArray = correspondingPublishedItemData.getItemTextArray();
-                        log.debug("publishedItem is " + correspondingPublishedItemData.getText() + " and number of rows " + correspondingItemTextArray
-                                .size());
-                        if (responsesMap.size() < correspondingItemTextArray.size()) {
-                            Iterator itItemTextHash = correspondingItemTextArray.iterator();
-                            while (itItemTextHash.hasNext()) {
-                                ItemTextIfc itemTextIfc = (ItemTextIfc) itItemTextHash.next();
-                                if (!responsesMap.containsKey(itemTextIfc.getSequence())) {
-                                    log.debug("responsesMap does not contain answer to " + itemTextIfc.getText());
-                                    responsesMap.put(itemTextIfc.getSequence(), "No Answer");
+                        if (isFinFib && maintext.contains("No Answer") && count == 1) {
+                            maintext = "No Answer";
+                        } else if ("".equals(maintext)) {
+                            maintext = "No Answer";
+                        }
+                        if (!matrixChoices) {
+                            responseList.add(CellValue.STRING(maintext));
+                            responseList.add(CellValue.DOUBLE(itemScore));
+                        } else {
+                            ItemDataIfc correspondingPublishedItemData = publishedItemHash.get(grade.getPublishedItemId());
+                            List correspondingItemTextArray = correspondingPublishedItemData.getItemTextArray();
+                            log.debug("publishedItem is " + correspondingPublishedItemData.getText() + " and number of rows " + correspondingItemTextArray
+                                    .size());
+                            if (responsesMap.size() < correspondingItemTextArray.size()) {
+                                Iterator itItemTextHash = correspondingItemTextArray.iterator();
+                                while (itItemTextHash.hasNext()) {
+                                    ItemTextIfc itemTextIfc = (ItemTextIfc) itItemTextHash.next();
+                                    if (!responsesMap.containsKey(itemTextIfc.getSequence())) {
+                                        log.debug("responsesMap does not contain answer to " + itemTextIfc.getText());
+                                        responsesMap.put(itemTextIfc.getSequence(), "No Answer");
+                                    }
                                 }
                             }
+                            responsesMap.entrySet().stream()
+                                    .peek(e -> log.debug("Adding to response list {} and {}", e.getKey(), e.getValue()))
+                                    .map(e -> CellValue.STRING(e.getValue()))
+                                    .forEach(responseList::add);
                         }
-                        responsesMap.entrySet().stream()
-                                .peek(e -> log.debug("Adding to response list {} and {}", e.getKey(), e.getValue()))
-                                .map(e -> CellValue.STRING(e.getValue()))
-                                .forEach(responseList::add);
-                    }
 
-                    if (addResponseComment) {
-                        responseList.add(CellValue.STRING(responseComment));
-                    }
+                        if (addRationale) {
+                            responseList.add(CellValue.STRING(rationale));
+                        }
 
-                    if (addRationale) {
-                        responseList.add(CellValue.STRING(rationale));
-                    }
+                        if (addResponseComment) {
+                            responseList.add(CellValue.STRING(responseComment));
+                        }
 
-                    String itemGradingComments = "";
-                    if (grade.getComments() != null) {
-                        itemGradingComments = grade.getComments().replaceAll("<br\\s*/>", "");
+                        String itemGradingComments = "";
+                        if (grade.getComments() != null) {
+                            itemGradingComments = grade.getComments().replaceAll("<br\\s*/>", "");
+                        }
+                        responseList.add(CellValue.STRING(itemGradingComments));
                     }
-                    responseList.add(CellValue.STRING(itemGradingComments));
 
                     // Only set header based on the first item grading data
                     if (fistItemGradingData) {
@@ -3253,7 +3281,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                                 }
                             }
                         }
-                        if (!matrixChoices) {
+                        if (!isMatrixItem) {
                             headerList.add(CellValue.STRING(makeHeader(partString,
                                     sectionSequenceNumber,
                                     questionString,
@@ -3275,7 +3303,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                                     questionNumber,
                                     poolString,
                                     poolName)));
-                            if (addRationale) {
+                            if (itemHasRationale) {
                                 headerList.add(
                                         CellValue.STRING(makeHeader(partString,
                                         sectionSequenceNumber,
@@ -3293,7 +3321,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                                     poolString,
                                     poolName)));
                         } else {
-                            int numberRows = responsesMap.size();
+                            int numberRows = matrixResponseCount;
                             headerList.add(CellValue.STRING(makeHeader(partString,
                                     sectionSequenceNumber,
                                     questionString,
@@ -3311,7 +3339,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                                         poolString,
                                         poolName)));
                             }
-                            if (addRationale) {
+                            if (itemHasRationale) {
                                 headerList.add(CellValue.STRING(makeHeader(partString,
                                         sectionSequenceNumber,
                                         questionString,
@@ -3320,7 +3348,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                                         poolString,
                                         poolName)));
                             }
-                            if (addResponseComment) {
+                            if (itemHasResponseComment) {
                                 headerList.add(CellValue.STRING(makeHeader(partString,
                                         sectionSequenceNumber,
                                         questionString,
@@ -4743,13 +4771,12 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
          */
         private static final long serialVersionUID = 1444166131103415747L;
         private Integer sectionSequence;
-        private Long publishedItemId;
         private Integer itemSequence;
 
         EmptyItemGrading(Integer sectionSequence, Long publishedItemId, Integer itemSequence) {
             this.sectionSequence = sectionSequence;
-            this.publishedItemId = publishedItemId;
             this.itemSequence = itemSequence;
+            setPublishedItemId(publishedItemId);
         }
 
         /**

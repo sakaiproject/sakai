@@ -367,9 +367,8 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 
 				while (colIter.hasNext()) {
 					Object data = colIter.next();
+					Cell cell = poiRow.createCell(colPos++);
 					if (data != null) {
-						Cell cell = poiRow.createCell(colPos++);
-
 						if (data.toString().startsWith(FORMAT)) {
 							if (data.equals(FORMAT_BOLD)) {
 								cell.setCellStyle(boldStyle);
@@ -377,7 +376,9 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 							data = colIter.next();
 						}
 
-						writeCell(cell, data, dateFormat);
+						if (data != null) {
+							writeCell(cell, data, dateFormat);
+						}
 					}
 				}
 			}
