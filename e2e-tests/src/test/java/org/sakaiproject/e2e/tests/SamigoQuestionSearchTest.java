@@ -53,6 +53,26 @@ class SamigoQuestionSearchTest extends SakaiUiTestBase {
     }
 
     @Test
+    void theEyeIconPreviewsAQuestionInADialogOverTheResults() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.samigo"));
+        String word = "respiration" + sakai.randomId();
+        createAssessment(siteUrl, "Source " + word);
+        addMultipleChoiceQuestion("Which process is " + word + "?");
+
+        Locator result = search(word);
+        String resultsUrl = page.url();
+        result.locator("a.uimodal").click();
+
+        assertThat(page.locator("#QuestionPreview")).containsText(word);
+        assertThat(page).hasURL(resultsUrl);
+
+        page.locator(".ui-dialog-titlebar-close").click();
+        assertThat(page.locator(".ui-dialog")).hasCount(0);
+        assertThat(result).isVisible();
+    }
+
+    @Test
     void onlyQuestionsTheAuthorCanReachArePreviewed() {
         String theirWord = "osmosis" + sakai.randomId();
         sakai.login("instructor2");
