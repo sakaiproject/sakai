@@ -34,6 +34,26 @@ class SamigoQuestionSearchTest extends SakaiUiTestBase {
     private static final Pattern SEARCH_QUESTIONS = Pattern.compile("^\\s*Search questions\\s*$", Pattern.CASE_INSENSITIVE);
 
     @Test
+    void unavailableSearchKeepsTheAuthorOnTheSearchPage() {
+        assumeTrue(Boolean.getBoolean("sakai.test.samigoSearchUnavailable"),
+            "Requires an instance with question search enabled and OpenSearch disabled");
+        sakai.login("instructor1");
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.samigo"));
+        createAssessment(siteUrl, "Unavailable question search " + sakai.randomId());
+
+        Locator type = page.locator("#assessmentForm\\:parts\\:0\\:changeQType");
+        type.selectOption(type.locator("option").filter(new Locator.FilterOptions().setHasText(SEARCH_QUESTIONS))
+            .getAttribute("value"));
+        Locator query = page.locator("[id='editform:textToSearch']");
+        query.fill("photosynthesis");
+        page.locator("[id='editform:searchByTextOR']").click();
+
+        assertThat(page.getByText("Question search is unavailable. Contact your Sakai administrator for help.",
+            new Page.GetByTextOptions().setExact(true))).isVisible();
+        assertThat(query).hasValue("photosynthesis");
+    }
+
+    @Test
     void aQuestionFoundByItsTextIsAddedToAnotherAssessment() {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.samigo"));
