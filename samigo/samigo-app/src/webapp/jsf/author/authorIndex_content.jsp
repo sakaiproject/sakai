@@ -37,7 +37,7 @@
     <div class="portletBody container-fluid">
 
     <script>includeWebjarLibrary('datatables');</script>
-    <script>includeWebjarLibrary('bootstrap-multiselect');</script>
+    <script type="module" src="/webcomponents/bundles/group-picker.js"></script>
     <script src="/samigo-app/js/info.js"></script>
     <script src="/samigo-app/js/sortHelper.js"></script>
     <script>
@@ -159,32 +159,11 @@
                 Array.from(groupSelect?.options || []).forEach(option => option.selected = true);
                 filterGroups = groupSelect ? Array.from(groupSelect.selectedOptions).map(option => option.value) : [];
 
-                const divElem = document.createElement('div');
-                let filterPlaceholder = <h:outputText value="`#{authorFrontDoorMessages.multiselect_filterPlaceholder}`" />;
-                divElem.innerHTML = filterPlaceholder;
-                filterPlaceholder = divElem.textContent;
-                let selectAllText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_selectAllText}`" />;
-                divElem.innerHTML = selectAllText;
-                selectAllText = divElem.textContent;
-                let nonSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_nonSelectedText}`" />;
-                divElem.innerHTML = nonSelectedText;
-                nonSelectedText = divElem.textContent;
-                let allSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_allSelectedText}`" />;
-                divElem.innerHTML = allSelectedText;
-                allSelectedText = divElem.textContent;
-                let nSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_nSelectedText}`" />;
-                divElem.innerHTML = nSelectedText;
-                nSelectedText = divElem.textContent;
-                $("#authorIndexForm\\:group-select").multiselect({
-                    enableFiltering: true,
-                    enableCaseInsensitiveFiltering: true,
-                    includeSelectAllOption: true,
-                    filterPlaceholder: filterPlaceholder,
-                    selectAllText: selectAllText,
-                    nonSelectedText: nonSelectedText,
-                    allSelectedText: allSelectedText,
-                    nSelectedText: nSelectedText
-                });
+                if (groupSelect) {
+                    customElements.whenDefined("sakai-group-picker").then(() => {
+                        document.createElement("sakai-group-picker").bindSelect(groupSelect);
+                    });
+                }
 
                 groupSelect?.addEventListener("change", event => {
                     filterGroups = Array.from(event.target.selectedOptions).map(option => option.value);
@@ -280,14 +259,12 @@
 
             <h:panelGroup rendered="#{author.groupFilterEnabled and author.allAssessments.size() > 0}">
                 <div>
-                    <f:verbatim><label></f:verbatim>
-                        <h:outputText value="#{authorFrontDoorMessages.filterbygroup} "/>
+                        <h:outputLabel for="group-select" value="#{authorFrontDoorMessages.filterbygroup} "/>
                         <h:selectOneMenu value="select" id="group-select">
                             <f:selectItem itemValue="releaseto_anon" itemLabel="#{authorFrontDoorMessages.anonymous_users}" />
                             <f:selectItem itemValue="releaseto_entire" itemLabel="#{authorFrontDoorMessages.entire_site}" />
                             <t:selectItems value="#{author.groups.entrySet()}" var="group" itemValue="#{group.key}" itemLabel="#{group.value}" />
                         </h:selectOneMenu>
-                    <f:verbatim></label></f:verbatim>
                 </div>
             </h:panelGroup>
 

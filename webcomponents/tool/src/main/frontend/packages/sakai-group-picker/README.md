@@ -21,6 +21,15 @@ import '@sakai-ui/sakai-group-picker/sakai-group-picker.js';
 <sakai-group-picker site-id="xyz"></sakai-group-picker>
 ```
 
+### Enhance an existing group filter
+
+Load `/webcomponents/bundles/group-picker.js` and call
+`document.createElement("sakai-group-picker").bindSelect(select)` after the
+component is defined. The component adds a group search and keeps the native
+select in its form. The tool supplies the options, default selection, and
+change handler. In multiple mode, the bulk buttons change matching enabled
+options and preserve selections outside the search.
+
 ## Linting and formatting
 
 To scan the project for linting and formatting errors, run

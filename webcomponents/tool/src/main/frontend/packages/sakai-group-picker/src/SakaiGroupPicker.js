@@ -10,6 +10,7 @@ export class SakaiGroupPicker extends SakaiElement {
     groupRef: { attribute: "group-ref", type: String },
     multiple: { type: Boolean },
     selectedGroups: { attribute: "selected-groups", type: Array },
+    _boundSelect: { state: true },
   };
 
   constructor() {
@@ -40,6 +41,28 @@ export class SakaiGroupPicker extends SakaiElement {
     }
   }
 
+  /** Enhance a tool-owned filter without changing its form values or change handlers. */
+  bindSelect(select) {
+    this._boundSelect = select;
+    select.after(this);
+  }
+
+  _filterBoundOptions(event) {
+    const query = event.target.value.trim().toLocaleLowerCase();
+    for (const option of this._boundSelect.options) {
+      option.hidden = !option.text.toLocaleLowerCase().includes(query);
+    }
+  }
+
+  _setBoundSelection(selected) {
+    for (const option of this._boundSelect.options) {
+      if (!option.hidden && !option.disabled) {
+        option.selected = selected;
+      }
+    }
+    this._boundSelect.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
   groupChanged(e) {
 
     const groups = this.multiple ? Array.from(e.target.selectedOptions).map(o => o.value) : [ e.target.value ];
@@ -55,10 +78,28 @@ export class SakaiGroupPicker extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this._i18n && this.groups;
+    return this._i18n && (this._boundSelect || this.groups);
   }
 
   render() {
+    if (this._boundSelect) {
+      return html`
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <input type="search" class="form-control w-auto" aria-label=${this._i18n.search_groups}
+              placeholder=${this._i18n.search_groups} @input=${this._filterBoundOptions}
+              @keydown=${event => { if (event.key === "Enter" && !event.isComposing) { event.preventDefault(); } }}>
+          ${this._boundSelect}
+          ${this._boundSelect.multiple ? html`
+            <button type="button" class="btn btn-secondary" @click=${() => this._setBoundSelection(true)}>
+              ${this._i18n.select_matching}
+            </button>
+            <button type="button" class="btn btn-secondary" @click=${() => this._setBoundSelection(false)}>
+              ${this._i18n.clear_matching}
+            </button>
+          ` : ""}
+        </div>
+      `;
+    }
 
     return html`
       <select aria-label="${this._i18n.group_selector_label}" @change=${this.groupChanged} ?multiple=${this.multiple} .value=${this.selectedGroups}>

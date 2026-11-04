@@ -1,5 +1,5 @@
 import '../sakai-group-picker.js';
-import { elementUpdated, expect, fixture, html, oneEvent } from '@open-wc/testing';
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import * as data from "./data.js";
 import fetchMock from "fetch-mock";
 describe("sakai-group-picker tests", () => {
@@ -14,6 +14,30 @@ describe("sakai-group-picker tests", () => {
 
   afterEach(() => {
     fetchMock.hardReset();
+  });
+
+  it("filters a bound select and updates only matching choices", async () => {
+    const form = await fixture(html`<form>
+      <select name="groups" multiple>
+        <option value="north" selected>North</option>
+        <option value="south" selected>South</option>
+        <option value="north-2" disabled>North 2</option>
+      </select>
+    </form>`);
+    const select = form.querySelector("select");
+    const picker = document.createElement("sakai-group-picker");
+    picker.bindSelect(select);
+    await waitUntil(() => picker.querySelector("input"));
+    const input = picker.querySelector("input");
+    input.value = "NORTH";
+    input.dispatchEvent(new Event("input"));
+    expect(select.options[1].hidden).to.be.true;
+    const cleared = oneEvent(form, "change");
+    picker.querySelectorAll("button")[1].click();
+    expect((await cleared).target).to.equal(select);
+    expect(new FormData(form).getAll("groups")).to.deep.equal([ "south" ]);
+    picker.querySelectorAll("button")[0].click();
+    expect(new FormData(form).getAll("groups")).to.deep.equal([ "north", "south" ]);
   });
 
   it ("renders with site and group id", async () => {

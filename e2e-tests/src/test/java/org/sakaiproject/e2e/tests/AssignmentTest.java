@@ -19,6 +19,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -58,6 +59,24 @@ class AssignmentTest extends SakaiUiTestBase {
             "sakai\\.lessonbuildertool"
         ));
         return sakaiUrl;
+    }
+
+    @Test
+    void selectsAnAssignmentListGroupThroughTheSharedPicker() {
+        sakai.login("instructor1");
+        String site = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades"));
+        String groupId = sakai.addGroup(site, "North seminar");
+        sakai.addGroup(site, "South seminar");
+        page.navigate(site);
+        sakai.toolClick("Assignments");
+
+        assumeTrue(page.locator("#filterByGroup").count() > 0, "Assignment group filtering must be enabled");
+        Locator picker = page.locator("sakai-group-picker");
+        picker.getByRole(AriaRole.SEARCHBOX).fill("North");
+        Locator select = picker.locator("#filterByGroup");
+        assertThat(select.locator("option:not([hidden])")).hasCount(1);
+        select.selectOption(groupId);
+        assertThat(picker.locator("#filterByGroup")).hasValue(groupId);
     }
 
     @Test

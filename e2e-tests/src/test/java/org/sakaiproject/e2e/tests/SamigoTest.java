@@ -35,6 +35,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
@@ -64,6 +66,31 @@ class SamigoTest extends SakaiUiTestBase {
         sakai.login("instructor1");
         sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.rubrics", "sakai\\.samigo", "sakai\\.lessonbuildertool"));
         return sakaiUrl;
+    }
+
+    @Test
+    void filtersAssessmentGroupChoicesThroughTheSharedPicker() {
+        sakai.login("instructor1");
+        String site = sakai.createFreshCourse("instructor1", List.of("sakai\\.samigo"));
+        sakai.addGroup(site, "North seminar");
+        sakai.addGroup(site, "South seminar");
+        page.navigate(site);
+        sakai.toolClick("Tests");
+        String assessments = page.url();
+        openNewAssessmentForm();
+        page.locator("#authorIndexForm\\:title").fill("Group filter draft " + RUN_ID);
+        page.locator("#authorIndexForm\\:createnew").click();
+        page.navigate(assessments);
+
+        assumeTrue(page.locator("[id='authorIndexForm:group-select']").count() > 0, "Samigo group filtering must be enabled");
+        Locator picker = page.locator("sakai-group-picker");
+        picker.getByRole(AriaRole.SEARCHBOX).fill("North");
+        assertThat(picker.locator("option:not([hidden])")).hasCount(1);
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear matching groups")).click();
+        assertThat(picker.locator("option:checked:not([hidden])")).hasCount(0);
+        assertThat(picker.locator("option:checked[hidden]")).not().hasCount(0);
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Select matching groups")).click();
+        assertThat(picker.locator("option:checked:not([hidden])")).hasCount(1);
     }
 
     @Test
