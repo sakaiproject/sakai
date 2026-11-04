@@ -4,7 +4,9 @@ import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testi
 const translations = `search=Search by name or username
 no_results=No matches found
 no_options=No choices available
+one_result=1 result
 result_count={} results
+truncated_results=Showing {shown} of {total} results. Refine your search to see other matches.
 remove=Remove {}
 selected_count={} selected`;
 
@@ -47,6 +49,7 @@ describe("sakai-user-picker", () => {
     expect(picker.values).to.deep.equal([ "b" ]);
     const remove = root(picker).querySelector("button");
     expect(remove.getAttribute("aria-label")).to.equal("Remove Zachary Ánderson (z002)");
+    expect(remove.querySelector("small").textContent).to.equal("(z002)");
     remove.click();
     await elementUpdated(picker);
     expect(picker.values).to.be.empty;
@@ -59,6 +62,22 @@ describe("sakai-user-picker", () => {
     expect(input(picker).getAttribute("aria-expanded")).to.equal("false");
     await search(picker, "No matching person");
     expect(root(picker).querySelector("p").textContent).to.equal("No matches found");
+  });
+
+  it("describes the visible result limit and announces a single match", async () => {
+    const options = Array.from({ length: 102 }, (_, index) => ({
+      id: `id-${index}`, name: `Person ${index}`, username: `username-${index}`,
+    }));
+    const picker = await fixture(html`<sakai-user-picker .options=${options}></sakai-user-picker>`);
+    await waitUntil(() => input(picker));
+    await search(picker, "Person");
+    expect(results(picker)).to.have.length(100);
+    const hint = "Showing 100 of 102 results. Refine your search to see other matches.";
+    expect(root(picker).querySelector("p").textContent).to.equal(hint);
+    expect(root(picker).querySelector("[role=status]").textContent).to.equal(hint);
+    await search(picker, "username-101");
+    expect(results(picker)).to.have.length(1);
+    expect(root(picker).querySelector("[role=status]").textContent).to.equal("1 result");
   });
 
   it("submits only each bound field's values and restores preselection and resets", async () => {

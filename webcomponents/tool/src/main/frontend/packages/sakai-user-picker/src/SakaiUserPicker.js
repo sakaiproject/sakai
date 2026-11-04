@@ -129,6 +129,10 @@ export class SakaiUserPicker extends SakaiShadowElement {
     const choices = matches.slice(0, 100);
     const selected = this.values.map(value => this.options.find(option => option.id === value)).filter(Boolean);
     const noResults = this.options.length ? this._i18n.no_results : this._i18n.no_options;
+    const truncated = matches.length > choices.length;
+    const resultStatus = truncated ? this.tr("truncated_results", { shown: choices.length, total: matches.length })
+      : choices.length === 1 ? this._i18n.one_result
+        : choices.length ? this.tr("result_count", [ choices.length ]) : noResults;
     const placeholder = this.placeholder || this._i18n.search;
     const label = this.label || placeholder;
     const open = this._open && !this.disabled;
@@ -147,12 +151,17 @@ export class SakaiUserPicker extends SakaiShadowElement {
       }
     }}>
         <div class="field">
-          ${selected.map(option => html`
-            <button class="chip" type="button" ?disabled=${this.disabled}
-                aria-label=${this._i18n.remove.replace("{}", option.username ? `${option.name} (${option.username})` : option.name)}
-                @click=${() => this._change(this.values.filter(value => value !== option.id))}>
-              ${option.name} <span aria-hidden="true">×</span>
-            </button>`)}
+          ${selected.map(option => {
+      const duplicateName = option.username && this.options.some(other => other.id !== option.id && other.name === option.name);
+      const identity = option.username ? `${option.name} (${option.username})` : option.name;
+      return html`
+        <button class="chip" type="button" ?disabled=${this.disabled}
+            aria-label=${this.tr("remove", [ identity ])}
+            @click=${() => this._change(this.values.filter(value => value !== option.id))}>
+          ${option.name}${duplicateName ? html` <small>(${option.username})</small>` : nothing}
+          <span aria-hidden="true">×</span>
+        </button>`;
+    })}
           <input type="text" role="combobox" autocomplete="off" aria-autocomplete="list"
               aria-label=${label} aria-controls="options" aria-expanded=${open}
               aria-activedescendant=${open && choices[this._active] ? `option-${this._active}` : nothing}
@@ -166,6 +175,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
               @keydown=${event => this._key(event, choices)}>
         </div>
         <div class="results" ?hidden=${!open}>
+          ${truncated || !choices.length ? html`<p>${resultStatus}</p>` : nothing}
           <div id="options" role="listbox" aria-label=${label}
               aria-multiselectable=${this.multiple ? "true" : nothing}>
             ${Array.from(groups, ([ group, options ]) => html`
@@ -184,11 +194,8 @@ export class SakaiUserPicker extends SakaiShadowElement {
     })}
               </div>`)}
           </div>
-          ${!choices.length ? html`<p>${noResults}</p>` : nothing}
         </div>
-        <span class="sr" role="status">${open
-          ? choices.length ? this._i18n.result_count.replace("{}", matches.length) : noResults
-          : this._i18n.selected_count.replace("{}", selected.length)}</span>
+        <span class="sr" role="status">${open ? resultStatus : this.tr("selected_count", [ selected.length ])}</span>
       </div>`;
   }
 
@@ -224,10 +231,10 @@ export class SakaiUserPicker extends SakaiShadowElement {
     [role="option"] { position: relative; padding: .5rem 2rem .5rem .75rem; cursor: pointer; overflow-wrap: anywhere; }
     [role="option"]:hover, .active { background: var(--sakai-background-color-2, #eee); }
     [aria-disabled="true"] { opacity: .65; cursor: default; }
-    small { display: block; }
+    [role="option"] small { display: block; }
     .group { padding: .375rem .75rem; font-weight: 600; }
     .check { position: absolute; inset-inline-end: .75rem; }
-    p { margin: .75rem; }
+    p { margin: 0; padding: .5rem .75rem; }
     :focus-visible { outline: 2px solid var(--focus-outline-color, #005fcc); outline-offset: 2px; }
     .sr { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
   `;
