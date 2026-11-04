@@ -19,6 +19,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.assertions.LocatorAssertions;
+import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -201,24 +202,18 @@ class CalendarTest extends SakaiUiTestBase {
         // The create-group button starts disabled; only a keyup on the title field re-enables it.
         groupTitleInput.dispatchEvent("keyup");
 
-        // #groupMembers is a native multi-select wrapped by Select2; drive the underlying
-        // element directly and fire the change event Select2/Thymeleaf's binding listens for.
-        Boolean memberSelected = (Boolean) page.evaluate("(eid) => {"
-            + "const select = document.getElementById('groupMembers');"
-            + "const option = [...select.options].find((o) => o.textContent.includes('(' + eid + ')'));"
-            + "if (!option) { return false; }"
-            + "option.selected = true;"
-            + "if (window.jQuery) { jQuery(select).trigger('change'); } else { select.dispatchEvent(new Event('change', { bubbles: true })); }"
-            + "return true;"
-            + "}", memberEid);
-        if (!Boolean.TRUE.equals(memberSelected)) {
-            throw new IllegalStateException("Unable to find group member option for " + memberEid);
-        }
+        Locator picker = page.locator("sakai-user-picker");
+        picker.getByRole(AriaRole.COMBOBOX).fill(memberEid);
+        picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(memberEid)).click();
 
         Locator submit = page.locator("#create-group-submit-button");
         assertThat(submit).isEnabled();
         submit.click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.locator("#group-manager-form a").filter(new Locator.FilterOptions().setHasText(groupTitle)).click();
+        assertThat(picker.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName(Pattern.compile(Pattern.quote(memberEid))))).isVisible();
+        page.locator("#create-group-cancel-button").click();
     }
 
     private void restrictEventToGroup(String groupTitle) {

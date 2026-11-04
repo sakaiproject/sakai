@@ -91,9 +91,15 @@
           <div class="col-sm-8">
             <label for="groupMembers" class="form-control-label block" th:text="#{groups.assigned.members}">Assigned Members</label>
             <select name="groupMembers" th:field="*{groupMembers}" id="groupMembers" class="form-control" multiple="multiple">
-              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
-              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
-              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${selectableMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
+              <optgroup th:if="${!siteRoleList.isEmpty()}" th:label="#{groups.picker.roles}">
+                <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
+              </optgroup>
+              <optgroup th:if="${!sectionList.isEmpty()}" th:label="#{groups.picker.sections}">
+                <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
+              </optgroup>
+              <optgroup th:label="#{groups.assigned.members}">
+                <option th:attr="data-name=${siteMember.displayName},data-username=${siteMember.eid}" th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${selectableMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
+              </optgroup>
             </select>
           </div>
       </div>
@@ -104,6 +110,7 @@
       </div>
     </form>
   </div>
+  <script type="module" src="/webcomponents/bundles/user-picker.js"></script>
   <script th:replace="~{fragments/javascript :: groupJs}" />
 </body>
 </html>

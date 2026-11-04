@@ -53,8 +53,9 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         // Use real key events after the form's member picker has initialized.
         page.locator("#groupTitle").pressSequentially(groupTitle);
         assertThat(page.locator("#groupTitle")).hasValue(groupTitle);
-        String member = page.locator("#groupMembers option").last().getAttribute("value");
-        page.locator("#groupMembers").selectOption(member);
+        Locator picker = page.locator("sakai-user-picker");
+        picker.getByRole(AriaRole.COMBOBOX).click();
+        picker.getByRole(AriaRole.OPTION).last().click();
         assertThat(page.locator("#create-group-submit-button")).isEnabled();
         page.locator("#create-group-submit-button").click();
         assertThat(groupRow(groupTitle).getByRole(AriaRole.LINK,
@@ -192,12 +193,12 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        assertThat(page.locator("sakai-user-picker").getByRole(AriaRole.COMBOBOX)).isVisible();
         sakai.waitForPortalFocus();
         page.locator("#groupTitle").pressSequentially(title);
-        Locator member = page.locator("#groupMembers option").filter(new Locator.FilterOptions().setHasText(student));
-        assertThat(member).hasCount(1);
-        page.locator("#groupMembers").selectOption(member.getAttribute("value"));
+        Locator picker = page.locator("sakai-user-picker");
+        picker.getByRole(AriaRole.COMBOBOX).fill(student);
+        picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(student)).click();
         assertThat(page.locator("#create-group-submit-button")).isEnabled();
         page.locator("#create-group-submit-button").click();
         assertThat(groupRow(title)).isVisible();

@@ -19,6 +19,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -67,7 +68,7 @@ class SiteInfoTest extends SakaiUiTestBase {
         assertNoTemplateRenderingError();
         assertThat(page.locator("#creategroup-form")).isVisible();
         assertThat(page.locator("#groupTitle")).isVisible();
-        assertThat(page.locator("#groupMembers")).isVisible();
+        assertThat(page.locator("sakai-user-picker").getByRole(AriaRole.COMBOBOX)).isVisible();
     }
 
     @Test
@@ -118,10 +119,12 @@ class SiteInfoTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
             .first().click(new Locator.ClickOptions().setForce(true));
         page.locator(".navIntraTool a[href$='/group']").click();
-        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        assertThat(page.locator("sakai-user-picker").getByRole(AriaRole.COMBOBOX)).isVisible();
         sakai.waitForPortalFocus();
         page.locator("#groupTitle").pressSequentially("<em>Workshop</em>");
-        page.locator("#groupMembers").selectOption(page.locator("#groupMembers option").first().getAttribute("value"));
+        Locator picker = page.locator("sakai-user-picker");
+        picker.getByRole(AriaRole.COMBOBOX).click();
+        picker.getByRole(AriaRole.OPTION).first().click();
         page.locator("#create-group-submit-button").click();
 
         assertThat(page.locator("#group-manager-form a")
