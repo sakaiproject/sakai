@@ -72,14 +72,18 @@ class SamigoTest extends SakaiUiTestBase {
     void filtersAssessmentGroupChoicesThroughTheSharedPicker() {
         sakai.login("instructor1");
         String site = sakai.createFreshCourse("instructor1", List.of("sakai\\.samigo"));
-        sakai.addGroup(site, "North seminar");
-        sakai.addGroup(site, "South seminar");
+        String north = sakai.addGroup(site, "North seminar", "student0011");
+        sakai.addGroup(site, "South seminar", "student0012");
         page.navigate(site);
         sakai.toolClick("Tests");
         String assessments = page.url();
         openNewAssessmentForm();
         page.locator("#authorIndexForm\\:title").fill("Group filter draft " + RUN_ID);
         page.locator("#authorIndexForm\\:createnew").click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).first().click();
+        page.locator("#assessmentSettingsAction\\:releaseTo").selectOption("Selected Groups");
+        page.locator("#assessmentSettingsAction\\:groupsForSite").selectOption(north, new Locator.SelectOptionOptions().setForce(true));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
         page.navigate(assessments);
 
         assumeTrue(page.locator("[id='authorIndexForm:group-select']").count() > 0, "Samigo group filtering must be enabled");

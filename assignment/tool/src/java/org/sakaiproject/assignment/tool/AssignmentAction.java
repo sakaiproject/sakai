@@ -2994,6 +2994,7 @@ public class AssignmentAction extends PagedResourceActionII {
             boolean groupFilterEnabled = serverConfigurationService.getBoolean(PROP_ASSIGNMENT_GROUP_FILTER_ENABLED, false);
             context.put("groupFilterEnabled", groupFilterEnabled);
             if(groupFilterEnabled){
+                context.put(FILTER_BY_GROUP, StringUtils.defaultIfBlank((String) state.getAttribute(FILTER_BY_GROUP), "all"));
                 User user = (User) state.getAttribute(STATE_USER);
                 Collection<Group> groupCollection = assignmentService.getGroupsAllowAddAssignment(contextString);
                 //If the user doesn't have any group, show the groups where is member (Mostly students)
