@@ -444,7 +444,7 @@ import lombok.extern.slf4j.Slf4j;
     public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
                 search(searchTerms, null, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>());
-        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), result.getRight(),
+        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
@@ -452,7 +452,7 @@ import lombok.extern.slf4j.Slf4j;
     public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
                 search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>());
-        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), result.getRight(),
+        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
@@ -460,7 +460,7 @@ import lombok.extern.slf4j.Slf4j;
     public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
                 search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
-        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), result.getRight(),
+        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
@@ -469,6 +469,10 @@ import lombok.extern.slf4j.Slf4j;
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
                 search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
         return result.getLeft();
+    }
+
+    SearchResponse search(String searchTerms, List<String> siteIds, List<String> toolIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
+        return search(searchTerms, indexBuilderName, siteIds, toolIds, start, end, null, null, references).getLeft();
     }
 
     Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {

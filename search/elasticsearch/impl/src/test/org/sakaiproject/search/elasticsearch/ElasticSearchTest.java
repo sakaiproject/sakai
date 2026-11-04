@@ -46,6 +46,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.indices.PutMappingRequest;
+import org.opensearch.common.xcontent.XContentType;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
@@ -466,6 +469,39 @@ public class ElasticSearchTest {
         assertEquals(resourceName, list.get(0).getReference());
         assertEquals(1, list.getFullSize());
         verify(eventTrackingService, times(1)).newEvent(eq(SearchService.EVENT_SEARCH), anyString(), eq(true), anyInt());
+    }
+
+    /** A deployment's own mapping can give the facet field terms, which the default mapping never has. */
+    @Test
+    public void facetsLeaveOutOtherSitesAndPagesPastTheEndStayEmpty() throws Exception {
+        elasticSearchIndexBuilder.client.indices().putMapping(
+                new PutMappingRequest(elasticSearchIndexBuilder.indexName).source(
+                        "{\"properties\":{\"contents\":{\"type\":\"text\",\"analyzer\":\"snowball\",\"fields\":{"
+                                + "\"lowercase\":{\"type\":\"text\",\"analyzer\":\"standard\",\"fielddata\":true}}}}}",
+                        XContentType.JSON),
+                RequestOptions.DEFAULT);
+        elasticSearchIndexBuilder.setUseSiteFilters(true);
+
+        String otherSiteResource = "other site resource";
+        Event otherSiteEvent = mock(Event.class);
+        when(otherSiteEvent.getResource()).thenReturn(otherSiteResource);
+        when(entityContentProducer.matches(otherSiteEvent)).thenReturn(true);
+        when(entityContentProducer.getAction(otherSiteEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
+        when(entityContentProducer.getSiteId(otherSiteResource)).thenReturn("other-site");
+        when(entityContentProducer.getContent(otherSiteResource)).thenReturn("asdf aaaothersiteword");
+        when(entityContentProducer.getId(otherSiteResource)).thenReturn(otherSiteResource);
+        elasticSearchIndexBuilder.addResource(notification, event);
+        elasticSearchIndexBuilder.addResource(notification, otherSiteEvent);
+        elasticSearchIndexBuilder.refreshIndex();
+
+        SearchList list = elasticSearchService.search("asdf", siteIds, null, 0, 10);
+
+        assertEquals(1, list.size());
+        List<String> terms = Arrays.asList(list.get(0).getTerms().getTerms());
+        assertFalse("no terms to check", terms.isEmpty());
+        assertFalse("terms: " + terms, terms.contains("aaaothersiteword"));
+
+        assertEquals(0, elasticSearchService.search("asdf", siteIds, null, 5, 10).size());
     }
 
     @Test
