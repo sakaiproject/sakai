@@ -24,6 +24,11 @@ export class SakaiGroupPicker extends SakaiElement {
 
     super.connectedCallback();
 
+    if (this.hasAttribute("bind-select")) {
+      const select = this.querySelector(":scope > select");
+      if (select) { this.bindSelect(select); }
+    }
+
     if (this.siteId && !this.groups) {
 
       const url = `/direct/site/${this.siteId}/groups.json`;
@@ -41,17 +46,23 @@ export class SakaiGroupPicker extends SakaiElement {
     }
   }
 
-  /** Enhance a tool-owned filter without changing its form values or change handlers. */
+  /** Enhance a tool-owned group field without changing its form values or change handlers. */
   bindSelect(select) {
     this._translations.then(() => {
-      if (!this._i18n || !select.isConnected) { return; }
+      if (!this._i18n || !select.isConnected || this._boundSelect) { return; }
+      this._boundSelect = select;
       const picker = document.createElement("sakai-user-picker");
       picker.placeholder = this._i18n.search_groups;
-      picker.bulkActions = select.multiple;
+      picker.bulkActions = select.multiple && !select.disabled && !this.hasAttribute("no-bulk-actions");
       picker.style.maxInlineSize = "32rem";
       picker.style.setProperty("--sakai-user-picker-input-basis", "7rem");
-      select.after(this);
-      this.append(select);
+      if (this.hasAttribute("bind-select")) {
+        picker.style.setProperty("--sakai-user-picker-results-position", "absolute");
+      }
+      if (select.parentElement !== this) {
+        select.after(this);
+        this.append(select);
+      }
       picker.bindSelect(select);
     });
   }

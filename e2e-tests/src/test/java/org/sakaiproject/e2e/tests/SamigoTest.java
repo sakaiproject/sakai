@@ -69,10 +69,10 @@ class SamigoTest extends SakaiUiTestBase {
     }
 
     @Test
-    void filtersAssessmentGroupChoicesThroughTheSharedPicker() {
+    void savesAndFiltersAssessmentGroupsThroughTheSharedPicker() {
         sakai.login("instructor1");
         String site = sakai.createFreshCourse("instructor1", List.of("sakai\\.samigo"));
-        String north = sakai.addGroup(site, "North seminar", "student0011");
+        sakai.addGroup(site, "North seminar", "student0011");
         sakai.addGroup(site, "South seminar", "student0012");
         page.navigate(site);
         sakai.toolClick("Tests");
@@ -81,9 +81,14 @@ class SamigoTest extends SakaiUiTestBase {
         String title = "Group filter draft " + RUN_ID;
         page.locator("#authorIndexForm\\:title").fill(title);
         page.locator("#authorIndexForm\\:createnew").click();
+        addMultipleChoiceQuestion("1", "Which group can take this quiz?", List.of("North", "South"), 1);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).first().click();
         page.locator("#assessmentSettingsAction\\:releaseTo").selectOption("Selected Groups");
-        page.locator("#assessmentSettingsAction\\:groupsForSite").selectOption(north, new Locator.SelectOptionOptions().setForce(true));
+        Locator audience = page.locator("#groupDiv sakai-group-picker");
+        assertThat(audience.getByRole(AriaRole.COMBOBOX)).isVisible();
+        audience.getByRole(AriaRole.COMBOBOX).fill("North");
+        audience.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions().setName("North seminar")).click();
+        audience.getByRole(AriaRole.COMBOBOX).press("Escape");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
         page.navigate(assessments);
 
@@ -92,6 +97,8 @@ class SamigoTest extends SakaiUiTestBase {
         Locator assessment = page.locator("table.table-assessments").getByText(title, new Locator.GetByTextOptions().setExact(true));
         assertThat(assessment).isVisible();
         assertThat(picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear matching groups"))).isHidden();
+        assertThat(picker.getByRole(AriaRole.COMBOBOX)).isVisible();
+        sakai.waitForPortalFocus();
         picker.getByRole(AriaRole.COMBOBOX).fill("North");
         assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(1);
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear matching groups")).click();
@@ -101,6 +108,22 @@ class SamigoTest extends SakaiUiTestBase {
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Select matching groups")).click();
         assertThat(picker.getByRole(AriaRole.OPTION)).hasAttribute("aria-selected", "true");
         assertThat(assessment).isVisible();
+        page.keyboard().press("Escape");
+
+        Locator row = page.locator("table.table-assessments tbody tr").filter(new Locator.FilterOptions().setHas(page.getByText(title, new Page.GetByTextOptions().setExact(true))));
+        row.getByRole(AriaRole.BUTTON).first().click();
+        row.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
+        clickFirstVisibleIfPresent(page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Save Settings and Publish").setExact(true)));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Publish").setExact(true)).click();
+
+        Locator published = row.filter(new Locator.FilterOptions().setHas(page.locator("[class^='status_published_']")));
+        assertThat(published).isVisible();
+        published.getByRole(AriaRole.BUTTON).first().click();
+        published.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Settings").setExact(true)).click();
+        assertThat(audience.getByRole(AriaRole.COMBOBOX)).isDisabled();
+        assertThat(audience.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Remove North seminar"))).isDisabled();
+
     }
 
     @Test

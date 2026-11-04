@@ -69,9 +69,11 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         page.locator("#gradeAssignment").uncheck();
         sakai.typeCkEditorIfPresent("new_assignment_instructions", "<p>Group restore regression.</p>");
         page.locator("#groupAssignment").check();
-        String groupId = page.locator("#selectedGroups option")
-                .filter(new Locator.FilterOptions().setHasText(groupTitle)).getAttribute("value");
-        page.locator("#selectedGroups").selectOption(groupId);
+        Locator audience = page.locator("#groupTableContainer sakai-group-picker");
+        assertThat(audience.getByRole(AriaRole.COMBOBOX)).isVisible();
+        audience.getByRole(AriaRole.COMBOBOX).fill(groupTitle);
+        audience.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions().setName(groupTitle)).click();
+        audience.getByRole(AriaRole.COMBOBOX).press("Escape");
         page.locator(".act input[name=post]").click();
         assertThat(assignmentRow(assignmentTitle)).isVisible();
 
@@ -155,14 +157,9 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
             assertGroupOption(submittedGroup, true, true);
             assertGroupOption(gradedGroup, true, true);
             assertGroupOption(emptyGroup, true, false);
-            openGroupChoices();
-            assertThat(groupCheckbox(submittedGroup)).isChecked();
-            assertThat(groupCheckbox(submittedGroup)).isDisabled();
-            assertThat(groupCheckbox(gradedGroup)).isChecked();
-            assertThat(groupCheckbox(gradedGroup)).isDisabled();
-            assertThat(groupCheckbox(emptyGroup)).isEnabled();
-            groupCheckbox(emptyGroup).uncheck();
-            openGroupChoices();
+            assertThat(removeGroup(submittedGroup)).isDisabled();
+            assertThat(removeGroup(gradedGroup)).isDisabled();
+            removeGroup(emptyGroup).click();
             saveAssignment(assignmentTitle);
 
             editAssignment(courseUrl, assignmentTitle);
@@ -219,11 +216,14 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         sakai.selectDate("#duedate", openDate.plusDays(7).toString());
         sakai.selectDate("#closedate", openDate.plusDays(7).toString());
         page.locator("#groupAssignment").check();
-        openGroupChoices();
+        Locator search = page.locator("#groupTableContainer sakai-group-picker").getByRole(AriaRole.COMBOBOX);
+        assertThat(search).isVisible();
         for (String group : groups) {
-            groupCheckbox(group).check();
+            search.fill(group);
+            page.locator("#groupTableContainer").getByRole(AriaRole.OPTION,
+                    new Locator.GetByRoleOptions().setName(group).setExact(true)).click();
         }
-        openGroupChoices();
+        search.press("Escape");
         saveAssignment(title);
     }
 
@@ -264,13 +264,9 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         assertThat(option).hasJSProperty("disabled", disabled);
     }
 
-    private void openGroupChoices() {
-        page.locator("#groupTableContainer button.multiselect").click();
-    }
-
-    private Locator groupCheckbox(String title) {
-        return page.locator("#groupTableContainer .multiselect-container").getByRole(AriaRole.BUTTON,
-                new Locator.GetByRoleOptions().setName(title).setExact(true)).locator("input[type=checkbox]");
+    private Locator removeGroup(String title) {
+        return page.locator("#groupTableContainer sakai-group-picker").getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Remove " + title).setExact(true));
     }
 
     private void openGroups(String courseUrl) {

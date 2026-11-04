@@ -42,6 +42,38 @@ class AnnouncementTest extends SakaiUiTestBase {
     private static final String CURRENT_ANNOUNCEMENT_TITLE = "Current Announcement";
 
     @Test
+    void groupAnnouncementIsVisibleOnlyToTheSelectedGroup() {
+        String title = "Group announcement " + System.currentTimeMillis();
+        sakai.login("instructor1");
+        String site = sakai.createFreshCourse("instructor1", List.of("sakai\\.announcements"));
+        sakai.addGroup(site, "North seminar", "student0011");
+        sakai.addGroup(site, "South seminar", "student0012");
+        page.navigate(site);
+        sakai.toolClick("Announcements");
+        ensureViewAll();
+        page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click();
+        page.locator("#subject").fill(title);
+        fillAnnouncementBody("<p>For the North seminar.</p>");
+        page.locator("#groups").check();
+        Locator audience = page.locator("#groupTable sakai-group-picker");
+        assertThat(audience.getByRole(AriaRole.COMBOBOX)).isVisible();
+        audience.getByRole(AriaRole.COMBOBOX).fill("North");
+        audience.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions().setName("North seminar")).click();
+        audience.getByRole(AriaRole.COMBOBOX).press("Escape");
+        submitAnnouncementForm();
+        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(title))).hasCount(1);
+
+        sakai.login("student0011");
+        page.navigate(site);
+        sakai.toolClick("Announcements");
+        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(title))).hasCount(1);
+        sakai.login("student0012");
+        page.navigate(site);
+        sakai.toolClick("Announcements");
+        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(title))).hasCount(0);
+    }
+
+    @Test
     @Order(1)
     void canCreateNewCourse() {
         sakai.login("instructor1");

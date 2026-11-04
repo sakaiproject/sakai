@@ -52,6 +52,28 @@ describe("sakai-group-picker tests", () => {
     expect(new FormData(form).getAll("groups")).to.deep.equal([ "north", "south", "east", "west" ]);
   });
 
+  it("keeps a selected disabled group locked in a declaratively bound field", async () => {
+    sessionStorage.setItem("user-picker", JSON.stringify({
+      search: "Search", remove: "Remove {}", one_result: "1 result", result_count: "{} results",
+      no_options: "No choices", no_results: "No matches", selected_count: "{} selected",
+      select_matching: "Select matching groups", clear_matching: "Clear matching groups",
+    }));
+    const form = await fixture(html`<form>
+      <sakai-group-picker bind-select>
+        <select name="groups" multiple>
+          <option value="locked" selected disabled>Locked group</option>
+          <option value="open" selected>Open group</option>
+        </select>
+      </sakai-group-picker>
+    </form>`);
+    const select = form.querySelector("select");
+    await waitUntil(() => select.hidden);
+    const root = form.querySelector("sakai-user-picker").renderRoot;
+    expect(root.querySelector('[aria-label="Remove Locked group"]').disabled).to.be.true;
+    root.querySelector('[aria-label="Remove Open group"]').click();
+    expect(Array.from(select.selectedOptions, option => option.value)).to.deep.equal([ "locked" ]);
+  });
+
   it ("renders with site and group id", async () => {
 
     const el = await fixture(html`

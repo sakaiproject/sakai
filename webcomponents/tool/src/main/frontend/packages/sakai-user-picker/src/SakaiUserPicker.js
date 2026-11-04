@@ -180,7 +180,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
     });
 
     return html`
-      <div @focusout=${event => {
+      <div class="picker" @focusout=${event => {
       if (!this.renderRoot.contains(event.relatedTarget)) {
         this._open = false;
         this._active = -1;
@@ -191,7 +191,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
       const duplicateName = option.username && this._nameCounts.get(option.name) > 1;
       const identity = option.username ? `${option.name} (${option.username})` : option.name;
       return html`
-        <button class="chip" type="button" ?disabled=${this.disabled}
+        <button class="chip" type="button" ?disabled=${this.disabled || option.disabled}
             aria-label=${this.tr("remove", [ identity ])}
             @click=${() => this._change(this.values.filter(value => value !== option.id))}>
           ${option.name}${duplicateName ? html` <small>(${option.username})</small>` : nothing}
@@ -243,6 +243,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
   static styles = css`
     :host([hidden]) { display: none; }
     :host { display: block; color: var(--sakai-text-color-1); }
+    .picker { position: relative; }
     .field, .results {
       background: var(--sakai-background-color-1, white);
       border: 1px solid var(--sakai-border-color, #767676);
@@ -286,7 +287,14 @@ export class SakaiUserPicker extends SakaiShadowElement {
       font: inherit;
     }
     .chip span { margin-inline-start: .25rem; }
-    .results { margin-block-start: .25rem; max-block-size: 15rem; overflow: auto; }
+    .results {
+      position: var(--sakai-user-picker-results-position, static);
+      inset-inline: 0;
+      z-index: 1;
+      margin-block-start: .25rem;
+      max-block-size: 15rem;
+      overflow: auto;
+    }
     [role="option"] { position: relative; padding: .5rem 2rem .5rem .75rem; cursor: pointer; overflow-wrap: anywhere; }
     [role="option"]:hover, .active { background: var(--sakai-background-color-2, #eee); }
     [aria-disabled="true"] { opacity: .65; cursor: default; }
