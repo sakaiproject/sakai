@@ -169,7 +169,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
 
   _selectTag(tag) {
     if (this._selectedTags.some(value => value.code === tag.code)) {
-      this._removeTag(tag);
+      this._removeTag(tag, Boolean(this.searchTags));
       return;
     }
     const value = { name: tag.name, code: tag.code };
@@ -177,20 +177,22 @@ export class SakaiTagSelector extends SakaiShadowElement {
     if (tag.create) {
       this._options = [ ...this._options, value ];
     }
-    this._updateSelection([ ...this._selectedTags, value ]);
+    this._updateSelection([ ...this._selectedTags, value ], Boolean(this.searchTags));
   }
 
-  _removeTag(tag) {
-    this._updateSelection(this._selectedTags.filter(value => value.code !== tag.code));
+  _removeTag(tag, keepResults = false) {
+    this._updateSelection(this._selectedTags.filter(value => value.code !== tag.code), keepResults);
   }
 
-  _updateSelection(value) {
+  _updateSelection(value, keepResults) {
     this._selectedTags = value;
-    this._resetSearch();
-    this._active = -1;
+    if (!keepResults) {
+      this._resetSearch();
+      this._active = -1;
+    }
     this._publish();
     this.renderRoot.querySelector("input").focus();
-    this._open = false;
+    this._open = keepResults;
   }
 
   _focusout(event) {

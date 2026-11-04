@@ -81,6 +81,26 @@ describe("sakai-user-picker", () => {
     expect(root(picker).querySelector("[role=status]").textContent).to.equal("1 result");
   });
 
+  it("keeps multi-select results open and refreshes them when options change", async () => {
+    const picker = await fixture(html`<sakai-user-picker multiple .options=${[
+      { id: "a", name: "Alex Kim" }, { id: "b", name: "Alex Lee" },
+    ]}></sakai-user-picker>`);
+    await waitUntil(() => input(picker));
+    await search(picker, "Alex");
+    results(picker)[0].click();
+    await elementUpdated(picker);
+    expect(input(picker).value).to.equal("Alex");
+    expect(input(picker).getAttribute("aria-expanded")).to.equal("true");
+    results(picker)[1].click();
+    await elementUpdated(picker);
+    expect(picker.values).to.deep.equal([ "a", "b" ]);
+
+    picker.options = [ { id: "c", name: "Alex Smith" } ];
+    await elementUpdated(picker);
+    expect(results(picker)).to.have.length(1);
+    expect(results(picker)[0].textContent).to.contain("Alex Smith");
+  });
+
   it("submits only each bound field's values and restores preselection and resets", async () => {
     const form = await fixture(html`
       <form>
@@ -98,7 +118,10 @@ describe("sakai-user-picker", () => {
     const bcc = document.createElement("sakai-user-picker");
     to.bindSelect(form.querySelector("#to"));
     bcc.bindSelect(form.querySelector("#bcc"));
+    expect(to.hidden).to.be.true;
+    expect(form.querySelector("#to").hidden).to.be.false;
     await waitUntil(() => form.querySelector("#to").hidden && form.querySelector("#bcc").hidden);
+    expect(to.hidden).to.be.false;
     expect(input(to).getAttribute("aria-label")).to.equal("To");
     expect(input(bcc).getAttribute("aria-label")).to.equal("Bcc");
     await search(to, "Bob");

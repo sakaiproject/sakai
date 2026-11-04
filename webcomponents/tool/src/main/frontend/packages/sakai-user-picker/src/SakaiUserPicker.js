@@ -31,7 +31,10 @@ export class SakaiUserPicker extends SakaiShadowElement {
     this._translations = this.loadTranslations("user-picker");
   }
 
-  /** Preserve the existing form field and its submitted values. */
+  /**
+   * Bind a native form field with a fixed option list and disabled state.
+   * Selection stays synchronized on change and form reset.
+   */
   bindSelect(select) {
     const syncSelection = () => {
       this.values = Array.from(select.selectedOptions, option => option.value).filter(Boolean);
@@ -62,30 +65,44 @@ export class SakaiUserPicker extends SakaiShadowElement {
         this.renderRoot.querySelector("input")?.focus();
       }
     });
+    this.hidden = true;
     select.after(this);
     // The native select remains usable if the custom element fails to load.
     this._translations.then(() => this.updateComplete).then(() => {
       if (this._i18n) {
         select.hidden = true;
         select.style.display = "none";
+        this.hidden = false;
       }
     });
   }
 
-  get _matches() {
-    const terms = normalize(this._query).split(/\s+/u).filter(Boolean);
-    return this.options.filter(option => {
-      const searchable = normalize([ option.name, option.username ].filter(Boolean).join(" "));
-      return terms.every(term => searchable.includes(term));
-    });
+  willUpdate(changedProperties) {
+    const optionsChanged = this._indexedOptions !== this.options;
+    if (optionsChanged) {
+      this._indexedOptions = this.options;
+      this._optionsById = new Map(this.options.map(option => [ option.id, option ]));
+      this._nameCounts = new Map();
+      this._searchIndex = this.options.map(option => {
+        this._nameCounts.set(option.name, (this._nameCounts.get(option.name) ?? 0) + 1);
+        return { option, text: normalize([ option.name, option.username ].filter(Boolean).join(" ")) };
+      });
+    }
+    if (optionsChanged || changedProperties.has("_query")) {
+      const terms = normalize(this._query).split(/\s+/u).filter(Boolean);
+      this._matches = this._searchIndex.filter(({ text }) => terms.every(term => text.includes(term)))
+        .map(({ option }) => option);
+    }
   }
 
-  _change(values) {
+  _change(values, keepResults = false) {
     this.values = values;
-    this._query = "";
-    this._active = -1;
+    if (!keepResults) {
+      this._query = "";
+      this._active = -1;
+    }
     this.renderRoot.querySelector("input").focus();
-    this._open = false;
+    this._open = keepResults;
     this.dispatchEvent(new CustomEvent("picker-change", {
       detail: { values: [ ...values ] }, bubbles: true, composed: true,
     }));
@@ -95,7 +112,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
     if (option.disabled) { return; }
     this._change(this.multiple
       ? this.values.includes(option.id) ? this.values.filter(value => value !== option.id) : [ ...this.values, option.id ]
-      : [ option.id ]);
+      : [ option.id ], this.multiple);
   }
 
   _key(event, choices) {
@@ -128,7 +145,8 @@ export class SakaiUserPicker extends SakaiShadowElement {
   render() {
     const matches = this._matches;
     const choices = matches.slice(0, 100);
-    const selected = this.values.map(value => this.options.find(option => option.id === value)).filter(Boolean);
+    const selected = this.values.map(value => this._optionsById.get(value)).filter(Boolean);
+    const selectedIds = new Set(this.values);
     const noResults = this.options.length ? this._i18n.no_results : this._i18n.no_options;
     const truncated = matches.length > choices.length;
     const resultStatus = truncated ? this.tr("truncated_results", { shown: choices.length, total: matches.length })
@@ -153,7 +171,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
     }}>
         <div class="field">
           ${selected.map(option => {
-      const duplicateName = option.username && this.options.some(other => other.id !== option.id && other.name === option.name);
+      const duplicateName = option.username && this._nameCounts.get(option.name) > 1;
       const identity = option.username ? `${option.name} (${option.username})` : option.name;
       return html`
         <button class="chip" type="button" ?disabled=${this.disabled}
@@ -183,7 +201,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
               <div role=${group ? "group" : "presentation"} aria-label=${group || nothing}>
                 ${group ? html`<div class="group" aria-hidden="true">${group}</div>` : nothing}
                 ${options.map(({ option, index }) => {
-      const picked = this.values.includes(option.id);
+      const picked = selectedIds.has(option.id);
       return html`
                     <div role="option" id=${`option-${index}`} class=${index === this._active ? "active" : ""}
                         aria-selected=${picked} aria-disabled=${option.disabled ? "true" : nothing}
@@ -201,6 +219,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
   }
 
   static styles = css`
+    :host([hidden]) { display: none; }
     :host { display: block; color: var(--sakai-text-color-1); }
     .field, .results {
       background: var(--sakai-background-color-1, white);

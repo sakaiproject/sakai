@@ -225,6 +225,19 @@ describe("sakai-tag-selector", () => {
     expect(tags).to.have.length(2);
   });
 
+  it("keeps remote tag results open for multiple selections", async () => {
+    const tags = [ { code: "one", name: "Algebra I" }, { code: "two", name: "Algebra II" } ];
+    const el = await fixture(html`<sakai-tag-selector .searchTags=${async () => ({ tags, more: false })}></sakai-tag-selector>`);
+    const input = await search(el, "Algebra");
+    await waitUntil(() => el.renderRoot.querySelector("[role=option]"));
+    el.renderRoot.querySelectorAll("[role=option]")[0].click();
+    await elementUpdated(el);
+    expect(input.value).to.equal("Algebra");
+    expect(input.getAttribute("aria-expanded")).to.equal("true");
+    el.renderRoot.querySelectorAll("[role=option]")[1].click();
+    expect(el.selectedTags).to.deep.equal(tags);
+  });
+
   it("debounces remote queries and cancels a scheduled search when cleared", async () => {
     const queries = [];
     const searchTags = async query => {
