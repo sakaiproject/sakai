@@ -35,7 +35,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.APIResponse;
@@ -69,6 +68,7 @@ class SamigoTest extends SakaiUiTestBase {
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "sakai.test.groupFilters", matches = "true")
     void savesAndFiltersAssessmentGroupsThroughTheSharedPicker() {
         sakai.login("instructor1");
         String site = sakai.createFreshCourse("instructor1", List.of("sakai\\.samigo"));
@@ -92,7 +92,6 @@ class SamigoTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
         page.navigate(assessments);
 
-        assumeTrue(page.locator("[id='authorIndexForm:group-select']").count() > 0, "Samigo group filtering must be enabled");
         Locator picker = page.locator("sakai-group-picker");
         Locator assessment = page.locator("table.table-assessments").getByText(title, new Locator.GetByTextOptions().setExact(true));
         assertThat(assessment).isVisible();

@@ -38,6 +38,12 @@ mvn -P e2e -Dtest=AssignmentTest test
 mvn -P e2e -Dtest=AssignmentTest#canCreatePointsAssignment test
 ```
 
+### Run the group-filter browser tests
+
+Enable `assignment.group.filter.enabled=true` and `samigo.group.filter.enabled=true`
+in the test server's Sakai configuration before running with
+`-Dsakai.test.groupFilters=true`. CI enables both settings and runs both tests.
+
 ### Optional browser override:
 
 ```bash

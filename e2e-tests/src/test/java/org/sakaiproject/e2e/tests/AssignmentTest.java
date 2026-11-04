@@ -19,7 +19,6 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
@@ -62,6 +62,7 @@ class AssignmentTest extends SakaiUiTestBase {
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "sakai.test.groupFilters", matches = "true")
     void selectsAnAssignmentListGroupThroughTheSharedPicker() {
         sakai.login("instructor1");
         String site = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades"));
@@ -70,7 +71,6 @@ class AssignmentTest extends SakaiUiTestBase {
         page.navigate(site);
         sakai.toolClick("Assignments");
 
-        assumeTrue(page.locator("#filterByGroup").count() > 0, "Assignment group filtering must be enabled");
         Locator picker = page.locator("sakai-group-picker");
         Locator search = picker.getByRole(AriaRole.COMBOBOX);
         assertThat(search).isVisible();

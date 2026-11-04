@@ -27,8 +27,8 @@ Load `/webcomponents/bundles/group-picker.js` and call
 `document.createElement("sakai-group-picker").bindSelect(select)` after the
 component is defined. The component adds a searchable combobox and keeps the native
 select in its form. The tool supplies the options, default selection, and
-change handler. In multiple mode, bulk actions in the dropdown change matching enabled
-options and preserve selections outside the search.
+change handler. In multiple mode, bulk actions in the dropdown change enabled options
+that match the search and preserve selections outside it.
 
 ## Linting and formatting
 

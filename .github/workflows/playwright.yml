@@ -106,6 +106,7 @@ jobs:
           printf '%s\n' \
             'cardgame.showOfficialPhoto=false' 'cardgame.skipNoImageUsers=true' \
             'profile2.picture.change.enabled=true' 'profile2.picture.type=upload' >> sakai/local.properties
+          printf "%s\n" "assignment.group.filter.enabled=true" "samigo.group.filter.enabled=true" >> sakai/local.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai";
           cd ..
@@ -185,7 +186,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p e2e-tests/target
-          mvn -B -ntp -V -Pe2e -Dsakai.test.forks=4 test 2>&1 | tee e2e-tests/target/playwright-java-run.log
+          mvn -B -ntp -V -Pe2e -Dsakai.test.forks=4 -Dsakai.test.groupFilters=true test 2>&1 | tee e2e-tests/target/playwright-java-run.log
 
       - name: Check Sakai server after tests
         id: server-check
