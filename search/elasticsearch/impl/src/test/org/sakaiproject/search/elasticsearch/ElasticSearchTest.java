@@ -426,6 +426,40 @@ public class ElasticSearchTest {
     }
 
     @Test
+    public void searchTermsTolerateStraySpacesAndColons() throws InvalidSearchQueryException {
+        elasticSearchIndexBuilder.addResource(notification, event);
+        addResources();
+        elasticSearchIndexBuilder.refreshIndex();
+
+        for (String terms : List.of(" asdf organ", "asdf  organ", "asdf organ ", "asdf\torgan", "asdf: organ", "asdf:", ":asdf", "keyboard:")) {
+            assertEquals("search for [" + terms + "]", resourceName, firstReference(terms));
+        }
+
+        // every term still has to match, so a tab can't widen the search to any of the words
+        assertEquals(0, elasticSearchService.search("asdf\tzzznosuchword", null, null, 0, 10).size());
+
+        for (String terms : List.of("", " ", "   ", ":")) {
+            assertEquals("search for [" + terms + "]", 0, elasticSearchService.search(terms, null, null, 0, 10).size());
+        }
+    }
+
+    @Test
+    public void searchTermsCanStillTargetAField() throws InvalidSearchQueryException {
+        elasticSearchIndexBuilder.addResource(notification, event);
+        addResources();
+        elasticSearchIndexBuilder.refreshIndex();
+
+        assertEquals(resourceName, firstReference("asdf siteid:" + siteId));
+        assertEquals(0, elasticSearchService.search("asdf siteid:nosuchsite", null, null, 0, 10).size());
+    }
+
+    private String firstReference(String terms) throws InvalidSearchQueryException {
+        SearchList list = elasticSearchService.search(terms, null, null, 0, 10);
+        assertNotEquals("no results for [" + terms + "]", 0, list.size());
+        return list.get(0).getReference();
+    }
+
+    @Test
     public void testSearch() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
