@@ -78,7 +78,8 @@ class SamigoTest extends SakaiUiTestBase {
         sakai.toolClick("Tests");
         String assessments = page.url();
         openNewAssessmentForm();
-        page.locator("#authorIndexForm\\:title").fill("Group filter draft " + RUN_ID);
+        String title = "Group filter draft " + RUN_ID;
+        page.locator("#authorIndexForm\\:title").fill(title);
         page.locator("#authorIndexForm\\:createnew").click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).first().click();
         page.locator("#assessmentSettingsAction\\:releaseTo").selectOption("Selected Groups");
@@ -88,13 +89,17 @@ class SamigoTest extends SakaiUiTestBase {
 
         assumeTrue(page.locator("[id='authorIndexForm:group-select']").count() > 0, "Samigo group filtering must be enabled");
         Locator picker = page.locator("sakai-group-picker");
+        Locator assessment = page.locator("table.table-assessments").getByText(title, new Locator.GetByTextOptions().setExact(true));
+        assertThat(assessment).isVisible();
         picker.getByRole(AriaRole.SEARCHBOX).fill("North");
         assertThat(picker.locator("option:not([hidden])")).hasCount(1);
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear matching groups")).click();
         assertThat(picker.locator("option:checked:not([hidden])")).hasCount(0);
         assertThat(picker.locator("option:checked[hidden]")).not().hasCount(0);
+        assertThat(assessment).isHidden();
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Select matching groups")).click();
         assertThat(picker.locator("option:checked:not([hidden])")).hasCount(1);
+        assertThat(assessment).isVisible();
     }
 
     @Test
