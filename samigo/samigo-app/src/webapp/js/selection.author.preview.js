@@ -52,7 +52,10 @@ function selectionAuthor(className, anchor){
 	}
 }
 (function() {
-// Hot Spot grading: lay out badges around their anchors without overlapping each other.
+/**
+ * Places Hot Spot badges around their anchors without overlapping each other or leaving the image.
+ * @param {string} containerId image-map container element id
+ */
 function placeImageMapBadges(containerId) {
 	var container = document.getElementById(containerId);
 	if (!container) {
@@ -116,10 +119,23 @@ function placeImageMapBadges(containerId) {
 	});
 }
 
+/**
+ * @param {number} x centre x
+ * @param {number} y centre y
+ * @param {number} half half width and height
+ * @returns {{left:number,top:number,right:number,bottom:number}} box around the point
+ */
 function boxAround(x, y, half) {
 	return {left: x - half, top: y - half, right: x + half, bottom: y + half};
 }
 
+/**
+ * Finds the nearest free position for a badge.
+ * @param {Object} label badge, anchor and size
+ * @param {Array<Object>} occupied boxes already taken
+ * @param {Object} bounds image bounds
+ * @returns {{left:number,top:number,right:number,bottom:number}} chosen box
+ */
 function findImageMapBadgeBox(label, occupied, bounds) {
 	var gap = 2;
 	var width = label.width;
@@ -147,11 +163,22 @@ function findImageMapBadgeBox(label, occupied, bounds) {
 	return {left: left, top: top, right: left + width, bottom: top + height};
 }
 
+/**
+ * @param {Object} first box
+ * @param {Object} second box
+ * @returns {boolean} true when the boxes intersect
+ */
 function boxesOverlap(first, second) {
 	return first.left < second.right && first.right > second.left
 		&& first.top < second.bottom && first.bottom > second.top;
 }
 
+/**
+ * Draws a leader line when the badge had to move away from its anchor.
+ * @param {HTMLElement} container image-map container
+ * @param {Object} label badge anchor
+ * @param {Object} box badge box
+ */
 function addImageMapBadgeLeader(container, label, box) {
 	var endX = Math.max(box.left, Math.min(label.anchorX, box.right));
 	var endY = Math.max(box.top, Math.min(label.anchorY, box.bottom));

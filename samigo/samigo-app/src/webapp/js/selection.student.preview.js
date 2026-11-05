@@ -1,3 +1,8 @@
+/**
+ * Student marker used by the Hot Spot preview and grading views.
+ * @param {string} className marker CSS class
+ * @param {string} anchor image-map container id
+ */
 function selectionStudent(className, anchor){
 	var x, y;
 
@@ -19,6 +24,9 @@ function selectionStudent(className, anchor){
 		div.className = className+((val) ? '_selected' : '');
 	}
 	
+	/**
+	 * @param {string} text marker label
+	 */
 	this.setText = function(text) {
 		divJObj.html('<span class="selectionText"></span>');
 		divJObj.find('.selectionText').html(text);
@@ -47,6 +55,9 @@ function selectionStudent(className, anchor){
 		divJObj.remove();
 	}
 	
+	/**
+	 * @returns {{x:number,y:number}} half the rendered marker size
+	 */
 	function markerHalfSize()
 	{
 		var hidden = divJObj.css('display') === 'none';
