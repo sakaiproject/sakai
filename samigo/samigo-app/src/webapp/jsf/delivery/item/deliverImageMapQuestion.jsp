@@ -95,7 +95,8 @@ should be included in file importing DeliveryMessages
 		</h:column>
 		<h:column>
 			<f:facet name="header"><h:outputText value="#{commonMessages.student_response}"/></f:facet>
-			<h:outputText value="#{evaluationMessages.no_answer}" rendered="#{summary.studentArea == null}"/>
+			<h:outputText value="#{evaluationMessages.no_answer}" rendered="#{!summary.responsePresent}"/>
+			<h:outputText value="#{evaluationMessages.outside_area}" rendered="#{summary.responsePresent and summary.studentArea == null}"/>
 			<h:outputText value="#{summary.studentArea}" rendered="#{summary.studentArea != null}"/>
 		</h:column>
 		<h:column>

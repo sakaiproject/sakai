@@ -43,6 +43,17 @@ public class ImageMapCoordinatesTest {
     }
 
     @Test
+    public void findRegionIndexPrefersTheItemsOwnAreaWhenRegionsOverlap() {
+        List<String> overlapping = List.of(
+                "{\"x1\":10,\"y1\":10,\"x2\":50,\"y2\":50}",
+                "{\"x1\":30,\"y1\":30,\"x2\":70,\"y2\":70}");
+        String click = "{\"click\":true,\"x\":40,\"y\":40}";
+
+        assertEquals(Integer.valueOf(1), ImageMapCoordinates.findRegionIndex(click, overlapping).orElse(null));
+        assertEquals(Integer.valueOf(2), ImageMapCoordinates.findRegionIndex(click, overlapping, 2).orElse(null));
+    }
+
+    @Test
     public void findRegionIndexReturnsEmptyWhenClickIsOutsideEveryArea() {
         assertTrue(ImageMapCoordinates.findRegionIndex(
                 "{\"click\":true,\"x\":100,\"y\":100}", REGIONS).isEmpty());

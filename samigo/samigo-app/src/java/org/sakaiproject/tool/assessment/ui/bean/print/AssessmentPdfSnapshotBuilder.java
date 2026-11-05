@@ -512,7 +512,8 @@ public final class AssessmentPdfSnapshotBuilder {
         List<AssessmentPdfImageMapRowModel> rows = new ArrayList<>();
         for (ImageMapSummaryRow summary : ImageMapSummaryRow.of(item)) {
             rows.add(new AssessmentPdfImageMapRowModel(
-                    summary.getLabel(), summary.getCorrect(), summary.getCorrectArea(), summary.getStudentArea()));
+                    summary.getLabel(), summary.getCorrect(), summary.getCorrectArea(), summary.getStudentArea(),
+                    summary.isResponsePresent()));
         }
         return rows;
     }

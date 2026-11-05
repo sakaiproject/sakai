@@ -152,12 +152,15 @@ public final class AssessmentPdfValueTypes {
         private final Boolean correct;
         private final Integer correctArea;
         private final Integer studentArea;
+        private final boolean responsePresent;
 
-        public AssessmentPdfImageMapRowModel(String text, Boolean correct, Integer correctArea, Integer studentArea) {
+        public AssessmentPdfImageMapRowModel(String text, Boolean correct, Integer correctArea, Integer studentArea,
+                boolean responsePresent) {
             this.text = text;
             this.correct = correct;
             this.correctArea = correctArea;
             this.studentArea = studentArea;
+            this.responsePresent = responsePresent;
         }
 
         public String getText() {
@@ -174,6 +177,10 @@ public final class AssessmentPdfValueTypes {
 
         public Integer getStudentArea() {
             return studentArea;
+        }
+
+        public boolean isResponsePresent() {
+            return responsePresent;
         }
     }
 
