@@ -1021,7 +1021,8 @@ public class AssessmentPdfQuestionRenderer {
                 if (StringUtils.isBlank(imageMapRow.getText())) {
                     continue;
                 }
-                imageMapTable.addCell(imageMapSummaryCell(imageMapRow.getText(), false));
+                imageMapTable.addCell(imageMapSummaryCell(
+                        contentHelper.plainOrCleanText(imageMapRow.getText()), false));
                 imageMapTable.addCell(imageMapSummaryCell(imageMapAreaLabel(imageMapRow.getCorrectArea()), true));
                 String studentArea;
                 if (!imageMapRow.isResponsePresent()) {
