@@ -20,7 +20,8 @@ function selectionStudent(className, anchor){
 	}
 	
 	this.setText = function(text) {
-		divJObj.html(text);
+		divJObj.html('<span class="selectionText"></span>');
+		divJObj.find('.selectionText').html(text);
 	}
 	
 	this.getCoords = function(){
@@ -52,7 +53,7 @@ function selectionStudent(className, anchor){
 		if (hidden) {
 			divJObj.css({ visibility: 'hidden', display: 'block' });
 		}
-		var half = { x: divJObj.width() / 2, y: divJObj.height() / 2 };
+		var half = { x: divJObj.outerWidth() / 2, y: divJObj.outerHeight() / 2 };
 		if (hidden) {
 			divJObj.css({ visibility: '', display: 'none' });
 		}

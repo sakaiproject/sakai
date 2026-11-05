@@ -750,7 +750,11 @@ public class ItemContentsBean implements Serializable {
 		}
 	}
 
-    public String getSerializedImageMap() {
+	public List<ImageMapSummaryRow> getImageMapSummary() {
+		return ImageMapSummaryRow.of(this);
+	}
+
+	public String getSerializedImageMap() {
 		StringBuffer ret = new StringBuffer();
 		List<MatchingEntry> list = getMatchingArray();
 		for (MatchingEntry entry : list) {

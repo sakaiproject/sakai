@@ -335,6 +335,8 @@ public class AssessmentPdfSnapshotBuilderTest {
         ImageMapQuestionBean imageMapBean = new ImageMapQuestionBean();
         imageMapBean.setText("1. Heart");
         imageMapBean.setIsCorrect(Boolean.TRUE);
+        imageMapBean.setItemGradingData(new ItemGradingData());
+        imageMapBean.setResponse("{\"click\":true,\"x\":10,\"y\":10}");
 
         ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, imageMapBean);
         item.setImageSrc("/group/site/hotspot.png");
@@ -353,6 +355,8 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertEquals(1, question.getImageMapRows().size());
         assertEquals("1. Heart", question.getImageMapRows().get(0).getText());
         assertEquals(Boolean.TRUE, question.getImageMapRows().get(0).getCorrect());
+        assertEquals(Integer.valueOf(1), question.getImageMapRows().get(0).getCorrectArea());
+        assertEquals(Integer.valueOf(1), question.getImageMapRows().get(0).getStudentArea());
     }
 
     @Test
@@ -474,6 +478,7 @@ public class AssessmentPdfSnapshotBuilderTest {
         when(answer.getIsCorrect()).thenReturn(Boolean.TRUE);
 
         ItemTextIfc itemTextIfc = mock(ItemTextIfc.class);
+        when(itemTextIfc.getId()).thenReturn(9001L);
         when(itemTextIfc.getText()).thenReturn(itemText);
         when(itemTextIfc.getAnswerArraySorted()).thenReturn(List.of(answer));
 
@@ -489,6 +494,7 @@ public class AssessmentPdfSnapshotBuilderTest {
         item.setSequence("1");
         item.setItemGradingDataArray(new java.util.ArrayList<>());
         if (imageMapRow != null) {
+            imageMapRow.setItemText(itemTextIfc);
             item.setMatchingArray(new java.util.ArrayList<>(List.of(imageMapRow)));
         }
         return item;

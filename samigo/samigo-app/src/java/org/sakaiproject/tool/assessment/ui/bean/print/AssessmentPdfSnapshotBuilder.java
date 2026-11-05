@@ -60,7 +60,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FibBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.ImageMapQuestionBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ImageMapSummaryRow;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
@@ -280,7 +280,7 @@ public final class AssessmentPdfSnapshotBuilder {
                 .fibRows(toFibRows(item.getFibArray()))
                 .finRows(toFinRows(item.getFinArray()))
                 .matchingRows(toMatchingRows(item.getMatchingArray()))
-                .imageMapRows(toImageMapRows(item.getMatchingArray(), typeId))
+                .imageMapRows(toImageMapRows(item))
                 .selectionAnswers(toSelectionAnswers(item))
                 .matrixRows(toMatrixRows(item.getMatrixArray()))
                 .columnIndexes(item.getColumnIndexList())
@@ -508,16 +508,11 @@ public final class AssessmentPdfSnapshotBuilder {
         return rows;
     }
 
-    private List<AssessmentPdfImageMapRowModel> toImageMapRows(List matchingArray, Long typeId) {
-        if (matchingArray == null) {
-            return Collections.emptyList();
-        }
+    private List<AssessmentPdfImageMapRowModel> toImageMapRows(ItemContentsBean item) {
         List<AssessmentPdfImageMapRowModel> rows = new ArrayList<>();
-        for (Object row : matchingArray) {
-            if (row instanceof ImageMapQuestionBean) {
-                ImageMapQuestionBean imageMapBean = (ImageMapQuestionBean) row;
-                rows.add(new AssessmentPdfImageMapRowModel(imageMapBean.getText(), imageMapBean.getIsCorrect()));
-            }
+        for (ImageMapSummaryRow summary : ImageMapSummaryRow.of(item)) {
+            rows.add(new AssessmentPdfImageMapRowModel(
+                    summary.getLabel(), summary.getCorrect(), summary.getCorrectArea(), summary.getStudentArea()));
         }
         return rows;
     }

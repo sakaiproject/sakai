@@ -33,7 +33,7 @@ should be included in file importing DeliveryMessages
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
   <h:outputText escape="false" value="<hr style='border:none;border-top:solid black 1px'/>" />
-  <f:verbatim><h4 class="imagemap_legend"></f:verbatim><h:outputText value="#{deliveryMessages.imagemap_legend1}"  escape="false"/><f:verbatim></h4></f:verbatim>
+  <f:verbatim><h4 class="imagemap_legend"></f:verbatim><h:outputText value="#{delivery.actionString=='gradeAssessment' ? commonMessages.student_response : deliveryMessages.imagemap_legend1}"  escape="false"/><f:verbatim></h4></f:verbatim>
 
 <f:verbatim>
 	<div id='sectionImageMap_</f:verbatim><h:outputText value="#{part.number}_#{question.sequence}"/><f:verbatim>'>	
@@ -59,7 +59,7 @@ should be included in file importing DeliveryMessages
 	</f:verbatim>
 </h:panelGroup>
     <div id="imageMapContainer_<h:outputText value="#{part.number}_#{question.sequence}"/>" class='studentImageContainer'>
-        <img id='img' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />'>
+        <img id='imageMapStudentImg' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />'>
     </div>
     <br />
 <h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
@@ -77,24 +77,31 @@ should be included in file importing DeliveryMessages
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <h:panelGrid rendered="#{(delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true') || delivery.actionString=='gradeAssessment'}" >
 	<h:outputLabel styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
+
+      <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrection || delivery.actionString=='gradeAssessment'}">
+        <div id="answerImageMapContainer_<h:outputText value="#{part.number}_#{question.sequence}"/>" class='authorImageContainer'>
+            <img id='imageMapAnswerImg' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />'/>
+        </div>
+      </h:panelGroup>
 	
-	<h:dataTable value="#{question.matchingArray}" var="matching">
+	<h:dataTable value="#{question.imageMapSummary}" var="summary" styleClass="table image-map-summary">
 		<h:column>
-		  <h:panelGroup id="image"
-			rendered="#{matching.isCorrect}"
-			styleClass="si si-check-lg" >
-		  </h:panelGroup>
-		  <h:panelGroup id="ximage"
-			rendered="#{!matching.isCorrect}"
-			styleClass="si si-remove feedBackCross">
-		  </h:panelGroup>
-		  <h:graphicImage id="image2"
-			width="16" height="16"
-			alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">
-		  </h:graphicImage>
+			<f:facet name="header"><h:outputText value="#{deliveryMessages.item}"/></f:facet>
+			<h:outputText value="#{summary.label}" escape="false"/>
 		</h:column>
 		<h:column>
-		 <h:outputText value="#{matching.text}" escape="false"/>		 
+			<f:facet name="header"><h:outputText value="#{commonMessages.correct_response}"/></f:facet>
+			<h:outputText value="#{summary.correctArea}"/>
+		</h:column>
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{commonMessages.student_response}"/></f:facet>
+			<h:outputText value="#{evaluationMessages.no_answer}" rendered="#{summary.studentArea == null}"/>
+			<h:outputText value="#{summary.studentArea}" rendered="#{summary.studentArea != null}"/>
+		</h:column>
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{evaluationMessages.status}"/></f:facet>
+			<h:panelGroup rendered="#{summary.correct}" styleClass="si si-check-lg"/>
+			<h:panelGroup rendered="#{!summary.correct}" styleClass="si si-remove feedBackCross"/>
 		</h:column>
 	</h:dataTable>
 	
@@ -104,11 +111,6 @@ should be included in file importing DeliveryMessages
 				<h:outputText escape="false" value="<input type='hidden' id='hiddenSerializedCoords_#{part.number}_#{question.sequence}_#{table.rowIndex}' value='#{answer}' />" /> 
 			</h:column>
 		</h:dataTable>
-      <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrection}">
-        <div id="answerImageMapContainer_<h:outputText value="#{part.number}_#{question.sequence}"/>" class='authorImageContainer'>
-            <img id='img' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />'/>
-        </div>
-      </h:panelGroup>
     </h:panelGroup>
     <h:outputText value=" "/>
   </h:panelGrid>
