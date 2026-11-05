@@ -63,6 +63,7 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.PublicHttpClient;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -809,18 +810,19 @@ public class BaseExternalCalendarSubscriptionService implements
 			URL _url = new URL(url);
 			if (calendarName == null) calendarName = _url.getFile();
 
-			// connect
-			URLConnection conn = _url.openConnection();
-			// Must set user agent so we can detect loops.
-			conn.addRequestProperty("User-Agent", m_calendarService.getUserAgent());
-			conn.setConnectTimeout(TIMEOUT);
-			conn.setReadTimeout(TIMEOUT);
-			// Now make the connection.
-			conn.connect();
-			try (BufferedInputStream stream =  new BufferedInputStream(conn.getInputStream())) {
-				// import
-				events = m_importerService.doImport(CalendarImporterService.ICALENDAR_IMPORT,
-						stream, columnMap, null, tzid);
+			String userAgent = m_calendarService.getUserAgent();
+			if (getInstitutionalSubscription(url) != null) {
+				// Only an exact administrator-configured feed may use an internal address.
+				URLConnection conn = _url.openConnection();
+				conn.setRequestProperty("User-Agent", userAgent);
+				conn.setConnectTimeout(TIMEOUT);
+				conn.setReadTimeout(TIMEOUT);
+				try (BufferedInputStream stream = new BufferedInputStream(conn.getInputStream())) {
+					events = m_importerService.doImport(CalendarImporterService.ICALENDAR_IMPORT, stream, columnMap, null, tzid);
+				}
+			} else {
+				events = PublicHttpClient.read(url, userAgent, stream ->
+					m_importerService.doImport(CalendarImporterService.ICALENDAR_IMPORT, new BufferedInputStream(stream), columnMap, null, tzid));
 			}
 
 			String subscriptionId = getIdFromSubscriptionUrl(url);
@@ -851,16 +853,14 @@ public class BaseExternalCalendarSubscriptionService implements
 			log.warn("Failed to add event to calendar '"+ calendarName, e);
 			error = "Failed to parse calendar.";
 		}
-		catch (MalformedURLException e)
+		catch (MalformedURLException | IllegalArgumentException e)
 		{
-			log.info("Mal-formed URL in calendar subscription '" + calendarName
-					+ "': " + url);
+			log.info("Invalid URL in calendar subscription");
 			error = "Bad URL";
 		}
 		catch (IOException e)
 		{
-			log.info("Unable to read calendar subscription '" + calendarName
-					+ "' from URL (I/O Error): " + url);
+			log.info("Unable to read calendar subscription: {}", e.getClass().getSimpleName());
 			error = "Failed to connect to server";
 		}
 		catch (Exception e)

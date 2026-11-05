@@ -24,7 +24,6 @@ package org.sakaiproject.portlets;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -81,6 +80,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.PublicHttpClient;
 import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -490,43 +490,20 @@ public class PortletIFrame extends GenericPortlet {
         placement.getPlacementConfig().setProperty(XFRAME_LAST_TIME, String.valueOf(nowTime));
         boolean retval = false;
         try {
-            // note : you may also need
-            //        HttpURLConnection.setInstanceFollowRedirects(false)
-            HttpURLConnection.setFollowRedirects(true);
-            HttpURLConnection con =
-                (HttpURLConnection) new URL(url).openConnection();
-            con.setRequestMethod("HEAD");
-
             String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
-            con.setRequestProperty("User-Agent","Java Sakai/"+sakaiVersion);
-
-            Map headerfields = con.getHeaderFields();
-            Set headers = headerfields.entrySet(); 
-            for(Iterator i = headers.iterator(); i.hasNext();) { 
-                Map.Entry map = (Map.Entry)i.next();
-                String key = (String) map.getKey();
-                if ( key == null ) continue;
-                key = key.toLowerCase();
-                if ( ! "x-frame-options".equals(key) ) continue;
-
-                // Since the valid entries are SAMEORIGIN, DENY, or ALLOW-URI
-                // we can pretty much assume the answer is "not us" if the header
-                // is present
-                retval = true;
-                break;
-            }
+            retval = PublicHttpClient.headHeader(url, "Java Sakai/" + sakaiVersion, "X-Frame-Options").isPresent();
 
         }
         catch (Exception e) {
-            // Fail pretty silently because this could be pretty chatty with bad urls and all
-            log.debug(e.getMessage());
+            // A blocked or unavailable probe does not prevent browser-side navigation.
+            log.debug("Could not check frame options for placement {}: {}", placement.getId(), e.getClass().getSimpleName());
             retval = false;
         }
         placement.getPlacementConfig().setProperty(XFRAME_LAST_STATUS, String.valueOf(retval));
         // Permanently set popup to true as we don't expect that a site will go back
         if ( retval == true ) placement.getPlacementConfig().setProperty(POPUP, "true");
         placement.save();
-        log.debug("Retrieved="+url+" XFrame="+retval);
+        log.debug("Frame check for placement {}: {}", placement.getId(), retval);
         return retval;
     }
 
@@ -764,11 +741,6 @@ public class PortletIFrame extends GenericPortlet {
 	public void processActionEdit(ActionRequest request, ActionResponse response)
 		throws PortletException, IOException 
 		{
-			// TODO: Check Role
-
-			// Stay in EDIT mode unless we are successful
-			response.setPortletMode(PortletMode.EDIT);
-
 			// get the site toolConfiguration, if this is part of a site.
 			Placement placement = ToolManager.getCurrentPlacement();
 			if (placement == null) {
@@ -776,6 +748,11 @@ public class PortletIFrame extends GenericPortlet {
 				return;
 			}
 			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
+            if (toolConfig == null || !SiteService.allowUpdateSite(toolConfig.getSiteId())) {
+                response.setPortletMode(PortletMode.VIEW);
+                return;
+            }
+            response.setPortletMode(PortletMode.EDIT);
             Properties config = getAllProperties(placement);
             String special = getSpecial(config);
 

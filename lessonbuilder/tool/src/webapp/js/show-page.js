@@ -3672,11 +3672,13 @@ var mimeMime = "";
 
 function getMimeType(url) {
      var mime = "";
-     // Access-Control-Allow-Origin: *
-     var base = location.protocol + '//' + location.host;
+     const pageId = document.querySelector("#lessonsCurrentPageId").value;
+     const csrfToken = document.querySelector("#add-multimedia-dialog input[name='csrf9']").value;
      $.ajax({type: "GET",
        async: false,
-        url: base + '/lessonbuilder-tool/ajax?op=getmimetype&url=' + encodeURIComponent(url),
+       url: "/lessonbuilder-tool/ajax",
+       data: {op: "getmimetype", pageId, url},
+       headers: {"X-CSRF-Token": csrfToken},
        success: function (data, status, hdr) {
      mime = data.trim();
       }});

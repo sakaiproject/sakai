@@ -23,8 +23,7 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -63,6 +62,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.PublicHttpClient;
 import org.sakaiproject.util.api.FormattedText;
 
 
@@ -75,9 +75,9 @@ import org.sakaiproject.util.api.FormattedText;
  *       this lets us avoid passing the text of some larger messages as text on 
  *       every HTML page. The server doesn't have enough context to know the right
  *       locale for itself, but the UI should know it
- *  .../lessonbuilder-tool/ajax?op=getmimetype&url=http://www.rutgers.edu
+ *  .../lessonbuilder-tool/ajax?op=getmimetype&pageId=123&url=http://www.rutgers.edu
  *       check a URL to see what MIME type it is, "" if can't find it
- *       though the URL should actually be urlencoded
+ *       requires page edit permission and the X-CSRF-Token header
  * 
  * @author Charles Hedrick, Rutgers University.
  * @version $Revision: $
@@ -182,43 +182,26 @@ public class AjaxServer extends HttpServlet
     // * image types have to return something with image, using the same test as SimplePageBean.isimage
     // * html has to return an html type even based on extension, matching test in ShowPageProducer
 
+    /** Probes absolute public URLs, preserving YouTube handling and extension fallbacks. */
     public String getMimeType(String url) {
-	Session s = SessionManager.getCurrentSession();
-	if (s == null || s.getUserId() == null) {
-	    //	    return "";
+	if (url == null || url.isBlank()) {
+	    return "";
 	}
 
 	if (SimplePageBean.getYoutubeKeyFromUrl(url) != null)
 	    return "application/youtube";
 
 	String mimeType = "";
-	URLConnection conn = null;
 	try {
-	    conn = new URL(new URL(ServerConfigurationService.getServerUrl()),url).openConnection();
-	    conn.setConnectTimeout(10000);
-	    conn.setReadTimeout(10000);
-	    conn.connect();
-	    String t = conn.getContentType();
-	    if (t != null && !t.equals("")) {
-		int i = t.indexOf(";");
-		if (i >= 0)
-		    t = t.substring(0, i);
-		t = t.trim();
-		mimeType = t;
+	    if (URI.create(url).isAbsolute()) {
+	        mimeType = PublicHttpClient.contentType(url).orElse("");
 	    }
-	} catch (Exception e) {
-	} finally {
-	    if (conn != null) {
-		try {
-		    conn.getInputStream().close();
-		} catch (Exception e) {
-		    // log.error("getTypeOfUrl unable to close " + e);
-		}
-	    }
+	} catch (IOException | IllegalArgumentException e) {
+	    log.debug("Could not determine MIME type for Lessons link: {}", e.getClass().getSimpleName());
 	}
 
 	if (mimeType == null || mimeType.equals("")) {
-	    String name = url;
+	    String name = url.split("[?#]", 2)[0];
 
 	    // starts after last /
 	    int i = name.lastIndexOf("/");
@@ -830,6 +813,7 @@ public class AjaxServer extends HttpServlet
        doGet(req, res);
    }
 
+   /** Dispatches Lessons AJAX operations and enforces authentication, CSRF, and edit access for MIME probes. */
    @SuppressWarnings("unchecked")
    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
    {
@@ -844,17 +828,40 @@ public class AjaxServer extends HttpServlet
          placementId = placement.getId();
       }
       
+      String op = req.getParameter("op");
+      if ("getmimetype".equals(op)) {
+          if (SessionManager.getCurrentSessionUserId() == null) {
+              res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+              return;
+          }
+          if (!checkCsrf(req.getHeader("X-CSRF-Token"))) {
+              res.sendError(HttpServletResponse.SC_FORBIDDEN);
+              return;
+          }
+          long pageId;
+          try {
+              pageId = Long.parseLong(req.getParameter("pageId"));
+          } catch (NumberFormatException e) {
+              res.sendError(HttpServletResponse.SC_BAD_REQUEST);
+              return;
+          }
+          SimplePage page = simplePageToolDao.getPage(pageId);
+          if (page == null || !lessonsAccess.canEditPage(page.getSiteId(), page)) {
+              res.sendError(HttpServletResponse.SC_FORBIDDEN);
+              return;
+          }
+          res.setContentType("text/plain; charset=utf-8");
+          res.setHeader("X-Content-Type-Options", "nosniff");
+          res.getWriter().println(getMimeType(req.getParameter("url")));
+          return;
+      }
+
       res.setContentType("text/html; charset=utf-8");
       PrintWriter out = res.getWriter();
-
-      String op = req.getParameter("op");
       if (op.equals("getmessage")) {
 	  String code = req.getParameter("code");
 	  String locale = req.getParameter("locale");
 	  out.println(getMessage(code, locale));
-      } else if (op.equals("getmimetype")) {
-	  String url = req.getParameter("url");
-	  out.println(getMimeType(url));
       } else if (op.equals("filterhtml")) {
 	  String html = req.getParameter("html");
 	  out.print(filterHtml(html));

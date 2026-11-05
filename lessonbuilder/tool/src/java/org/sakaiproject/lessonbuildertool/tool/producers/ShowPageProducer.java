@@ -4745,6 +4745,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIOutput.make(form, "mm-url-label", messageLocator.getMessage("simplepage.addLink_label"));
 		UIInput.make(form, "mm-url", "#{simplePageBean.mmUrl}");
+		UIInput.make(form, "mm-mime-type", "#{simplePageBean.multimediaMimeType}", "");
 
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());
@@ -5675,11 +5676,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (url.startsWith("http:") || url.startsWith("https:")) {
 		    // actual URL, check it out
 
+		    HttpURLConnection con = null;
 		    try {
-			HttpURLConnection.setFollowRedirects(false);
-			HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+			con = (HttpURLConnection) new URL(url).openConnection();
+			con.setInstanceFollowRedirects(false);
 			con.setRequestMethod("HEAD");
 			con.setConnectTimeout(30 * 1000);
+			con.setReadTimeout(30 * 1000);
 			boolean ret = (con.getResponseCode() == HttpURLConnection.HTTP_OK);
 			urlCache.put(origurl, (Boolean) ret);
 			return ret;
@@ -5693,6 +5696,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    } catch (IOException e) {
 			urlCache.put(origurl, (Boolean) false);
 			return false;
+		    } finally {
+		        if (con != null) {
+		            con.disconnect();
+		        }
 		    }
 		} else {
 		    // remove the leading /lessonbuilder-tool, since getresource is
