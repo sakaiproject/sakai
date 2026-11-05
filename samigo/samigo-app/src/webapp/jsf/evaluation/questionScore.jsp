@@ -1044,6 +1044,15 @@ $Id$
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
       </h:panelGroup>
+      <h:panelGroup rendered="#{questionScores.typeId == '16'}">
+        <h:commandLink title="#{evaluationMessages.t_hotspotanswer}" action="studentScores" immediate="true">
+          <h:outputText value="#{evaluationMessages.show_hotspotanswer}"/>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+          <f:param name="studentid" value="#{description.idString}" />
+          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
+          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+        </h:commandLink>
+      </h:panelGroup>
       
     </h:column>
 
@@ -1107,6 +1116,15 @@ $Id$
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
       </h:panelGroup>
+      <h:panelGroup rendered="#{questionScores.typeId == '16'}">
+        <h:commandLink title="#{evaluationMessages.t_hotspotanswer}" action="studentScores" immediate="true">
+          <h:outputText value="#{evaluationMessages.show_hotspotanswer}"/>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+          <f:param name="studentid" value="#{description.idString}" />
+          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
+          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+        </h:commandLink>
+      </h:panelGroup>
     </h:column>    
     
     <h:column rendered="#{questionScores.sortType eq 'answer' && !questionScores.sortAscending}">
@@ -1165,6 +1183,15 @@ $Id$
         <f:subview id="displayAudioRecording4">
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{questionScores.typeId == '16'}">
+        <h:commandLink title="#{evaluationMessages.t_hotspotanswer}" action="studentScores" immediate="true">
+          <h:outputText value="#{evaluationMessages.show_hotspotanswer}"/>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+          <f:param name="studentid" value="#{description.idString}" />
+          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
+          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+        </h:commandLink>
       </h:panelGroup>
     </h:column>
      
