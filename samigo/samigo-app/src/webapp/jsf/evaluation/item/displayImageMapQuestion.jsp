@@ -53,6 +53,10 @@ include file for displaying fill in the numeric questions
 	});
 
 	var selectionList = [];
+	/**
+	 * Draws a student's Hot Spot clicks on the answer-key image.
+	 * @param {string} answerString serialized sequence:coordinates pairs
+	 */
 	function loadAnswer(answerString) {
 		for (var i = 0; i < selectionList.length; i++) {
 			selectionList[i].remove();
@@ -71,6 +75,20 @@ include file for displaying fill in the numeric questions
 				selectionList.push(newSelection);
 			} catch (err) {
 			}
+		}
+		placeImageMapBadges('imageMapContainer');
+	}
+
+	/**
+	 * Loads the response stored in the row's escaped hidden input.
+	 * @param {HTMLElement} link Hot Spot response link
+	 */
+	function loadAnswerFromLink(link) {
+		var cell = link.closest('td');
+		var holder = cell ? cell.querySelector('.hotspot-response-data') : null;
+		var input = holder ? holder.querySelector('input') : null;
+		if (input) {
+			loadAnswer(input.value);
 		}
 	}
 </script>
