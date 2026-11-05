@@ -25,6 +25,7 @@ include file for displaying fill in the numeric questions
 
 <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 <script src="/samigo-app/js/selection.author.preview.js"></script>
+<script src="/samigo-app/js/selection.student.preview.js"></script>
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
 
@@ -50,6 +51,28 @@ include file for displaying fill in the numeric questions
 
 		placeImageMapBadges('imageMapContainer');
 	});
+
+	var selectionList = [];
+	function loadAnswer(answerString) {
+		for (var i = 0; i < selectionList.length; i++) {
+			selectionList[i].remove();
+			delete selectionList[i];
+		}
+		selectionList = [];
+
+		var tokens = answerString.split('<br/>');
+		for (var i = 0; i < tokens.length; i++) {
+			try {
+				var label = tokens[i].substring(0, tokens[i].indexOf(':')).replace(/<[^>]*>/g, '').trim();
+				var coords = tokens[i].substring(tokens[i].indexOf(':') + 1);
+				var newSelection = new selectionStudent('pointerClass', 'imageMapContainer');
+				newSelection.setCoords(jQuery.parseJSON(coords));
+				newSelection.setText(label);
+				selectionList.push(newSelection);
+			} catch (err) {
+			}
+		}
+	}
 </script>
 </f:verbatim>
 
