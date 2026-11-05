@@ -7464,7 +7464,7 @@ public class SimplePageBean {
 					String userId = userDirectoryService.getCurrentUser().getId();
 					String siteId = getCurrentSiteId();
 					log.debug("archive.merge( {}, {}, {})", archivePath, userId, siteId);
-					archiveService.merge(archivePath, siteId, userId);
+					archiveService.merge(archivePath, siteId, userId, java.nio.file.Path.of(unzipPath));
 					return 0;
 				}
 			}

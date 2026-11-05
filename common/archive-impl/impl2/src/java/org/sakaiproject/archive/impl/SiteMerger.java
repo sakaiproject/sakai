@@ -18,7 +18,9 @@
 
 package org.sakaiproject.archive.impl;
 
+import java.nio.file.Path;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -103,12 +105,22 @@ public class SiteMerger {
 	public String merge(String fileName, String siteId, String creatorId, String m_storagePath,
 						boolean filterSakaiServices, String[] filteredSakaiServices, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
+        return merge(fileName, siteId, creatorId, m_storagePath, filterSakaiServices,
+                filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles, null);
+    }
+
+    /** Merges archive files while carrying the trusted cartridge root explicitly for body resolution. */
+    public String merge(String fileName, String siteId, String creatorId, String m_storagePath,
+            boolean filterSakaiServices, String[] filteredSakaiServices, boolean filterSakaiRoles,
+            String[] filteredSakaiRoles, Path archiveRoot) {
+
 		StringBuilder results = new StringBuilder();
 
 		File[] files = null;
+        Path permittedRoot;
 
 		// See if the name is a rooted directory in tomcat.home
-		if ( ! fileName.startsWith("/") ) {
+		if (!Path.of(fileName).isAbsolute()) {
 			fileName = m_storagePath + fileName;
 		}
 		File file = new File(fileName);
@@ -119,17 +131,13 @@ public class SiteMerger {
 			return results.toString();
 		} else {
 			try {
-				// Path must be within tomcat.home (one up from SakaiHome)
-				// TODO: This seems arbitrary. Why should the archive files be within tomcat's
-				// directory structure?
-				File baseLocation = new File(serverConfigurationService.getSakaiHomePath());
-				if (!file.getCanonicalPath().startsWith(baseLocation.getParentFile().getCanonicalPath())) {
-					throw new Exception();
+				// Embedded archives stay in their trusted cartridge root; ordinary archives stay in tomcat.home.
+				permittedRoot = archiveRoot != null ? archiveRoot.toRealPath()
+						: new File(serverConfigurationService.getSakaiHomePath()).getParentFile().toPath().toRealPath();
+				if (!file.toPath().toRealPath().startsWith(permittedRoot)) {
+					throw new IOException("Archive is outside its permitted directory");
 				}
 			} catch (Exception ex) {
-				// TODO; this exception will either be thrown by the home path file creation, or
-				// explicitly because the archive is not hosted inside Tomcat's directory structure.
-				// Like, why bother having this block here?
 				results.append("file: " + fileName + " not permitted.\n");
 				log.warn("merge(): file not permitted: {}", file.getPath());
 				return results.toString();
@@ -148,6 +156,7 @@ public class SiteMerger {
 
 		MergeConfig mcx = new MergeConfig();
 		mcx.creatorId = creatorId;
+		mcx.archiveRoot = archiveRoot;
 
 		List<File> fileList = List.of(files);
 
@@ -158,7 +167,7 @@ public class SiteMerger {
 
 		// Pull in the ltiContentItems for use in later merges
 		fileList.stream().filter(f -> f.getName().equals("basiclti.xml")).findAny().ifPresent(f -> {
-			processLti(f.getPath(), siteId, results, mcx);
+			processLti(f.getPath(), siteId, results, mcx, permittedRoot);
 		});
 
 		// track old to new attachment names
@@ -166,22 +175,22 @@ public class SiteMerger {
 
 		// firstly, merge the users
 		fileList.stream().filter(f -> f.getName().equals("user.xml")).findAny().ifPresent(f -> {
-			processMerge(f.getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+			processMerge(f.getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles, permittedRoot);
 		});
 
 		// see if there's a site definition which we will process at the end.
 		Optional<File> siteFile = fileList.stream().filter(f -> f.getName().equals("site.xml")).findAny();
 
 		fileList.stream().filter(f -> f.getName().equals("attachment.xml")).findAny().ifPresent(f -> {
-			processMerge(f.getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+			processMerge(f.getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles, permittedRoot);
 		});
 
 		fileList.stream().filter(f -> !specialCases.contains(f.getName()) && f.getName().endsWith(".xml")).forEach(f -> {
-			processMerge(f.getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+			processMerge(f.getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles, permittedRoot);
 		});
 
 		siteFile.ifPresent(f -> {
-			processMerge(f.getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+			processMerge(f.getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles, permittedRoot);
 		});
 
 		// Attachments are of the form
@@ -214,6 +223,21 @@ public class SiteMerger {
 		return results.toString();
 	}	// merge
 
+    /** Resolves each XML child immediately before parsing, rejecting links outside the trusted root. */
+    private Document readArchiveDocument(String fileName, Path permittedRoot, StringBuilder results) {
+        try {
+            Path xml = Path.of(fileName).toRealPath();
+            if (!xml.startsWith(permittedRoot)) {
+                throw new IOException("Archive XML is outside its permitted directory");
+            }
+            return Xml.readDocument(xml.toString(), false);
+        } catch (IOException ex) {
+            results.append("file: " + fileName + " not permitted.\n");
+            log.warn("Archive XML not permitted: {}", fileName, ex);
+            return null;
+        }
+    }
+
 	/**
 	* Read in an archive file and merge the entries into the specified site.
     *
@@ -221,8 +245,9 @@ public class SiteMerger {
 	* @param siteId The id of the site to merge the content into.
 	* @param results A buffer to accumulate result messages.
 	* @param mcx The MergeConfig for this import
+	* @param permittedRoot The resolved root containing every imported XML file
 	*/
-	private void processMerge(String filePath, String siteId, StringBuilder results, MergeConfig mcx, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
+	private void processMerge(String filePath, String siteId, StringBuilder results, MergeConfig mcx, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles, Path permittedRoot)
 	{
 		// correct for windows backslashes
 		filePath = filePath.replace('\\', '/');
@@ -239,7 +264,7 @@ public class SiteMerger {
 		}
 
 		// read the whole file into a DOM
-		Document doc = Xml.readDocument(filePath, false);
+		Document doc = readArchiveDocument(filePath, permittedRoot, results);
 		if (doc == null)
 		{
 			results.append("Error reading xml from: " + filePath + "\n");
@@ -341,7 +366,7 @@ public class SiteMerger {
 	* @param results A buffer to accumulate result messages.
 	* @param ltiContentItems A map of LTI Content Items associated with this import
 	*/
-	protected void processLti(String fileName, String siteId, StringBuilder results, MergeConfig mcx)
+	protected void processLti(String fileName, String siteId, StringBuilder results, MergeConfig mcx, Path permittedRoot)
 	{
 		// correct for windows backslashes
 		fileName = fileName.replace('\\', '/');
@@ -350,7 +375,7 @@ public class SiteMerger {
 			log.debug("merge(): processing file: " + fileName);
 
 		// read the whole file into a DOM
-		Document doc = Xml.readDocument(fileName, false);
+		Document doc = readArchiveDocument(fileName, permittedRoot, results);
 		if (doc == null)
 		{
 			results.append("Error reading xml from: " + fileName + "\n");

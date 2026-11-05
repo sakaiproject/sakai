@@ -38,6 +38,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -187,6 +188,7 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.Zip;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.MergeConfig;
 
@@ -7265,6 +7267,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	public String merge(String siteId, Element root, String archivePath, String mergeId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport)
 	{
+        return mergeContent(siteId, root, archivePath, mergeId, attachmentNames, userIdTrans, userListAllowImport, null);
+    }
+
+    /** Uses the importer's trusted cartridge root without widening ordinary archive containment. */
+    @Override
+    public String merge(String siteId, Element root, String archivePath, String mergeId, MergeConfig mcx) {
+        return mergeContent(siteId, root, archivePath, mergeId, mcx.attachmentNames, mcx.userIdTrans,
+                mcx.userListAllowImport, mcx.archiveRoot);
+    }
+
+    /** Imports resource bodies relative to the archive XML within the operation's trusted root. */
+    private String mergeContent(String siteId, Element root, String archivePath, String mergeId,
+            Map attachmentNames, Map userIdTrans, Set userListAllowImport, Path archiveRoot) {
+
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
 		String source = "";
 		// root: <service> node
@@ -7435,13 +7451,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 						if (bodyLocation != null)
 						{
 							// the file name is relative to the archive file
-							String bodyPath = StringUtil.fullReference(archivePath, bodyLocation);
-
-							// get a stream from the file
-							FileInputStream in = new FileInputStream(bodyPath);
-
-							// resource: add if missing
-							r = mergeResource(element, in);
+							Path archiveDirectory = Path.of(archivePath).toAbsolutePath().getParent();
+							Path bodyFile = archiveRoot == null
+									? Zip.resolveContainedPath(archiveDirectory, bodyLocation)
+									: Zip.resolveContainedPath(archiveRoot, archiveDirectory, bodyLocation);
+							try (InputStream in = new FileInputStream(bodyFile.toFile()))
+							{
+								// resource: add if missing
+								r = mergeResource(element, in);
+							}
 						}
 
 						else

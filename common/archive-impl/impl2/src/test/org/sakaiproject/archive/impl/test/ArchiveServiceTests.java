@@ -217,6 +217,7 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(1, conversationsNodes.getLength());
     }
 
+    /** Exercises production archive merging and propagation of the trusted cartridge extraction root. */
     @Test
     public void merge() throws IOException, URISyntaxException {
 
@@ -286,5 +287,76 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         verify(userProducer).merge(any(), any(), any(), any(), any());
         verify(rubricsProducer).merge(any(), any(), any(), any(), any());
         verify(conversationsProducer).merge(any(), any(), any(), any(), any());
+
+        Path extractionRoot = archiveDir.toPath();
+        archiveService.merge(siteId + "-archive", toSiteId, "admin", extractionRoot);
+        verify(rubricsProducer).merge(any(), any(), any(), any(),
+                argThat(config -> extractionRoot.equals(config.archiveRoot)));
+
     }
+    /** Trusted cartridge roots admit extracted archives outside Tomcat without admitting sibling paths or symlinks. */
+    @Test
+    public void confinesEmbeddedArchivesToTrustedExtractionRoot() throws Exception {
+        Path tomcat = folder.newFolder("tomcat").toPath();
+        when(serverConfigurationService.getSakaiHomePath()).thenReturn(tomcat.resolve("sakai").toString());
+        Path cartridge = folder.newFolder("cartridge").toPath();
+        Path embedded = Files.createDirectory(cartridge.resolve("sakai_archive"));
+        Path fixture = Path.of(Objects.requireNonNull(getClass().getResource("/archive/rubrics.xml")).toURI());
+        Files.copy(fixture, embedded.resolve("rubrics.xml"));
+        String target = "trusted-root-target";
+        when(siteService.getSite(target)).thenReturn(mock(Site.class));
+        EntityProducer rubricsProducer = mock(EntityProducer.class);
+        when(rubricsProducer.getLabel()).thenReturn("rubrics");
+        when(entityManager.getEntityProducers()).thenReturn(List.of(rubricsProducer));
+
+        assertTrue(archiveService.merge(embedded.toString(), target, "admin").contains("not permitted"));
+        String result = archiveService.merge(embedded.toString(), target, "admin", cartridge);
+        assertFalse(result, result.contains("not permitted"));
+        verify(rubricsProducer).merge(any(), any(), any(), any(),
+                argThat(config -> cartridge.equals(config.archiveRoot)));
+
+        Path outside = folder.newFolder("outside-cartridge").toPath();
+        Files.copy(fixture, outside.resolve("rubrics.xml"));
+        assertTrue(archiveService.merge(outside.toString(), target, "admin", cartridge).contains("not permitted"));
+        Path link = Files.createSymbolicLink(cartridge.resolve("escape"), outside);
+        result = archiveService.merge(link.toString(), target, "admin", cartridge);
+        assertTrue(result, result.contains("not permitted"));
+
+        Path ordinary = Files.createDirectory(tomcat.resolve("ordinary"));
+        Files.copy(fixture, ordinary.resolve("rubrics.xml"));
+        result = archiveService.merge(ordinary.toString(), target, "admin");
+        assertFalse(result, result.contains("not permitted"));
+        verify(rubricsProducer, times(2)).merge(any(), any(), any(), any(), any());
+    }
+
+    /** XML children cannot redirect an otherwise permitted archive to files outside its root. */
+    @Test
+    public void rejectsXmlChildrenOutsideTrustedRoot() throws Exception {
+        Path cartridge = folder.newFolder("xml-cartridge").toPath();
+        Path embedded = Files.createDirectory(cartridge.resolve("sakai_archive"));
+        Path fixture = Path.of(Objects.requireNonNull(getClass().getResource("/archive/rubrics.xml")).toURI());
+        Path outside = folder.newFolder("outside-xml").toPath().resolve("rubrics.xml");
+        Files.copy(fixture, outside);
+        try {
+            Files.createSymbolicLink(embedded.resolve("rubrics.xml"), outside);
+        } catch (UnsupportedOperationException | IOException | SecurityException ex) {
+            org.junit.Assume.assumeNoException("Symbolic links are unavailable", ex);
+        }
+        String target = "xml-root-target";
+        when(siteService.getSite(target)).thenReturn(mock(Site.class));
+        EntityProducer producer = mock(EntityProducer.class);
+        when(producer.getLabel()).thenReturn("rubrics");
+        when(entityManager.getEntityProducers()).thenReturn(List.of(producer));
+
+        String result = archiveService.merge(embedded.toString(), target, "admin", cartridge);
+        assertTrue(result, result.contains("rubrics.xml not permitted"));
+        verify(producer, never()).merge(any(), any(), any(), any(), any());
+
+        Files.delete(embedded.resolve("rubrics.xml"));
+        Files.copy(fixture, embedded.resolve("rubrics.xml"));
+        result = archiveService.merge(embedded.toString(), target, "admin", cartridge);
+        assertFalse(result, result.contains("not permitted"));
+        verify(producer).merge(any(), any(), any(), any(), any());
+    }
+
 }

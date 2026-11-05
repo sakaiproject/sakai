@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -88,6 +89,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.MergeConfig;
+import org.sakaiproject.util.Zip;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -398,8 +400,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         for (int i=0; i<assessments.getLength(); ++i) {
             Element element = (Element) assessments.item(i);
             String id = element.getAttribute("id");
-            String path = qtiPath + ARCHIVED_ELEMENT + id + ".xml";
             try {
+                String path = Zip.resolveContainedPath(Path.of(qtiPath).getParent(), Path.of(qtiPath), ARCHIVED_ELEMENT + id + ".xml").toString();
                 AssessmentIfc assessment = qtiService.createImportedAssessment(path, QTI_VERSION,  siteId, mcx);
                 results.append(getLabel() + " imported assessment '" + assessment.getTitle() + "'\n");            
             } catch (Throwable t) {

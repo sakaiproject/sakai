@@ -28,7 +28,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -645,8 +647,18 @@ public class ADLDOMParser implements ErrorHandler {
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 				}
 
-				//gets an input source from the URL passed in.
-				try (InputStream input = iXMLFileName.openStream()) {
+				// The URL overload reads bundled rules, including resources in local JARs.
+				String protocol = iXMLFileName.getProtocol();
+				if (!"jar".equals(protocol) && (!"file".equals(protocol) || !iXMLFileName.getHost().isEmpty())) {
+					throw new IOException("SCORM XML must be a local resource");
+				}
+				URLConnection connection = iXMLFileName.openConnection();
+				if (connection instanceof JarURLConnection jarConnection
+				        && (!"file".equals(jarConnection.getJarFileURL().getProtocol())
+				                || !jarConnection.getJarFileURL().getHost().isEmpty())) {
+					throw new IOException("SCORM XML JAR must be a local file");
+				}
+				try (InputStream input = connection.getInputStream()) {
 					wellformednessDocument = mParser.parse(input);
 				}
 
@@ -1046,12 +1058,6 @@ public class ADLDOMParser implements ErrorHandler {
 		if (file.isFile()) {
 			try (InputStream input = new FileInputStream(file)) {
 				return mParser.parse(input, file.toURI().toString());
-			}
-		}
-		if (fileName.startsWith("http:") || fileName.startsWith("https:")) {
-			URL url = new URL(fileName);
-			try (InputStream input = url.openStream()) {
-				return mParser.parse(input, url.toExternalForm());
 			}
 		}
 		throw new FileNotFoundException("XML file not found: " + fileName);
