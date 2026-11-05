@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.util;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +31,8 @@ import java.util.HashSet;
  */
 public class MergeConfig {
     public String creatorId;
+    /** Trusted extraction root for CC+ bodies stored outside sakai_archive; null for ordinary archives. */
+    public Path archiveRoot;
     public String archiveContext = "";
     public String archiveServerUrl = "";
     public Map<Long, Map<String, Object>> ltiContentItems = new HashMap();

@@ -18,6 +18,7 @@
 
 package org.sakaiproject.archive.impl;
 
+import java.nio.file.Path;
 import java.io.File;
 import java.io.IOException;
 
@@ -171,6 +172,13 @@ public class ArchiveService2Impl implements ArchiveService
 	{
 		return m_siteMerger.merge(fileName, siteId, creatorId, m_storagePath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
 	}
+
+    /** Carries the importer's trusted cartridge root through the operation-scoped merge configuration. */
+    @Override
+    public String merge(String fileName, String siteId, String creatorId, Path archiveRoot) {
+        return m_siteMerger.merge(fileName, siteId, creatorId, m_storagePath, m_filterSakaiServices,
+                m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles, archiveRoot);
+    }
 
 	@Override
 	public String mergeFromZip(String zipFilePath, String siteId, String creatorId) {

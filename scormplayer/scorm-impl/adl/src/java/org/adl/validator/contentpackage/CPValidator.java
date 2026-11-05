@@ -25,11 +25,10 @@
 package org.adl.validator.contentpackage;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.util.Zip;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.parsers.dom.ADLDOMParser;
 import org.adl.parsers.dom.DOMTreeUtility;
@@ -549,9 +549,16 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				String currentMetadataData = locationMD.get(i);
 				// Have to parser the adlcp:location metadata to determine
 				// required controlling files
-				String metadataFile = iDirectory;
-				metadataFile = metadataFile.replace('\\', '/');
-				metadataFile = metadataFile + currentMetadataData;
+                String metadataFile;
+                try {
+                    metadataFile = Zip.resolveContainedPath(Path.of(iDirectory), currentMetadataData).toString();
+                } catch (IOException e) {
+                    log.warn("Rejected content package metadata reference {}", currentMetadataData, e);
+                    DetailedLogMessageCollection.getInstance().addMessage(
+                            new LogMessage(MessageType.FAILED, Messages.getString("CPValidator.537", currentMetadataData)));
+                    result = false;
+                    continue;
+                }
 
 				// retrieve adldomparser attribute values to determine if the
 				// adlcplocation metadata was wellfomed. We cannot determine
@@ -665,42 +672,23 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		if (!(iURIString.isEmpty())) {
 			// check for a valid protocol
 
-			if (((iURIString.length() > 4) && (iURIString.substring(0, 5).equals("http:")))
-			        || ((iURIString.length() > 5) && (iURIString.substring(0, 6).equals("https:")))
-			        || ((iURIString.length() > 3) && (iURIString.substring(0, 4).equals("ftp:")))
-			        || ((iURIString.length() > 4) && (iURIString.substring(0, 5).equals("ftps:")))) {
-				// This is an external SCO
+			if (iURIString.regionMatches(true, 0, "http:", 0, 5)
+			        || iURIString.regionMatches(true, 0, "https:", 0, 6)
+			        || iURIString.regionMatches(true, 0, "ftp:", 0, 4)
+			        || iURIString.regionMatches(true, 0, "ftps:", 0, 5)) {
+				// External SCOs are loaded by the learner's browser; never probe them from the server.
 				try {
-					URL url = new URL(iURIString);
-					URLConnection urlConn = url.openConnection();
-					HttpURLConnection httpUrlConn = (HttpURLConnection) urlConn;
-					int code = httpUrlConn.getResponseCode();
-
-					// try to access the address
-					if (code == 200) {
-						msgText = Messages.getString("CPValidator.502", iURIString);
-						log.debug("PASSED: {}", msgText);
-						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
-					} else {
-						msgText = Messages.getString("CPValidator.505", iURIString);
-						log.debug("FAILED: {}", msgText);
-						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
-						result = false;
+					URI uri = new URI(iURIString);
+					if (uri.getHost() != null) {
+						return true;
 					}
-				} catch (MalformedURLException mfue) {
-					log.debug("MalformedURLException thrown when creating URL with [{}]", iURIString);
-					msgText = Messages.getString("CPValidator.514", iURIString);
-					log.debug("FAILED: {}", msgText);
-					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
-					result = false;
-				} catch (IOException ioe) {
-					log.debug("IOException thrown when opening a connection to [{}]", iURIString);
-					msgText = Messages.getString("CPValidator.520", iURIString);
-					log.debug("FAILED: {}", msgText);
-					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
-					result = false;
+				} catch (URISyntaxException e) {
+					log.debug("Malformed external SCO URI {}", iURIString, e);
 				}
-			} else if (iURIString.substring(0, 5).equals("file:")) {
+				msgText = Messages.getString("CPValidator.514", iURIString);
+				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
+				result = false;
+			} else if (iURIString.regionMatches(true, 0, "file:", 0, 5)) {
 				// This is the local file system
 				msgText = Messages.getString("CPValidator.524", iURIString);
 				log.debug("FAILED: {}", msgText);
@@ -970,11 +958,11 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			}
 
 			// decode any encrypted URL syntax
-            absolutePath = URLDecoder.decode(absolutePath, StandardCharsets.UTF_8);
+            String relativePath = URLDecoder.decode(absolutePath.substring(getBaseDirectory().length()), StandardCharsets.UTF_8);
 
             // try to access the file
 			try {
-				File fileToFind = new File(absolutePath);
+				File fileToFind = Zip.resolveContainedPath(Path.of(getBaseDirectory()), relativePath).toFile();
 				if (fileToFind.isFile()) {
 					msgText = Messages.getString("CPValidator.534", iURIString);
 					log.debug("PASSED: {}", msgText);
@@ -998,6 +986,11 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					result = false;
 				}
+			} catch (IOException ioe) {
+                log.warn("Rejected content package file reference {}", iURIString, ioe);
+                DetailedLogMessageCollection.getInstance().addMessage(
+                        new LogMessage(MessageType.FAILED, Messages.getString("CPValidator.537", iURIString)));
+                result = false;
 			} catch (NullPointerException npe) {
 				log.error("NullPointerException thrown when accessing {}", absolutePath);
 				msgText = Messages.getString("CPValidator.537", iURIString);

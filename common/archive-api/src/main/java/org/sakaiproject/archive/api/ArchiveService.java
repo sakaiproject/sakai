@@ -22,6 +22,7 @@
 package org.sakaiproject.archive.api;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * <p>
@@ -74,6 +75,15 @@ public interface ArchiveService
 	 * @return A log of messages from the merge.
 	 */
 	String merge(String archiveUrl, String siteId, String siteCreatorId);
+
+    /**
+     * Merges an embedded archive whose body references are contained in a trusted extraction root.
+     *
+     * @param archiveRoot the cartridge extraction directory, supplied by the importer rather than archive XML
+     * @return a log of messages from the merge
+     */
+    String merge(String archiveUrl, String siteId, String siteCreatorId, Path archiveRoot);
+
 	
 	/**
 	 * Read in an archived set of resources, and merge the entries into the specified site, and set site creator name
