@@ -110,7 +110,7 @@ jobs:
 
       - name: Start Tomcat
         id: start-tomcat
-        run: tomcat/bin/catalina.sh start
+        run: bash tomcat/bin/catalina.sh start
 
       - name: Cache Playwright browsers
         uses: actions/cache@v6.1.0
