@@ -25,9 +25,9 @@ describe("sakai-calendar tests", () => {
   [ undefined, data.siteId ].forEach(siteId => {
     it (`includes midnight events in the list and markers in ${siteId ? "site" : "user"} mode`, async () => {
 
-      const first = new Date(2026, 10, 2);
-      const second = new Date(2026, 10, 3);
-      const third = new Date(2026, 10, 4);
+      const first = new Date(2023, 1, 2);
+      const second = new Date(2023, 1, 3);
+      const third = new Date(2023, 1, 4);
       events = [
         { title: "First midnight", start: first.getTime() },
         { title: "Second midnight", start: second.getTime() },
