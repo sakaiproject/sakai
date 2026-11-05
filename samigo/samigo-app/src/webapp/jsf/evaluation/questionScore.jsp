@@ -1045,16 +1045,6 @@ $Id$
         </f:subview>
       </h:panelGroup>
       
-      <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
- 		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
- 			value="#imageMapContainer" 
- 			onclick="javascript:loadAnswer('#{description.answer}');" 
- 			onkeypress="javascript:loadAnswer('#{description.answer}');">
- 			
- 			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
- 		</h:outputLink>
-      </h:panelGroup>
-      
     </h:column>
 
     <h:column rendered="#{questionScores.sortType eq 'answer' && questionScores.sortAscending}">
@@ -1117,15 +1107,6 @@ $Id$
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
       </h:panelGroup>
-       <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
-		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
-			value="#imageMapContainer" 
-			onclick="javascript:loadAnswer('#{description.answer}');" 
-			onkeypress="javascript:loadAnswer('#{description.answer}');">
-			
-			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
-		</h:outputLink>
-      </h:panelGroup>
     </h:column>    
     
     <h:column rendered="#{questionScores.sortType eq 'answer' && !questionScores.sortAscending}">
@@ -1184,15 +1165,6 @@ $Id$
         <f:subview id="displayAudioRecording4">
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
-      </h:panelGroup>
-      <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
-		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
-			value="#imageMapContainer" 
-			onclick="javascript:loadAnswer('#{description.answer}');" 
-			onkeypress="javascript:loadAnswer('#{description.answer}');">
-			
-			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
-		</h:outputLink>
       </h:panelGroup>
     </h:column>
      

@@ -17,6 +17,7 @@ package org.sakaiproject.samigo.impl.pdf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +47,7 @@ import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.FEEDBACK_BG;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.INFO_BG;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.PRIMARY_COLOR;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.SECONDARY_COLOR;
+import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.SMALL_FONT;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.SUCCESS_BG;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.SUCCESS_COLOR;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.TEXT_PRIMARY;
@@ -825,12 +827,34 @@ public class AssessmentPdfQuestionRenderer {
         if (!Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION)) {
             return;
         }
-        Paragraph keyLabel = new Paragraph(AssessmentPdfBundle.getEvaluationString("ans_key", context.getLocale()) + ":",
-                fontWithColor(AssessmentPdfStyle.SMALL_BOLD_FONT, SECONDARY_COLOR));
-        keyLabel.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
-        document.add(keyLabel);
-        renderImageMapImage(document, context, imageMapSource(question), imageMapCoords.parseRectangles(imageMapRegionJsons(question)),
-                imageMapCoords.parseCircles(question.getItemGradingData()), "the student report");
+        String imageSrc = imageMapSource(question);
+        List<Rectangle> answerRectangles = imageMapCoords.parseRectangles(imageMapRegionJsons(question));
+        List<ImageMapCircle> answerCircles = imageMapCoords.parseCircles(question.getItemGradingData());
+
+        // Two separate images keep the area numbers and the student click numbers legible even
+        // when the same Hot Spot is small or several clicks land close together.
+        if (!answerCircles.isEmpty()) {
+            addImageMapSectionLabel(document, AssessmentPdfBundle.getCommonString("student_response", context.getLocale()) + ":");
+            renderImageMapImage(document, context, imageSrc, List.of(), answerCircles,
+                    "the student report (student response)");
+        }
+        if (!answerRectangles.isEmpty()) {
+            addImageMapSectionLabel(document, AssessmentPdfBundle.getEvaluationString("ans_key", context.getLocale()) + ":");
+            renderImageMapImage(document, context, imageSrc, answerRectangles, List.of(),
+                    "the student report (answer key)");
+        }
+        if (answerRectangles.isEmpty() && answerCircles.isEmpty()) {
+            addImageMapSectionLabel(document, AssessmentPdfBundle.getEvaluationString("ans_key", context.getLocale()) + ":");
+            renderImageMapImage(document, context, imageSrc, List.of(), List.of(), "the student report");
+        }
+    }
+
+    private static void addImageMapSectionLabel(Document document, String label)
+            throws Exception {
+        Paragraph sectionLabel = new Paragraph(label, fontWithColor(AssessmentPdfStyle.SMALL_BOLD_FONT, SECONDARY_COLOR));
+        sectionLabel.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
+        sectionLabel.setSpacingAfter(2f);
+        document.add(sectionLabel);
     }
 
     private void renderImageMapImage(Document document, QuestionRenderContext context, String imageSrc, List<Rectangle> answerRectangles,
@@ -958,31 +982,65 @@ public class AssessmentPdfQuestionRenderer {
                 SECONDARY_COLOR);
     }
 
+    private void addImageMapSummaryHeader(PdfPTable table, QuestionRenderContext context) {
+        Locale locale = context.getLocale();
+        table.addCell(contentHelper.createSummaryHeaderCell(AssessmentPdfBundle.getDeliveryString("item", locale), false));
+        table.addCell(contentHelper.createSummaryHeaderCell(AssessmentPdfBundle.getCommonString("correct_response", locale), true));
+        table.addCell(contentHelper.createSummaryHeaderCell(AssessmentPdfBundle.getCommonString("student_response", locale), true));
+        PdfPCell statusHeader = contentHelper.createSummaryHeaderCell(
+                AssessmentPdfBundle.getEvaluationString("status", locale), false);
+        statusHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(statusHeader);
+    }
+
+    private PdfPCell imageMapSummaryCell(String text, boolean rightAlign) {
+        PdfPCell cell = new PdfPCell(new Paragraph(text, fontWithColor(SMALL_FONT, TEXT_PRIMARY)));
+        contentHelper.styleSummaryBodyCell(cell, rightAlign);
+        return cell;
+    }
+
+    private static String imageMapAreaLabel(Integer area) {
+        if (area == null) {
+            return "-";
+        }
+        return String.valueOf(area);
+    }
+
     private void renderReportMatchingItems(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question, Long questionType) throws Exception {
+        if (Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION)) {
+            List<AssessmentPdfImageMapRowModel> rows = question.getImageMapRows();
+            if (rows == null || rows.isEmpty()) {
+                return;
+            }
+            PdfPTable imageMapTable = new PdfPTable(new float[]{3f, 1.2f, 1.2f, 0.8f});
+            imageMapTable.setWidthPercentage(100f);
+            imageMapTable.setSpacingBefore(5f);
+            contentHelper.configureSplittableTable(imageMapTable);
+            addImageMapSummaryHeader(imageMapTable, context);
+            for (AssessmentPdfImageMapRowModel imageMapRow : rows) {
+                if (StringUtils.isBlank(imageMapRow.getText())) {
+                    continue;
+                }
+                imageMapTable.addCell(imageMapSummaryCell(imageMapRow.getText(), false));
+                imageMapTable.addCell(imageMapSummaryCell(imageMapAreaLabel(imageMapRow.getCorrectArea()), true));
+                String studentArea = imageMapRow.getStudentArea() == null
+                        ? AssessmentPdfBundle.getEvaluationString("no_answer", context.getLocale())
+                        : imageMapAreaLabel(imageMapRow.getStudentArea());
+                imageMapTable.addCell(imageMapSummaryCell(studentArea, true));
+                PdfPCell resultCell = imageMapSummaryCell(" ", true);
+                if (imageMapRow.getCorrect() != null) {
+                    resultCell.setCellEvent(new CheckOrCrossCellEvent(imageMapRow.getCorrect(), true));
+                }
+                imageMapTable.addCell(resultCell);
+            }
+            document.add(imageMapTable);
+            return;
+        }
+
         PdfPTable matchingTable = new PdfPTable(1);
         matchingTable.setWidthPercentage(100f);
         contentHelper.configureSplittableTable(matchingTable);
         int cellsAdded = 0;
-
-        if (Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION)) {
-            matchingTable.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
-            for (AssessmentPdfImageMapRowModel imageMapRow : question.getImageMapRows()) {
-                if (StringUtils.isBlank(imageMapRow.getText())) {
-                    continue;
-                }
-                PdfPCell matchingCell = new PdfPCell(new Phrase(AssessmentPdfBundle.getAuthorString("item", context.getLocale()) + " " + imageMapRow.getText(), fontWithColor(BODY_FONT, TEXT_PRIMARY)));
-                contentHelper.styleAnswerCell(matchingCell, 4f);
-                if (imageMapRow.getCorrect() != null) {
-                    matchingCell.setCellEvent(new CheckOrCrossCellEvent(imageMapRow.getCorrect()));
-                }
-                matchingTable.addCell(matchingCell);
-                cellsAdded++;
-            }
-            if (cellsAdded > 0) {
-                document.add(matchingTable);
-            }
-            return;
-        }
 
         if (Objects.equals(questionType, TypeIfc.MATCHING)
                 || Objects.equals(questionType, TypeIfc.EXTENDED_MATCHING_ITEMS)) {

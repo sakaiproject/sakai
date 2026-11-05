@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -461,21 +462,27 @@ public class AssessmentPdfQuestionRendererTest {
     }
 
     @Test
-    public void studentReportRenderPrefersImageSrcAndOverlaysStudentClick() throws Exception {
+    public void studentReportRenderPrefersImageSrcAndSplitsAreaAndClickImages() throws Exception {
         ContentHostingService contentHostingService = contentHosting(STUDENT_RESOURCE);
         AssessmentPdfQuestionModel question = imageMapQuestion(STUDENT_RESOURCE, MAP_RESOURCE, List.of(VALID_REGION),
                 List.of(new AssessmentPdfItemGradingModel(STUDENT_CLICK, 9001L, 1)));
 
         OverlayCapturingDocument document = renderReport(question, contentHostingService);
-        assertEquals(1, document.overlays.size());
-        ImageMapQuestionCellEvent overlay = document.overlays.get(0);
-        assertEquals(1, overlay.getAnswerRectangles().size());
-        assertEquals(1, overlay.getAnswerCircles().size());
-        ImageMapCircle click = overlay.getAnswerCircles().get(0);
+        assertEquals(2, document.overlays.size());
+
+        ImageMapQuestionCellEvent studentResponse = document.overlays.get(0);
+        assertTrue(studentResponse.getAnswerRectangles().isEmpty());
+        assertEquals(1, studentResponse.getAnswerCircles().size());
+        ImageMapCircle click = studentResponse.getAnswerCircles().get(0);
         assertEquals(555f, click.getX(), 0.01f);
         assertEquals(666f, click.getY(), 0.01f);
         assertEquals(1, click.getSequence());
-        verify(contentHostingService).getResource(STUDENT_RESOURCE);
+
+        ImageMapQuestionCellEvent answerKey = document.overlays.get(1);
+        assertEquals(1, answerKey.getAnswerRectangles().size());
+        assertTrue(answerKey.getAnswerCircles().isEmpty());
+
+        verify(contentHostingService, times(2)).getResource(STUDENT_RESOURCE);
         verify(contentHostingService, never()).getResource(MAP_RESOURCE);
     }
 
@@ -491,7 +498,7 @@ public class AssessmentPdfQuestionRendererTest {
                 .imageMapSrc(imageMapSrc)
                 .imageMapItemTexts(List.of("Heart"))
                 .imageMapRegionJsons(regions)
-                .imageMapRows(List.of(new AssessmentPdfImageMapRowModel("1. Heart", Boolean.TRUE)))
+                .imageMapRows(List.of(new AssessmentPdfImageMapRowModel("1. Heart", Boolean.TRUE, 1, null)))
                 .itemGradingData(clicks)
                 .build();
     }

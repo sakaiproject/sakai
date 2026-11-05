@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.tool.assessment.util;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -95,6 +96,27 @@ public final class ImageMapCoordinates {
             log.warn("Skipping unparseable image map region [{}], {}", answerText, e.toString());
             return Optional.empty();
         }
+    }
+
+    /**
+     * Returns the 1-based area number that contains the student's click, or empty when the answer
+     * is not a click or falls outside every authored region.
+     *
+     * @param answerText   stored student response (legacy or click-flagged JSON)
+     * @param regionJsons  authored Hot Spot regions in area order
+     */
+    public static Optional<Integer> findRegionIndex(String answerText, List<String> regionJsons) {
+        Optional<Point> point = parseStudentPoint(answerText);
+        if (point.isEmpty() || regionJsons == null) {
+            return Optional.empty();
+        }
+        for (int i = 0; i < regionJsons.size(); i++) {
+            Optional<Region> region = parseRegion(regionJsons.get(i));
+            if (region.isPresent() && region.get().contains(point.get().getClickX(), point.get().getClickY())) {
+                return Optional.of(i + 1);
+            }
+        }
+        return Optional.empty();
     }
 
     static String extractJsonObject(String raw) {
