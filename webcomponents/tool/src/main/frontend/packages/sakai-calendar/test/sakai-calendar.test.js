@@ -33,7 +33,9 @@ describe("sakai-calendar tests", () => {
         { title: "Second midnight", start: second.getTime() },
       ];
       const el = await fixture(html`
-        <sakai-calendar dashboard .siteId=${siteId} .centralDate=${first}></sakai-calendar>
+        <sakai-calendar dashboard .siteId=${siteId} .centralDate=${first}
+          style="--sakai-calendar-has-events-bg-color: green; --sakai-calendar-today-bg-color: blue;">
+        </sakai-calendar>
       `);
       await waitUntil(() => el._events && el._i18n);
       await elementUpdated(el);
@@ -52,6 +54,13 @@ describe("sakai-calendar tests", () => {
       await elementUpdated(el);
       expect(el.renderRoot.querySelector("#days-events").textContent).to.contain("Second midnight");
       expect(el.renderRoot.querySelector("#days-events").textContent).not.to.contain("First midnight");
+      expect(getComputedStyle(dayButton(second)).backgroundColor).to.equal("rgb(0, 128, 0)");
+      expect(getComputedStyle(dayButton(second)).outlineStyle).to.equal("solid");
+
+      dayButton(third).click();
+      await elementUpdated(el);
+      expect(getComputedStyle(dayButton(third)).backgroundColor).to.equal("rgba(0, 0, 0, 0)");
+      expect(getComputedStyle(dayButton(third)).outlineStyle).to.equal("solid");
     });
   });
 
