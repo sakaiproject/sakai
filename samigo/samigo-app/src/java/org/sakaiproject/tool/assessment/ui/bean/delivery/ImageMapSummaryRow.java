@@ -38,12 +38,15 @@ public final class ImageMapSummaryRow implements Serializable {
     private final Integer correctArea;
     private final Integer studentArea;
     private final Boolean correct;
+    private final boolean responsePresent;
 
-    public ImageMapSummaryRow(String label, Integer correctArea, Integer studentArea, Boolean correct) {
+    public ImageMapSummaryRow(String label, Integer correctArea, Integer studentArea, Boolean correct,
+            boolean responsePresent) {
         this.label = label;
         this.correctArea = correctArea;
         this.studentArea = studentArea;
         this.correct = correct;
+        this.responsePresent = responsePresent;
     }
 
     public String getLabel() {
@@ -60,6 +63,10 @@ public final class ImageMapSummaryRow implements Serializable {
 
     public Boolean getCorrect() {
         return correct;
+    }
+
+    public boolean isResponsePresent() {
+        return responsePresent;
     }
 
     /**
@@ -98,9 +105,12 @@ public final class ImageMapSummaryRow implements Serializable {
             ImageMapQuestionBean imageMapBean = (ImageMapQuestionBean) entry;
             Long itemTextId = imageMapBean.getItemText() == null ? null : imageMapBean.getItemText().getId();
             Integer correctArea = itemTextId == null ? null : areaByItemTextId.get(itemTextId);
-            Integer studentArea = ImageMapCoordinates.findRegionIndex(imageMapBean.getResponse(), regionJsons)
-                    .orElse(null);
-            rows.add(new ImageMapSummaryRow(imageMapBean.getText(), correctArea, studentArea, imageMapBean.getIsCorrect()));
+            boolean responsePresent = ImageMapCoordinates.parseStudentPoint(imageMapBean.getResponse()).isPresent();
+            Integer studentArea = responsePresent
+                    ? ImageMapCoordinates.findRegionIndex(imageMapBean.getResponse(), regionJsons, correctArea).orElse(null)
+                    : null;
+            rows.add(new ImageMapSummaryRow(imageMapBean.getText(), correctArea, studentArea,
+                    imageMapBean.getIsCorrect(), responsePresent));
         }
         return rows;
     }

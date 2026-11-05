@@ -486,8 +486,25 @@ public class AssessmentPdfQuestionRendererTest {
         verify(contentHostingService, never()).getResource(MAP_RESOURCE);
     }
 
+    @Test
+    public void reportImageMapDistinguishesOutsideClickFromMissingResponse() throws Exception {
+        AssessmentPdfQuestionModel outside = imageMapQuestion(STUDENT_RESOURCE, MAP_RESOURCE, List.of(VALID_REGION),
+                List.of(), new AssessmentPdfImageMapRowModel("1. Heart", Boolean.FALSE, 1, null, true));
+        assertTrue(renderReportCapturingText(outside).text.toString().contains("Outside area"));
+
+        AssessmentPdfQuestionModel missing = imageMapQuestion(STUDENT_RESOURCE, MAP_RESOURCE, List.of(VALID_REGION),
+                List.of(), new AssessmentPdfImageMapRowModel("1. Heart", Boolean.FALSE, 1, null, false));
+        assertTrue(renderReportCapturingText(missing).text.toString().contains("No Answer"));
+    }
+
     private static AssessmentPdfQuestionModel imageMapQuestion(String imageSrc, String imageMapSrc, List<String> regions,
             List<AssessmentPdfItemGradingModel> clicks) {
+        return imageMapQuestion(imageSrc, imageMapSrc, regions, clicks,
+                new AssessmentPdfImageMapRowModel("1. Heart", Boolean.TRUE, 1, null, false));
+    }
+
+    private static AssessmentPdfQuestionModel imageMapQuestion(String imageSrc, String imageMapSrc, List<String> regions,
+            List<AssessmentPdfItemGradingModel> clicks, AssessmentPdfImageMapRowModel row) {
         return AssessmentPdfQuestionModel.builder()
                 .typeId(TypeIfc.IMAGEMAP_QUESTION)
                 .itemHtmlText("Identify the organs")
@@ -498,7 +515,7 @@ public class AssessmentPdfQuestionRendererTest {
                 .imageMapSrc(imageMapSrc)
                 .imageMapItemTexts(List.of("Heart"))
                 .imageMapRegionJsons(regions)
-                .imageMapRows(List.of(new AssessmentPdfImageMapRowModel("1. Heart", Boolean.TRUE, 1, null)))
+                .imageMapRows(List.of(row))
                 .itemGradingData(clicks)
                 .build();
     }

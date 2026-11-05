@@ -1023,9 +1023,14 @@ public class AssessmentPdfQuestionRenderer {
                 }
                 imageMapTable.addCell(imageMapSummaryCell(imageMapRow.getText(), false));
                 imageMapTable.addCell(imageMapSummaryCell(imageMapAreaLabel(imageMapRow.getCorrectArea()), true));
-                String studentArea = imageMapRow.getStudentArea() == null
-                        ? AssessmentPdfBundle.getEvaluationString("no_answer", context.getLocale())
-                        : imageMapAreaLabel(imageMapRow.getStudentArea());
+                String studentArea;
+                if (!imageMapRow.isResponsePresent()) {
+                    studentArea = AssessmentPdfBundle.getEvaluationString("no_answer", context.getLocale());
+                } else if (imageMapRow.getStudentArea() == null) {
+                    studentArea = AssessmentPdfBundle.getEvaluationString("outside_area", context.getLocale());
+                } else {
+                    studentArea = imageMapAreaLabel(imageMapRow.getStudentArea());
+                }
                 imageMapTable.addCell(imageMapSummaryCell(studentArea, true));
                 PdfPCell resultCell = imageMapSummaryCell(" ", true);
                 if (imageMapRow.getCorrect() != null) {

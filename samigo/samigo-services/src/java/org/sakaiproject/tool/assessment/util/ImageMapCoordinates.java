@@ -106,9 +106,28 @@ public final class ImageMapCoordinates {
      * @param regionJsons  authored Hot Spot regions in area order
      */
     public static Optional<Integer> findRegionIndex(String answerText, List<String> regionJsons) {
+        return findRegionIndex(answerText, regionJsons, null);
+    }
+
+    /**
+     * Returns the area containing the click, preferring the item's own target area when regions
+     * overlap and both contain the click.
+     *
+     * @param answerText    stored student response (legacy or click-flagged JSON)
+     * @param regionJsons   authored Hot Spot regions in area order
+     * @param preferredArea area targeted by the item, or {@code null} to use the first match
+     */
+    public static Optional<Integer> findRegionIndex(String answerText, List<String> regionJsons, Integer preferredArea) {
         Optional<Point> point = parseStudentPoint(answerText);
         if (point.isEmpty() || regionJsons == null) {
             return Optional.empty();
+        }
+        if (preferredArea != null && preferredArea >= 1 && preferredArea <= regionJsons.size()) {
+            Optional<Region> preferred = parseRegion(regionJsons.get(preferredArea - 1));
+            if (preferred.isPresent()
+                    && preferred.get().contains(point.get().getClickX(), point.get().getClickY())) {
+                return Optional.of(preferredArea);
+            }
         }
         for (int i = 0; i < regionJsons.size(); i++) {
             Optional<Region> region = parseRegion(regionJsons.get(i));
