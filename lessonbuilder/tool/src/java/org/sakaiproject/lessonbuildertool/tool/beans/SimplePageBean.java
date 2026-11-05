@@ -125,6 +125,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.PublicHttpClient;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
@@ -150,8 +151,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -1788,48 +1789,28 @@ public class SimplePageBean {
 	    return processResource(SimplePageItem.RESOURCE, false, true);
 	}
 
-    // get mime type for a URL. connect to the server hosting
-    // it and ask them. Sorry, but I don't think there's a better way
+	/** Probes absolute public URLs, infers relative media types by extension, and otherwise defaults to HTML. */
 	public String getTypeOfUrl(String url) {
-	    String mimeType = "text/html";
-
-	    // try to find the mime type of the remote resource
-	    // this is only likely to be a problem if someone is pointing to
-	    // a url within Sakai. We think in realistic cases those that are
-	    // files will be handled as files, so anything that comes where
-	    // will be HTML. That's the default if this fails.
-	    URLConnection conn = null;
-	    try {
-		conn = new URL(new URL(serverConfigurationService.getServerUrl()),url).openConnection();
-		conn.setConnectTimeout(10000);
-		conn.setReadTimeout(10000);
-		// generate cookie based on code in  RequestFilter.java
-		//String suffix = System.getProperty("sakai.serverId");
-		//if (suffix == null || suffix.equals(""))
-		//    suffix = "sakai";
-		//Session s = sessionManager.getCurrentSession();
-		//conn.setRequestProperty("Cookie", "JSESSIONID=" + s.getId() + "." + suffix);
-		conn.connect();
-		String t = conn.getContentType();
-		if (StringUtils.isNotBlank(t)) {
-		    int i = t.indexOf(";");
-		    if (i >= 0)
-			t = t.substring(0, i);
-		    t = t.trim();
-		    mimeType = t;
-		}
-	    } catch (Exception e) {
-		log.error("getTypeOfUrl connection error {}", e.toString());
-	    } finally {
-		if (conn != null) {
-		    try {
-			conn.getInputStream().close();
-		    } catch (Exception e) {
-			log.error("getTypeOfUrl unable to close {}", e.toString());
-		    }
-		}
+	    if (StringUtils.isBlank(url)) {
+	        return "text/html";
 	    }
-	    return mimeType;
+	    try {
+	        URI uri = URI.create(url);
+	        if (uri.isAbsolute()) {
+	            return PublicHttpClient.contentType(url).orElse("text/html");
+	        }
+	        String extension = org.springframework.util.StringUtils.getFilenameExtension(uri.getPath());
+	        if (StringUtils.isNotBlank(extension)) {
+	            String mimeType = contentTypeImageService.getContentType(extension);
+	            if (StringUtils.isNotBlank(mimeType) && !contentTypeImageService.isUnknownType(mimeType)) {
+	                return mimeType;
+	            }
+	        }
+	        return "text/html";
+	    } catch (IOException | IllegalArgumentException e) {
+	        log.debug("Could not determine MIME type for Lessons link: {}", e.getClass().getSimpleName());
+	        return "text/html";
+	    }
 	}
 
     // return call from the file picker, used by add resource
@@ -7361,15 +7342,17 @@ public class SimplePageBean {
 	}
 
 	public void handleImportItem() {
+		if (!canEditPage()) {
+			return;
+		}
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		if (toolSession != null) toolSession.setAttribute("lessonbuilder.fileImportDone", "true");
                 String contentItemUrl = ToolUtils.getRequestParameter("content_item_url");
-                log.debug("handleImportItem contentItemUrl={}", contentItemUrl);
 
                 // Retrieve the tool associated with the content item
                 String toolId = ToolUtils.getRequestParameter("toolId");
                 Long toolKey = LTIUtil.toLongNull(toolId);
-                if ( toolKey == 0 || toolKey < 0 ) {
+                if (toolKey == null || toolKey <= 0) {
                         setErrKey("simplepage.lti-import-error-id", toolId);
                         return;
                 }
@@ -7380,20 +7363,15 @@ public class SimplePageBean {
                         return;
                 }
 
-		InputStream fis;
-		if ( contentItemUrl != null && contentItemUrl.length() > 1 ) {
+		if (contentItemUrl != null && contentItemUrl.length() > 1) {
+			long length;
 			try {
-				URL parsedUrl = new URL(contentItemUrl);
-				URLConnection yc = parsedUrl.openConnection();
-				fis = yc.getInputStream();
-			} catch ( Exception e ) {
+				length = PublicHttpClient.read(contentItemUrl, null, this::importCcFromStream);
+			} catch (IOException | IllegalArgumentException e) {
 				setErrKey("simplepage.lti-import-error-reading-url", contentItemUrl);
-				log.error(e.getMessage(), e);
+				log.warn("Could not read Lessons cartridge from LTI tool {}: {}", toolKey, e.getClass().getSimpleName());
 				return;
 			}
-
-			// log.info("Importing...");
-			long length = importCcFromStream(fis);
 			if ( length > 0 && toolSession != null) {
 				String successMessage = messageLocator.getMessage("simplepage.lti-import-success-length").replace("{}", length+"");
 				toolSession.setAttribute("lessonbuilder.fileImportDone", successMessage);

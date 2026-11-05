@@ -21,13 +21,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import nl.martijndwars.webpush.Notification;
-import nl.martijndwars.webpush.PushService;
 import nl.martijndwars.webpush.Subscription;
 import nl.martijndwars.webpush.Utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.HttpResponse;
 
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.interfaces.ECPrivateKey;
@@ -83,6 +81,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -141,7 +140,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     private ExecutorService executor;
     private boolean pushEnabled = false;
-    private PushService pushService;
+    private WebPushClient pushService;
 
     public UserMessagingServiceImpl() {
 
@@ -156,6 +155,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         Security.addProvider(new BouncyCastleProvider());
     }
 
+    /** Initializes delivery workers, notification cleanup, and the configured VAPID signing client. */
     public void init() {
 
         // Initialize the executor with configurable thread pool size
@@ -195,7 +195,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     try {
                         String publicKey = String.join("", Files.readAllLines(publicKeyPath));
                         String privateKey = String.join("", Files.readAllLines(privateKeyPath));
-                        pushService = new PushService(publicKey, privateKey);
+                        pushService = new WebPushClient(publicKey, privateKey);
                     } catch (Exception e) {
                         log.error("Failed to setup push service: {}", e.toString());
                     }
@@ -220,7 +220,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                             fw.write(privateKeyBase64);
                         }
 
-                        pushService = new PushService(publicKeyBase64, privateKeyBase64);
+                        pushService = new WebPushClient(publicKeyBase64, privateKeyBase64);
                     } catch (Exception e) {
                         log.error("Failed to generate key pair: {}", e.toString());
                     }
@@ -236,15 +236,27 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         }
     }
 
+    /** Stops queued delivery work before releasing the Web Push client. */
     public void destroy() {
 
         if (executor != null) {
             try {
-                // Attempt a graceful shutdown
                 executor.shutdown();
-                log.info("Messaging thread pool shutdown initiated");
+                if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
-                log.error("Error shutting down messaging thread pool: {}", e.toString());
+                log.error("Error shutting down messaging thread pool", e);
+            }
+        }
+        if (pushService != null) {
+            try {
+                pushService.close();
+            } catch (IOException e) {
+                log.warn("Failed to close Web Push client", e);
             }
         }
     }
@@ -569,13 +581,13 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         return notification;
     }
 
-    @Transactional
+    /** Validates the endpoint before atomically replacing the browser's stored subscription. */
     public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint) {
 
         String userId = getCurrentUserId();
         if (userId == null) return;
 
-        pushSubscriptionRepository.deleteByFingerprint(browserFingerprint);
+        WebPushClient.validateSubscriptionEndpoint(endpoint);
 
         PushSubscription ps = new PushSubscription();
         ps.setUserId(userId);
@@ -585,7 +597,10 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         ps.setCreated(Instant.now());
         ps.setFingerprint(browserFingerprint);
 
-        pushSubscriptionRepository.save(ps);
+        transactionTemplate.executeWithoutResult(status -> {
+            pushSubscriptionRepository.deleteByFingerprint(browserFingerprint);
+            pushSubscriptionRepository.save(ps);
+        });
     }
 
     public void sendTestNotification() {
@@ -671,16 +686,11 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
         try {
             String notificationJson = objectMapper.writeValueAsString(un);
-            HttpResponse pushResponse = pushService.send(new Notification(sub, notificationJson));
-
-            int statusCode = pushResponse.getStatusLine().getStatusCode();
+            int statusCode = pushService.send(new Notification(sub, notificationJson));
             if (statusCode >= 200 && statusCode < 300) {
-                log.debug("Successfully sent push notification to {} with status {}", 
-                        pushEndpoint, statusCode);
+                log.debug("Sent push notification for user {} with status {}", un.to, statusCode);
             } else {
-                String reason = pushResponse.getStatusLine().getReasonPhrase();
-                log.warn("Push notification to {} failed with status {} and reason {}", 
-                        pushEndpoint, statusCode, reason);
+                log.warn("Push notification for user {} failed with status {}", un.to, statusCode);
 
                 switch (statusCode) {
                     case 410:
@@ -702,7 +712,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 }
             }
         } catch (Exception e) {
-            log.warn("Failed to serialize notification for push", e);
+            log.warn("Failed to send push notification for user {}: {}", un.to, e.getClass().getSimpleName());
         }
     }
 
@@ -712,7 +722,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     private void clearPushSubscription(PushSubscription subscription) {
 
         pushSubscriptionRepository.delete(subscription);
-        log.info("Removed invalid push subscription {} for user {}", subscription.getEndpoint(), subscription.getUserId());
+        log.info("Removed invalid push subscription for user {}", subscription.getUserId());
     }
 
     /**

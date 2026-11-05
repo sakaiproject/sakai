@@ -16,17 +16,22 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.RequestOptions;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -38,6 +43,43 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class LessonsTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
+
+    /** Anonymous visitors cannot use a Lessons page to probe link MIME types. */
+    @Test
+    void anonymousVisitorsCannotProbeLinkTypes() {
+        APIResponse response = page.request().get("/lessonbuilder-tool/ajax",
+            RequestOptions.create().setQueryParam("op", "getmimetype")
+                .setQueryParam("url", "http://127.0.0.1:1/image.png"));
+        try {
+            assertEquals(401, response.status());
+        } finally {
+            response.dispose();
+        }
+    }
+
+    /** Students cannot probe MIME types on Lessons pages they cannot edit. */
+    @Test
+    void studentsCannotProbeLinkTypesOnCourseLessonPages() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
+        sakai.addMemberToSite(siteUrl, "student0011", "Student");
+
+        sakai.login("student0011");
+        page.navigate(siteUrl);
+        sakai.toolClick("Lessons");
+        String pageId = page.locator("#lessonsCurrentPageId").inputValue();
+        String csrfToken = page.locator("#add-multimedia-dialog input[name='csrf9']").inputValue();
+
+        APIResponse response = page.request().get("/lessonbuilder-tool/ajax",
+            RequestOptions.create().setQueryParam("op", "getmimetype")
+                .setQueryParam("pageId", pageId).setHeader("X-CSRF-Token", csrfToken)
+                .setQueryParam("url", "http://127.0.0.1:1/image.png"));
+        try {
+            assertEquals(403, response.status());
+        } finally {
+            response.dispose();
+        }
+    }
 
     @Test
     @Order(1)
@@ -142,6 +184,7 @@ class LessonsTest extends SakaiUiTestBase {
         restoreTopLevelPageAfterRemoval("Restore Tool Order", this::removeTopLevelPageViaToolOrder);
     }
 
+    /** Adding and resizing a loopback image preserves its client-detected MIME type without a server-side probe. */
     @Test
     @Order(7)
     void resizingEmbeddedImagePreservesItsMediaType() throws IOException {
@@ -152,12 +195,17 @@ class LessonsTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Lessons");
 
-        // Sakai probes the URL server-side; keep that request and the browser's image
-        // request independent of public hosts and development TLS certificates.
+        String pageId = page.locator("#lessonsCurrentPageId").inputValue();
+        Locator addDialog = page.locator("#add-multimedia-dialog");
+        String csrfToken = addDialog.locator("input[name='csrf9']").inputValue();
+
+        // The browser can load the image even though Sakai must not probe loopback.
+        AtomicInteger requests = new AtomicInteger();
         HttpServer imageServer = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         byte[] png = Base64.getDecoder().decode(
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgKF/1HwADvQIhA4EOVwAAAABJRU5ErkJggg==");
         imageServer.createContext("/image.png", exchange -> {
+            requests.incrementAndGet();
             exchange.getResponseHeaders().set("Content-Type", "image/png");
             exchange.sendResponseHeaders(200, png.length);
             try (OutputStream response = exchange.getResponseBody()) {
@@ -166,12 +214,20 @@ class LessonsTest extends SakaiUiTestBase {
         });
         imageServer.start();
         try {
-            // The query string prevents extension fallback from masking a lost MIME type.
             String imageUrl = "http://127.0.0.1:" + imageServer.getAddress().getPort()
                 + "/image.png?regression=SAK-52825";
+            APIResponse mime = page.request().get("/lessonbuilder-tool/ajax",
+                RequestOptions.create().setQueryParam("op", "getmimetype").setQueryParam("url", imageUrl)
+                    .setQueryParam("pageId", pageId).setHeader("X-CSRF-Token", csrfToken));
+            try {
+                assertEquals(200, mime.status());
+                assertTrue(mime.text().trim().startsWith("image/"));
+                assertEquals(0, requests.get(), "Sakai must not fetch the loopback image");
+            } finally {
+                mime.dispose();
+            }
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
             page.locator("#addContentDiv .add-multimedia").click();
-            Locator addDialog = page.locator("#add-multimedia-dialog");
             assertThat(addDialog).isVisible();
             addDialog.locator("#new-url-section-collapse").click();
             addDialog.locator("#mm-url").fill(imageUrl);
@@ -199,7 +255,7 @@ class LessonsTest extends SakaiUiTestBase {
             assertThat(embeddedImage).hasAttribute("width", "120");
             assertThat(embeddedImage).hasAttribute("height", "80");
             assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
-            assertThat(page.locator(".image-col .mm-type")).hasText("image/png");
+            assertThat(page.locator(".image-col .mm-type")).hasText("image/unknown");
         } finally {
             imageServer.stop(0);
         }

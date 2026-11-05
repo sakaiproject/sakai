@@ -45,6 +45,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarImporterService;
 import org.sakaiproject.calendar.api.ExternalSubscriptionDetails;
@@ -132,6 +133,13 @@ public class BaseExternalCalendarSubscriptionTest {
     public void testGetCalendarSubscription() throws Exception {
         // Doesn't actually get parsed as we mock out the parser
         String url = getClass().getResource("/simple.ics").toExternalForm();
+        // Local files are allowed only for administrator-configured institutional feeds.
+        when(serverConfigurationService.getStrings(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_URL))
+            .thenReturn(new String[] {url});
+        when(serverConfigurationService.getStrings(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_NAME))
+            .thenReturn(new String[] {"Test institutional feed"});
+        when(serverConfigurationService.getStrings(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_EVENTTYPE))
+            .thenReturn(new String[] {null});
         String packedUrl = BaseExternalSubscriptionDetails.getIdFromSubscriptionUrl(url);
         String referenceString = BaseExternalSubscriptionDetails.calendarSubscriptionReference("siteId", packedUrl);
         {
