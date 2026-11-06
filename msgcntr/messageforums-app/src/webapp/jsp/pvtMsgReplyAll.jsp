@@ -156,10 +156,12 @@
 							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
+							<span class="recipient-clear">
 							<span class="fa fa-trash" aria-hidden="true"></span>
 							<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list2')); return false;">
 								<h:outputText value="#{msgs.pvt_bccClear}"/>
 							</h:outputLink>
+							</span>
 						</h:panelGroup>
 					</div>
 				</div>

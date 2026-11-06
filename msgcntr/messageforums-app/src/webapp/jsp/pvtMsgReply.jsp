@@ -174,7 +174,7 @@
 							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 							</h:selectManyListbox>
-							<span id="pvtMsgReply:list1_clear" style="display: none;">
+							<span id="pvtMsgReply:list1_clear" class="recipient-clear" style="display: none;">
 								<span class="fa fa-trash" aria-hidden="true"></span>
 								<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgReply:list1')); return false;">
 									<h:outputText value="#{msgs.pvt_bccClear}"/>
@@ -201,7 +201,7 @@
 							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<span id="pvtMsgReply:list2_clear" style="display: none;">
+							<span id="pvtMsgReply:list2_clear" class="recipient-clear" style="display: none;">
 								<span class="fa fa-trash" aria-hidden="true"></span>
 								<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgReply:list2')); return false;">
 									<h:outputText value="#{msgs.pvt_bccClear}"/>

@@ -124,7 +124,7 @@
 							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}" onchange="handleSelectionChange(this, 'compose:deleteSelection1')">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 							</h:selectManyListbox>
-							<span id="compose:deleteSelection1" class="delete_selection" style="display: none;">
+							<span id="compose:deleteSelection1" class="delete_selection recipient-clear" style="display: none;">
 								<span class="fa fa-trash" aria-hidden="true"></span>
 								<h:outputLink value="#" onclick="clearSelection(document.getElementById('compose:list1')); return false;">
 									<h:outputText value="#{msgs.pvt_bccClear}"/>
@@ -152,7 +152,7 @@
 							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}" onchange="handleSelectionChange(this, 'compose:deleteSelection2')">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<span id="compose:deleteSelection2" class="delete_selection" style="display: none;">
+							<span id="compose:deleteSelection2" class="delete_selection recipient-clear" style="display: none;">
 								<span class="fa fa-trash" aria-hidden="true"></span>
 								<h:outputLink value="#" onclick="clearSelection(document.getElementById('compose:list2')); return false;">
 									<h:outputText value="#{msgs.pvt_bccClear}"/>
