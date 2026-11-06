@@ -8,6 +8,7 @@ no_options=No choices available
 one_result=1 result
 result_count={} results
 truncated_results=Showing {shown} of {total} results. Refine your search to see other matches.
+clear_selection=Clear all selections
 remove=Remove {}
 selected_count={} selected`;
 
@@ -82,20 +83,67 @@ describe("sakai-user-picker", () => {
     expect(root(picker).querySelector("p").textContent).to.equal("No matches found");
   });
 
-  it("describes the visible result limit and announces a single match", async () => {
-    const options = Array.from({ length: 102 }, (_, index) => ({
+  it("shows all 189 results and caps larger searches at 999", async () => {
+    const options = Array.from({ length: 1001 }, (_, index) => ({
       id: `id-${index}`, name: `Person ${index}`, username: `username-${index}`,
     }));
-    const picker = await fixture(html`<sakai-user-picker .options=${options}></sakai-user-picker>`);
+    const picker = await fixture(html`<sakai-user-picker .options=${options.slice(0, 189)}></sakai-user-picker>`);
     await waitUntil(() => input(picker));
     await search(picker, "Person");
-    expect(results(picker)).to.have.length(100);
-    const hint = "Showing 100 of 102 results. Refine your search to see other matches.";
+    expect(results(picker)).to.have.length(189);
+    expect(root(picker).querySelector("p")).to.be.null;
+    expect(root(picker).querySelector("[role=status]").textContent).to.equal("189 results");
+    picker.options = options;
+    await elementUpdated(picker);
+    expect(results(picker)).to.have.length(999);
+    const hint = "Showing 999 of 1001 results. Refine your search to see other matches.";
     expect(root(picker).querySelector("p").textContent).to.equal(hint);
     expect(root(picker).querySelector("[role=status]").textContent).to.equal(hint);
-    await search(picker, "username-101");
+    await search(picker, "username-1000");
     expect(results(picker)).to.have.length(1);
     expect(root(picker).querySelector("[role=status]").textContent).to.equal("1 result");
+  });
+
+  it("clears all selections from the keyboard and updates only the bound field", async () => {
+    const form = await fixture(html`<form>
+      <select name="people" multiple><option value="a" selected>Alice</option><option value="b" selected>Bob</option></select>
+      <select name="other"><option value="c" selected>Carol</option></select>
+    </form>`);
+    const picker = document.createElement("sakai-user-picker");
+    picker.bindSelect(form.querySelector('[name="people"]'));
+    await waitUntil(() => !picker.hidden);
+    await search(picker, "Bob");
+    const clear = root(picker).querySelector('[aria-label="Clear all selections"]');
+    expect(clear.type).to.equal("button");
+    let changes = 0;
+    form.addEventListener("change", () => changes++);
+    clear.focus();
+    await sendKeys({ press: "Enter" });
+    await waitUntil(() => picker.values.length === 0);
+    await elementUpdated(picker);
+    expect(new FormData(form).getAll("people")).to.deep.equal([]);
+    expect(new FormData(form).getAll("other")).to.deep.equal([ "c" ]);
+    expect(changes).to.equal(1);
+    expect(input(picker).value).to.equal("");
+    expect(root(picker).activeElement).to.equal(input(picker));
+    expect(root(picker).querySelector('[aria-label="Clear all selections"]')).to.be.null;
+  });
+
+  it("disables clear-all with the field and preserves locked selections", async () => {
+    const picker = await fixture(html`<sakai-user-picker multiple disabled
+      .options=${[ { id: "locked", name: "Locked", disabled: true }, { id: "open", name: "Open" } ]}
+      .values=${[ "locked", "open" ]}></sakai-user-picker>`);
+    await waitUntil(() => input(picker));
+    const clear = root(picker).querySelector('[aria-label="Clear all selections"]');
+    expect(clear.disabled).to.be.true;
+    clear.click();
+    expect(picker.values).to.deep.equal([ "locked", "open" ]);
+    picker.disabled = false;
+    await elementUpdated(picker);
+    clear.click();
+    await elementUpdated(picker);
+    expect(picker.values).to.deep.equal([ "locked" ]);
+    expect(root(picker).querySelector('[aria-label="Clear all selections"]')).to.be.null;
   });
 
   it("keeps multi-select results open and refreshes them when options change", async () => {

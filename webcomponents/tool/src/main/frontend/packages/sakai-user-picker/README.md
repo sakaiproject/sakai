@@ -19,7 +19,9 @@ Sakai pages can load it from `/webcomponents/bundles/user-picker.js`. It uses th
 Use the arrow keys to highlight a result, Enter to choose it, and Escape to
 close the results. With a nonempty query and no highlight, Enter chooses the
 first enabled match. Multiple selection keeps the query and results open.
-Remove an individual selection with its named removal button.
+Remove an individual selection with its named removal button, or use the field’s
+clear-all button to remove all enabled selections. Disabled selections stay in place.
+The results list displays up to 999 matches; narrow the search for larger rosters.
 
 ## Existing HTML forms
 

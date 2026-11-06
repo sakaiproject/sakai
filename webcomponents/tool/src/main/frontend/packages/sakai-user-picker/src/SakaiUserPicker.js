@@ -145,7 +145,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
 
   render() {
     const matches = this._matches;
-    const choices = matches.slice(0, 100);
+    const choices = matches.slice(0, 999);
     const selected = this.values.map(value => this._optionsById.get(value)).filter(Boolean);
     const selectedIds = new Set(this.values);
     const noResults = this.options.length ? this._i18n.no_results : this._i18n.no_options;
@@ -171,6 +171,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
       }
     }}>
         <div class="field">
+          <div class="selection">
           ${selected.map(option => {
       const duplicateName = option.username && this._nameCounts.get(option.name) > 1;
       const identity = option.username ? `${option.name} (${option.username})` : option.name;
@@ -193,6 +194,13 @@ export class SakaiUserPicker extends SakaiShadowElement {
       this._open = true;
     }}
               @keydown=${event => this._key(event, choices)}>
+          </div>
+          ${selected.some(option => !option.disabled) ? html`
+            <button class="clear-selection" type="button" ?disabled=${this.disabled}
+                aria-label=${this._i18n.clear_selection} title=${this._i18n.clear_selection}
+                @click=${() => this._change(this.values.filter(value => this._optionsById.get(value)?.disabled))}>
+              <span aria-hidden="true">×</span>
+            </button>` : nothing}
         </div>
         <div class="results" ?hidden=${!open}>
           ${truncated || !choices.length ? html`<p>${resultStatus}</p>` : nothing}
@@ -228,7 +236,24 @@ export class SakaiUserPicker extends SakaiShadowElement {
       border: 1px solid var(--sakai-border-color, #767676);
       border-radius: .375rem;
     }
-    .field { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; padding: .375rem; }
+    .field { display: flex; align-items: center; gap: .375rem; padding: .375rem; }
+    .selection { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: .375rem; min-inline-size: 0; }
+    .clear-selection {
+      flex: 0 0 auto;
+      inline-size: 2rem;
+      block-size: 2rem;
+      padding: 0;
+      border: 0;
+      border-radius: .25rem;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .clear-selection:hover:not(:disabled) { background: var(--sakai-background-color-2, #eee); }
+    .clear-selection:disabled { cursor: default; }
     input {
       flex: 1 1 12rem;
       min-inline-size: 0;
