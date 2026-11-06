@@ -48,7 +48,7 @@ for (const container of document.querySelectorAll(".samigo-tag-picker")) {
             const { data } = await response.json();
             return {
                 tags: data.tags.map(tag => ({ code: tag.tagId, name: tag.tagLabel, collection: tag.collectionName })),
-                more: page * 30 < data.total,
+                more: data.tags.length > 0,
             };
         };
         picker.selectedTags = savedTags;

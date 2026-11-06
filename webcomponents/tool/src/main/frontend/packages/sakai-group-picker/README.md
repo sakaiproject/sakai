@@ -30,6 +30,11 @@ select in its form. The tool supplies the options, default selection, and
 change handler. In multiple mode, bulk actions in the dropdown change enabled options
 that match the search and preserve selections outside it.
 
+For a group selection field rendered by a tool, load the same bundle and wrap
+the existing select in `<sakai-group-picker bind-select>`. Use
+`no-bulk-actions` on the wrapper for forms that only offer individual choices.
+Keep the native select's form name, label, options, and selected values.
+
 ## Linting and formatting
 
 To scan the project for linting and formatting errors, run
@@ -49,8 +54,3 @@ npm run test
 ## License
 
 ECL-2.0
-
-For a group selection field rendered by a tool, load the same bundle and wrap
-the existing select in `<sakai-group-picker bind-select>`. Use
-`no-bulk-actions` on the wrapper for forms that only offer individual choices.
-Keep the native select's form name, label, options, and selected values.

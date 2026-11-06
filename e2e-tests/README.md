@@ -42,7 +42,10 @@ mvn -P e2e -Dtest=AssignmentTest#canCreatePointsAssignment test
 
 Enable `assignment.group.filter.enabled=true` and `samigo.group.filter.enabled=true`
 in the test server's Sakai configuration before running with
-`-Dsakai.test.groupFilters=true`. CI enables both settings and runs both tests.
+`-Dsakai.test.groupFilters=true`. CI enables both settings and runs these tests.
+
+- `AssignmentTest#selectsAnAssignmentListGroupThroughTheSharedPicker`
+- `SamigoTest#savesAndFiltersAssessmentGroupsThroughTheSharedPicker`
 
 ### Optional browser override:
 
