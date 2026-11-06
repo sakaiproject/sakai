@@ -1,3 +1,8 @@
 .composeFormTable tr td:nth-child(2) {
   width: 90%;
 }
+
+/* The upgraded picker supplies clear-all; keep the link for native fallback. */
+sakai-user-picker:not([hidden]) ~ .recipient-clear {
+  display: none !important;
+}
