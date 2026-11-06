@@ -4345,6 +4345,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// content menu not on students
 		if (!studentPage) {
+		    UIOutput.make(tofill, "advanced-content-items");
 
 		    // add website.
 		    // Are we running a kernel with KNL-273?
