@@ -288,7 +288,7 @@ export class SakaiUserPicker extends SakaiShadowElement {
     }
     .chip span { margin-inline-start: .25rem; }
     .results {
-      position: var(--sakai-user-picker-results-position, static);
+      position: var(--sakai-user-picker-results-position, absolute);
       inset-inline: 0;
       z-index: 1;
       margin-block-start: .25rem;

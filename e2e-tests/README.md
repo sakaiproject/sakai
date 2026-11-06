@@ -46,6 +46,17 @@ in the test server's Sakai configuration before running with
 
 - `AssignmentTest#selectsAnAssignmentListGroupThroughTheSharedPicker`
 - `SamigoTest#savesAndFiltersAssessmentGroupsThroughTheSharedPicker`
+### Run the roster card-game test
+
+Use these Sakai settings for the uploaded-photo fixtures in `RosterCardGameTest`.
+Restart the test server after changing them. CI applies the same settings.
+
+```properties
+cardgame.showOfficialPhoto=false
+cardgame.skipNoImageUsers=true
+profile2.picture.change.enabled=true
+profile2.picture.type=upload
+```
 
 ### Optional browser override:
 

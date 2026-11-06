@@ -1,5 +1,5 @@
 import "../sakai-user-picker.js";
-import { sendKeys } from "@web/test-runner-commands";
+import { sendKeys, sendMouse } from "@web/test-runner-commands";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 
 const translations = `search=Search by name or username
@@ -29,6 +29,23 @@ describe("sakai-user-picker", () => {
   before(() => { sessionStorage.setItem("user-picker", JSON.stringify(Object.fromEntries(
     translations.split("\n").map(line => line.split("="))))); });
   after(() => { sessionStorage.removeItem("user-picker"); });
+
+  it("keeps following form controls stationary when the results close", async () => {
+    const form = await fixture(html`<form style="width: 400px">
+      <sakai-user-picker multiple .options=${[ { id: "a", name: "Ada" } ]}></sakai-user-picker>
+      <label style="display: block; margin-top: 100px"><input type="checkbox"> Bcc</label>
+    </form>`);
+    const picker = form.querySelector("sakai-user-picker");
+    const checkbox = form.querySelector("input");
+    await waitUntil(() => input(picker));
+    const before = checkbox.getBoundingClientRect();
+    input(picker).focus();
+    await elementUpdated(picker);
+    expect(checkbox.getBoundingClientRect().top).to.equal(before.top);
+    const point = checkbox.getBoundingClientRect();
+    await sendMouse({ type: "click", position: [ Math.round(point.x + point.width / 2), Math.round(point.y + point.height / 2) ] });
+    expect(checkbox.checked).to.equal(true);
+  });
 
   it("matches both name orders, accents and IDs and retains separate identities", async () => {
     const picker = await fixture(html`<sakai-user-picker multiple .options=${[
