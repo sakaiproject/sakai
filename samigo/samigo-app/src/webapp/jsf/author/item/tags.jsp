@@ -1,3 +1,4 @@
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <script type="module" src="/samigo-app/js/tag-display.js"></script>
 
 <f:subview id="delete" rendered="#{itemauthor.deleteTagsAllowed == true}">
@@ -6,7 +7,11 @@
         <div class="samigo-tag-picker">
             <input type="hidden" class="samigo-tag-site" value="<h:outputText value="#{author.currentSiteId}"/>"/>
             <textarea hidden class="samigo-tag-data"><h:outputText value="#{itemauthor.tagsListToJson}" escape="true"/></textarea>
-            <select hidden name="tag_selector[]" multiple="multiple"></select>
+            <f:verbatim><select hidden name="tag_selector[]" multiple="multiple"></f:verbatim>
+            <t:dataList value="#{itemauthor.tagSelectorTags}" var="selectedTag" layout="simple">
+                <f:verbatim><option selected="selected" value="</f:verbatim><h:outputText value="#{selectedTag.tagId()}"/><f:verbatim>"></f:verbatim><h:outputText value="#{selectedTag.tagLabel()}"/><f:verbatim></option></f:verbatim>
+            </t:dataList>
+            <f:verbatim></select></f:verbatim>
             <sakai-tag-selector label="<h:outputText value="#{authorMessages.tag_question}"/>"></sakai-tag-selector>
         </div>
         <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
@@ -35,7 +40,11 @@
         <div class="samigo-tag-picker">
             <input type="hidden" class="samigo-tag-site" value="<h:outputText value="#{author.currentSiteId}"/>"/>
             <textarea hidden class="samigo-tag-data"><h:outputText value="#{itemauthor.tagsTempListToJson}" escape="true"/></textarea>
-            <select hidden name="tag_selector[]" multiple="multiple"></select>
+            <f:verbatim><select hidden name="tag_selector[]" multiple="multiple"></f:verbatim>
+            <t:dataList value="#{itemauthor.tagSelectorTags}" var="selectedTag" layout="simple">
+                <f:verbatim><option selected="selected" value="</f:verbatim><h:outputText value="#{selectedTag.tagId()}"/><f:verbatim>"></f:verbatim><h:outputText value="#{selectedTag.tagLabel()}"/><f:verbatim></option></f:verbatim>
+            </t:dataList>
+            <f:verbatim></select></f:verbatim>
             <sakai-tag-selector label="<h:outputText value="#{authorMessages.tag_question_new}"/>"></sakai-tag-selector>
         </div>
         <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">

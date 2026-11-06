@@ -105,6 +105,8 @@ jobs:
             --output conf/catalina.properties "$NIGHTLY_CONFIG_URL/catalina.properties"
           printf '%s\n' \
             'cardgame.showOfficialPhoto=false' 'cardgame.skipNoImageUsers=true' \
+            'tagservice.enabled=true' 'samigo.author.usetags=true' \
+            'samigo.question.show.showSearchQuestion=true' \
             'profile2.picture.change.enabled=true' 'profile2.picture.type=upload' >> sakai/local.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai";
@@ -185,7 +187,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p e2e-tests/target
-          mvn -B -ntp -V -Pe2e -Dsakai.test.forks=4 test 2>&1 | tee e2e-tests/target/playwright-java-run.log
+          mvn -B -ntp -V -Pe2e -Dsakai.test.forks=4 -Dsakai.test.samigoQuestionTags=true test 2>&1 | tee e2e-tests/target/playwright-java-run.log
 
       - name: Check Sakai server after tests
         id: server-check
