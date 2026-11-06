@@ -48,7 +48,6 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
             });
         </script>
 
-        <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
         <script src="/library/js/spinner.js"></script>
         <script>includeWebjarLibrary('select2');</script>
 
