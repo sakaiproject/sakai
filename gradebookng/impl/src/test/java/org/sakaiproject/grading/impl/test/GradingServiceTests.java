@@ -29,6 +29,7 @@ import java.time.temporal.ChronoUnit;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.grading.api.Assignment;
@@ -170,7 +171,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         Gradebook gradebook = createGroupGradebook();
         assertEquals(groupId, gradebook.getUid());
-        assertEquals("Group One", gradebook.getName());
+        assertEquals(MessageHelper.getString("group.gradebook", Locale.ENGLISH) + " One",gradebook.getName());
 
         List<CourseGrade> courseGrades = courseGradeRepository.findByGradebook_Id(gradebook.getId());
         assertEquals(1, courseGrades.size());
