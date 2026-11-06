@@ -83,6 +83,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm\\:createnew").click();
         addMultipleChoiceQuestion("1", "Which group can take this quiz?", List.of("North", "South"), 1);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).first().click();
+        sakai.waitForPortalFocus();
         page.locator("#assessmentSettingsAction\\:releaseTo").selectOption("Selected Groups");
         Locator audience = page.locator("#groupDiv sakai-group-picker");
         assertThat(audience.getByRole(AriaRole.COMBOBOX)).isVisible();
