@@ -461,10 +461,10 @@ class SamigoTest extends SakaiUiTestBase {
         Locator edit = page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify");
         edit.click();
         Locator picker = page.locator(".samigo-tag-picker sakai-tag-selector");
-        // Exercise real server pagination with a page smaller than the picker's requested 20.
+        // The real endpoint normalizes a zero page limit to one result per page.
         String tagSearchRoute = "**/getTagsPaginatedByPrefixInLabel.json?*";
         page.route(tagSearchRoute, route -> route.resume(new Route.ResumeOptions()
-            .setUrl(route.request().url().replace("pagelimit=20", "pagelimit=1"))));
+            .setUrl(route.request().url().replace("pagelimit=20", "pagelimit=0"))));
         sakai.waitForPortalFocus();
         picker.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Load more tags").setExact(true)).click();
