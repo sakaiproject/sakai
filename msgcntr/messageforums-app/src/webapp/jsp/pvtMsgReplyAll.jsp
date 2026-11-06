@@ -3,8 +3,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 
-
-
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
@@ -156,12 +154,6 @@
 							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<span class="recipient-clear">
-							<span class="fa fa-trash" aria-hidden="true"></span>
-							<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list2')); return false;">
-								<h:outputText value="#{msgs.pvt_bccClear}"/>
-							</h:outputLink>
-							</span>
 						</h:panelGroup>
 					</div>
 				</div>
@@ -283,7 +275,6 @@
             <%--********************* Attachment *********************--%>
 
 	         <h4> <h:outputText value="#{msgs.pvt_att}"/></h4>
-
 
 	        	<p class="instruction"><h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.allAttachments}"/></p>
 	          <sakai:button_bar>

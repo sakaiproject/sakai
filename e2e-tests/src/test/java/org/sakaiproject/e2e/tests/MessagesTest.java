@@ -52,7 +52,7 @@ class MessagesTest extends SakaiUiTestBase {
         bcc.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText("student0012")).click();
         bcc.getByRole(AriaRole.COMBOBOX).press("Escape");
         selectRecipient("compose", "list1", "student0012");
-        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Clear Selection").setExact(true))).hasCount(0);
+        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Clear Selection").setExact(true).setIncludeHidden(true))).hasCount(0);
         to.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear all selections").setExact(true)).click();
         assertThat(page.locator("#compose\\:list1")).hasValues(new String[0]);
         assertThat(bcc.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(Pattern.compile("^Remove ")))).hasCount(1);
