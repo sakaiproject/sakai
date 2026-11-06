@@ -258,12 +258,15 @@ export const calendarStyles = css`
   }
 
   .calendar__day-button[selected] {
-    background-color: var(--sakai-calendar-selected-bg-color, var(--sakai-calendar-today-bg-color));
-    color: var(--sakai-calendar-selected-color, var(--sakai-calendar-today-color));
+    background-color: transparent;
+    color: var(--sakai-calendar-button-color, var(--sakai-text-color-1));
+    outline: 2px solid var(--sakai-calendar-today-bg-color);
+    outline-offset: 2px;
     border-radius: 50%;
   }
 
   .has-events,
+  .has-events[selected],
   .has-events[next-month],
   .has-events[previous-month] {
     background-color: var(--sakai-calendar-has-events-bg-color);
@@ -272,11 +275,9 @@ export const calendarStyles = css`
   }
 
   .has-events[today],
-  .has-events[selected],
   .calendar__day-button[today][selected] {
     background-color: var(--sakai-calendar-today-bg-color);
     color: var(--sakai-calendar-today-color);
-    box-shadow: inset 0 0 0 2px var(--sakai-calendar-has-events-bg-color);
   }
 
   .calendar__day-button:hover {
