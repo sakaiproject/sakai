@@ -3,7 +3,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 
-
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
@@ -14,7 +13,6 @@
 		thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
 	}
 %>
-
 
 <f:view>
 	<sakai:view title="#{msgs.pvt_forward}">
@@ -29,23 +27,7 @@
 	<h:form id="pvtMsgForward">
 		<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<script>
-				function clearSelection(selectObject)
-				{
-					for (var i=0; i<selectObject.options.length; i++)
-					{
-						selectObject.options[i].selected=false;
-					}
-					selectObject.dispatchEvent(new Event('change', { bubbles: true }));
-					handleSelectionChange(selectObject, selectObject.id + '_clear');
-				}
-				
-				function handleSelectionChange(selectElement, clearButtonId) {
-					const clearButton = document.getElementById(clearButtonId);
-					if (clearButton) {
-						clearButton.style.display = selectElement.selectedIndex !== -1 ? 'inline-block' : 'none';
-					}
-				}
-				
+
 				function toggleBcc(checkbox) {
 					const bccBox = document.getElementById('bcc_box');
 					if (bccBox) {
@@ -61,11 +43,7 @@
 				$(document).ready(function() {
 					bindRecipientPicker(document.getElementById('pvtMsgForward:list1'));
 					bindRecipientPicker(document.getElementById('pvtMsgForward:list2'));
-				  	
-				  	// Initial selection check
-				  	handleSelectionChange(document.getElementById('pvtMsgForward:list1'), 'pvtMsgForward:list1_clear');
-				  	handleSelectionChange(document.getElementById('pvtMsgForward:list2'), 'pvtMsgForward:list2_clear');
-				  	
+
 				  	resize();
                     var menuLink = $('#messagesMainMenuLink');
                     var menuLinkSpan = menuLink.closest('span');
@@ -123,12 +101,6 @@
 							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 							</h:selectManyListbox>
-							<span id="pvtMsgForward:list1_clear" class="recipient-clear" style="display: none;">
-								<span class="fa fa-times" aria-hidden="true"></span>
-								<a href="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list1')); return false;">
-									<h:outputText value="#{msgs.pvt_bccClear}"/>
-								</a>
-							</span>
 						</h:panelGroup>
 					</div>
 				</div>
@@ -148,15 +120,9 @@
 							</h:outputLabel>
 						</h:panelGroup>
 						<div class="row" id="bcc_box" style="display: none;">
-							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}" onchange="handleSelectionChange(this, 'pvtMsgForward:list2_clear')">
+							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<span id="pvtMsgForward:list2_clear" class="delete_selection recipient-clear" style="display: none;">
-								<span class="fa fa-trash" aria-hidden="true"></span>
-								<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list2')); return false;">
-									<h:outputText value="#{msgs.pvt_bccClear}"/>
-								</h:outputLink>
-							</span>
 						</div>
 					</div>
 				</div>
@@ -244,7 +210,6 @@
 
 	         <h4> <h:outputText value="#{msgs.pvt_att}"/></h4>
 
-	      
 	        	<p class="instruction"><h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.allAttachments}"/></p>	        
 	          <sakai:button_bar>
 	          	<h:commandButton action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" accesskey="a" />
@@ -319,5 +284,3 @@
   </sakai:view>
 </f:view> 
 
-
-	   			
