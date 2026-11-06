@@ -15053,7 +15053,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // commit
                     try {
-                        assignmentService.updateSubmission(submission);
+                        boolean hasUploadedSubmission = (hasSubmissionText && w.hasSubmissionText())
+                                || (hasSubmissionAttachment && !w.getSubmissionAttachments().isEmpty());
+                        assignmentService.updateSubmission(submission, hasUploadedSubmission);
                         if (releaseGrades && graded) {
                             // update grade in gradebook
                             if (associateGradebookAssignment != null) {
@@ -15557,7 +15559,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 submission.setGrade(null);
                                 submission.setGraded(true);
                             }
-                            assignmentService.updateSubmission(submission);
+                            assignmentService.updateSubmission(submission, false);
                             state.setAttribute(SAVED_FEEDBACK, Boolean.TRUE);
                         }
                     } catch (Exception userException) {
@@ -16975,6 +16977,8 @@ public class AssignmentAction extends PagedResourceActionII {
          */
         String m_text = null;
 
+        private boolean m_hasSubmissionText;
+
         /**
          * the submission attachment list
          */
@@ -17036,6 +17040,11 @@ public class AssignmentAction extends PagedResourceActionII {
          */
         public void setText(String text) {
             m_text = text;
+            m_hasSubmissionText = true;
+        }
+
+        public boolean hasSubmissionText() {
+            return m_hasSubmissionText;
         }
 
         /**
