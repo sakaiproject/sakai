@@ -45,12 +45,13 @@ final class AssessmentPdfImageMapCoords {
         this.jsonMapper = jsonMapper;
     }
 
-    List<Rectangle> parseRectangles(List<String> regionJsons) {
-        List<Rectangle> answerRectangles = new ArrayList<>();
+    List<IndexedRegion> parseRegions(List<String> regionJsons) {
+        List<IndexedRegion> regions = new ArrayList<>();
         if (regionJsons == null) {
-            return answerRectangles;
+            return regions;
         }
-        for (String regionJson : regionJsons) {
+        for (int i = 0; i < regionJsons.size(); i++) {
+            String regionJson = regionJsons.get(i);
             String json = extractJsonObject(regionJson);
             if (json == null) {
                 continue;
@@ -64,12 +65,33 @@ final class AssessmentPdfImageMapCoords {
                 if (x1.isEmpty() || y1.isEmpty() || x2.isEmpty() || y2.isEmpty()) {
                     continue;
                 }
-                answerRectangles.add(new Rectangle((float) x1.getAsDouble(), (float) y1.getAsDouble(), (float) x2.getAsDouble(), (float) y2.getAsDouble()));
+                regions.add(new IndexedRegion(
+                        new Rectangle((float) x1.getAsDouble(), (float) y1.getAsDouble(),
+                                (float) x2.getAsDouble(), (float) y2.getAsDouble()),
+                        i + 1));
             } catch (JsonProcessingException e) {
                 log.warn("Skipping unparseable image map answer rectangle [{}], {}", regionJson, e.toString());
             }
         }
-        return answerRectangles;
+        return regions;
+    }
+
+    static final class IndexedRegion {
+        private final Rectangle rectangle;
+        private final int index;
+
+        IndexedRegion(Rectangle rectangle, int index) {
+            this.rectangle = rectangle;
+            this.index = index;
+        }
+
+        Rectangle getRectangle() {
+            return rectangle;
+        }
+
+        int getIndex() {
+            return index;
+        }
     }
 
     List<ImageMapCircle> parseCircles(List<AssessmentPdfItemGradingModel> itemsGrading) {

@@ -134,6 +134,7 @@ public final class AssessmentPdfCellEvents {
         private static final Color LEADER_COLOR = AssessmentPdfStyle.TEXT_SECONDARY;
 
         private final List<Rectangle> answerRectangles;
+        private final List<Integer> answerRectangleIndexes;
         private final List<ImageMapCircle> answerCircles;
         private final float originalWidth;
         private final float originalHeight;
@@ -148,9 +149,11 @@ public final class AssessmentPdfCellEvents {
          * @param drawnHeight    height the image actually occupies on the page after scaling
          */
         public ImageMapQuestionCellEvent(List<ImageMapCircle> answerCircles, List<Rectangle> answerRectangles,
-                float originalWidth, float originalHeight, float drawnWidth, float drawnHeight) {
+                List<Integer> answerRectangleIndexes, float originalWidth, float originalHeight, float drawnWidth,
+                float drawnHeight) {
             this.answerCircles = answerCircles;
             this.answerRectangles = answerRectangles;
+            this.answerRectangleIndexes = answerRectangleIndexes;
             this.originalWidth = originalWidth;
             this.originalHeight = originalHeight;
             this.drawnWidth = drawnWidth;
@@ -159,6 +162,10 @@ public final class AssessmentPdfCellEvents {
 
         public List<Rectangle> getAnswerRectangles() {
             return answerRectangles;
+        }
+
+        public List<Integer> getAnswerRectangleIndexes() {
+            return answerRectangleIndexes;
         }
 
         public List<ImageMapCircle> getAnswerCircles() {
@@ -181,7 +188,7 @@ public final class AssessmentPdfCellEvents {
             float scaleY = drawnHeight / originalHeight;
             Rectangle imageBounds = new Rectangle(x, y, x + drawnWidth, y + drawnHeight);
 
-            List<Rectangle> regionBoxes = transformedRegions(x, y, scaleX, scaleY);
+            List<RegionBox> regionBoxes = transformedRegions(x, y, scaleX, scaleY);
             List<Marker> markers = transformedMarkers(x, y, scaleX, scaleY);
 
             drawRegions(canvas, regionBoxes);
@@ -190,15 +197,19 @@ public final class AssessmentPdfCellEvents {
             resetGraphicsState(canvas);
         }
 
-        private List<Rectangle> transformedRegions(float x, float y, float scaleX, float scaleY) {
-            List<Rectangle> boxes = new ArrayList<>();
-            for (Rectangle region : answerRectangles) {
+        private List<RegionBox> transformedRegions(float x, float y, float scaleX, float scaleY) {
+            List<RegionBox> boxes = new ArrayList<>();
+            for (int i = 0; i < answerRectangles.size(); i++) {
+                Rectangle region = answerRectangles.get(i);
                 float left = x + region.getLeft() * scaleX;
                 float right = x + region.getRight() * scaleX;
                 float bottom = y + drawnHeight - region.getTop() * scaleY;
                 float top = y + drawnHeight - region.getBottom() * scaleY;
                 if (right > left && top > bottom) {
-                    boxes.add(new Rectangle(left, bottom, right, top));
+                    int areaIndex = answerRectangleIndexes != null && i < answerRectangleIndexes.size()
+                            ? answerRectangleIndexes.get(i)
+                            : i + 1;
+                    boxes.add(new RegionBox(new Rectangle(left, bottom, right, top), areaIndex));
                 }
             }
             return boxes;
@@ -217,8 +228,9 @@ public final class AssessmentPdfCellEvents {
             return markers;
         }
 
-        private static void drawRegions(PdfContentByte canvas, List<Rectangle> regionBoxes) {
-            for (Rectangle region : regionBoxes) {
+        private static void drawRegions(PdfContentByte canvas, List<RegionBox> regionBoxes) {
+            for (RegionBox regionBox : regionBoxes) {
+                Rectangle region = regionBox.getBox();
                 canvas.saveState();
                 PdfGState fillState = new PdfGState();
                 fillState.setFillOpacity(AREA_FILL_OPACITY);
@@ -257,20 +269,19 @@ public final class AssessmentPdfCellEvents {
             }
         }
 
-        private void drawLabels(PdfContentByte canvas, List<Rectangle> regionBoxes, List<Marker> markers,
+        private void drawLabels(PdfContentByte canvas, List<RegionBox> regionBoxes, List<Marker> markers,
                 Rectangle imageBounds) {
             try {
                 BaseFont font = BaseFont.createFont();
                 List<ImageMapLabelLayout.Label> labels = new ArrayList<>();
                 List<Rectangle> obstacles = new ArrayList<>();
 
-                int areaNumber = 1;
-                for (Rectangle region : regionBoxes) {
+                for (RegionBox regionBox : regionBoxes) {
+                    Rectangle region = regionBox.getBox();
                     float centerX = (region.getLeft() + region.getRight()) / 2f;
                     float centerY = (region.getBottom() + region.getTop()) / 2f;
                     obstacles.add(anchorBox(centerX, centerY, 2.5f));
-                    labels.add(newLabel(String.valueOf(areaNumber), centerX, centerY, font, true));
-                    areaNumber++;
+                    labels.add(newLabel(String.valueOf(regionBox.getAreaIndex()), centerX, centerY, font, true));
                 }
                 for (Marker marker : markers) {
                     obstacles.add(anchorBox(marker.getX(), marker.getY(), MARKER_RADIUS + 1f));
@@ -384,6 +395,24 @@ public final class AssessmentPdfCellEvents {
             canvas.setLineWidth(1f);
             canvas.setColorFill(Color.BLACK);
             canvas.setColorStroke(Color.BLACK);
+        }
+
+        private static final class RegionBox {
+            private final Rectangle box;
+            private final int areaIndex;
+
+            private RegionBox(Rectangle box, int areaIndex) {
+                this.box = box;
+                this.areaIndex = areaIndex;
+            }
+
+            private Rectangle getBox() {
+                return box;
+            }
+
+            private int getAreaIndex() {
+                return areaIndex;
+            }
         }
 
         private static final class Marker {
