@@ -47,6 +47,7 @@ import com.microsoft.playwright.assertions.LocatorAssertions;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.Route;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SamigoTest extends SakaiUiTestBase {
@@ -507,6 +508,9 @@ class SamigoTest extends SakaiUiTestBase {
         page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
         assertThat(page.getByText(tagLabel, new Page.GetByTextOptions().setExact(true))).isVisible();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag").setExact(true)).click();
+        page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel + " second");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
 
         sakai.toolClick("Tests");
         openNewAssessmentForm();
@@ -517,10 +521,31 @@ class SamigoTest extends SakaiUiTestBase {
         Locator edit = page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify");
         edit.click();
         Locator picker = page.locator(".samigo-tag-picker sakai-tag-selector");
-        selectQuestionTag(picker, tagLabel, collectionName);
+        // Exercise real server pagination with a page smaller than the picker's requested 20.
+        String tagSearchRoute = "**/getTagsPaginatedByPrefixInLabel.json?*";
+        page.route(tagSearchRoute, route -> route.resume(new Route.ResumeOptions()
+            .setUrl(route.request().url().replace("pagelimit=20", "pagelimit=1"))));
+        sakai.waitForPortalFocus();
+        picker.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Load more tags").setExact(true)).click();
+        assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(2);
+        assertThat(picker.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Load more tags").setExact(true))).hasCount(0);
+        picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions()
+            .setName(tagLabel + " (" + collectionName + ")").setExact(true)).click();
+        page.unroute(tagSearchRoute);
         Locator removeTag = picker.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true));
+            new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel + " (" + collectionName + ")").setExact(true));
         saveQuestionAndWaitForAssessment();
+        // Block the initialization module: the server must still submit the saved association.
+        String tagScriptRoute = "**/samigo-app/js/tag-display.js";
+        page.route(tagScriptRoute, route -> route.abort());
+        edit.click();
+        Locator savedOptions = page.locator(".samigo-tag-picker select option:checked");
+        assertThat(savedOptions).hasCount(1);
+        assertThat(savedOptions).hasText(tagLabel);
+        saveQuestionAndWaitForAssessment();
+        page.unroute(tagScriptRoute);
         edit.click();
         assertThat(removeTag).isVisible();
         removeTag.click();
@@ -549,7 +574,8 @@ class SamigoTest extends SakaiUiTestBase {
         Response response = page.waitForResponse(r -> r.url().contains("/getTagsPaginatedByPrefixInLabel.json"),
             () -> input.fill(tag));
         assertEquals(200, response.status(), response.url());
-        Locator option = picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(tag));
+        Locator option = picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions()
+            .setName(tag + " (" + collection + ")").setExact(true));
         assertThat(option).containsText(collection);
         option.click();
     }

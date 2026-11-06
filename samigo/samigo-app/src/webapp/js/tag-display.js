@@ -42,13 +42,13 @@ for (const container of document.querySelectorAll(".samigo-tag-picker")) {
 
     customElements.whenDefined("sakai-tag-selector").then(() => {
         picker.searchTags = async (prefix, page, signal) => {
-            const params = new URLSearchParams({ siteId, prefix, page });
+            const params = new URLSearchParams({ siteId, prefix, page, pagelimit: 20 });
             const response = await fetch(`/direct/tagservice/getTagsPaginatedByPrefixInLabel.json?${params}`, { signal });
             if (!response.ok) { throw new Error(`Unable to search for tags: ${response.status}`); }
             const { data } = await response.json();
             return {
                 tags: data.tags.map(tag => ({ code: tag.tagId, name: tag.tagLabel, collection: tag.collectionName })),
-                more: data.tags.length > 0,
+                more: data.more,
             };
         };
         picker.selectedTags = savedTags;

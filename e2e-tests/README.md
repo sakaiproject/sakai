@@ -114,6 +114,16 @@ This verifies tag loading on pool creation/editing, tag persistence, and filteri
 when entering Question Pools directly from a new assessment in a fresh session.
 It checks the actual tag API URL and HTTP response without mocking requests.
 
+### Samigo question-tag regression
+
+Enable `tagservice.enabled=true`, `samigo.author.usetags=true`, and
+`samigo.question.show.showSearchQuestion=true` on the test server.
+Run `SamigoTest#canSaveClearAndSubmitQuestionTagSearch` with
+`-Dsakai.test.samigoQuestionTags=true`. CI enables these settings and runs the test.
+It covers loading multiple real tag-search pages with a reduced page size, saving
+existing tags when the picker initialization script is blocked, clearing tags,
+and submitting a tag search.
+
 ## Samigo group-access regression (SAK-52287)
 
 `SamigoGroupAccessTest` uses a prepared site because the default demo course does
