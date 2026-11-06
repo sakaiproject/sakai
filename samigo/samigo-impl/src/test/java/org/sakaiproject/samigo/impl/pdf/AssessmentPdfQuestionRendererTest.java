@@ -94,17 +94,17 @@ public class AssessmentPdfQuestionRendererTest {
     }
 
     @Test
-    public void parseRectanglesAndCirclesSkipInvalidCoordinates() throws Exception {
+    public void parseRegionsAndCirclesSkipInvalidCoordinates() throws Exception {
         AssessmentPdfImageMapCoords coords = new AssessmentPdfImageMapCoords(new ObjectMapper());
-        List<Rectangle> rectangles = coords.parseRectangles(List.of(
+        List<AssessmentPdfImageMapCoords.IndexedRegion> regions = coords.parseRegions(List.of(
                 VALID_REGION,
                 "{\"x1\":null,\"y1\":19,\"x2\":181,\"y2\":283}",
                 "{\"x1\":\"17\",\"y1\":19,\"x2\":181,\"y2\":283}",
                 "{\"x1\":1e309,\"y1\":19,\"x2\":181,\"y2\":283}",
                 "{\"y1\":19,\"x2\":181,\"y2\":283}"));
-        assertEquals(1, rectangles.size());
-        assertEquals(17f, rectangles.get(0).getLeft(), 0.01f);
-        assertEquals(283f, rectangles.get(0).getTop(), 0.01f);
+        assertEquals(1, regions.size());
+        assertEquals(17f, regions.get(0).getRectangle().getLeft(), 0.01f);
+        assertEquals(283f, regions.get(0).getRectangle().getTop(), 0.01f);
 
         List<ImageMapCircle> circles = coords.parseCircles(List.of(
                 new AssessmentPdfItemGradingModel(STUDENT_CLICK, 1L),
@@ -115,6 +115,32 @@ public class AssessmentPdfQuestionRendererTest {
         assertEquals(555f, circles.get(0).getX(), 0.01f);
         assertEquals(666f, circles.get(0).getY(), 0.01f);
         assertEquals(1, circles.get(0).getSequence());
+    }
+
+    @Test
+    public void parseRegionsKeepsOriginalIndexesWhenRegionsAreInvalid() throws Exception {
+        AssessmentPdfImageMapCoords coords = new AssessmentPdfImageMapCoords(new ObjectMapper());
+        List<AssessmentPdfImageMapCoords.IndexedRegion> regions = coords.parseRegions(List.of(
+                "{\"x1\":null,\"y1\":19,\"x2\":181,\"y2\":283}",
+                VALID_REGION,
+                "undefined",
+                "{\"x1\":17,\"y1\":19,\"x2\":181,\"y2\":283}"));
+
+        assertEquals(2, regions.size());
+        assertEquals(2, regions.get(0).getIndex());
+        assertEquals(4, regions.get(1).getIndex());
+    }
+
+    @Test
+    public void printableRenderPreservesAreaIndexesWhenEarlierRegionIsInvalid() throws Exception {
+        AssessmentPdfQuestionModel question = imageMapQuestion(null, MAP_RESOURCE, List.of(
+                "{\"x1\":null,\"y1\":19,\"x2\":181,\"y2\":283}",
+                VALID_REGION), Collections.emptyList());
+
+        OverlayCapturingDocument document = renderPrint(question, printSettings(true), contentHosting(MAP_RESOURCE));
+
+        assertEquals(1, document.overlays.size());
+        assertEquals(List.of(2), document.overlays.get(0).getAnswerRectangleIndexes());
     }
 
     @Test

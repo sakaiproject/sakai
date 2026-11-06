@@ -513,8 +513,11 @@ public class AssessmentPdfQuestionRenderer {
             keyLabel.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
             document.add(keyLabel);
         }
-        List<Rectangle> answerRectangles = showKeys ? imageMapCoords.parseRectangles(imageMapRegionJsons(question)) : List.of();
-        renderImageMapImage(document, context, imageMapSource(question), answerRectangles, List.of(), "the printable assessment");
+        List<AssessmentPdfImageMapCoords.IndexedRegion> indexedRegions = showKeys
+                ? imageMapCoords.parseRegions(imageMapRegionJsons(question))
+                : List.of();
+        renderImageMapImage(document, context, imageMapSource(question), rectangles(indexedRegions), indexes(indexedRegions),
+                List.of(), "the printable assessment");
     }
 
     private void renderPrintAnswerKey(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question, Long questionType, AssessmentPdfPrintSettingsModel printSettings) throws Exception {
@@ -828,24 +831,25 @@ public class AssessmentPdfQuestionRenderer {
             return;
         }
         String imageSrc = imageMapSource(question);
-        List<Rectangle> answerRectangles = imageMapCoords.parseRectangles(imageMapRegionJsons(question));
+        List<AssessmentPdfImageMapCoords.IndexedRegion> indexedRegions =
+                imageMapCoords.parseRegions(imageMapRegionJsons(question));
         List<ImageMapCircle> answerCircles = imageMapCoords.parseCircles(question.getItemGradingData());
 
         // Two separate images keep the area numbers and the student click numbers legible even
         // when the same Hot Spot is small or several clicks land close together.
         if (!answerCircles.isEmpty()) {
             addImageMapSectionLabel(document, AssessmentPdfBundle.getCommonString("student_response", context.getLocale()) + ":");
-            renderImageMapImage(document, context, imageSrc, List.of(), answerCircles,
+            renderImageMapImage(document, context, imageSrc, List.of(), List.of(), answerCircles,
                     "the student report (student response)");
         }
-        if (!answerRectangles.isEmpty()) {
+        if (!indexedRegions.isEmpty()) {
             addImageMapSectionLabel(document, AssessmentPdfBundle.getEvaluationString("ans_key", context.getLocale()) + ":");
-            renderImageMapImage(document, context, imageSrc, answerRectangles, List.of(),
-                    "the student report (answer key)");
+            renderImageMapImage(document, context, imageSrc, rectangles(indexedRegions), indexes(indexedRegions),
+                    List.of(), "the student report (answer key)");
         }
-        if (answerRectangles.isEmpty() && answerCircles.isEmpty()) {
+        if (indexedRegions.isEmpty() && answerCircles.isEmpty()) {
             addImageMapSectionLabel(document, AssessmentPdfBundle.getEvaluationString("ans_key", context.getLocale()) + ":");
-            renderImageMapImage(document, context, imageSrc, List.of(), List.of(), "the student report");
+            renderImageMapImage(document, context, imageSrc, List.of(), List.of(), List.of(), "the student report");
         }
     }
 
@@ -857,8 +861,25 @@ public class AssessmentPdfQuestionRenderer {
         document.add(sectionLabel);
     }
 
-    private void renderImageMapImage(Document document, QuestionRenderContext context, String imageSrc, List<Rectangle> answerRectangles,
-            List<ImageMapCircle> answerCircles, String warnContext) throws Exception {
+    private static List<Rectangle> rectangles(List<AssessmentPdfImageMapCoords.IndexedRegion> regions) {
+        List<Rectangle> rectangles = new ArrayList<>();
+        for (AssessmentPdfImageMapCoords.IndexedRegion region : regions) {
+            rectangles.add(region.getRectangle());
+        }
+        return rectangles;
+    }
+
+    private static List<Integer> indexes(List<AssessmentPdfImageMapCoords.IndexedRegion> regions) {
+        List<Integer> indexes = new ArrayList<>();
+        for (AssessmentPdfImageMapCoords.IndexedRegion region : regions) {
+            indexes.add(region.getIndex());
+        }
+        return indexes;
+    }
+
+    private void renderImageMapImage(Document document, QuestionRenderContext context, String imageSrc,
+            List<Rectangle> answerRectangles, List<Integer> answerRectangleIndexes, List<ImageMapCircle> answerCircles,
+            String warnContext) throws Exception {
         if (StringUtils.isBlank(imageSrc)) {
             return;
         }
@@ -881,7 +902,8 @@ public class AssessmentPdfQuestionRenderer {
             // getWidth/getHeight are the intrinsic size the answer coordinates are stored against;
             // getScaledWidth/Height are what scaleImageForPage left the image occupying on the page.
             imageCell.setCellEvent(new ImageMapQuestionCellEvent(answerCircles, answerRectangles,
-                    image.getWidth(), image.getHeight(), image.getScaledWidth(), image.getScaledHeight()));
+                    answerRectangleIndexes, image.getWidth(), image.getHeight(), image.getScaledWidth(),
+                    image.getScaledHeight()));
         }
         imageTable.addCell(imageCell);
         document.add(imageTable);
