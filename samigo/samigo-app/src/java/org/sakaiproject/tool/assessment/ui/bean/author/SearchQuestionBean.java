@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import jakarta.faces.bean.SessionScoped;
@@ -40,6 +41,7 @@ import org.opensearch.search.aggregations.bucket.terms.Terms;
 import org.opensearch.search.aggregations.metrics.TopHits;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tags.api.Tag;
@@ -150,11 +152,7 @@ public class SearchQuestionBean   implements Serializable {
 
         try {
 
-            SearchResponse sr = searchService.searchResponse("", null, null, 0, 0, "questions",additionalSearchInformation);
-            log.debug("This is the search response: " + sr.toString());
-            Terms dedup = sr.getAggregations().get("dedup");
-
-            for (Terms.Bucket entry : dedup.getBuckets()) {
+            for (Terms.Bucket entry : searchQuestionBuckets("", additionalSearchInformation)) {
                 String key = entry.getKeyAsString();                    // bucket key
                 long docCount = entry.getDocCount();            // Doc count
                 log.debug("key [{"+key+"}], doc_count [{"+docCount+"}]");
@@ -170,7 +168,7 @@ public class SearchQuestionBean   implements Serializable {
                 }
             }
 
-        }catch (org.sakaiproject.search.api.InvalidSearchQueryException ex){
+        }catch (InvalidSearchQueryException ex){
             log.info("Error in the search: " + ex.getMessage());
             String publish_error= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","tag_tags_error2");
             FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
@@ -219,12 +217,7 @@ public class SearchQuestionBean   implements Serializable {
         this.setTextToSearch(textToSearch);
 
         try {
-            SearchResponse sr = searchService.searchResponse(textToSearch, null, null, 0, 0, "questions", additionalSearchInformation);
-            log.debug("This is the search repsonse: " + sr.toString());
-            Terms dedup = sr.getAggregations().get("dedup");
-            // For each entry
-            for (Terms.Bucket entry : dedup.getBuckets()) {
-
+            for (Terms.Bucket entry : searchQuestionBuckets(textToSearch, additionalSearchInformation)) {
                 String key = entry.getKeyAsString();                    // bucket key
                 long docCount = entry.getDocCount();            // Doc count
                 log.debug("key [{"+key+"}], doc_count [{"+docCount+"}]");
@@ -243,7 +236,7 @@ public class SearchQuestionBean   implements Serializable {
             }
 
 
-        }catch (org.sakaiproject.search.api.InvalidSearchQueryException ex){
+        }catch (InvalidSearchQueryException ex){
             log.info("Error in the search: " + ex.getMessage());
             String publish_error= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","tag_text_error3");
             FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
@@ -276,6 +269,24 @@ public class SearchQuestionBean   implements Serializable {
 
     }
 
+
+    private List<? extends Terms.Bucket> searchQuestionBuckets(String query, Map<String, String> options)
+            throws InvalidSearchQueryException {
+        if (searchService.isEnabled()) {
+            SearchResponse response = searchService.searchResponse(query, null, null, 0, 0, "questions", options);
+            Terms dedup = response == null || response.getAggregations() == null
+                ? null : response.getAggregations().get("dedup");
+            if (dedup != null) {
+                return dedup.getBuckets();
+            }
+            log.warn("Question search returned no deduplication aggregation");
+        }
+
+        String message = ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.AuthorMessages", "question_search_unavailable");
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+        return List.of();
+    }
 
     private String origin(SearchHit hit){
         try {
