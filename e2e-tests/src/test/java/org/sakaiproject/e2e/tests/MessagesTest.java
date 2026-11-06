@@ -36,6 +36,7 @@ class MessagesTest extends SakaiUiTestBase {
         page.navigate(courseUrl);
         sakai.toolClick("Messages");
         page.locator("#messagesComposeMenuLink").click();
+        sakai.waitForPortalFocus();
 
         Locator to = page.locator("#compose\\:list1 + sakai-user-picker");
         Locator bcc = page.locator("#compose\\:list2 + sakai-user-picker");
@@ -44,9 +45,11 @@ class MessagesTest extends SakaiUiTestBase {
         Locator toOption = to.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText("student0011"));
         assertThat(toOption).isVisible();
         toOption.click();
+        toSearch.press("Escape");
         page.locator("#compose\\:bcc_toggle").check();
         bcc.getByRole(AriaRole.COMBOBOX).fill("student0012");
         bcc.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText("student0012")).click();
+        bcc.getByRole(AriaRole.COMBOBOX).press("Escape");
 
         String subject = "Recipient draft " + sakai.randomId();
         page.locator("#compose\\:subject").fill(subject);
@@ -68,6 +71,7 @@ class MessagesTest extends SakaiUiTestBase {
         page.navigate(courseUrl);
         sakai.toolClick("Messages");
         page.locator("#messagesComposeMenuLink").click();
+        sakai.waitForPortalFocus();
         String recipient = sakai.resolveUsername("student0011");
         String blindRecipient = sakai.resolveUsername("student0012");
         selectRecipient("compose", "list1", recipient);
@@ -95,6 +99,7 @@ class MessagesTest extends SakaiUiTestBase {
 
         for (String action : List.of("Reply", "Reply to all", "Forward")) {
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(action).setExact(true)).first().click();
+            sakai.waitForPortalFocus();
             String formId = "Reply".equals(action) ? "pvtMsgReply" : "pvtMsgForward";
             String bccToggle = "Reply to all".equals(action) ? "bcc_checkbox" : "bcc_toggle";
             if (!"Reply to all".equals(action)) {
@@ -119,6 +124,7 @@ class MessagesTest extends SakaiUiTestBase {
         picker.getByRole(AriaRole.COMBOBOX).fill(username);
         picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(username)).click();
         assertThat(picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(username))).isVisible();
+        picker.getByRole(AriaRole.COMBOBOX).press("Escape");
     }
 
     @Test
@@ -135,6 +141,7 @@ class MessagesTest extends SakaiUiTestBase {
         }
         draftFolder.click();
         page.locator("#messagesComposeMenuLink").click();
+        sakai.waitForPortalFocus();
         String subject = "Tagged draft " + System.currentTimeMillis();
         String tag = "Draft tag " + System.currentTimeMillis();
         page.locator("#compose\\:subject").fill(subject);
