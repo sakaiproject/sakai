@@ -205,10 +205,11 @@ class CalendarTest extends SakaiUiTestBase {
         Locator picker = page.locator("sakai-user-picker");
         picker.getByRole(AriaRole.COMBOBOX).fill(memberEid);
         picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(memberEid)).click();
+        picker.getByRole(AriaRole.COMBOBOX).press("Escape");
 
         Locator submit = page.locator("#create-group-submit-button");
         assertThat(submit).isEnabled();
-        submit.click(new Locator.ClickOptions().setForce(true));
+        submit.click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("#group-manager-form a").filter(new Locator.FilterOptions().setHasText(groupTitle)).click();
         assertThat(picker.getByRole(AriaRole.BUTTON,
