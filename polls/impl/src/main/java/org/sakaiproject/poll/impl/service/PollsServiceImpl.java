@@ -68,6 +68,9 @@ import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
 import static org.sakaiproject.poll.api.PollConstants.APPLICATION_ID;
+import static org.sakaiproject.poll.api.PollConstants.EVENT_POLL_ADD;
+import static org.sakaiproject.poll.api.PollConstants.EVENT_POLL_DELETE;
+import static org.sakaiproject.poll.api.PollConstants.EVENT_POLL_UPDATE;
 import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 import static org.sakaiproject.poll.api.PollConstants.PERMISSION_DELETE_ANY;
 import static org.sakaiproject.poll.api.PollConstants.PERMISSION_DELETE_OWN;
@@ -230,7 +233,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         descMap.put("en-US", "User " + (isNew ? "created" : "updated") + " a poll with text:" + savedPoll.getText());
         lrsObject.setDescription(descMap);
         LearningResourceStoreService.LRS_Statement statement = new LearningResourceStoreService.LRS_Statement(student, verb, lrsObject);
-        String eventType = isNew ? "poll.add" : "poll.update";
+        String eventType = isNew ? EVENT_POLL_ADD : EVENT_POLL_UPDATE;
         // TODO update poll REFERENCE - "/poll/" + poll.getSiteId() + "/poll/" + poll.getId()
         Event event = eventTrackingService.newEvent(eventType, "/poll/" + poll.getSiteId() + "/poll/" + poll.getId(), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
@@ -529,7 +532,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             pollRepository.deleteById(id);
 
             log.debug("Poll id {} deleted", id);
-            eventTrackingService.post(eventTrackingService.newEvent("poll.delete", "/poll/" + poll.getSiteId() + "/" + id, true));
+            eventTrackingService.post(eventTrackingService.newEvent(EVENT_POLL_DELETE, "/poll/" + poll.getSiteId() + "/" + id, true));
         });
     }
 
@@ -610,6 +613,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
 
         pollRepository.save(poll);
+        postOptionsChanged(poll);
+    }
+
+    // Options are part of the poll, so changing them outside savePoll has to announce the update as well
+    private void postOptionsChanged(Poll poll) {
+        eventTrackingService.post(eventTrackingService.newEvent(EVENT_POLL_UPDATE, "/poll/" + poll.getSiteId() + "/poll/" + poll.getId(), true));
     }
 
     public Poll saveNewOption(Poll poll, final Option option) {
@@ -622,6 +631,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             poll.addOption(option);
             Poll saved = pollRepository.save(poll);
             log.debug("Option {} successfully saved", option);
+            postOptionsChanged(saved);
             return saved;
         } else {
             log.warn("Cannot save existing option {}", option.getId());
