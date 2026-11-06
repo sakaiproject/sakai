@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -93,17 +94,17 @@ public class AssessmentPdfQuestionRendererTest {
     }
 
     @Test
-    public void parseRectanglesAndCirclesSkipInvalidCoordinates() throws Exception {
+    public void parseRegionsAndCirclesSkipInvalidCoordinates() throws Exception {
         AssessmentPdfImageMapCoords coords = new AssessmentPdfImageMapCoords(new ObjectMapper());
-        List<Rectangle> rectangles = coords.parseRectangles(List.of(
+        List<AssessmentPdfImageMapCoords.IndexedRegion> regions = coords.parseRegions(List.of(
                 VALID_REGION,
                 "{\"x1\":null,\"y1\":19,\"x2\":181,\"y2\":283}",
                 "{\"x1\":\"17\",\"y1\":19,\"x2\":181,\"y2\":283}",
                 "{\"x1\":1e309,\"y1\":19,\"x2\":181,\"y2\":283}",
                 "{\"y1\":19,\"x2\":181,\"y2\":283}"));
-        assertEquals(1, rectangles.size());
-        assertEquals(17f, rectangles.get(0).getLeft(), 0.01f);
-        assertEquals(283f, rectangles.get(0).getTop(), 0.01f);
+        assertEquals(1, regions.size());
+        assertEquals(17f, regions.get(0).getRectangle().getLeft(), 0.01f);
+        assertEquals(283f, regions.get(0).getRectangle().getTop(), 0.01f);
 
         List<ImageMapCircle> circles = coords.parseCircles(List.of(
                 new AssessmentPdfItemGradingModel(STUDENT_CLICK, 1L),
@@ -114,6 +115,32 @@ public class AssessmentPdfQuestionRendererTest {
         assertEquals(555f, circles.get(0).getX(), 0.01f);
         assertEquals(666f, circles.get(0).getY(), 0.01f);
         assertEquals(1, circles.get(0).getSequence());
+    }
+
+    @Test
+    public void parseRegionsKeepsOriginalIndexesWhenRegionsAreInvalid() throws Exception {
+        AssessmentPdfImageMapCoords coords = new AssessmentPdfImageMapCoords(new ObjectMapper());
+        List<AssessmentPdfImageMapCoords.IndexedRegion> regions = coords.parseRegions(List.of(
+                "{\"x1\":null,\"y1\":19,\"x2\":181,\"y2\":283}",
+                VALID_REGION,
+                "undefined",
+                "{\"x1\":17,\"y1\":19,\"x2\":181,\"y2\":283}"));
+
+        assertEquals(2, regions.size());
+        assertEquals(2, regions.get(0).getIndex());
+        assertEquals(4, regions.get(1).getIndex());
+    }
+
+    @Test
+    public void printableRenderPreservesAreaIndexesWhenEarlierRegionIsInvalid() throws Exception {
+        AssessmentPdfQuestionModel question = imageMapQuestion(null, MAP_RESOURCE, List.of(
+                "{\"x1\":null,\"y1\":19,\"x2\":181,\"y2\":283}",
+                VALID_REGION), Collections.emptyList());
+
+        OverlayCapturingDocument document = renderPrint(question, printSettings(true), contentHosting(MAP_RESOURCE));
+
+        assertEquals(1, document.overlays.size());
+        assertEquals(List.of(2), document.overlays.get(0).getAnswerRectangleIndexes());
     }
 
     @Test
@@ -461,26 +488,49 @@ public class AssessmentPdfQuestionRendererTest {
     }
 
     @Test
-    public void studentReportRenderPrefersImageSrcAndOverlaysStudentClick() throws Exception {
+    public void studentReportRenderPrefersImageSrcAndSplitsAreaAndClickImages() throws Exception {
         ContentHostingService contentHostingService = contentHosting(STUDENT_RESOURCE);
         AssessmentPdfQuestionModel question = imageMapQuestion(STUDENT_RESOURCE, MAP_RESOURCE, List.of(VALID_REGION),
                 List.of(new AssessmentPdfItemGradingModel(STUDENT_CLICK, 9001L, 1)));
 
         OverlayCapturingDocument document = renderReport(question, contentHostingService);
-        assertEquals(1, document.overlays.size());
-        ImageMapQuestionCellEvent overlay = document.overlays.get(0);
-        assertEquals(1, overlay.getAnswerRectangles().size());
-        assertEquals(1, overlay.getAnswerCircles().size());
-        ImageMapCircle click = overlay.getAnswerCircles().get(0);
+        assertEquals(2, document.overlays.size());
+
+        ImageMapQuestionCellEvent studentResponse = document.overlays.get(0);
+        assertTrue(studentResponse.getAnswerRectangles().isEmpty());
+        assertEquals(1, studentResponse.getAnswerCircles().size());
+        ImageMapCircle click = studentResponse.getAnswerCircles().get(0);
         assertEquals(555f, click.getX(), 0.01f);
         assertEquals(666f, click.getY(), 0.01f);
         assertEquals(1, click.getSequence());
-        verify(contentHostingService).getResource(STUDENT_RESOURCE);
+
+        ImageMapQuestionCellEvent answerKey = document.overlays.get(1);
+        assertEquals(1, answerKey.getAnswerRectangles().size());
+        assertTrue(answerKey.getAnswerCircles().isEmpty());
+
+        verify(contentHostingService, times(2)).getResource(STUDENT_RESOURCE);
         verify(contentHostingService, never()).getResource(MAP_RESOURCE);
+    }
+
+    @Test
+    public void reportImageMapDistinguishesOutsideClickFromMissingResponse() throws Exception {
+        AssessmentPdfQuestionModel outside = imageMapQuestion(STUDENT_RESOURCE, MAP_RESOURCE, List.of(VALID_REGION),
+                List.of(), new AssessmentPdfImageMapRowModel("1. Heart", Boolean.FALSE, 1, null, true));
+        assertTrue(renderReportCapturingText(outside).text.toString().contains("Outside area"));
+
+        AssessmentPdfQuestionModel missing = imageMapQuestion(STUDENT_RESOURCE, MAP_RESOURCE, List.of(VALID_REGION),
+                List.of(), new AssessmentPdfImageMapRowModel("1. Heart", Boolean.FALSE, 1, null, false));
+        assertTrue(renderReportCapturingText(missing).text.toString().contains("No Answer"));
     }
 
     private static AssessmentPdfQuestionModel imageMapQuestion(String imageSrc, String imageMapSrc, List<String> regions,
             List<AssessmentPdfItemGradingModel> clicks) {
+        return imageMapQuestion(imageSrc, imageMapSrc, regions, clicks,
+                new AssessmentPdfImageMapRowModel("1. Heart", Boolean.TRUE, 1, null, false));
+    }
+
+    private static AssessmentPdfQuestionModel imageMapQuestion(String imageSrc, String imageMapSrc, List<String> regions,
+            List<AssessmentPdfItemGradingModel> clicks, AssessmentPdfImageMapRowModel row) {
         return AssessmentPdfQuestionModel.builder()
                 .typeId(TypeIfc.IMAGEMAP_QUESTION)
                 .itemHtmlText("Identify the organs")
@@ -491,7 +541,7 @@ public class AssessmentPdfQuestionRendererTest {
                 .imageMapSrc(imageMapSrc)
                 .imageMapItemTexts(List.of("Heart"))
                 .imageMapRegionJsons(regions)
-                .imageMapRows(List.of(new AssessmentPdfImageMapRowModel("1. Heart", Boolean.TRUE)))
+                .imageMapRows(List.of(row))
                 .itemGradingData(clicks)
                 .build();
     }

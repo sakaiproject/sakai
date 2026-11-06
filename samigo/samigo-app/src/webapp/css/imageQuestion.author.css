@@ -59,6 +59,7 @@
 .authorImageContainer{
 	position:relative;
 	overflow-x: auto;
+	overflow-y: hidden;
 	max-width: 85vw;
 	zoom: 1;
 	filter: alpha(opacity=99);
@@ -66,6 +67,7 @@
 }
 
 .authorImageContainer img{
+	display: block;
 	max-width: none;
 }
 

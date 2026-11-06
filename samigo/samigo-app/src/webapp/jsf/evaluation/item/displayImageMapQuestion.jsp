@@ -48,29 +48,47 @@ include file for displaying fill in the numeric questions
 			}catch(err){}
 			
 		});	
+
+		placeImageMapBadges('imageMapContainer');
 	});
-	
+
 	var selectionList = [];
+	/**
+	 * Draws a student's Hot Spot clicks on the answer-key image.
+	 * @param {string} answerString serialized sequence:coordinates pairs
+	 */
 	function loadAnswer(answerString) {
-		for(var i=0; i<selectionList.length; i++)
-		{
+		for (var i = 0; i < selectionList.length; i++) {
 			selectionList[i].remove();
 			delete selectionList[i];
 		}
 		selectionList = [];
-		
+
 		var tokens = answerString.split('<br/>');
-		for(var i=0; i<tokens.length; i++)
-		{
-			try
-			{
-				var label = tokens[i].substring(0, tokens[i].indexOf(':'));
-				var coords = tokens[i].substring(tokens[i].indexOf(':')+1);
+		for (var i = 0; i < tokens.length; i++) {
+			try {
+				var label = tokens[i].substring(0, tokens[i].indexOf(':')).replace(/<[^>]*>/g, '').trim();
+				var coords = tokens[i].substring(tokens[i].indexOf(':') + 1);
 				var newSelection = new selectionStudent('pointerClass', 'imageMapContainer');
 				newSelection.setCoords(jQuery.parseJSON(coords));
 				newSelection.setText(label);
 				selectionList.push(newSelection);
-			}catch(err){}
+			} catch (err) {
+			}
+		}
+		placeImageMapBadges('imageMapContainer');
+	}
+
+	/**
+	 * Loads the response stored in the row's escaped hidden input.
+	 * @param {HTMLElement} link Hot Spot response link
+	 */
+	function loadAnswerFromLink(link) {
+		var cell = link.closest('td');
+		var holder = cell ? cell.querySelector('.hotspot-response-data') : null;
+		var input = holder ? holder.querySelector('input') : null;
+		if (input) {
+			loadAnswer(input.value);
 		}
 	}
 </script>
@@ -89,7 +107,8 @@ include file for displaying fill in the numeric questions
  </h:column>
 </h:dataTable>
 
+<h4 class="imagemap_legend"><h:outputText value="#{evaluationMessages.ans_key}"/></h4>
 <div id="imageMapContainer" class='authorImageContainer'>
-    <img id='img' src='<h:outputText value="#{question.imageMapSrc}"/>' alt='<h:outputText value="#{question.imageMapAltText}"/>'/>
+    <img id='imageMapCorrectImg' src='<h:outputText value="#{question.imageMapSrc}"/>' alt='<h:outputText value="#{question.imageMapAltText}"/>'/>
 </div>
 <%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
