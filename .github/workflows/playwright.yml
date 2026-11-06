@@ -106,7 +106,6 @@ jobs:
           printf '%s\n' \
             'cardgame.showOfficialPhoto=false' 'cardgame.skipNoImageUsers=true' \
             'tagservice.enabled=true' 'samigo.author.usetags=true' \
-            'samigo.question.show.showSearchQuestion=true' \
             'profile2.picture.change.enabled=true' 'profile2.picture.type=upload' >> sakai/local.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai";

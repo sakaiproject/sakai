@@ -108,13 +108,13 @@ It checks the actual tag API URL and HTTP response without mocking requests.
 
 ### Samigo question-tag regression
 
-Enable `tagservice.enabled=true`, `samigo.author.usetags=true`, and
-`samigo.question.show.showSearchQuestion=true` on the test server.
+Enable `tagservice.enabled=true` and `samigo.author.usetags=true` on the test server.
 Run `SamigoTest#canSaveClearAndSubmitQuestionTagSearch` with
 `-Dsakai.test.samigoQuestionTags=true`. CI enables these settings and runs the test.
 It covers loading multiple real tag-search pages with a reduced page size, saving
-existing tags when the picker initialization script is blocked, clearing tags,
-and submitting a tag search.
+existing tags when the picker initialization script is blocked, and clearing tags.
+On servers with question search enabled, it also verifies submitting a tag search.
+CI leaves question search disabled because it does not provide the search index.
 
 ## Samigo group-access regression (SAK-52287)
 
