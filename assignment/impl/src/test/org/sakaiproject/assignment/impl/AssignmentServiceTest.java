@@ -108,6 +108,7 @@ import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -3747,9 +3748,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(true);
         try {
+            Mockito.clearInvocations(eventTrackingService);
             assignmentService.updateSubmission(submission, false);
 
             Mockito.verifyNoInteractions(userMessagingService, taskService);
+            verify(eventTrackingService, Mockito.never()).newEvent(eq(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION),
+                    anyString(), Mockito.isNull(), eq(true), eq(NotificationService.NOTI_OPTIONAL),
+                    Mockito.any(LRS_Statement.class));
             Assert.assertEquals("Unreleased bulk feedback", assignmentService.getSubmission(submission.getId()).getFeedbackComment());
         } finally {
             when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(false);
@@ -3767,9 +3772,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(true);
         try {
+            Mockito.clearInvocations(eventTrackingService);
             assignmentService.updateSubmission(submission, false);
 
             Mockito.verifyNoInteractions(userMessagingService, taskService);
+            verify(eventTrackingService, Mockito.never()).newEvent(eq(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION),
+                    anyString(), Mockito.isNull(), eq(true), eq(NotificationService.NOTI_OPTIONAL),
+                    Mockito.any(LRS_Statement.class));
             Assert.assertFalse(assignmentService.getSubmission(submission.getId()).getReturned());
         } finally {
             when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(false);
