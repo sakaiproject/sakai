@@ -2335,7 +2335,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Instant dateSubmitted = submission.getDateSubmitted();
         if (!submission.getSubmitted()) {
             // if the submission is not submitted then saving a submission event
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION, reference, true));
+            if (notifySubmission) {
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION, reference, true));
+            }
         } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().toEpochMilli() - dateSubmitted.toEpochMilli() > 1000 * 60)) {
             // make sure the last modified time is at least one minute after the submit time
             if (!(StringUtils.trimToNull(submission.getSubmittedText()) == null && submission.getAttachments().isEmpty() && StringUtils.trimToNull(submission.getGrade()) == null && StringUtils.trimToNull(submission.getFeedbackText()) == null && StringUtils.trimToNull(submission.getFeedbackComment()) == null && submission.getFeedbackAttachments().isEmpty())) {
