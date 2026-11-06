@@ -24,6 +24,7 @@ import com.microsoft.playwright.Route;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
@@ -50,6 +51,11 @@ class MessagesTest extends SakaiUiTestBase {
         bcc.getByRole(AriaRole.COMBOBOX).fill("student0012");
         bcc.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText("student0012")).click();
         bcc.getByRole(AriaRole.COMBOBOX).press("Escape");
+        selectRecipient("compose", "list1", "student0012");
+        to.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear all selections").setExact(true)).click();
+        assertThat(page.locator("#compose\\:list1")).hasValues(new String[0]);
+        assertThat(bcc.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(Pattern.compile("^Remove ")))).hasCount(1);
+        selectRecipient("compose", "list1", "student0011");
 
         String subject = "Recipient draft " + sakai.randomId();
         page.locator("#compose\\:subject").fill(subject);
@@ -58,10 +64,10 @@ class MessagesTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Draft").setExact(true)).click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(subject).setExact(true)).click();
 
-        assertThat(to.getByRole(AriaRole.BUTTON)).hasCount(1);
-        assertThat(bcc.getByRole(AriaRole.BUTTON)).hasCount(1);
-        assertThat(to.getByRole(AriaRole.BUTTON)).containsText("student0011");
-        assertThat(bcc.getByRole(AriaRole.BUTTON)).containsText("student0012");
+        assertThat(to.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(Pattern.compile("^Remove ")))).hasCount(1);
+        assertThat(bcc.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(Pattern.compile("^Remove ")))).hasCount(1);
+        assertThat(to.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(Pattern.compile("^Remove ")))).containsText("student0011");
+        assertThat(bcc.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(Pattern.compile("^Remove ")))).containsText("student0012");
     }
 
     @Test
