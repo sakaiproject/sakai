@@ -56,6 +56,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         Locator picker = page.locator("sakai-user-picker");
         picker.getByRole(AriaRole.COMBOBOX).click();
         picker.getByRole(AriaRole.OPTION).last().click();
+        picker.getByRole(AriaRole.COMBOBOX).press("Escape");
         assertThat(page.locator("#create-group-submit-button")).isEnabled();
         page.locator("#create-group-submit-button").click();
         assertThat(groupRow(groupTitle).getByRole(AriaRole.LINK,
@@ -199,6 +200,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         Locator picker = page.locator("sakai-user-picker");
         picker.getByRole(AriaRole.COMBOBOX).fill(student);
         picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(student)).click();
+        picker.getByRole(AriaRole.COMBOBOX).press("Escape");
         assertThat(page.locator("#create-group-submit-button")).isEnabled();
         page.locator("#create-group-submit-button").click();
         assertThat(groupRow(title)).isVisible();

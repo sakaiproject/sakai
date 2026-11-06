@@ -68,6 +68,7 @@ class GroupTitleValidationTest extends SakaiUiTestBase {
         Locator picker = page.locator("sakai-user-picker");
         picker.getByRole(AriaRole.COMBOBOX).click();
         picker.getByRole(AriaRole.OPTION).first().click();
+        picker.getByRole(AriaRole.COMBOBOX).press("Escape");
         page.locator("#create-group-submit-button").click();
 
         page.locator(".navIntraTool a[href$='/autogroups']").click();
