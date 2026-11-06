@@ -406,7 +406,7 @@ public class AssignmentToolUtils {
             properties.put(PROP_LAST_GRADED_DATE, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault()).format(Instant.now()));
 
             try {
-                assignmentService.updateSubmission(submission);
+                assignmentService.updateSubmission(submission, false);
             } catch (PermissionException e) {
                 log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
                 return;

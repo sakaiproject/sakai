@@ -15053,7 +15053,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // commit
                     try {
-                        assignmentService.updateSubmission(submission);
+                        assignmentService.updateSubmission(submission, hasSubmissionText || hasSubmissionAttachment);
                         if (releaseGrades && graded) {
                             // update grade in gradebook
                             if (associateGradebookAssignment != null) {
@@ -15557,7 +15557,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 submission.setGrade(null);
                                 submission.setGraded(true);
                             }
-                            assignmentService.updateSubmission(submission);
+                            assignmentService.updateSubmission(submission, false);
                             state.setAttribute(SAVED_FEEDBACK, Boolean.TRUE);
                         }
                     } catch (Exception userException) {

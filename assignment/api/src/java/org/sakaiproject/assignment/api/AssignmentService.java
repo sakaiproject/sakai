@@ -432,6 +432,17 @@ public interface AssignmentService extends EntityProducer {
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException;
 
     /**
+     * Update a submission, optionally allowing student-submission events and notifications.
+     * Pass false when saving only grades, feedback, or release state. Grade-release
+     * notifications are unaffected.
+     *
+     * @param submission the submission to update
+     * @param notifySubmission whether the update may generate a student-submission event and notifications
+     * @throws PermissionException if the current user cannot update or grade the submission
+     */
+    void updateSubmission(AssignmentSubmission submission, boolean notifySubmission) throws PermissionException;
+
+    /**
      * Archives the current feedback text and visible submitted attachments in the existing HTML history.
      * Call before changing the submission's submitted flag, date, feedback, or attachments, including
      * when saving the first draft of a resubmission. Draft attachments are not archived.

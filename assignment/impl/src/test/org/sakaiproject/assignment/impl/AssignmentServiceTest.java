@@ -203,6 +203,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Before
     public void setUp() {
+        when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(false);
         when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(false);
         when(serverConfigurationService.getAccessUrl()).thenReturn("http://localhost:8080/access");
         resourceLoader = mock(ResourceLoader.class);
@@ -3740,6 +3741,76 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void savingRecentFeedbackDoesNotSendSubmissionNotifications() throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        submission.setFeedbackComment("Unreleased bulk feedback");
+        submission.setGraded(true);
+
+        assignmentService.updateSubmission(submission, false);
+
+        Mockito.verifyNoInteractions(userMessagingService, taskService);
+        Assert.assertEquals("Unreleased bulk feedback", assignmentService.getSubmission(submission.getId()).getFeedbackComment());
+    }
+
+    @Test
+    public void uploadingUnreleasedFeedbackAfterReturnDoesNotSendSubmissionNotifications() throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        submission.setDateSubmitted(Instant.now().minusSeconds(86400));
+        submission.setDateReturned(Instant.now().minusSeconds(3600));
+        submission.setReturned(false);
+        submission.setGraded(true);
+        submission.setFeedbackComment("Uploaded feedback, release later");
+
+        assignmentService.updateSubmission(submission, false);
+
+        Mockito.verifyNoInteractions(userMessagingService, taskService);
+        Assert.assertFalse(assignmentService.getSubmission(submission.getId()).getReturned());
+    }
+
+    @Test
+    public void submissionsAndResubmissionsStillSendSubmissionNotifications() throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        assignmentService.updateSubmission(submission);
+
+        submission.setDateSubmitted(Instant.now());
+        submission.setSubmittedText("Resubmitted answer");
+        assignmentService.updateSubmission(submission);
+
+        ArgumentCaptor<Message> messages = ArgumentCaptor.forClass(Message.class);
+        verify(userMessagingService, Mockito.times(2)).message(Mockito.anySet(), messages.capture(),
+                eq(List.of(MessageMedium.EMAIL)), Mockito.anyMap(), eq(NotificationService.NOTI_REQUIRED));
+        Assert.assertTrue(messages.getAllValues().stream().allMatch(message -> "submission".equals(message.getType())));
+    }
+
+    private AssignmentSubmission createNotificationSubmission() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String studentId = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfSubmission(Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION);
+        AssignmentSubmission submission = createNewSubmission(context, studentId, assignment);
+        submission.setSubmitted(true);
+        submission.setUserSubmission(true);
+        submission.setDateSubmitted(Instant.now());
+        submission.setSubmittedText("Student answer");
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(false);
+        User student = mock(User.class);
+        when(student.getId()).thenReturn(studentId);
+        when(student.getDisplayName()).thenReturn("Student");
+        when(student.getDisplayId()).thenReturn("student");
+        when(userDirectoryService.getUser(studentId)).thenReturn(student);
+        when(siteService.getSite(context).getUsers()).thenReturn(Set.of(studentId));
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(true);
+        Mockito.clearInvocations(userMessagingService, taskService);
+        return submission;
+    }
+
+    @Test
     public void releasedFeedbackEmailsUseRecipientPermissionsForEachSubmitter() throws Exception {
         String context = UUID.randomUUID().toString();
         String submittingStudentId = UUID.randomUUID().toString();
@@ -3776,18 +3847,18 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submission.setGradeReleased(false);
         Mockito.clearInvocations(userMessagingService);
 
-        assignmentService.updateSubmission(submission);
+        assignmentService.updateSubmission(submission, false);
         Mockito.verifyNoInteractions(userMessagingService);
 
         submission.setGradeReleased(true);
         assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
                 AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_NONE);
-        assignmentService.updateSubmission(submission);
+        assignmentService.updateSubmission(submission, false);
         Mockito.verifyNoInteractions(userMessagingService);
 
         assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
                 AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
-        assignmentService.updateSubmission(submission);
+        assignmentService.updateSubmission(submission, false);
 
         ArgumentCaptor<Set<User>> recipients = ArgumentCaptor.forClass(Set.class);
         ArgumentCaptor<Map<String, Object>> replacements = ArgumentCaptor.forClass(Map.class);
@@ -3808,7 +3879,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         Mockito.clearInvocations(userMessagingService);
         when(site.getToolForCommonId(AssignmentConstants.TOOL_ID)).thenReturn(null);
-        assignmentService.updateSubmission(submission);
+        assignmentService.updateSubmission(submission, false);
         recipients = ArgumentCaptor.forClass(Set.class);
         replacements = ArgumentCaptor.forClass(Map.class);
         verify(userMessagingService, Mockito.times(2)).message(recipients.capture(), Mockito.any(Message.class),

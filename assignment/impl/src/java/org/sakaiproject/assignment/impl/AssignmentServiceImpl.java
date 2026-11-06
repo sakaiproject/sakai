@@ -2303,6 +2303,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     @Transactional(rollbackFor = PermissionException.class)
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException {
+        updateSubmission(submission, true);
+    }
+
+    @Override
+    @Transactional(rollbackFor = PermissionException.class)
+    public void updateSubmission(AssignmentSubmission submission, boolean notifySubmission) throws PermissionException {
         Assert.notNull(submission, "Submission cannot be null");
         Assert.notNull(submission.getId(), "Submission doesn't appear to have been persisted yet");
 
@@ -2383,7 +2389,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                 }
             }
-        } else {
+        } else if (notifySubmission) {
             // submitting a submission
             Assignment a = submission.getAssignment();
             LRS_Statement statement = getStatementForSubmitAssignment(a.getId(), serverConfigurationService.getAccessUrl(), a.getTitle());
