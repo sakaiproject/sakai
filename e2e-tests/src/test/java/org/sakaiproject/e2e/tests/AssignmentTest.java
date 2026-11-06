@@ -79,6 +79,8 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(1);
         picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions().setName("North seminar")).click();
         assertThat(picker.locator("#filterByGroup")).hasValue(groupId);
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear all selections").setExact(true)).click();
+        assertThat(picker.locator("#filterByGroup")).hasValue("all");
     }
 
     @Test

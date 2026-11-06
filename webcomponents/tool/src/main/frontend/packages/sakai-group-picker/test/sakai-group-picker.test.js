@@ -19,7 +19,7 @@ describe("sakai-group-picker tests", () => {
 
   it("filters a bound select and updates only matching choices", async () => {
     sessionStorage.setItem("user-picker", JSON.stringify({
-      search: "Search", remove: "Remove {}", one_result: "1 result", result_count: "{} results",
+      search: "Search", remove: "Remove {}", clear_selection: "Clear all selections", one_result: "1 result", result_count: "{} results",
       no_options: "No choices", no_results: "No matches", selected_count: "{} selected",
       select_matching: "Select matching groups", clear_matching: "Clear matching groups",
     }));
@@ -50,11 +50,14 @@ describe("sakai-group-picker tests", () => {
     expect(new FormData(form).getAll("groups")).to.deep.equal([ "south", "east", "west" ]);
     root.querySelectorAll(".matching-actions button")[0].click();
     expect(new FormData(form).getAll("groups")).to.deep.equal([ "north", "south", "east", "west" ]);
+    await elementUpdated(picker.querySelector("sakai-user-picker"));
+    root.querySelector('[aria-label="Clear all selections"]').click();
+    expect(new FormData(form).getAll("groups")).to.deep.equal([]);
   });
 
   it("keeps a selected disabled group locked in a declaratively bound field", async () => {
     sessionStorage.setItem("user-picker", JSON.stringify({
-      search: "Search", remove: "Remove {}", one_result: "1 result", result_count: "{} results",
+      search: "Search", remove: "Remove {}", clear_selection: "Clear all selections", one_result: "1 result", result_count: "{} results",
       no_options: "No choices", no_results: "No matches", selected_count: "{} selected",
       select_matching: "Select matching groups", clear_matching: "Clear matching groups",
     }));
@@ -70,7 +73,7 @@ describe("sakai-group-picker tests", () => {
     await waitUntil(() => select.hidden);
     const root = form.querySelector("sakai-user-picker").renderRoot;
     expect(root.querySelector('[aria-label="Remove Locked group"]').disabled).to.be.true;
-    root.querySelector('[aria-label="Remove Open group"]').click();
+    root.querySelector('[aria-label="Clear all selections"]').click();
     expect(Array.from(select.selectedOptions, option => option.value)).to.deep.equal([ "locked" ]);
   });
 
