@@ -15,6 +15,17 @@
  */
 package org.sakaiproject.site.tool;
 
+import java.util.Locale;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.util.Map;
@@ -68,8 +79,6 @@ import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -144,6 +153,24 @@ public class SiteActionTest {
         Mockito.when(siteService.getSiteTypeStrings("project")).thenReturn(Arrays.asList(types));
         Mockito.when(serverConfigurationService.getString(Mockito.eq("projectSiteTargetType"), Mockito.anyString()))
                 .thenAnswer(invocation -> invocation.getArgument(1));
+    }
+
+    @Test
+    public void concurrentLocaleRequestsEachReceiveTheConfiguredLocales() throws Exception {
+        Locale[] configured = {Locale.ENGLISH, Locale.FRENCH};
+        CountDownLatch ready = new CountDownLatch(8);
+        Mockito.when(serverConfigurationService.getSakaiLocales()).thenAnswer(invocation -> {
+            ready.countDown();
+            org.junit.Assert.assertTrue(ready.await(5, TimeUnit.SECONDS));
+            return configured;
+        });
+        try (ExecutorService executor = Executors.newFixedThreadPool(8)) {
+            List<Callable<List<Locale>>> requests =
+                Collections.nCopies(8, siteAction::getPrefLocales);
+            for (Future<List<Locale>> result : executor.invokeAll(requests)) {
+                org.junit.Assert.assertEquals(Arrays.asList(configured), result.get());
+            }
+        }
     }
 
     @Test
