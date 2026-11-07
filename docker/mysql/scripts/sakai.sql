@@ -1,10 +1,17 @@
--- Creates a sakai database at startup
-create database sakai default character set utf8; 
-create database sakai12 default character set utf8; 
-create database sakai19 default character set utf8; 
-create database sakai20 default character set utf8; 
+-- Bootstrap databases and the sakai application user (MariaDB 10+ / MySQL 8+).
+-- Runs only on first start when the data volume is empty.
 
--- Create some databases if you want to use it for other purposes
-grant all on `sakai%`.* to sakai@'localhost' identified by 'ironchef'; 
-grant all on `sakai%`.* to sakai@'127.0.0.1' identified by 'ironchef';
-grant all on `sakai%`.* to sakai@'%' identified by 'ironchef';
+CREATE DATABASE IF NOT EXISTS sakai DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS sakai12 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS sakai19 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS sakai20 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'sakai'@'%' IDENTIFIED BY 'ironchef';
+CREATE USER IF NOT EXISTS 'sakai'@'localhost' IDENTIFIED BY 'ironchef';
+CREATE USER IF NOT EXISTS 'sakai'@'127.0.0.1' IDENTIFIED BY 'ironchef';
+
+GRANT ALL PRIVILEGES ON `sakai%`.* TO 'sakai'@'%';
+GRANT ALL PRIVILEGES ON `sakai%`.* TO 'sakai'@'localhost';
+GRANT ALL PRIVILEGES ON `sakai%`.* TO 'sakai'@'127.0.0.1';
+
+FLUSH PRIVILEGES;
