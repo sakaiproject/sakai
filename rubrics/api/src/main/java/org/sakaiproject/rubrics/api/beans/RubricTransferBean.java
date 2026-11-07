@@ -53,6 +53,8 @@ public class RubricTransferBean {
     private String title;
     private Boolean weighted;
     private Boolean adhoc;
+    private Instant softRemovedDate;
+    private String formattedSoftRemovedDate;
 
     public RubricTransferBean(Rubric rubric) {
 
@@ -76,5 +78,6 @@ public class RubricTransferBean {
         title = rubric.getTitle();
         weighted = rubric.getWeighted();
         adhoc = rubric.getAdhoc();
+        softRemovedDate = rubric.getSoftRemovedDate();
     }
 }

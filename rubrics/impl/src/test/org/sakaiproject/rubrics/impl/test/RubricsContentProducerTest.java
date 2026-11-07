@@ -105,9 +105,13 @@ public class RubricsContentProducerTest extends AbstractTransactionalJUnit4Sprin
     public void rubricEventsMapToIndexActions() {
         assertEquals(SearchBuilderItem.ACTION_ADD, contentProducer.getAction(event(RubricsConstants.EVENT_RUBRIC_CREATED)));
         assertEquals(SearchBuilderItem.ACTION_ADD, contentProducer.getAction(event(RubricsConstants.EVENT_RUBRIC_UPDATED)));
+        assertEquals(SearchBuilderItem.ACTION_ADD, contentProducer.getAction(event(RubricsConstants.EVENT_RUBRIC_RESTORED)));
         assertEquals(SearchBuilderItem.ACTION_DELETE, contentProducer.getAction(event(RubricsConstants.EVENT_RUBRIC_DELETED)));
+        assertEquals(SearchBuilderItem.ACTION_DELETE, contentProducer.getAction(event(RubricsConstants.EVENT_RUBRIC_PERMANENTLY_DELETED)));
         assertEquals(SearchBuilderItem.ACTION_UNKNOWN, contentProducer.getAction(event("rubrics.evaluation.saved")));
         assertTrue(contentProducer.matches(event(RubricsConstants.EVENT_RUBRIC_UPDATED)));
+        assertTrue(contentProducer.matches(event(RubricsConstants.EVENT_RUBRIC_RESTORED)));
+        assertTrue(contentProducer.matches(event(RubricsConstants.EVENT_RUBRIC_PERMANENTLY_DELETED)));
         assertFalse(contentProducer.matches(event("asn.new.assignment")));
     }
 

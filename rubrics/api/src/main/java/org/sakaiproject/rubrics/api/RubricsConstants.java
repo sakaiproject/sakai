@@ -41,6 +41,7 @@ public interface RubricsConstants {
     public static final String RBCS_LIST_SUFFIX = "rubricslist";
     public static final String RBCS_LIST = RBCS_PREFIX + RBCS_LIST_SUFFIX;
     public static final String RBCS_SOFT_DELETED = RBCS_PREFIX + "soft-deleted";
+    public static final String RBCS_RUBRIC_SOFT_DELETED = RBCS_PREFIX + "rubric-soft-deleted";
     public static final String RBCS_ASSESSOR_ID = "assessorId";
     public static final String RBCS_HAS_ASSOCIATED_RUBRIC = "hasAssociatedRubric";
     public static final String RBCS_STUDENT_SELF_REPORT = "studentSelfReport";
@@ -57,6 +58,8 @@ public interface RubricsConstants {
     public static final String EVENT_RUBRIC_CREATED = "rubric.created";
     public static final String EVENT_RUBRIC_UPDATED = "rubric.updated";
     public static final String EVENT_RUBRIC_DELETED = "rubric.deleted";
+    public static final String EVENT_RUBRIC_RESTORED = "rubric.restored";
+    public static final String EVENT_RUBRIC_PERMANENTLY_DELETED = "rubric.permanently.deleted";
 
     //samigo custom props
     public static final String RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX = "pub.";
