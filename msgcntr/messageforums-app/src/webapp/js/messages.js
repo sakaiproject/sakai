@@ -81,15 +81,13 @@ $(document).ready(function(){
 	  loadUI();  
 });
 
-function changeSelect(obj) {
-	$(obj).trigger("change");
-}
-
-function addTagSelector(obj) {
-  	if (obj) {
-	  	$(obj).select2({formatNoMatches:function(){return'';},placeholder: obj.getAttribute('title')});
-	  	$(obj).on('change',function(){resize();});
-  	}
+function bindRecipientPicker(select) {
+  if (!select) { return; }
+  select.addEventListener("change", resize);
+  customElements.whenDefined("sakai-user-picker").then(() => {
+    const picker = document.createElement("sakai-user-picker");
+    picker.bindSelect(select);
+  });
 }
 
 $(document).ready(function(){

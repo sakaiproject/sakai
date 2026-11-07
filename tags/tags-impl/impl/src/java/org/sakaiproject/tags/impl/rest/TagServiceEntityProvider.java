@@ -218,6 +218,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
                 jsonArray.add(formDetailsJson);
             }
             responseDetailsJson.put("total",tagCount );
+            responseDetailsJson.put("more", (long) Math.max(1, page) * Math.max(1, pageLimit) < tagCount);
             responseDetailsJson.put("tags", jsonArray);//Here you can see the data in json format
 
             return responseDetailsJson;

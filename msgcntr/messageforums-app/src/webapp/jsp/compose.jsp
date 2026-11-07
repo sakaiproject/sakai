@@ -12,7 +12,6 @@
 	}
 %>
 
-
 <f:view>
 	<sakai:view title="#{msgs.pvt_pvtcompose}">
 		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
@@ -22,7 +21,7 @@
 		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
-		<script>includeWebjarLibrary('select2');</script>
+		<script type="module" src="/webcomponents/bundles/user-picker.js"></script>
 
 	<h:form id="compose">
 		<script>
@@ -32,7 +31,7 @@
 					{
 						selectObject.options[i].selected=false;
 					}
-					changeSelect(selectObject);
+					selectObject.dispatchEvent(new Event('change', { bubbles: true }));
 				}
 
 				function fadeInBcc(clearSelected){
@@ -63,30 +62,16 @@
 				  		fadeInBcc(false);
 						document.getElementById('compose:bcc_toggle').checked = true;
 				  	}
-				  	addTagSelector(document.getElementById('compose:list1'));
-				  	addTagSelector(document.getElementById('compose:list2'));
+					bindRecipientPicker(document.getElementById('compose:list1'));
+					bindRecipientPicker(document.getElementById('compose:list2'));
 				  	resize();
 					var menuLink = $('#messagesComposeMenuLink');
 					var menuLinkSpan = menuLink.closest('span');
 					menuLinkSpan.addClass('current');
 					menuLinkSpan.html(menuLink.text());
 
-					// Add initial check for selections
-					handleSelectionChange(document.getElementById('compose:list1'), 'compose:deleteSelection1');
-					handleSelectionChange(document.getElementById('compose:list2'), 'compose:deleteSelection2');
-
 				});
 
-				function handleSelectionChange(selectElement, deleteSelectionId) {
-					let hasSelection = false;
-					for (let i = 0; i < selectElement.options.length; i++) {
-						if (selectElement.options[i].selected) {
-							hasSelection = true;
-							break;
-						}
-					}
-					document.getElementById(deleteSelectionId).style.display = hasSelection ? 'inline' : 'none';
-				}
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<!-- compose.jsp -->
@@ -121,15 +106,9 @@
 					</div>
 					<div class="col-xs-12 col-sm-10">
 						<h:panelGroup styleClass="shorttext">
-							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}" onchange="handleSelectionChange(this, 'compose:deleteSelection1')">
+							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 							</h:selectManyListbox>
-							<span id="compose:deleteSelection1" class="delete_selection" style="display: none;">
-								<span class="fa fa-trash" aria-hidden="true"></span>
-								<h:outputLink value="#" onclick="clearSelection(document.getElementById('compose:list1')); return false;">
-									<h:outputText value="#{msgs.pvt_bccClear}"/>
-								</h:outputLink>
-							</span>
 						</h:panelGroup>
 					</div>
 				</div>
@@ -149,15 +128,9 @@
 							</h:outputLabel>
 						</h:panelGroup>
 						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}" onchange="handleSelectionChange(this, 'compose:deleteSelection2')">
+							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<span id="compose:deleteSelection2" class="delete_selection" style="display: none;">
-								<span class="fa fa-trash" aria-hidden="true"></span>
-								<h:outputLink value="#" onclick="clearSelection(document.getElementById('compose:list2')); return false;">
-									<h:outputText value="#{msgs.pvt_bccClear}"/>
-								</h:outputLink>
-							</span>
 						</h:panelGroup>
 					</div>
 				</div>

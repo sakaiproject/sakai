@@ -33,6 +33,10 @@ public class TagJsonTest {
         assertEquals("id", tag.get("tagId").asText());
         assertEquals(label, tag.get("tagLabel").asText());
         assertEquals(collection, tag.get("tagCollectionName").asText());
+        assertEquals(List.of(new TagJson("id", label, collection)), TagJson.deserialize(json));
+        assertEquals(List.of(), TagJson.deserialize(null));
+        assertEquals(List.of(), TagJson.deserialize(""));
+        assertEquals(List.of(), TagJson.deserialize("[]"));
         assertEquals("[]", TagJson.serialize(null));
         assertEquals("[]", TagJson.serialize(List.of()));
     }

@@ -97,8 +97,7 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         assertThat(enabled).isChecked();
         assertThat(quota).hasValue("0");
 
-        quota.press("ControlOrMeta+A");
-        quota.press("Backspace");
+        quota.fill("");
         assertThat(quota).isEmpty();
         assertThat(enabled).isChecked();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
@@ -115,7 +114,7 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("button[title='Actions']").first().click();
         page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Edit Details").setExact(true)).first().click();
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        sakai.waitForPortalFocus();
         assertThat(page.locator("input[name^='quota']")).isVisible();
     }
 

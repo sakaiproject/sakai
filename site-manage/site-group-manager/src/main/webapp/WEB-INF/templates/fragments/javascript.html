@@ -251,10 +251,6 @@
 
 <script th:fragment="groupJs" th:inline="javascript">
   /*<![CDATA[*/
-  // Load the select2 library
-  includeLatestJQuery('sakai-site-group-manager');
-  includeWebjarLibrary('select2');
-
   const groupTitle = document.getElementById("groupTitle");
 
   //Disable or enable the submit depending on the group title value.
@@ -293,16 +289,12 @@
     }
   });
 
-  //Initialize the select2 component after jQuery is available (portal loads it post-parse)
-  document.addEventListener('DOMContentLoaded', () => {
-    var searchPlaceHolderText = /*[[#{groups.multiselect.search}]]*/;
-    jQuery('#groupMembers').select2({
-      placeholder: searchPlaceHolderText,
-      allowClear: true,
-      closeOnSelect: false,
-      width: '100%'
-    });
+  customElements.whenDefined("sakai-user-picker").then(() => {
+    const select = document.getElementById("groupMembers");
+    document.createElement("sakai-user-picker").bindSelect(select);
+  });
 
+  document.addEventListener("DOMContentLoaded", () => {
     [...document.querySelectorAll('.joinableset-popover')].map(el => new bootstrap.Popover(el));
   });
 
