@@ -22,7 +22,7 @@
 		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
-		<script>includeWebjarLibrary('select2');</script>
+		<script type="module" src="/webcomponents/bundles/user-picker.js"></script>
 	<h:form id="pvtMsgReply">
 		<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<script>
@@ -32,8 +32,7 @@
 					{
 						selectObject.options[i].selected=false;
 					}
-					changeSelect(selectObject);
-					updateClearButtons();
+					selectObject.dispatchEvent(new Event('change', { bubbles: true }));
 				}
 				
 				function fadeInBcc(clearSelected){
@@ -53,34 +52,6 @@
 					}
 					resize();
 				}
-				function updateClearButtons() {
-					const list1 = document.getElementById('pvtMsgReply:list1');
-					const list2 = document.getElementById('pvtMsgReply:list2');
-					const list1Clear = document.getElementById('pvtMsgReply:list1_clear');
-					const list2Clear = document.getElementById('pvtMsgReply:list2_clear');
-
-					// Check if any options are selected in list1
-					let list1HasSelection = false;
-					for (let i = 0; i < list1.options.length; i++) {
-						if (list1.options[i].selected) {
-							list1HasSelection = true;
-							break;
-						}
-					}
-
-					// Check if any options are selected in list2 
-					let list2HasSelection = false;
-					for (let i = 0; i < list2.options.length; i++) {
-						if (list2.options[i].selected) {
-							list2HasSelection = true;
-							break;
-						}
-					}
-
-					// Show/hide clear buttons based on selections
-					list1Clear.style.display = list1HasSelection ? 'inline' : 'none';
-					list2Clear.style.display = list2HasSelection ? 'inline' : 'none';
-				}
 				
 				function resize(){
 					mySetMainFrameHeight('<%=org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
@@ -91,16 +62,9 @@
 				  		//BCC has selected items, so show it
 				  		fadeInBcc(false);
 				  	}
-				  	addTagSelector(document.getElementById('pvtMsgReply:list1'));
-				  	addTagSelector(document.getElementById('pvtMsgReply:list2'));
+					bindRecipientPicker(document.getElementById('pvtMsgReply:list1'));
+					bindRecipientPicker(document.getElementById('pvtMsgReply:list2'));
 
-					// Add change event listeners to both lists
-					$('#pvtMsgReply\\:list1, #pvtMsgReply\\:list2').on('change', function() {
-						updateClearButtons();
-					});
-
-					// Initial update of clear buttons
-					updateClearButtons();
 				  	resize();
 
                     var menuLink = $('#messagesMainMenuLink');
@@ -129,7 +93,6 @@
 			<h:outputText value="#{msgs.pvt_reply}" />
 			<f:verbatim></h3></div></f:verbatim>
 		</h:panelGroup>
-
 
 	<%--//designNote: gsilver:commenting this header out as redundant--%>		
       <%-- <sakai:tool_bar_message value="#{msgs.pvt_reply}" />--%> 
@@ -174,12 +137,6 @@
 							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 							</h:selectManyListbox>
-							<span id="pvtMsgReply:list1_clear" style="display: none;">
-								<span class="fa fa-trash" aria-hidden="true"></span>
-								<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgReply:list1')); return false;">
-									<h:outputText value="#{msgs.pvt_bccClear}"/>
-								</h:outputLink>
-							</span>
 						</h:panelGroup>
 					</div>
 				</div>
@@ -198,15 +155,9 @@
 						</h:outputLabel>
 						<h:panelGroup styleClass="shorttext bccLink"></h:panelGroup>
 						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
+							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<span id="pvtMsgReply:list2_clear" style="display: none;">
-								<span class="fa fa-trash" aria-hidden="true"></span>
-								<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgReply:list2')); return false;">
-									<h:outputText value="#{msgs.pvt_bccClear}"/>
-								</h:outputLink>
-							</span>
 						</h:panelGroup>
 					</div>
 				</div>

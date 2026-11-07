@@ -1,5 +1,6 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
+import "@sakai-ui/sakai-user-picker/sakai-user-picker.js";
 
 export class SakaiGroupPicker extends SakaiElement {
 
@@ -16,12 +17,17 @@ export class SakaiGroupPicker extends SakaiElement {
 
     super();
 
-    this.loadTranslations("group-picker");
+    this._translations = this.loadTranslations("group-picker");
   }
 
   connectedCallback() {
 
     super.connectedCallback();
+
+    if (this.hasAttribute("bind-select")) {
+      const select = this.querySelector(":scope > select");
+      if (select) { this.bindSelect(select); }
+    }
 
     if (this.siteId && !this.groups) {
 
@@ -38,6 +44,27 @@ export class SakaiGroupPicker extends SakaiElement {
         })
         .catch(error => console.error(error));
     }
+  }
+
+  /** Enhance a tool-owned group field without changing its form values or change handlers. */
+  bindSelect(select) {
+    this._translations.then(() => {
+      if (!this._i18n || !select.isConnected || this._boundSelect) { return; }
+      this._boundSelect = select;
+      const picker = document.createElement("sakai-user-picker");
+      picker.placeholder = this._i18n.search_groups;
+      picker.bulkActions = select.multiple && !select.disabled && !this.hasAttribute("no-bulk-actions");
+      picker.style.maxInlineSize = "32rem";
+      picker.style.setProperty("--sakai-user-picker-input-basis", "7rem");
+      if (this.hasAttribute("bind-select")) {
+        picker.style.setProperty("--sakai-user-picker-results-position", "absolute");
+      }
+      if (select.parentElement !== this) {
+        select.after(this);
+        this.append(select);
+      }
+      picker.bindSelect(select);
+    });
   }
 
   groupChanged(e) {
@@ -59,7 +86,6 @@ export class SakaiGroupPicker extends SakaiElement {
   }
 
   render() {
-
     return html`
       <select aria-label="${this._i18n.group_selector_label}" @change=${this.groupChanged} ?multiple=${this.multiple} .value=${this.selectedGroups}>
         <option value="/site/${this.siteId}" .selected=${this.siteId && this.groupRef && this.siteId === this.groupRef}>

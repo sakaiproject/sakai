@@ -2,47 +2,12 @@
 #set( $H = '-' )
 #set( $T = 'T' )
 <script>includeLatestJQuery('sakai_properties');</script>
+<script type="module" src="/webcomponents/bundles/group-picker.js"></script>
 <script>
-    includeWebjarLibrary('bootstrap-multiselect');
-
-    <!-- Initialize the plugin: -->
     $(document).ready(function() {
 
         const infoTooltipTrigger = document.getElementById('infoTooltip');
         infoTooltipTrigger && (new bootstrap.Tooltip(infoTooltipTrigger));
-
-        $('#access_groups${DOT}$i').multiselect({
-            selectAllText: '$tlang.getString("access.edit.selectall")',
-            nonSelectedText: '$tlang.getString("access.edit.selectone")',
-            allSelectedText: '$tlang.getString("access.edit.allselected")',
-            nSelectedText: ' $tlang.getString("access.edit.groupsselected")',
-            filterPlaceholder: '$tlang.getString("access.edit.searchgroup")',
-            templates: {
-                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>',
-                filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>',
-            },
-            enableFiltering: true,
-            enableCaseInsensitiveFiltering: true
-        });
-
-        $('#addFolderInput').click(function(){
-            var index = document.getElementById("lastIndex");		
-            $('#access_groups${DOT}'+index.value).multiselect({
-                selectAllText: '$tlang.getString("access.edit.selectall")',
-                nonSelectedText: '$tlang.getString("access.edit.selectone")',
-                allSelectedText: '$tlang.getString("access.edit.allselected")',
-                nSelectedText: ' $tlang.getString("access.edit.groupsselected")',
-                templates: {
-                    button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>',
-                    filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>',
-                },
-                filterPlaceholder: '$tlang.getString("access.edit.searchgroup")',
-                enableFiltering: true,
-                enableCaseInsensitiveFiltering: true
-            });
-            var content = $('#access_groups${DOT}'+index.value).closest('.multiselect-native-select').contents();
-            $('#access_groups${DOT}'+index.value).closest('.multiselect-native-select').replaceWith(content);
-        });
 
         $('#copyToClipboardLink').on('click', function() {
             const input = document.getElementById('fileURLHolder');
@@ -58,14 +23,6 @@
     });
 
 </script>
-<style>
-button.btn.btn-default.multiselect-clear-filter{
-    padding: 6px 12px;
-    font-size: 14px;
-    line-height: 1.42857143;
-    background-color: #eee;
-}
-</style>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 #if($calendarcounter)<!-- calendarcounter == $calendarcounter -->#else#set($calendarcounter = 0)#end
 #if($item && !$model)#set($model = $item)#end
@@ -539,22 +496,24 @@ button.btn.btn-default.multiselect-clear-filter{
 					#if($model.isGroupPossible())
 						#set($theGroups = $model.possibleGroups)
 						<div id="groupTable${DOT}$i" class="ms-4" style="display:$listDisplay">
-							<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption><br/>
-							<select id="access_groups${DOT}$i" name="access_groups${DOT}$i" multiple="multiple">
-								#foreach ($group in $!{theGroups})
-									#set($selected=false)
-									#if ($model.isLocal($group) && $model.allowedRemove($group))
-										#set($selected = true)
+							<label for="access_groups${DOT}$i" class="visually-hidden">$tlang.getString("edit.access4")</label>
+							<sakai-group-picker bind-select no-bulk-actions>
+								<select id="access_groups${DOT}$i" name="access_groups${DOT}$i" multiple="multiple">
+									#foreach ($group in $!{theGroups})
+										#set($selected=false)
+										#if ($model.isLocal($group) && $model.allowedRemove($group))
+											#set($selected = true)
+										#end
+										#set($description = "")
+										#set($description = $formattedText.escapeHtml($group.Description))
+										#if($model.isPossible($group))
+											<option id="access_groups_${group.Id}${DOT}$i" name="access_groups${DOT}$i" value="$group.Id" #if($selected) selected #end>
+											$formattedText.escapeHtml($group.title) #if("$!description" != "") ($!description) #end
+											</option>
+										#end
 									#end
-									#set($description = "")
-									#set($description = $formattedText.escapeHtml($group.Description))
-									#if($model.isPossible($group))
-										<option id="access_groups_${group.Id}${DOT}$i" name="access_groups${DOT}$i" value="$group.Id" #if($selected) selected #end>
-									    	$formattedText.escapeHtml($group.title) #if("$!description" != "") ($!description) #end
-										</option>
-									#end
-								#end
-							</select>
+								</select>
+							</sakai-group-picker>
 						</div>
 					#end
 					#if($model.groupsAreMissing())

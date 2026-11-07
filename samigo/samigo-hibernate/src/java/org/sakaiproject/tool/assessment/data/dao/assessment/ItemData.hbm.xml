@@ -56,7 +56,7 @@
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment"/>
     </set>
-    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all" inverse="true" lazy="false" batch-size="50" >
+    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50" >
         <key column="ITEMID"/>
         <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag" />
     </set>

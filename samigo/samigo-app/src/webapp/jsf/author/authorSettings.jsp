@@ -42,7 +42,7 @@
       <script src="/samigo-app/js/authoring.js"></script>
       <script src="/samigo-app/js/authoringSecureDeliverySettings.js"></script>
       <script src="/library/js/spinner.js"></script>
-      <script>includeWebjarLibrary('bootstrap-multiselect');</script>
+      <script type="module" src="/webcomponents/bundles/group-picker.js"></script>
 
       <script>
         $(document).ready(function() {
@@ -164,40 +164,6 @@
 
           // Secure delivery
           initSecureDeliverySettings(false);
-
-          <!--Initialize bootstrap multiselect-->
-          $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");
-
-          var divElem = document.createElement('div');
-          var filterPlaceholder = <h:outputText value="'#{assessmentSettingsMessages.multiselect_filterPlaceholder}'" />;
-          divElem.innerHTML = filterPlaceholder;
-          filterPlaceholder = divElem.textContent;
-          var selectAllText = <h:outputText value="'#{assessmentSettingsMessages.select_all_groups}'" />;
-          divElem.innerHTML = selectAllText;
-          selectAllText = divElem.textContent;
-          var nonSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_nonSelectedText}'" />;
-          divElem.innerHTML = nonSelectedText;
-          nonSelectedText = divElem.textContent;
-          var allSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_allSelectedText}'" />;
-          divElem.innerHTML = allSelectedText;
-          allSelectedText = divElem.textContent;
-          var nSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_nSelectedText}'" />;
-          divElem.innerHTML = nSelectedText;
-          nSelectedText = divElem.textContent;
-          $("#assessmentSettingsAction\\:groupsForSite").multiselect({
-              enableFiltering: true,
-              enableCaseInsensitiveFiltering: true,
-              includeSelectAllOption: true,
-              filterPlaceholder: filterPlaceholder,
-              selectAllText: selectAllText,
-              nonSelectedText: nonSelectedText,
-              allSelectedText: allSelectedText,
-              nSelectedText: nSelectedText,
-              templates: {
-                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>',
-                filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>',
-              },
-          });
 
           const colorTextInput = document.getElementById("assessmentSettingsAction:pickColor");
           const colorInput = document.getElementById("color-input");
@@ -548,9 +514,11 @@
   </h:panelGroup>
 
   <div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10">
-    <h:selectManyListbox id="groupsForSite" value="#{assessmentSettings.groupsAuthorized}">
-      <f:selectItems value="#{assessmentSettings.groupsForUserInSite}" />
-    </h:selectManyListbox>
+    <sakai-group-picker bind-select>
+      <h:selectManyListbox id="groupsForSite" title="#{assessmentSettingsMessages.released_to}" value="#{assessmentSettings.groupsAuthorized}">
+        <f:selectItems value="#{assessmentSettings.groupsForUserInSite}" />
+      </h:selectManyListbox>
+    </sakai-group-picker>
   </div>
 
   <!-- NUMBER OF SUBMISSIONS -->

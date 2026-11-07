@@ -1,112 +1,19 @@
-<script>includeWebjarLibrary('select2');</script>
-<script src="/library/webjars/select2/4.0.13/js/i18n/<h:outputText value='#{itemauthor.language}' rendered='#{not empty itemauthor.language}' /><h:outputText value='en' rendered='#{empty itemauthor.language}' />.js"></script>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
+<script type="module" src="/samigo-app/js/tag-display.js"></script>
+
 <f:subview id="delete" rendered="#{itemauthor.deleteTagsAllowed == true}">
-    <input type="hidden" id="item-tag-data" value="<h:outputText value="#{itemauthor.tagsListToJson}"/>"/>
-    <script type="module">
-        import { tagLabel } from "/samigo-app/js/tag-display.js";
-
-
-        $(document).ready(function () {
-            $(".tag_selector").select2({
-                width: '50%',
-                language: "<h:outputText value="#{itemauthor.language}"/>",
-                closeOnSelect: false,
-                ajax: {
-                    url: "/direct/tagservice/getTagsPaginatedByPrefixInLabel.json",
-                    dataType: 'json',
-                    delay: 500,
-                    data: function (params) {
-                        return {
-                            siteId: "<h:outputText value='#{author.currentSiteId}'/>",
-                            prefix: params.term || "", // search term
-                            page: params.page
-                        };
-                    },
-                    processResults: function (data, params) {
-                        // parse the results into the format expected by Select2
-                        // since we are using custom formatting functions we do not need to
-                        // alter the remote JSON data, except to indicate that infinite
-                        // scrolling can be used
-                        params.page = params.page || 1;
-
-                        return {
-                            results: $.map(data.data.tags, function (item) {
-                                return {
-                                    text: item.tagLabel,
-                                    description: item.tagDescription,
-                                    id: item.tagId,
-                                    collection: item.collectionName
-                                }
-                            }),
-                            pagination: {more: (params.page * 30) < data.data.total}
-                        };
-                    },
-                    cache: true
-                },
-                escapeMarkup: function (markup) {
-                    return markup;
-                }, // let our custom formatter work
-                minimumInputLength: 1,
-                templateResult: formatRepo,
-                templateSelection: formatRepoSelection
-            })
-
-
-            //Load the item actual tags
-            var arr =JSON.parse(document.getElementById('item-tag-data').value);
-            for (var i = 0; i < arr.length; i++) {
-                var obj = arr[i];
-                var newOption = new Option(obj["tagLabel"], obj["tagId"], true, true);
-                $(".tag_selector").append(newOption);
-                $('.tag_selector option[value=' + obj["tagId"] + ']').attr("title", obj["tagCollectionName"]);
-            }
-            $(".tag_selector").trigger('change');
-
-            $('.tag_selector').on("select2:unselect", function (e) {
-                $('.tag_selector option').each(function () {
-                    if ($(this).val() == e.params.data.id) {
-                        $(this).remove();
-                    }
-                });
-            }).trigger('change');
-        });
-
-        function formatRepo(repo) {
-            var $tag_formatted = $(tagLabel(repo.text, repo.collection));
-            return $tag_formatted;
-        }
-
-        function formatRepoSelection(repo) {
-            if (typeof repo.collection != 'undefined') {
-                var $tag_formatted = $(tagLabel(repo.text, repo.collection));
-            } else {
-                var collection = $('.tag_selector option[value=' + repo.id + ']').attr("title");
-                if (typeof collection != 'undefined') {
-                    var $tag_formatted = $(tagLabel(repo.text, collection));
-                } else {
-                    var $tag_formatted = $(tagLabel(repo.text));
-                }
-            }
-            return $tag_formatted;
-        }
-
-    </script>
-
-    <div class="longtext" id="tags_div" name="tags_div" style="<h:outputText value="#{itemauthor.showTagsStyle}"/>">
+    <div class="longtext" id="tags_div" style="<h:outputText value="#{itemauthor.showTagsStyle}"/>">
         <h:outputLabel value="#{authorMessages.tag_question}"/><br/>
-
-        <h:panelGroup id="tags_panel_previous">
-            <select hidden class="tag_selector_previous" name="tag_selector_previous[]" id="tag_selector_previous"
-                    multiple="multiple">
-            </select>
-        </h:panelGroup>
-
-        <h:panelGroup id="tags_panel">
-
-
-            <select class="tag_selector" name="tag_selector[]" id="tag_selector" multiple="multiple">
-            </select>
-        </h:panelGroup>
+        <div class="samigo-tag-picker">
+            <input type="hidden" class="samigo-tag-site" value="<h:outputText value="#{author.currentSiteId}"/>"/>
+            <textarea hidden class="samigo-tag-data"><h:outputText value="#{itemauthor.tagsListToJson}" escape="true"/></textarea>
+            <f:verbatim><select hidden name="tag_selector[]" multiple="multiple"></f:verbatim>
+            <t:dataList value="#{itemauthor.tagSelectorTags}" var="selectedTag" layout="simple">
+                <f:verbatim><option selected="selected" value="</f:verbatim><h:outputText value="#{selectedTag.tagId()}"/><f:verbatim>"></f:verbatim><h:outputText value="#{selectedTag.tagLabel()}"/><f:verbatim></option></f:verbatim>
+            </t:dataList>
+            <f:verbatim></select></f:verbatim>
+            <sakai-tag-selector label="<h:outputText value="#{authorMessages.tag_question}"/>"></sakai-tag-selector>
+        </div>
         <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
         </br><input name="multiTagsSingleCheck" id="multiTagsSingleCheck" type="checkbox" value="true"
         </f:verbatim>
@@ -121,154 +28,25 @@
                       rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}"/><br/>
 
     </div>
-
 </f:subview>
 <f:subview id="nodelete" rendered="#{itemauthor.deleteTagsAllowed == false}">
-
-    <input type="hidden" id="item-tag-data" value="<h:outputText value="#{itemauthor.tagsListToJson}"/>"/>
-    <script type="module">
-        import { tagLabel } from "/samigo-app/js/tag-display.js";
-
-
-        $(document).ready(function () {
-            $(".tag_selector").select2({
-                width: '50%',
-                language: "<h:outputText value="#{itemauthor.language}"/>",
-                closeOnSelect: false,
-                ajax: {
-                    url: "/direct/tagservice/getTagsPaginatedByPrefixInLabel.json",
-                    dataType: 'json',
-                    delay: 500,
-                    data: function (params) {
-                        return {
-                            siteId: "<h:outputText value='#{author.currentSiteId}'/>",
-                            prefix: params.term || "", // search term
-                            page: params.page
-                        };
-                    },
-                    processResults: function (data, params) {
-                        // parse the results into the format expected by Select2
-                        // since we are using custom formatting functions we do not need to
-                        // alter the remote JSON data, except to indicate that infinite
-                        // scrolling can be used
-                        params.page = params.page || 1;
-
-                        return {
-                            results: $.map(data.data.tags, function (item) {
-                                return {
-                                    text: item.tagLabel,
-                                    description: item.tagDescription,
-                                    id: item.tagId,
-                                    collection: item.collectionName
-                                }
-                            }),
-                            pagination: {more: (params.page * 30) < data.data.total}
-                        };
-                    },
-                    cache: true
-                },
-                escapeMarkup: function (markup) {
-                    return markup;
-                }, // let our custom formatter work
-                minimumInputLength: 1,
-                templateResult: formatRepo,
-                templateSelection: formatRepoSelection
-            })
-
-            $(".tag_selector_previous").select2({
-                width: '50%',
-                language: "<h:outputText value="#{itemauthor.language}"/>",
-                disabled: true,
-                escapeMarkup: function (markup) {
-                    return markup;
-                }, // let our custom formatter work
-                templateResult: formatRepo,
-                templateSelection: formatRepoSelection_previous
-            })
-
-
-            //Load the item actual tags
-            var arr =JSON.parse(document.getElementById('item-tag-data').value);
-            for (var i = 0; i < arr.length; i++) {
-                var obj = arr[i];
-                var newOption = new Option(obj["tagLabel"], obj["tagId"], true, true);
-                $(".tag_selector_previous").append(newOption);
-                $('.tag_selector_previous option[value=' + obj["tagId"] + ']').attr("title", obj["tagCollectionName"]);
-            }
-            $(".tag_selector_previous").trigger('change');
-
-            //Load the unsaved tags
-            var arr =<h:outputText value="#{itemauthor.tagsTempListToJson}" escape="false"/>;
-            for (var i = 0; i < arr.length; i++) {
-                var obj = arr[i];
-                var newOption = new Option(obj["tagLabel"], obj["tagId"], true, true);
-                $(".tag_selector").append(newOption);
-                $('.tag_selector option[value=' + obj["tagId"] + ']').attr("title", obj["tagCollectionName"]);
-            }
-            $(".tag_selector").trigger('change');
-
-            $('.tag_selector').on("select2:unselect", function (e) {
-                $('.tag_selector option').each(function () {
-                    if ($(this).val() == e.params.data.id) {
-                        $(this).remove();
-                    }
-                });
-            }).trigger('change');
-        });
-
-        function formatRepo(repo) {
-            var $tag_formatted = $(tagLabel(repo.text, repo.collection));
-            return $tag_formatted;
-        }
-
-        function formatRepoSelection(repo) {
-            if (typeof repo.collection != 'undefined') {
-                var $tag_formatted = $(tagLabel(repo.text, repo.collection));
-            } else {
-                var collection = $('.tag_selector option[value=' + repo.id + ']').attr("title");
-                if (typeof collection != 'undefined') {
-                    var $tag_formatted = $(tagLabel(repo.text, collection));
-                } else {
-                    var $tag_formatted = $(tagLabel(repo.text));
-                }
-            }
-            return $tag_formatted;
-        }
-
-        function formatRepoSelection_previous(repo) {
-            if (typeof repo.collection != 'undefined') {
-                var $tag_formatted = $(tagLabel(repo.text, repo.collection));
-            } else {
-                var collection = $('.tag_selector_previous option[value=' + repo.id + ']').attr("title");
-                if (typeof collection != 'undefined') {
-                    var $tag_formatted = $(tagLabel(repo.text, collection));
-                } else {
-                    var $tag_formatted = $(tagLabel(repo.text));
-                }
-            }
-            return $tag_formatted;
-        }
-
-    </script>
-
-    <div class="longtext" id="tags_div" name="tags_div" style="<h:outputText value="#{itemauthor.showTagsStyle}"/>">
-
+    <div class="longtext" id="tags_div" style="<h:outputText value="#{itemauthor.showTagsStyle}"/>">
         <h:outputLabel value="#{authorMessages.tag_title}"/><br/>
         <i><h:outputLabel value="#{authorMessages.tag_previous}"/></i><br/>
-
-
-        <h:panelGroup id="tags_panel_previous">
-            <select class="tag_selector_previous" name="tag_selector_previous[]" id="tag_selector_previous"
-                    multiple="multiple">
-            </select>
-        </h:panelGroup><br/><br/>
-
+        <div class="samigo-readonly-tags">
+            <textarea hidden class="samigo-tag-data"><h:outputText value="#{itemauthor.tagsListToJson}" escape="true"/></textarea>
+        </div>
         <i><h:outputLabel value="#{authorMessages.tag_question_new}"/></i><br/>
-        <h:panelGroup id="tags_panel">
-            <select class="tag_selector" name="tag_selector[]" id="tag_selector" multiple="multiple">
-            </select>
-        </h:panelGroup>
-
+        <div class="samigo-tag-picker">
+            <input type="hidden" class="samigo-tag-site" value="<h:outputText value="#{author.currentSiteId}"/>"/>
+            <textarea hidden class="samigo-tag-data"><h:outputText value="#{itemauthor.tagsTempListToJson}" escape="true"/></textarea>
+            <f:verbatim><select hidden name="tag_selector[]" multiple="multiple"></f:verbatim>
+            <t:dataList value="#{itemauthor.tagSelectorTags}" var="selectedTag" layout="simple">
+                <f:verbatim><option selected="selected" value="</f:verbatim><h:outputText value="#{selectedTag.tagId()}"/><f:verbatim>"></f:verbatim><h:outputText value="#{selectedTag.tagLabel()}"/><f:verbatim></option></f:verbatim>
+            </t:dataList>
+            <f:verbatim></select></f:verbatim>
+            <sakai-tag-selector label="<h:outputText value="#{authorMessages.tag_question_new}"/>"></sakai-tag-selector>
+        </div>
         <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
         </br><input name="multiTagsSingleCheck" id="multiTagsSingleCheck" type="checkbox" value="true"
         </f:verbatim>
@@ -281,7 +59,6 @@
                       rendered="#{(itemauthor.multiTagsSingleQuestion == true)}"/>
         <h:outputText value="#{authorMessages.tag_multitag_singlequestion}"
                       rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}"/><br/>
-
 
     </div>
 </f:subview>

@@ -34,6 +34,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
@@ -58,6 +59,28 @@ class AssignmentTest extends SakaiUiTestBase {
             "sakai\\.lessonbuildertool"
         ));
         return sakaiUrl;
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "sakai.test.groupFilters", matches = "true")
+    void selectsAnAssignmentListGroupThroughTheSharedPicker() {
+        sakai.login("instructor1");
+        String site = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades"));
+        String groupId = sakai.addGroup(site, "North seminar");
+        sakai.addGroup(site, "South seminar");
+        page.navigate(site);
+        sakai.toolClick("Assignments");
+
+        Locator picker = page.locator("sakai-group-picker");
+        Locator search = picker.getByRole(AriaRole.COMBOBOX);
+        assertThat(search).isVisible();
+        sakai.waitForPortalFocus();
+        search.fill("North");
+        assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(1);
+        picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions().setName("North seminar")).click();
+        assertThat(picker.locator("#filterByGroup")).hasValue(groupId);
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Clear all selections").setExact(true)).click();
+        assertThat(picker.locator("#filterByGroup")).hasValue("all");
     }
 
     @Test

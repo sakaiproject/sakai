@@ -35,8 +35,6 @@
 	if (thisId == null) {
 		thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
 	}
-    String selectId = "modifyPartForm:assignToPool";
-    String selectIdFixed = "modifyPartForm:assignToPoolFixed";
 %>
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -45,8 +43,6 @@
       <!-- AUTHORING -->
       <script src="/samigo-app/js/authoring.js"></script>
       <script src="/library/js/spinner.js"></script>
-      <script>includeWebjarLibrary('select2');</script>
-      <script src="/samigo-app/js/select2.js"></script>
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
       <script>
         window.addEventListener("load", () => {
@@ -75,16 +71,23 @@
           });
       });
       </script>
-    </head>
+<script>includeWebjarLibrary("select2");</script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        for (const id of ["modifyPartForm:assignToPool", "modifyPartForm:assignToPoolFixed"]) {
+            $(document.getElementById(id)).select2().on("change", () => {
+                mySetMainFrameHeight("<%= org.sakaiproject.util.Web.escapeJavascript(thisId) %>");
+            });
+        }
+    });
+</script>
+</head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <%-- content... --%>
 <%-- some back end stuff stubbed --%>
 <%-- TODO need to add validation--%>
-<input id="toolId" type="hidden" value="<%= thisId %>">
-<input id="selectorId" type="hidden" value="<%= selectId %>">
-<input id="selectorIdFixed" type="hidden" value="<%= selectIdFixed %>">
 
 <h3><h:outputText value="#{authorMessages.create_modify_p} #{authorMessages.dash} #{sectionBean.assessmentTitle}" escape="false"/></h3>
 <h:form id="modifyPartForm"  onsubmit="return editorCheck();">

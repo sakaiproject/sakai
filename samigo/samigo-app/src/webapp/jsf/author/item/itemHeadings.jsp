@@ -5,9 +5,17 @@ String thisId = request.getParameter("panel");
 if (thisId == null) {
   thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
 }
-String selectId = "itemForm:assignToPool";
-String selectIdFixed = "itemForm:assignToPoolFixed";
 %>
+<script>includeWebjarLibrary("select2");</script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        for (const id of ["itemForm:assignToPool", "itemForm:assignToPoolFixed"]) {
+            $(document.getElementById(id)).select2().on("change", () => {
+                mySetMainFrameHeight("<%= org.sakaiproject.util.Web.escapeJavascript(thisId) %>");
+            });
+        }
+    });
+</script>
 <script>
 function changeTypeLink(field){
 
@@ -38,11 +46,6 @@ function displayEMIHelp(){
     window.open('../../../../../../samigo-app/emi/help.txt', '_blank', 'location=no,menubar=no,status=no,toolbar=no');
 }
 </script>
-<script>includeWebjarLibrary('select2');</script>
-<script src="/samigo-app/js/select2.js"></script>
-<input id="toolId" type="hidden" value="<%= thisId %>">
-<input id="selectorId" type="hidden" value="<%= selectId %>">
-<input id="selectorIdFixed" type="hidden" value="<%= selectIdFixed %>">
 
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form

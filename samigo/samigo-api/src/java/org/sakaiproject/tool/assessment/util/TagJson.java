@@ -18,9 +18,11 @@
 package org.sakaiproject.tool.assessment.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.TagIfc;
 
@@ -28,6 +30,19 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.TagIfc;
 public record TagJson(String tagId, String tagLabel, String tagCollectionName) {
 
     private static final ObjectWriter WRITER = MapperFactory.createDefaultJsonMapper().writer();
+    private static final ObjectReader READER = MapperFactory.createDefaultJsonMapper().readerForListOf(TagJson.class);
+
+    /** Read the saved display data for server-rendered form options. */
+    public static List<TagJson> deserialize(String json) {
+        if (json == null || json.isBlank()) {
+            return Collections.emptyList();
+        }
+        try {
+            return READER.readValue(json);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Could not deserialize tag display data", e);
+        }
+    }
 
     public static TagJson fromTag(TagIfc tag) {
         return new TagJson(tag.getTagId(), tag.getTagLabel(), tag.getTagCollectionName());

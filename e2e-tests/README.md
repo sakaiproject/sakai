@@ -38,6 +38,26 @@ mvn -P e2e -Dtest=AssignmentTest test
 mvn -P e2e -Dtest=AssignmentTest#canCreatePointsAssignment test
 ```
 
+### Run the group-filter browser tests
+
+Enable `assignment.group.filter.enabled=true` and `samigo.group.filter.enabled=true`
+in the test server's Sakai configuration before running with
+`-Dsakai.test.groupFilters=true`. CI enables both settings and runs these tests.
+
+- `AssignmentTest#selectsAnAssignmentListGroupThroughTheSharedPicker`
+- `SamigoTest#savesAndFiltersAssessmentGroupsThroughTheSharedPicker`
+### Run the roster card-game test
+
+Use these Sakai settings for the uploaded-photo fixtures in `RosterCardGameTest`.
+Restart the test server after changing them. CI applies the same settings.
+
+```properties
+cardgame.showOfficialPhoto=false
+cardgame.skipNoImageUsers=true
+profile2.picture.change.enabled=true
+profile2.picture.type=upload
+```
+
 ### Optional browser override:
 
 ```bash
@@ -93,6 +113,19 @@ mvn -Pe2e -pl e2e-tests -Dsakai.test.samigoTags=true \
 This verifies tag loading on pool creation/editing, tag persistence, and filtering
 when entering Question Pools directly from a new assessment in a fresh session.
 It checks the actual tag API URL and HTTP response without mocking requests.
+
+### Samigo question-tag regression
+
+Enable `tagservice.enabled=true` and `samigo.author.usetags=true` on the test server.
+Run `SamigoTest#canSaveClearAndSubmitQuestionTagSearch` with
+`-Dsakai.test.samigoQuestionTags=true`. CI enables these settings and runs the test.
+It covers loading multiple real tag-search pages with a reduced page size, saving
+existing tags when the picker initialization script is blocked, and clearing tags.
+To also verify submitting a tag search, enable
+`samigo.question.show.showSearchQuestion=true` on the server and pass
+`-Dsakai.test.samigoQuestionSearch=true` alongside the question-tag test setting.
+This mode asserts that the search option is present before using it.
+CI leaves this mode off because it does not provide the search index.
 
 ## Samigo group-access regression (SAK-52287)
 

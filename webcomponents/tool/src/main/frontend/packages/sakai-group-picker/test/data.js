@@ -4,6 +4,7 @@ export const i18n = `
 group_selector_label=Group selector
 any=Any
 site=Site
+search_groups=Search groups
 `;
 
 export const label = "Group selector";

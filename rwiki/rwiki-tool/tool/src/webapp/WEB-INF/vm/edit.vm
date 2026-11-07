@@ -82,52 +82,9 @@
 	</script>
 
 	#if ($groups)
+		<script type="module" src="/webcomponents/bundles/group-picker.js"></script>
 		<script>
-			includeWebjarLibrary('bootstrap-multiselect');
-			$(document).ready(function(){
-				$('#selectedGroups').multiselect({
-					selectAllText: '${rlb.groups_multiple_all}',
-					nonSelectedText: '${rlb.groups_multiple_nonselected}',
-					allSelectedText: '${rlb.groups_multiple_allselected}',
-					nSelectedText: ' ${rlb.groups_multiple_nselected}',
-					filterPlaceholder: '${rlb.groups_multiple_filtertext}',
-					enableFiltering: true,
-					includeSelectAllOption: true,
-					enableCaseInsensitiveFiltering: true,
-					templates: {
-						button: `
-							<button type="button"
-									class="btn btn-primary multiselect dropdown-toggle"
-									data-bs-toggle="dropdown">
-								<span class="multiselect-selected-text"></span>
-								<i class="si si-caret-down-fill ps-2"></i>
-							</button>
-						`,
-						filter: `
-							<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
-						`,
-					},
-				});
-				// This code is to obtain the necessary size to see all the groups and set it to the editControl panel
-				// So, for this reason it is important to let the selectedGroups section be the last section
-				let groupsButton = document.querySelector("#selectedGroups+div>button");
-				if (groupsButton) {
-					groupsButton.onclick = function() {
-						let expanded = groupsButton.attributes["aria-expanded"];
-						expanded = (expanded == undefined || expanded.nodeValue == "false")
-						if (expanded) { 
-							let editControlOriginalSize = document.getElementById("editControl").offsetHeight;
-							let editControlSize = editControlOriginalSize + 6 + (30 * (parseInt(document.getElementById("groups-size").value) + 1));
-							let fullSize = editControlSize + "px";
-							document.getElementById("editControl").style.height = fullSize;
-						} else {
-							document.getElementById("editControl").style.height = "";
-						}
-					}
-				}
-			})
 			function groupSelect(display) {
-				document.getElementById("editControl").style.height = "";
 				document.getElementById("groupTable").style.display = display;
 			}
 		</script>
@@ -243,7 +200,6 @@
 											<label for ="smallchange"><input type="checkbox" id="smallchange" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}</label></p>
 										#end
 										#if ($groups && $groups.size() > 0)
-											<input type="hidden" id="groups-size" value=$groups.size() />
 											<div class="siteAccess">
 												<h4>${rlb.displayto_access}</h4>
 												<div class="little-subtitle">${rlb.displayto_access_subtitle}</div>
@@ -258,19 +214,22 @@
 														#set($listDisplay = "none")
 													#end
 													<div id="groupTable" style="display:$listDisplay">
-														<label>${rlb.displayto_access_groups}</label><br/><select id="selectedGroups" name="selectedGroups" multiple="multiple">
-															#foreach ($group in $groups)
-																#set($optionSelected = false)
-																#if ($rwikiObjectGroups)
-																	#foreach ($rwikiobjectGroup in $rwikiObjectGroups)
-																		#if($rwikiobjectGroup.equals($group.Id))
-																			#set($optionSelected = true)
+														<label for="selectedGroups">${rlb.displayto_access_groups}</label>
+														<sakai-group-picker bind-select>
+															<select id="selectedGroups" name="selectedGroups" multiple="multiple">
+																#foreach ($group in $groups)
+																	#set($optionSelected = false)
+																	#if ($rwikiObjectGroups)
+																		#foreach ($rwikiobjectGroup in $rwikiObjectGroups)
+																			#if($rwikiobjectGroup.equals($group.Id))
+																				#set($optionSelected = true)
+																			#end
 																		#end
 																	#end
+																	<option id="group-$group.getTitle()" value="$group.Id" #if($optionSelected) selected="" #end >$group.getTitle()</option>
 																#end
-																<option id="group-$group.getTitle()" value="$group.Id" #if($optionSelected) selected="" #end >$group.getTitle()</option>
-															#end
-														</select>
+															</select>
+														</sakai-group-picker>
 													</div>
 												</p>
 											</div>

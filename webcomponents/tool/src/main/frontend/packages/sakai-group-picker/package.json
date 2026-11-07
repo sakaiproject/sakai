@@ -8,6 +8,9 @@
     "lint:fix": "eslint src --fix",
     "test": "wtr"
   },
+  "dependencies": {
+    "@sakai-ui/sakai-user-picker": "file:../sakai-user-picker"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sakaiproject/sakai",

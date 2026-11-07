@@ -59,6 +59,7 @@
     "@sakai-ui/sakai-tag-selector": "workspace:*",
     "@sakai-ui/sakai-tasks": "workspace:*",
     "@sakai-ui/sakai-timer-bar": "workspace:*",
+    "@sakai-ui/sakai-user-picker": "workspace:*",
     "@sakai-ui/sakai-user-photo": "workspace:*",
     "@sakai-ui/sakai-widgets": "workspace:*",
     "@web/test-runner": "1.0.0",

@@ -22,29 +22,17 @@
 		return false;
 	}
 
-    <!-- Initialize the Bootstrap-multiselect plugin: -->
-    $(document).ready(function() {
-        $('#filterByGroup').multiselect({
-            enableFiltering: true,
-            filterPlaceholder: '$tlang.getString("listassig.searchgroup")',
-            enableCaseInsensitiveFiltering: true,
-            templates: {
-                button: `
-                    <button type="button"
-                            class="select multiselect"
-                            data-bs-toggle="dropdown">
-                        <span class="multiselect-selected-text"></span>
-                    </button>
-                `,
-                filter: `
-                    <div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
-                `,
-            },
-        });
+    document.addEventListener("DOMContentLoaded", () => {
         ASN.checkIframeTags();
-
+        const select = document.getElementById("filterByGroup");
+        if (select) {
+            customElements.whenDefined("sakai-group-picker").then(() => {
+                document.createElement("sakai-group-picker").bindSelect(select);
+            });
+        }
     });
 </script>
+<script type="module" src="/webcomponents/bundles/group-picker.js"></script>
 
 <div class="portletBody container-fluid">
 
@@ -110,7 +98,7 @@
 			<div class="row" id="filterByGroupDiv">
 				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm col-md-12" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
-					<label for="groupFilter">
+					<label for="filterByGroup">
 						$!tlang.getString("listassig.filterbygroup")
 					</label>
 					<span class="skip">$tlang.getString("newassig.selectmessage")</span>

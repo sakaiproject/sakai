@@ -55,35 +55,12 @@ function resizeFrame(){
 	});
 </script>
 
+<script type="module" src="/webcomponents/bundles/group-picker.js"></script>
 <script>
     includeWebjarLibrary('bootstrap-multiselect');
 
     <!-- Initialize the plugin: -->
     $(document).ready(function() {
-        $('#selectedGroups').multiselect({
-            selectAllText: '$tlang.getString("announcement.edit.selectall")',
-            nonSelectedText: '$tlang.getString("announcement.edit.selectone")',
-            allSelectedText: '$tlang.getString("announcement.edit.allselected")',
-            nSelectedText: ' $tlang.getString("announcement.edit.groupsselected")',
-            filterPlaceholder: '$tlang.getString("announcement.edit.searchgroup")',
-            enableFiltering: true,
-            includeSelectAllOption: true,
-            enableCaseInsensitiveFiltering: true,
-            templates: {
-                button: `
-                    <button type="button"
-                            class="btn btn-primary multiselect dropdown-toggle"
-                            data-bs-toggle="dropdown">
-                        <span class="multiselect-selected-text"></span>
-                        <i class="si si-caret-down-fill ps-2"></i>
-                    </button>
-                `,
-                filter: `
-                    <div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
-                `,
-            },
-        });
-
         $('#selectedRoles').multiselect(
 			{
 				selectAllText: '$tlang.getString("announcement.edit.selectallroles")',
@@ -288,24 +265,26 @@ function resizeFrame(){
 							#set ($listDisplay="none")
 						#end
 						<div id="groupTable" style="display:$listDisplay">
-							<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption></br>
-							<select id="selectedGroups" name="selectedGroups" multiple="multiple">
-								#foreach ($group in $!groups)
-									#set($selected=false)
-									#foreach($aGroupRef in $announceToGroups)
-										#set($aGroup = $!site.getGroup($!aGroupRef))
-										#if ($!group.Id == $!aGroup.Id)
-											#set($selected = true)
+							<label for="selectedGroups" class="visually-hidden">$tlang.getString("displayto.selected")</label>
+							<sakai-group-picker bind-select>
+								<select id="selectedGroups" name="selectedGroups" multiple="multiple">
+									#foreach ($group in $!groups)
+										#set($selected=false)
+										#foreach($aGroupRef in $announceToGroups)
+											#set($aGroup = $!site.getGroup($!aGroupRef))
+											#if ($!group.Id == $!aGroup.Id)
+												#set($selected = true)
+											#end
 										#end
-									#end
-									#if($groups.size() == 1) #set($selected=true) #end
-									#set($disabled=true)
-									#set($description = "")
-									#set($description = $formattedText.escapeHtml($group.Description))
+										#if($groups.size() == 1) #set($selected=true) #end
+										#set($disabled=true)
+										#set($description = "")
+										#set($description = $formattedText.escapeHtml($group.Description))
 
-									<option id="group-$group.Id" value="$group.Id" #if($selected) selected #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($!description) #end</option>
-								#end
-							</select>
+										<option id="group-$group.Id" value="$group.Id" #if($selected) selected #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($!description) #end</option>
+									#end
+								</select>
+							</sakai-group-picker>
 							<br/><br/>
 						</div>
 					#end

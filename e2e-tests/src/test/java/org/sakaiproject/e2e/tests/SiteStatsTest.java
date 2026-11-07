@@ -19,6 +19,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Download;
@@ -53,6 +54,47 @@ class SiteStatsTest extends SakaiUiTestBase {
     void createsSiteWithStatistics() {
         sakai.login("instructor1");
         sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.sitestats"));
+    }
+
+    @Test
+    void searchesActivityForTheSelectedUser() {
+        sakai.login("instructor1");
+        String courseUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.sitestats"));
+        sakai.addMemberToSite(courseUrl, "student0011", "Student");
+        String siteId = sakai.siteIdFromUrl(courseUrl);
+        sakai.login("admin");
+        APIResponse permissions = page.request().post("/api/sites/" + siteId + "/permissions",
+            RequestOptions.create().setForm(FormData.create()
+                .set("ref", "/site/" + siteId)
+                .set("Student:sitestats.usertracking.be.tracked", "true")));
+        assertTrue(permissions.ok(), "Unable to configure tracked students: HTTP " + permissions.status());
+
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Statistics");
+
+        Locator activity = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("User Activity").setExact(true));
+        assumeTrue(activity.count() > 0, "User Activity must be enabled and the instructor must be allowed to track users");
+        activity.click();
+        Locator users = page.locator("#activity-user option[value]:not([value=''])");
+        Locator user = users.first();
+        assertThat(user).isAttached();
+        String name = user.textContent();
+        String userId = user.getAttribute("value");
+
+        Locator picker = page.locator("sakai-user-picker");
+        Locator query = picker.getByRole(AriaRole.COMBOBOX);
+        Locator submit = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search").setExact(true));
+        assertThat(submit).isDisabled();
+        query.fill(name);
+        picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions().setName(name).setExact(true)).click();
+        assertThat(submit).isEnabled();
+        Response response = page.waitForResponse(result -> result.url().contains("/useractivity?")
+                && result.url().contains("userId=" + userId), submit::click);
+        assertTrue(response.ok(), response.url());
+        assertThat(picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Remove " + name))).isVisible();
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Remove " + name)).click();
+        assertThat(submit).isDisabled();
     }
 
     @Test

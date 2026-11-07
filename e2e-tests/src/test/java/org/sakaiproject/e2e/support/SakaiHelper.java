@@ -272,8 +272,12 @@ public class SakaiHelper {
     }
 
     public TestUser createUser(String prefix) {
+        return createUser(prefix, "E2E");
+    }
+
+    public TestUser createUser(String prefix, String firstName) {
         String username = prefix + "-" + UUID.randomUUID();
-        String result = sakaiScript("addNewUser", Map.of("eid", username, "firstname", "E2E", "lastname", "Test",
+        String result = sakaiScript("addNewUser", Map.of("eid", username, "firstname", firstName, "lastname", "Test",
             "email", username + "@example.com", "type", "registered", "password", passwordFor(username)));
         if (!"success".equals(result)) {
             throw new IllegalStateException("Unable to create test account: " + result);

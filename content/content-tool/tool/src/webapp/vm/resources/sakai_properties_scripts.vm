@@ -702,6 +702,11 @@
 	}
 	function copyTree(root, index)
 	{
+		// The new group picker binds its own copy of the native select when connected.
+		if (root?.localName === "sakai-user-picker" && root.parentElement?.matches("sakai-group-picker[bind-select]"))
+		{
+			return null;
+		}
 		var newElement;
 		if(!root || typeof root == "undefined")
 		{
@@ -732,20 +737,20 @@
 								
 			if(root && root.childNodes)
 			{
-				var className = root.className;
-				if(className == null || className.includes('multiselect-native-select') || !root.className.includes('multiselect')) {
-					for(var i = 0; i < root.childNodes.length; i++)
+				for(var i = 0; i < root.childNodes.length; i++)
+				{
+					var newChild = copyTree(root.childNodes[i], index);
+					if(newChild)
 					{
-						if(className != 'multiselect-native-select' || root.childNodes[i].type == 'select-multiple') {
-							var newChild = copyTree(root.childNodes[i], index);
-							if(newChild)
-							{
-								newElement.appendChild(newChild);
-							}
-						}
+						newElement.appendChild(newChild);
 					}
 				}
 			}
+		}
+		if (root.matches?.("sakai-group-picker[bind-select] > select"))
+		{
+			newElement.hidden = false;
+			newElement.style.removeProperty("display");
 		}
 		if(root.id)
 		{

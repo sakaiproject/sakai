@@ -219,6 +219,11 @@ public class ItemAuthorBean implements Serializable {
     return tagsTempListToJson;
   }
 
+  /** Selected tags submitted by the form even when its picker script is unavailable. */
+  public List<TagJson> getTagSelectorTags() {
+    return TagJson.deserialize(getDeleteTagsAllowed() ? tagsListToJson : tagsTempListToJson);
+  }
+
   public void setTagsTempListToJson(String tagsTempListToJson) {
     this.tagsTempListToJson = tagsTempListToJson;
   }
