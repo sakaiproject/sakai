@@ -132,9 +132,9 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.lti.ContentItem;
 import org.tsugi.lti.LTIUtil;
@@ -515,7 +515,8 @@ public class SimplePageBean {
     @Autowired @Setter private TaskService taskService;
     @Autowired @Setter private ToolManager toolManager;
     @Autowired @Setter private UserDirectoryService userDirectoryService;
-    @Autowired @Setter private UserTimeService userTimeService;
+    // TimeService is a UserTimeService too
+    @Autowired @Qualifier("org.sakaiproject.time.api.UserTimeService") @Setter private UserTimeService userTimeService;
 
 	// Caches
 
@@ -552,24 +553,22 @@ public class SimplePageBean {
 	private int remainingMultimediaFilesToAdd = 0;
 
 	public SimplePageBean() {
-		this(false);
 	}
 
 	/**
-	 * Constructs a new {@code SimplePageBean}, optionally autowiring its dependencies and initializing it.
+	 * Constructs a new {@code SimplePageBean} outside the UI rendering lifecycle, autowired and initialized.
 	 * <p>
-	 * This constructor does not use RSF to fully construct the bean as it would during a UI render.
-	 * Use it only when a {@code SimplePageBean} is needed outside the UI rendering lifecycle and shared
-	 * Sakai dependencies must be injected.
+	 * Callers run in other webapps' threads (search, gradebook, /access), so they pass the Lessons bean factory
+	 * rather than relying on the current web application context. Its annotation config honors the qualifiers.
 	 *
-	 * @param withAutoWireAndInit {@code true} to autowire dependencies and call {@link #init()};
-	 *        {@code false} to skip autowiring and initialization
+	 * @param beanFactory the Lessons application context's bean factory
 	 */
-	public SimplePageBean(boolean withAutoWireAndInit) {
-		if (withAutoWireAndInit) {
-			SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-			init();
+	public SimplePageBean(AutowireCapableBeanFactory beanFactory) {
+		beanFactory.autowireBean(this);
+		if (simplePageToolDao == null) {
+			throw new IllegalStateException("SimplePageBean was not autowired, the Lessons context needs its annotation config");
 		}
+		init();
 	}
 
 	public void init () {
@@ -2871,6 +2870,25 @@ public class SimplePageBean {
 			return null;
 		}
 		return ret;
+	}
+
+	/**
+	 * A page can have several links with different restrictions, and the URL in a search result is shared by
+	 * everyone, so it names one that this user may not be able to follow.
+	 *
+	 * @return the given link if this user can follow it, otherwise another link to the same page that they can
+	 */
+	public SimplePageItem findAccessibleLink(SimplePageItem link) {
+		if (link.getType() != SimplePageItem.PAGE || (isItemVisible(link) && isItemAvailable(link, link.getPageId()))) {
+			return link;
+		}
+		for (SimplePageItem other : simplePageToolDao.findPageItemsBySakaiId(link.getSakaiId())) {
+			if (other.getId() != link.getId()
+					&& lessonsAccess.isItemAccessible(other.getId(), getCurrentSiteId(), getCurrentUserId(), this)) {
+				return other;
+			}
+		}
+		return link;
 	}
 
     // called at the start of showpageproducer, with page info for the page about to be displayed

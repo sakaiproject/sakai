@@ -182,6 +182,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private SiteService siteService;
 	private ContentHostingService contentHostingService;
 	private SimplePageToolDao simplePageToolDao;
+	private LessonsAccess lessonsAccess;
 	private PageIndexService pageIndexService;
 	private RemovedPageService removedPageService;
 	private LessonEntity forumEntity;
@@ -2715,6 +2716,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		simplePageToolDao = (SimplePageToolDao) dao;
 	}
 
+	public void setLessonsAccess(LessonsAccess access) {
+		lessonsAccess = access;
+	}
+
 	public void setPageIndexService(PageIndexService service) {
 		pageIndexService = service;
 	}
@@ -3072,7 +3077,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	SimplePageBean makeSimplePageBean(String siteId) {
-		SimplePageBean simplePageBean = new SimplePageBean(true);
+		SimplePageBean simplePageBean = lessonsAccess.newSimplePageBean();
 		simplePageBean.setMessageLocator(messageLocator);
 		simplePageBean.setToolManager(toolManager);
 		simplePageBean.setSecurityService(securityService);

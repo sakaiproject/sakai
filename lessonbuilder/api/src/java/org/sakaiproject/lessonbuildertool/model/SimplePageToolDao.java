@@ -98,6 +98,9 @@ public interface SimplePageToolDao {
 
 	public List<SimplePageItem> findTextItemsInSite(String siteId);
 
+	// ids of the items linking to subpages, top-level pages excluded
+	public List<Long> findSubpageItemIdsInSite(String siteId);
+
 	public SimplePageItem findItem(long id);
 	
 	public SimplePageProperty findProperty(String attribute);
@@ -217,6 +220,9 @@ public interface SimplePageToolDao {
 	public List<SimplePage> findSimplePagesBySitePageIds(Collection<String> sitePageIds);
 
 	public String getPageUrl(long pageId);
+
+	// opens the page through the given item linking to it
+	public String getPageUrl(long pageId, long pageItemId);
 
 	// list of all pages in the site, not just top level
 	public List<SimplePage> getSitePages(String siteId);

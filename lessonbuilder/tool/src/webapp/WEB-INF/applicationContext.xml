@@ -2,8 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <!-- lets new SimplePageBean(beanFactory) honor its @Autowired qualifiers, TimeService is a UserTimeService too -->
+  <context:annotation-config/>
 
   <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
@@ -362,6 +367,7 @@ simplePageBean.addForumSummary,
     <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+    <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     <property name="pageIndexService" ref="org.sakaiproject.lessonbuildertool.service.PageIndexService" />
     <property name="removedPageService" ref="org.sakaiproject.lessonbuildertool.service.RemovedPageService" />
@@ -382,6 +388,7 @@ simplePageBean.addForumSummary,
         destroy-method="destroy">
 
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
+    <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
@@ -536,6 +543,7 @@ simplePageBean.addForumSummary,
 	    init-method="init" >
 	    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	    <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
+	    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 	    <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 	    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 	    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>

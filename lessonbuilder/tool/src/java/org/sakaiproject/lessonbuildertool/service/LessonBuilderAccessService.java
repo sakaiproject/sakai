@@ -126,6 +126,7 @@ public class LessonBuilderAccessService {
 	@Setter private GradebookIfc gradebookIfc = null;
 	@Setter private LessonBuilderAccessAPI lessonBuilderAccessAPI = null;
 	@Setter private LessonEntity scormEntity = null;
+	@Setter private LessonsAccess lessonsAccess;
 	@Setter private MessageLocator messageLocator;
 	@Setter private SessionManager sessionManager = null;
 	@Setter private ToolManager toolManager;
@@ -519,10 +520,7 @@ public class LessonBuilderAccessService {
 						// but don't do this unless the item needs checking
 
 						if (!canSeeAll(currentPage.getSiteId())) {
-						SimplePageBean simplePageBean = new SimplePageBean(true);
-						simplePageBean.setCurrentSiteId(currentPage.getSiteId());
-						simplePageBean.setCurrentPage(currentPage);
-						simplePageBean.setCurrentPageId(currentPage.getPageId());
+						SimplePageBean simplePageBean = lessonsAccess.makeSimplePageBean(null, currentPage.getSiteId(), currentPage);
 
 						if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 							throw new EntityPermissionException(null, null, null);
