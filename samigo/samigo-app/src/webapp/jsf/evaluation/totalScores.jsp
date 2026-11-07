@@ -762,7 +762,7 @@ function showLoadingMessage() {
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{description.roundedTotalAutoScore}" />
+      <h:outputText value="#{description.roundedTotalAutoScore}" converter="#{decimalScoreConverter}" />
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='totalAutoScore' && totalScores.sortAscending}">
@@ -775,7 +775,7 @@ function showLoadingMessage() {
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:outputText value="#{description.roundedTotalAutoScore}" />
+      <h:outputText value="#{description.roundedTotalAutoScore}" converter="#{decimalScoreConverter}" />
     </h:column>
     
     <h:column rendered="#{totalScores.sortType=='totalAutoScore'  && !totalScores.sortAscending}">
@@ -788,7 +788,7 @@ function showLoadingMessage() {
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:outputText value="#{description.roundedTotalAutoScore}" />
+      <h:outputText value="#{description.roundedTotalAutoScore}" converter="#{decimalScoreConverter}" />
     </h:column>
     
     <!-- ADJUSTMENT -->

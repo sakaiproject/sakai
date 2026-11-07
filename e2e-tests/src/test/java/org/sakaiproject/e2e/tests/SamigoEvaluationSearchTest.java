@@ -37,7 +37,7 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
         sakai.login("instructor1");
         siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.samigo"));
         String title = "Search " + sakai.randomId();
-        createQuiz(title);
+        createQuiz(title, "1");
         sakai.login("student0011");
         submitQuiz(title);
 
@@ -53,6 +53,64 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
 
         page.locator("[id$='submissionStatusMenuLink'] a").click();
         assertSearchClears("#editTotalResults\\:totalScoreTable");
+    }
+
+    @Test
+    void decimalCommaScoresDisplayAndSaveInEveryGradingView() {
+        sakai.login("instructor1");
+        siteUrl = sakai.createSiteThroughUi("instructor1", List.of("sakai\\.samigo"), "course");
+        String title = "Decimal scores " + sakai.randomId();
+        createQuiz(title, "2.5");
+        sakai.login("student0011");
+        submitQuiz(title);
+
+        sakai.login("instructor1");
+        page.navigate(siteUrl);
+        sakai.toolClick("Site Info");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Edit Site Information").setExact(true)).click();
+        page.locator("#locales").selectOption("es_ES");
+        page.locator("input[name='continue'][type='submit']").click();
+        page.locator("input[name='eventSubmit_doSave_siteInfo']").click();
+        page.navigate(siteUrl);
+        sakai.toolClick("Tests");
+        page.locator("#authorIndexForm\\:coreAssessments tbody tr").filter(new Locator.FilterOptions().setHasText(title))
+            .locator("td.submitted a").first().click();
+
+        Locator table = page.locator("[id='editTotalResults:totalScoreTable']");
+        Locator student = table.locator("tbody tr").filter(new Locator.FilterOptions().setHasText("student0011"));
+        int scoreColumn = ((Number) table.locator("[id$=':totalAutoScore']")
+            .evaluate("el => el.closest('th').cellIndex")).intValue();
+        assertThat(student.locator("td").nth(scoreColumn)).hasText("2,5");
+
+        page.locator("[id$='questionScoresMenuLink'] a").click();
+        Locator score = page.locator("input[id$=':qscore']").first();
+        assertThat(score).hasValue("2,5");
+        page.locator("[id='editTotalResults:save']").click();
+        assertThat(score).hasValue("2,5");
+        score.fill("1.234,5");
+        page.locator("[id='editTotalResults:save']").click();
+        assertThat(score).hasValue("1234,5");
+        score.fill("1,75");
+        page.locator("[id='editTotalResults:save']").click();
+        assertThat(score).hasValue("1,75");
+
+        page.locator("[id$='totalScoresMenuLink'] a").click();
+        assertThat(student.locator("td").nth(scoreColumn)).hasText("1,75");
+        student.locator("td").nth(1).locator("a[href]").first().click();
+        Locator adjusted = page.locator("input[id$=':adjustedScore']").first();
+        assertThat(adjusted).hasValue("1,75");
+        page.locator("[id='editStudentResults:save']").click();
+        assertThat(adjusted).hasValue("1,75");
+        adjusted.fill("2,25");
+        page.locator("[id='editStudentResults:save']").click();
+        assertThat(adjusted).hasValue("2,25");
+        adjusted.fill("1.234,5");
+        page.locator("[id='editStudentResults:save']").click();
+        assertThat(adjusted).hasValue("1234,5");
+        // Rubrics can also submit canonical decimal points.
+        adjusted.fill("2.5");
+        page.locator("[id='editStudentResults:save']").click();
+        assertThat(adjusted).hasValue("2,5");
     }
 
     private void assertSearchClears(String table) {
@@ -83,7 +141,7 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
         sakai.waitForPortalFocus();
     }
 
-    private void createQuiz(String title) {
+    private void createQuiz(String title, String points) {
         page.navigate(siteUrl);
         sakai.toolClick("Tests");
         page.locator("#authorIndexForm a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add$"))).click();
@@ -92,7 +150,7 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
         Locator type = page.locator("#assessmentForm\\:parts\\:0\\:changeQType");
         type.selectOption(type.locator("option").filter(new Locator.FilterOptions()
             .setHasText(Pattern.compile("multiple choice", Pattern.CASE_INSENSITIVE))).first().getAttribute("value"));
-        page.locator("#itemForm\\:answerptr").fill("1");
+        page.locator("#itemForm\\:answerptr").fill(points);
         page.locator("#itemForm textarea").first().fill("Choose Correct.");
         page.locator("#itemForm\\:mcchoices textarea").nth(0).fill("Correct");
         page.locator("#itemForm\\:mcchoices textarea").nth(1).fill("Incorrect");
