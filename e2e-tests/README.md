@@ -121,8 +121,11 @@ Run `SamigoTest#canSaveClearAndSubmitQuestionTagSearch` with
 `-Dsakai.test.samigoQuestionTags=true`. CI enables these settings and runs the test.
 It covers loading multiple real tag-search pages with a reduced page size, saving
 existing tags when the picker initialization script is blocked, and clearing tags.
-On servers with question search enabled, it also verifies submitting a tag search.
-CI leaves question search disabled because it does not provide the search index.
+To also verify submitting a tag search, enable
+`samigo.question.show.showSearchQuestion=true` on the server and pass
+`-Dsakai.test.samigoQuestionSearch=true` alongside the question-tag test setting.
+This mode asserts that the search option is present before using it.
+CI leaves this mode off because it does not provide the search index.
 
 ## Samigo group-access regression (SAK-52287)
 
