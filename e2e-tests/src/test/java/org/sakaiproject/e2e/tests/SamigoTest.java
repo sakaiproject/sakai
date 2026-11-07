@@ -497,9 +497,10 @@ class SamigoTest extends SakaiUiTestBase {
         saveQuestionAndWaitForAssessment();
 
         // Question search requires a separately configured search backend.
-        if (page.locator("select[id$=':changeQType'] option[value='17']").count() == 0) {
+        if (!Boolean.getBoolean("sakai.test.samigoQuestionSearch")) {
             return;
         }
+        assertThat(page.locator("select[id$=':changeQType'] option[value='17']")).hasCount(1);
         selectQuestionType(Pattern.compile("^Search questions$", Pattern.CASE_INSENSITIVE));
         selectQuestionTag(picker, tagLabel, collectionName);
         String tagId = page.locator(".samigo-tag-picker select").inputValue();
