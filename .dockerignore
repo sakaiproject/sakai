@@ -1,0 +1,16 @@
+.git
+.github
+**/.DS_Store
+**/target
+**/node_modules
+**/.idea
+**/.vscode
+**/.cursor
+**/.classpath
+**/.project
+**/.settings
+e2e-tests
+*.iml
+*.log
+.docker-deploy
+.devcontainer

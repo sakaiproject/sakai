@@ -1,0 +1,17 @@
+# Override for VS Code / Codespaces: add a lightweight "dev" workspace.
+# Paths are relative to the first compose file (repo-root docker-compose.yml).
+services:
+  dev:
+    image: mcr.microsoft.com/devcontainers/base:jammy
+    volumes:
+      - .:/workspaces/sakai:cached
+      - maven-cache:/home/vscode/.m2
+    command: sleep infinity
+    networks:
+      - sakai
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  maven-cache:
