@@ -642,7 +642,7 @@ $(document).ready(function(){
 							#set($entityval = "$assignment.Id")
                         				<input type="hidden" id="$contextkey" name="$contextkey" value="asn_student_view">
                         				<input type="hidden" id="$entitykey" name="$entitykey" value="$entityval">
-							<table border="0">
+							<table border="0" class="w-100">
 								<tr>
 									<td>
 										<textarea cols="80" rows="30" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$formattedText.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>						
