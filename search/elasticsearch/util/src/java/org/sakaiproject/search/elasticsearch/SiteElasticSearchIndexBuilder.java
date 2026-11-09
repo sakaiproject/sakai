@@ -42,15 +42,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.delete.DeleteRequest;
 import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.search.ClearScrollRequest;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.search.SearchResponse;
-import org.opensearch.action.search.SearchType;
+import org.opensearch.action.search.SearchScrollRequest;
 import org.opensearch.client.RequestOptions;
+import org.opensearch.common.unit.TimeValue;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.FieldSortBuilder;
 import org.opensearch.core.xcontent.XContentBuilder;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
@@ -74,6 +77,9 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
     protected static final String ADD_RESOURCE_VALIDATION_KEY_SITE_ID = "SITE_ID";
     protected static final String DELETE_RESOURCE_KEY_SITE_ID = "SITE_ID";
+
+    private int resourceNamesPageSize = 1000;
+    private static final TimeValue RESOURCE_NAMES_SCROLL_KEEP_ALIVE = TimeValue.timeValueMinutes(1);
 
     private SiteService siteService;
     private UserDirectoryService userDirectoryService;
@@ -435,25 +441,61 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     protected Collection<String> getResourceNames(String siteId) {
         log.debug("Obtaining indexed elements for site: '" + siteId + "'");
 
+        // Page with the scroll API: a single request is capped by index.max_result_window (10,000 by default)
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
                 .query(termQuery(SearchService.FIELD_SITEID, siteId))
-                .size(Integer.MAX_VALUE)
+                .size(resourceNamesPageSize)
+                .sort(FieldSortBuilder.DOC_FIELD_NAME)
                 .storedField(SearchService.FIELD_REFERENCE);
 
         SearchRequest searchRequest = new SearchRequest(indexName)
-                .searchType(SearchType.QUERY_THEN_FETCH);
+                .source(searchSourceBuilder)
+                .scroll(RESOURCE_NAMES_SCROLL_KEEP_ALIVE);
 
-        SearchResponse response;
+        List<String> resourceNames = new ArrayList<>();
+        String scrollId = null;
         try {
-            response = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            scrollId = response.getScrollId();
+            SearchHit[] hits = response.getHits().getHits();
+            while (hits != null && hits.length > 0) {
+                for (SearchHit hit : hits) {
+                    String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit);
+                    if (reference != null) {
+                        resourceNames.add(reference);
+                    }
+                }
+                SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId).scroll(RESOURCE_NAMES_SCROLL_KEEP_ALIVE);
+                response = client.scroll(scrollRequest, RequestOptions.DEFAULT);
+                scrollId = response.getScrollId();
+                hits = response.getHits().getHits();
+            }
         } catch (IOException ioe) {
             log.warn("Search for resources in site [" + siteId + "] encountered an error, " + ioe);
             return Collections.emptyList();
+        } finally {
+            clearScroll(scrollId);
         }
 
-        return Arrays.stream(response.getHits().getHits())
-                .map(h -> getFieldFromSearchHit(SearchService.FIELD_REFERENCE, h))
-                .collect(Collectors.toList());
+        return resourceNames;
+    }
+
+    /**
+     * Number of documents fetched per scroll page when listing a site's indexed resources. For tests.
+     */
+    void setResourceNamesPageSize(int resourceNamesPageSize) {
+        this.resourceNamesPageSize = resourceNamesPageSize;
+    }
+
+    private void clearScroll(String scrollId) {
+        if (scrollId == null) return;
+        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
+        clearScrollRequest.addScrollId(scrollId);
+        try {
+            client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT);
+        } catch (IOException ioe) {
+            log.debug("Could not clear scroll context, it will expire on its own: {}", ioe.toString());
+        }
     }
 
     @Override
