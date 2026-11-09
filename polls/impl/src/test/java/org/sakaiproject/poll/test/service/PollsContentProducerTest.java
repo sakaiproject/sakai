@@ -93,6 +93,7 @@ public class PollsContentProducerTest {
         siteRef = "/site/" + siteId;
         when(siteService.siteReference(siteId)).thenReturn(siteRef);
         when(securityService.unlock(STUDENT, "site.visit", siteRef)).thenReturn(true);
+        when(securityService.unlock(STUDENT, PollConstants.PERMISSION_VOTE, siteRef)).thenReturn(true);
         when(securityService.unlock(INSTRUCTOR, "site.visit", siteRef)).thenReturn(true);
         when(securityService.unlock(INSTRUCTOR, PollConstants.PERMISSION_ADD, siteRef)).thenReturn(true);
         when(formattedText.unEscapeHtml(anyString())).thenAnswer(i -> i.<String>getArgument(0).replace("&amp;", "&"));
@@ -190,6 +191,17 @@ public class PollsContentProducerTest {
     }
 
     @Test
+    public void anOpenPollNeedsVotePermissionUnlessItIsPublic() {
+        when(securityService.unlock("visitor", "site.visit", siteRef)).thenReturn(true);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("visitor");
+        String privatePoll = reference(poll(p -> { }));
+        String publicPoll = reference(poll(p -> p.setPublic(true)));
+
+        assertFalse(producer.canRead(privatePoll));
+        assertTrue(producer.canRead(publicPoll));
+    }
+
+    @Test
     public void groupPollsAreOnlyReadByMembersOfThoseGroups() throws IdUnusedException {
         Group group = mock(Group.class);
         when(group.getId()).thenReturn("group1");
@@ -198,6 +210,7 @@ public class PollsContentProducerTest {
         when(site.getGroupsWithMember(STUDENT)).thenReturn(List.of());
         when(site.getGroupsWithMember("member")).thenReturn(List.of(group));
         when(securityService.unlock("member", "site.visit", siteRef)).thenReturn(true);
+        when(securityService.unlock("member", PollConstants.PERMISSION_VOTE, siteRef)).thenReturn(true);
         String reference = reference(poll(p -> {
             p.setTypeOfAccess(Poll.Access.GROUP);
             p.setGroupIds(Set.of("group1"));

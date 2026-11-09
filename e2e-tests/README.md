@@ -62,6 +62,14 @@ Browser recording is disabled entirely: no traces, DOM snapshots, screenshots, o
 video are collected. CI retains Surefire reports, test output, and Tomcat logs.
 Browser actions and navigation waits are capped at 15 seconds.
 
+### Search tests
+
+Raise the index wait for search tests, since the index updates only every 60s:
+
+```bash
+export PLAYWRIGHT_SEARCH_TIMEOUT_MS=180000
+```
+
 ## Test helpers
 
 Shared helpers live in `src/test/java/org/sakaiproject/e2e/support`:

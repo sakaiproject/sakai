@@ -60,6 +60,19 @@ public final class SakaiEnvironment {
         return "chromium";
     }
 
+    /**
+     * How long search tests wait for the index to catch up. Defaults to 15s; raise it when running search tests locally,
+     * since the index queue is drained every 60s by default.
+     */
+    public static long searchIndexTimeoutMs() {
+        String fromProperty = System.getProperty("PLAYWRIGHT_SEARCH_TIMEOUT_MS");
+        String raw = fromProperty != null && !fromProperty.isBlank() ? fromProperty : System.getenv("PLAYWRIGHT_SEARCH_TIMEOUT_MS");
+        if (raw == null || raw.isBlank()) {
+            return 15_000;
+        }
+        return Long.parseLong(raw.trim());
+    }
+
     public static String resolveUser(String username) {
         return username;
     }

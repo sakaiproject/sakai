@@ -95,7 +95,8 @@ public class PollsContentProducer implements EntityContentProducer, EntityConten
 
     /**
      * Results show the instructions and options, so besides the poll's own site and group checks a member only finds
-     * a poll while those are visible in the tool: once voting opens, and after it closes only if results are visible.
+     * a poll while those are visible in the tool: while voting is open if they may vote or the poll is public, and
+     * after it closes only if results are visible.
      * This runs per search, so a scheduled poll becomes findable when it opens without being indexed again.
      */
     @Override
@@ -110,12 +111,15 @@ public class PollsContentProducer implements EntityContentProducer, EntityConten
                 if (pollsService.isAllowedPollAdd(poll.getSiteId())) {
                     return true;
                 }
+                String userId = sessionManager.getCurrentSessionUserId();
                 Instant now = Instant.now();
                 if (now.isBefore(poll.getVoteOpen())) {
                     return false;
                 }
-                return !now.isAfter(poll.getVoteClose())
-                        || pollsService.isAllowedViewResults(poll, sessionManager.getCurrentSessionUserId());
+                if (now.isAfter(poll.getVoteClose())) {
+                    return pollsService.isAllowedViewResults(poll, userId);
+                }
+                return pollsService.isPollPublic(poll) || pollsService.isUserAllowedVote(userId, poll.getId(), true);
             } catch (SecurityException e) {
                 return false;
             }
