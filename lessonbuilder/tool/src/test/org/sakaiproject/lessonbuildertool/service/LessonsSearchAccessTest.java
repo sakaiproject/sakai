@@ -202,6 +202,49 @@ public class LessonsSearchAccessTest {
     }
 
     @Test
+    public void memberCanReadTheLinkToAReleasedSubpage() {
+        assertTrue(canReadLink());
+    }
+
+    @Test
+    public void linkToASubpageNotYetReleasedCannotBeRead() {
+        subpage.setReleaseDate(new Date(System.currentTimeMillis() + 86400000L));
+        assertTrue(dao.quickUpdate(subpage));
+
+        assertFalse(canReadLink());
+    }
+
+    @Test
+    public void linkToAHiddenSubpageCannotBeRead() {
+        subpage.setHidden(true);
+        assertTrue(dao.quickUpdate(subpage));
+
+        assertFalse(canReadLink());
+    }
+
+    @Test
+    public void linkToASubpageNotYetReleasedCanBeReadByThoseWhoSeeAll() {
+        subpage.setReleaseDate(new Date(System.currentTimeMillis() + 86400000L));
+        assertTrue(dao.quickUpdate(subpage));
+
+        when(securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, "/site/" + SITE_ID)).thenReturn(true);
+        assertTrue(canReadLink());
+
+        reset(securityService);
+        when(securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, "/site/" + SITE_ID)).thenReturn(true);
+        when(securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, "/site/" + SITE_ID)).thenReturn(true);
+        assertTrue(canReadLink());
+    }
+
+    @Test
+    public void linkToAMissingPageCannotBeRead() {
+        link.setSakaiId("0");
+        assertTrue(dao.quickUpdate(link));
+
+        assertFalse(canReadLink());
+    }
+
+    @Test
     public void textBehindAnUnmetPrerequisiteCanBeReadOnlyOnceItIsMet() {
         SimplePageItem required = dao.makeItem(subpage.getPageId(), 1, SimplePageItem.PAGE, Long.toString(emptyPage().getPageId()), "First step");
         required.setRequired(true);
@@ -280,6 +323,10 @@ public class LessonsSearchAccessTest {
 
     private boolean canReadText() {
         return producer.canRead("/lessonbuilder/item/" + text.getId());
+    }
+
+    private boolean canReadLink() {
+        return producer.canRead("/lessonbuilder/item/" + link.getId());
     }
 
     // following a link happens inside the Lessons tool, which has a placement

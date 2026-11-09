@@ -21,6 +21,7 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -326,6 +327,9 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 			if (page == null || !canReadLessonsInSite(page.getSiteId())) {
 				return false;
 			}
+			if (item.getType() == SimplePageItem.PAGE && !canOpenSubpage(item, page.getSiteId())) {
+				return false;
+			}
 			// no lock needed, each check builds its own bean and LessonsAccess only holds services
 			return lessonsAccess.isItemAccessible(itemId, page.getSiteId(), UserDirectoryService.getCurrentUser().getId(), null);
 		} catch (Exception e) {
@@ -333,6 +337,19 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 			log.error("Could not check access to {}", reference, e);
 			return false;
 		}
+	}
+
+	// isItemAccessible checks the link but not the subpage it opens, which ShowPageProducer refuses until it is released
+	private boolean canOpenSubpage(SimplePageItem link, String siteId) {
+		SimplePage subpage = simplePageToolDao.getPage(NumberUtils.toLong(link.getSakaiId()));
+		if (subpage == null) {
+			return false;
+		}
+		if (lessonsAccess.canEditPage(siteId, subpage)
+				|| securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, siteService.siteReference(siteId))) {
+			return true;
+		}
+		return !subpage.isHidden() && (subpage.getReleaseDate() == null || !subpage.getReleaseDate().after(new Date()));
 	}
 
 	// isItemAccessible doesn't check site permissions, and search covers every site unless told otherwise
