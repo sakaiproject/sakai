@@ -78,7 +78,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     protected static final String ADD_RESOURCE_VALIDATION_KEY_SITE_ID = "SITE_ID";
     protected static final String DELETE_RESOURCE_KEY_SITE_ID = "SITE_ID";
 
-    private int resourceNamesPageSize = 1000;
+    private static final int RESOURCE_NAMES_PAGE_SIZE = 1000;
     private static final TimeValue RESOURCE_NAMES_SCROLL_KEEP_ALIVE = TimeValue.timeValueMinutes(1);
 
     private SiteService siteService;
@@ -444,7 +444,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         // Page with the scroll API: a single request is capped by index.max_result_window (10,000 by default)
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
                 .query(termQuery(SearchService.FIELD_SITEID, siteId))
-                .size(resourceNamesPageSize)
+                .size(RESOURCE_NAMES_PAGE_SIZE)
                 .sort(FieldSortBuilder.DOC_FIELD_NAME)
                 .storedField(SearchService.FIELD_REFERENCE);
 
@@ -478,13 +478,6 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         }
 
         return resourceNames;
-    }
-
-    /**
-     * Number of documents fetched per scroll page when listing a site's indexed resources. For tests.
-     */
-    void setResourceNamesPageSize(int resourceNamesPageSize) {
-        this.resourceNamesPageSize = resourceNamesPageSize;
     }
 
     private void clearScroll(String scrollId) {

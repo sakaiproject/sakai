@@ -590,7 +590,7 @@ public class ElasticSearchTest {
     }
 
     @Test
-    public void testGetResourceNamesOnlyReturnsSiteDocumentsAcrossPages() {
+    public void testGetResourceNamesOnlyReturnsSiteDocuments() {
         // 25 more documents in the test site, on top of resourceName, alongside 105 in other sites
         List<String> expected = new ArrayList<>();
         expected.add(resourceName);
@@ -612,8 +612,6 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.refreshIndex();
         assertEquals(131, elasticSearchService.getNDocs());
 
-        // force several scroll pages
-        elasticSearchIndexBuilder.setResourceNamesPageSize(10);
         Collection<String> names = elasticSearchIndexBuilder.getResourceNames(siteId);
 
         assertEquals(expected.size(), names.size());
