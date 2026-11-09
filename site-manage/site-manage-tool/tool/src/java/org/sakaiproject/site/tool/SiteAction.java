@@ -816,7 +816,6 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String GB_GROUP_PROPERTY = "gb-group";
 
 	private ImportService importService;
-	private List prefLocales;
 	private Locale dateFormattingLocale;
 	private String libraryPath;
 	private String moreInfoPath;
@@ -907,7 +906,6 @@ public class SiteAction extends PagedResourceActionII {
 
 		importService = org.sakaiproject.importer.cover.ImportService.getInstance();
 		dateFormattingLocale = rb.getLocale();
-		prefLocales = new ArrayList<>();
 
 		SITE_DEFAULT_LIST = serverConfigurationService.getString("site.types");
 		DEFAULT_SITE_TYPE_SAK_PROP = serverConfigurationService.getString("site.types.defaultType", null);
@@ -16013,19 +16011,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	
 	/**
-	 * @return Returns the prefLocales
+	 * Return the configured locales without sharing a mutable list between requests.
 	 */
 	public List<Locale> getPrefLocales()
 	{
-		// Initialize list of supported locales, if necessary
-		if (prefLocales.size() == 0) {
-			Locale[] localeArray = serverConfigurationService.getSakaiLocales();
-			// Add to prefLocales list
-			for (int i = 0; i < localeArray.length; i++) {
-				prefLocales.add(localeArray[i]);
-			}
-		}
-		return prefLocales;
+		return Arrays.asList(serverConfigurationService.getSakaiLocales());
 	}
 
 	// SAK-20797

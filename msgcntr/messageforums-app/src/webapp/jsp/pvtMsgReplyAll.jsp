@@ -3,8 +3,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 
-
-
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
@@ -26,7 +24,7 @@
 		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
-		<script>includeWebjarLibrary('select2');</script>
+		<script type="module" src="/webcomponents/bundles/user-picker.js"></script>
 	<h:form id="pvtMsgForward">
 		<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 	<script>
@@ -36,7 +34,7 @@
 			{
 				selectObject.options[i].selected=false;
 			}
-			changeSelect(selectObject);
+			selectObject.dispatchEvent(new Event('change', { bubbles: true }));
 		}
 
 		function fadeInBcc(clearSelected){
@@ -66,8 +64,7 @@
 		  		//BCC has selected items, so show it
 		  		fadeInBcc(false);
 		  	}
-		  	addTagSelector(document.getElementById('pvtMsgForward:list1'));
-		  	addTagSelector(document.getElementById('pvtMsgForward:list2'));
+			bindRecipientPicker(document.getElementById('pvtMsgForward:list2'));
 		  	resize();
             var menuLink = $('#messagesMainMenuLink');
             var menuLinkSpan = menuLink.closest('span');
@@ -154,13 +151,9 @@
 						</h:outputLabel>
 						<h:panelGroup styleClass="shorttext bccLink"></h:panelGroup>
 						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
+							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.pvt_bcc}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<span class="fa fa-trash" aria-hidden="true"></span>
-							<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list2')); return false;">
-								<h:outputText value="#{msgs.pvt_bccClear}"/>
-							</h:outputLink>
 						</h:panelGroup>
 					</div>
 				</div>
@@ -282,7 +275,6 @@
             <%--********************* Attachment *********************--%>
 
 	         <h4> <h:outputText value="#{msgs.pvt_att}"/></h4>
-
 
 	        	<p class="instruction"><h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.allAttachments}"/></p>
 	          <sakai:button_bar>

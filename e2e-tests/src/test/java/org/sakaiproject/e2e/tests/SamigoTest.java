@@ -40,11 +40,13 @@ import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.Request;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.Route;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SamigoTest extends SakaiUiTestBase {
@@ -349,6 +351,29 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#itemForm textarea").first().fill("Edited question text");
         saveQuestionAndWaitForPoolEditor();
         assertThat(page.locator("#editform\\:questionpool-questions a[title=\"Edit Question\"]")).hasCount(1);
+
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+        openNewAssessmentForm();
+        page.locator("#authorIndexForm\\:title").fill("Random draw " + RUN_ID);
+        page.locator("#authorIndexForm\\:createnew").click();
+        page.locator("#assessmentForm\\:addPart").click();
+        page.locator("#modifyPartForm\\:title").fill("Pool draw");
+        page.locator("input[name='modifyPartForm:typeTable'][value='3']").check();
+        searchQuestionPool("assignToPoolFixed", poolName);
+        assertThat(page.locator("[id='modifyPartForm:questionpool-questions']")).containsText("Edited question text");
+        page.locator("input[name='modifyPartForm:typeTable'][value='2']").check();
+        searchQuestionPool("assignToPool", poolName);
+        page.locator("[id='modifyPartForm:numSelected']").fill("1");
+        page.locator("[id='modifyPartForm:numPointsRandom']").fill("1");
+        clickSubmit("Save");
+        assertThat(page.locator("#assessmentForm")).containsText("Random draw from " + poolName);
+    }
+
+    private void searchQuestionPool(String selectId, String poolName) {
+        page.locator("[id='modifyPartForm:" + selectId + "'] + .select2-container .select2-selection").click();
+        page.locator(".select2-search__field").fill(poolName);
+        page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName(poolName)).click();
     }
 
     @Test
@@ -402,6 +427,102 @@ class SamigoTest extends SakaiUiTestBase {
         filterInput.press("Enter");
         page.locator("#questionpool\\:searchByTags").click();
         assertThat(page.locator("#questionpool\\:TreeTable")).containsText(poolName);
+    }
+
+    @Test
+    @Order(7)
+    @EnabledIfSystemProperty(named = "sakai.test.samigoQuestionTags", matches = "true")
+    void canSaveClearAndSubmitQuestionTagSearch() {
+        sakai.login("instructor1");
+        String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.samigo", "sakai\\.tagservice"));
+        page.navigate(courseUrl);
+        sakai.toolClick("Tags Service");
+        String collectionName = "Quiz collection " + RUN_ID;
+        String tagLabel = "Quiz tag " + RUN_ID;
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag Collection").setExact(true)).click();
+        page.locator("#name").fill(collectionName);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag Collection").setExact(true)).click();
+        page.locator(".tagservice-table tbody tr").filter(new Locator.FilterOptions().setHasText(collectionName))
+            .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("View Tags").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag").setExact(true)).click();
+        page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
+        assertThat(page.getByText(tagLabel, new Page.GetByTextOptions().setExact(true))).isVisible();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag").setExact(true)).click();
+        page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel + " second");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
+
+        sakai.toolClick("Tests");
+        openNewAssessmentForm();
+        page.locator("#authorIndexForm\\:title").fill("Question tags " + RUN_ID);
+        page.locator("#authorIndexForm\\:createnew").click();
+        addMultipleChoiceQuestion("1", "What is the test question?", List.of("This", "That"), 0);
+
+        Locator edit = page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify");
+        edit.click();
+        Locator picker = page.locator(".samigo-tag-picker sakai-tag-selector");
+        // The real endpoint normalizes a zero page limit to one result per page.
+        String tagSearchRoute = "**/getTagsPaginatedByPrefixInLabel.json?*";
+        page.route(tagSearchRoute, route -> route.resume(new Route.ResumeOptions()
+            .setUrl(route.request().url().replace("pagelimit=20", "pagelimit=0"))));
+        sakai.waitForPortalFocus();
+        picker.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Load more tags").setExact(true)).click();
+        assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(2);
+        assertThat(picker.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Load more tags").setExact(true))).hasCount(0);
+        picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions()
+            .setName(tagLabel + " (" + collectionName + ")").setExact(true)).click();
+        page.unroute(tagSearchRoute);
+        Locator removeTag = picker.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel + " (" + collectionName + ")").setExact(true));
+        saveQuestionAndWaitForAssessment();
+        // Block the initialization module: the server must still submit the saved association.
+        String tagScriptRoute = "**/samigo-app/js/tag-display.js";
+        page.route(tagScriptRoute, route -> route.abort());
+        edit.click();
+        Locator savedOptions = page.locator(".samigo-tag-picker select option:checked");
+        assertThat(savedOptions).hasCount(1);
+        assertThat(savedOptions).hasText(tagLabel);
+        saveQuestionAndWaitForAssessment();
+        page.unroute(tagScriptRoute);
+        edit.click();
+        assertThat(removeTag).isVisible();
+        removeTag.click();
+        assertThat(removeTag).hasCount(0);
+        saveQuestionAndWaitForAssessment();
+        edit.click();
+        assertThat(picker.getByRole(AriaRole.COMBOBOX)).isVisible();
+        assertThat(removeTag).hasCount(0);
+        saveQuestionAndWaitForAssessment();
+
+        // Question search requires a separately configured search backend.
+        if (!Boolean.getBoolean("sakai.test.samigoQuestionSearch")) {
+            return;
+        }
+        assertThat(page.locator("#assessmentForm\\:parts\\:0\\:changeQType option[value='17']")).hasCount(1);
+        selectQuestionType(Pattern.compile("^Search questions$", Pattern.CASE_INSENSITIVE));
+        selectQuestionTag(picker, tagLabel, collectionName);
+        String tagId = page.locator(".samigo-tag-picker select").inputValue();
+        assertTrue(!tagId.isBlank());
+        Request search = page.waitForRequest(request -> "POST".equals(request.method())
+                && request.url().contains("/searchQuestion"),
+            () -> page.locator("#editform\\:searchByTagAND").click());
+        assertTrue(URLDecoder.decode(search.postData(), StandardCharsets.UTF_8).contains("tag_selector[]=" + tagId));
+        // Rendering hits requires a question index, which local test deployments may disable.
+    }
+
+    private void selectQuestionTag(Locator picker, String tag, String collection) {
+        Locator input = picker.getByRole(AriaRole.COMBOBOX);
+        assertThat(input).isVisible();
+        sakai.waitForPortalFocus();
+        Response response = page.waitForResponse(r -> r.url().contains("/getTagsPaginatedByPrefixInLabel.json"),
+            () -> input.fill(tag));
+        assertEquals(200, response.status(), response.url());
+        Locator option = picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions()
+            .setName(tag + " (" + collection + ")").setExact(true));
+        assertThat(option).containsText(collection);
+        option.click();
     }
 
     private void assertPoolTagRequest(Runnable navigation) {

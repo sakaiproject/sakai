@@ -6,6 +6,8 @@ export class SakaiTagSelector extends SakaiShadowElement {
 
   static properties = {
     options: { attribute: false },
+    searchTags: { attribute: false },
+    label: { type: String },
     selectedTags: { attribute: false },
     siteId: { attribute: "site-id", type: String },
     tool: { type: String },
@@ -21,6 +23,8 @@ export class SakaiTagSelector extends SakaiShadowElement {
     _active: { state: true },
     _loading: { state: true },
     _error: { state: true },
+    _searching: { state: true },
+    _more: { state: true },
   };
 
   constructor() {
@@ -46,9 +50,13 @@ export class SakaiTagSelector extends SakaiShadowElement {
     return this._selectedTags.map(tag => ({ ...tag }));
   }
 
+  focus() {
+    this.renderRoot.querySelector("input")?.focus();
+  }
+
   clear() {
     this._cleared = true;
-    this._query = "";
+    this._resetSearch();
     this._selectedTags = [];
     this._publish();
   }
@@ -99,7 +107,55 @@ export class SakaiTagSelector extends SakaiShadowElement {
     return [ ...options.values() ];
   }
 
+  _resetSearch() {
+    this._query = "";
+    if (this.searchTags) {
+      clearTimeout(this._searchTimer);
+      this._request?.abort();
+      this._options = [];
+      this._searching = false;
+      this._more = false;
+      this._error = false;
+    }
+  }
+
+  async _loadSearchPage(page = 1) {
+    this._request?.abort();
+    const query = this._query.trim();
+    this._error = false;
+    if (page === 1) {
+      this._options = [];
+      this._more = false;
+    }
+    if (!query) {
+      this._searching = false;
+      return;
+    }
+
+    const request = new AbortController();
+    this._request = request;
+    this._searching = true;
+    try {
+      const { tags, more } = await this.searchTags(query, page, request.signal);
+      if (request.signal.aborted) { return; }
+      const options = new Map(this._options.map(tag => [ tag.code, tag ]));
+      for (const tag of tags) { options.set(tag.code, tag); }
+      this._options = [ ...options.values() ];
+      this._page = page;
+      this._more = more;
+    } catch (error) {
+      if (!request.signal.aborted) {
+        this._error = true;
+        this._retryPage = page;
+        console.error(error);
+      }
+    } finally {
+      if (!request.signal.aborted) { this._searching = false; }
+    }
+  }
+
   get _choices() {
+    if (this.searchTags) { return this._options; }
     const query = this._query.trim().toLowerCase();
     const options = this._availableOptions;
     // Global vocabularies can contain thousands of tags; search the catalog, render a short list.
@@ -113,27 +169,30 @@ export class SakaiTagSelector extends SakaiShadowElement {
 
   _selectTag(tag) {
     if (this._selectedTags.some(value => value.code === tag.code)) {
-      this._removeTag(tag);
+      this._removeTag(tag, Boolean(this.searchTags));
       return;
     }
     const value = { name: tag.name, code: tag.code };
+    if (tag.collection) { value.collection = tag.collection; }
     if (tag.create) {
       this._options = [ ...this._options, value ];
     }
-    this._updateSelection([ ...this._selectedTags, value ]);
+    this._updateSelection([ ...this._selectedTags, value ], Boolean(this.searchTags));
   }
 
-  _removeTag(tag) {
-    this._updateSelection(this._selectedTags.filter(value => value.code !== tag.code));
+  _removeTag(tag, keepResults = false) {
+    this._updateSelection(this._selectedTags.filter(value => value.code !== tag.code), keepResults);
   }
 
-  _updateSelection(value) {
+  _updateSelection(value, keepResults) {
     this._selectedTags = value;
-    this._query = "";
-    this._active = -1;
+    if (!keepResults) {
+      this._resetSearch();
+      this._active = -1;
+    }
     this._publish();
     this.renderRoot.querySelector("input").focus();
-    this._open = false;
+    this._open = keepResults;
   }
 
   _focusout(event) {
@@ -143,9 +202,14 @@ export class SakaiTagSelector extends SakaiShadowElement {
   }
 
   _input(event) {
+    if (this.searchTags) { this._resetSearch(); }
     this._query = event.target.value;
     this._active = -1;
     this._open = true;
+    if (this.searchTags && this._query.trim()) {
+      this._searching = true;
+      this._searchTimer = setTimeout(() => this._loadSearchPage(), 300);
+    }
   }
 
   _keydown(event) {
@@ -186,27 +250,29 @@ export class SakaiTagSelector extends SakaiShadowElement {
 
   render() {
     const choices = this._choices;
-    const label = this.addNew ? this._i18n.search_or_add : this._i18n.search_filter;
+    const placeholder = this.addNew ? this._i18n.search_or_add : this._i18n.search_filter;
+    const label = this.label || placeholder;
     return html`
       <div class="picker" @focusout=${this._focusout}>
         <div class="selector" aria-busy=${Boolean(this._loading)}>
           ${this._selectedTags.map(tag => html`
-            <button class="tag" type="button" aria-label="${this._i18n.deselect}: ${tag.name}"
-                ?disabled=${this._loading || this._error}
+            <button class="tag" type="button" aria-label="${this._i18n.deselect}: ${tag.name}${tag.collection ? ` (${tag.collection})` : ""}"
+                ?disabled=${this._loading || (!this.searchTags && this._error)}
                 @click=${() => this._removeTag(tag)}>
-              ${tag.name} <span aria-hidden="true">×</span>
+              ${tag.name}${tag.collection ? html` <small>(${tag.collection})</small>` : nothing} <span aria-hidden="true">×</span>
             </button>
           `)}
           <input id="search" type="text" role="combobox" autocomplete="off"
-              aria-label=${label} placeholder=${label} aria-autocomplete="list"
+              aria-label=${label} placeholder=${placeholder} aria-autocomplete="list"
               aria-expanded=${this._open} aria-controls="options"
               aria-activedescendant=${this._open && this._active >= 0 ? `option-${this._active}` : nothing}
-              ?disabled=${this._loading || this._error} .value=${this._query}
+              ?disabled=${this._loading || (!this.searchTags && this._error)} .value=${this._query}
               @focus=${() => { this._open = true; }}
               @click=${() => { this._open = true; }}
               @input=${this._input}
               @keydown=${this._keydown}>
         </div>
+        <div class="results" ?hidden=${!this._open}>
         <ul id="options" role="listbox" aria-label=${label} aria-multiselectable="true" ?hidden=${!this._open}>
           ${choices.map((tag, index) => {
       const selected = this._selectedTags.some(value => value.code === tag.code);
@@ -215,23 +281,32 @@ export class SakaiTagSelector extends SakaiShadowElement {
                 class=${index === this._active ? "active" : ""}
                 @mousedown=${event => event.preventDefault()} @click=${() => this._selectTag(tag)}>
               ${tag.create ? html`${this._i18n.add_new}: ${tag.name}` : tag.name}
+              ${tag.collection ? html` <small>(${tag.collection})</small>` : nothing}
               ${selected ? html`<span aria-hidden="true"> ✓</span>` : nothing}
             </li>
           `;
     })}
-          ${!choices.length ? html`
+          ${!choices.length && !this._searching && !this._error ? html`
             <li role="presentation">
               <span role="status">
-                ${this._availableOptions.length ? this._i18n.no_results : this._i18n.no_options}
+                ${this.searchTags && !this._query.trim() ? this._i18n.search_prompt
+                  : this.searchTags || this._availableOptions.length ? this._i18n.no_results : this._i18n.no_options}
               </span>
             </li>
           ` : nothing}
         </ul>
+        ${this._searching ? html`<p role="status">${this._i18n.loading}</p>` : nothing}
+        ${this._more && !this._error ? html`
+          <button type="button" class="more" ?disabled=${this._searching} @mousedown=${event => event.preventDefault()} @click=${() => {
+                    this.focus();
+                    this._loadSearchPage(this._page + 1);
+                  }}>${this._i18n.load_more}</button>` : nothing}
+        </div>
         ${this._loading ? html`<p role="status">${this._i18n.loading}</p>` : nothing}
         ${this._error ? html`
           <p role="alert">
             ${this._i18n.load_error}
-            <button type="button" @click=${this._initializeSelection}>${this._i18n.retry}</button>
+            <button type="button" @click=${() => this.searchTags ? this._loadSearchPage(this._retryPage) : this._initializeSelection()}>${this._i18n.retry}</button>
           </p>
         ` : nothing}
         <span class="status" role="status">
@@ -294,7 +369,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
       outline-offset: 2px;
     }
 
-    ul {
+    .results {
       position: absolute;
       top: 100%;
       left: 0;
@@ -302,12 +377,13 @@ export class SakaiTagSelector extends SakaiShadowElement {
       z-index: 1000;
       max-height: 14rem;
       overflow-y: auto;
-      margin: 0;
-      padding: 0;
-      list-style: none;
       border: 1px solid var(--sakai-border-color, #767676);
       background: var(--sakai-background-color-1, white);
     }
+
+    ul { margin: 0; padding: 0; list-style: none; }
+
+    .more { margin: .5rem; }
 
     li {
       padding: .5rem;
