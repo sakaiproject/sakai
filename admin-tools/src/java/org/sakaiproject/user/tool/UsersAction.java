@@ -662,7 +662,11 @@ public class UsersAction extends PagedResourceActionII
 			{
 				UserEdit edit = userDirectoryService.editUser(id);
 				userDirectoryService.cancelEdit(edit);
-				context.put("enableEdit", "true");
+				context.put("enableEdit", userDirectoryService.allowUpdateUserName(id)
+						|| userDirectoryService.allowUpdateUserEmail(id)
+						|| ((Boolean) state.getAttribute("include-password") && !isProvidedType(user.getType())
+								&& userDirectoryService.allowUpdateUserPassword(id))
+						|| (!(Boolean) state.getAttribute("single-user") && userDirectoryService.allowUpdateUserType(id)));
 			}
 			catch (UserNotDefinedException e)
 			{
