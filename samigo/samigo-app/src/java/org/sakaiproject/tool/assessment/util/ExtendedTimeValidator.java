@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -55,6 +56,7 @@ public class ExtendedTimeValidator
     public static final String ERROR_KEY_RETRACT_BEFORE_START         = "extended_time_retract_earlier_than_available";
     public static final String ERROR_KEY_DUE_SAME_AS_START            = "extended_time_due_same_as_available";
     public static final String ERROR_KEY_OPEN_WINDOW_LESS_THAN_LIMIT  = "extended_time_open_window_less_than_time_limit";
+    public static final String ERROR_KEY_AFTER_FEEDBACK               = "extended_time_after_feedback";
     public static final String ERROR_KEY_USER_SUBSTRING               = "extended_time_error_user";
     public static final String ERROR_KEY_GROUP_SUBSTRING              = "extended_time_error_group";
 
@@ -172,6 +174,12 @@ public class ExtendedTimeValidator
                 {
                     addError( ERROR_KEY_OPEN_WINDOW_LESS_THAN_LIMIT, entry, context );
                 }
+            }
+
+            if (isFeedbackByDate() && AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(dueDate,
+                    retractDate, parseLateHandling(getLateHandling()), getFeedbackDate()))
+            {
+                addError(ERROR_KEY_AFTER_FEEDBACK, entry, context);
             }
         }
 
@@ -394,6 +402,52 @@ public class ExtendedTimeValidator
         }
 
         return "";
+    }
+
+    private boolean isFeedbackByDate()
+    {
+        String feedbackDelivery = null;
+        if (settingsBean instanceof PublishedAssessmentSettingsBean)
+        {
+            feedbackDelivery = ((PublishedAssessmentSettingsBean) settingsBean).getFeedbackDelivery();
+        }
+        else if (settingsBean instanceof AssessmentSettingsBean)
+        {
+            feedbackDelivery = ((AssessmentSettingsBean) settingsBean).getFeedbackDelivery();
+        }
+
+        return AssessmentFeedbackIfc.FEEDBACK_BY_DATE.toString().equals(feedbackDelivery);
+    }
+
+    private Date getFeedbackDate()
+    {
+        if (settingsBean instanceof PublishedAssessmentSettingsBean)
+        {
+            return ((PublishedAssessmentSettingsBean) settingsBean).getFeedbackDate();
+        }
+        else if (settingsBean instanceof AssessmentSettingsBean)
+        {
+            return ((AssessmentSettingsBean) settingsBean).getFeedbackDate();
+        }
+
+        return null;
+    }
+
+    private Integer parseLateHandling(String lateHandling)
+    {
+        if (lateHandling == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return Integer.valueOf(lateHandling);
+        }
+        catch (NumberFormatException e)
+        {
+            return null;
+        }
     }
 
     /**
