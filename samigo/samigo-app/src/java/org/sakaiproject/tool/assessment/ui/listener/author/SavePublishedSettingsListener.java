@@ -1105,7 +1105,10 @@ implements ActionListener
 
 				/* WE WILL NEED TO UPDATE THE ITEMS FROM CASE 2 IF THE TITLE, SCORE, OR ANY OF THE CATEGORIES
 					HAVE CHANGED (IN CASE OF MULTI GRADEBOOK) */
-				if (isTitleChanged || isScoringTypeChanged || updateGradebookCategoryMap.size() >= 1) {
+				boolean isStartDateChanged = !Objects.equals(assessment.getStartDate(), originalAssessment.getStartDate());
+				boolean isDueDateChanged = !Objects.equals(assessment.getDueDate(), originalAssessment.getDueDate());
+				boolean isRetractDateChanged = !Objects.equals(assessment.getRetractDate(), originalAssessment.getRetractDate());
+				if (isTitleChanged || isScoringTypeChanged || updateGradebookCategoryMap.size() >= 1 || isStartDateChanged || isDueDateChanged || isRetractDateChanged) {
 					List<String> gradebookUidList = new ArrayList<>();
 
 					if (isGradebookGroupEnabled) {
