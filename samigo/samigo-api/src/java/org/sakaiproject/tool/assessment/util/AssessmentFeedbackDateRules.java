@@ -43,8 +43,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
  * when no cutoff exists because the assessment has no due date.</p>
  *
  * <p>When exception (extended time) due/retract dates are supplied, the effective
- * cutoff is the latest among the assessment cutoff and each exception cutoff.
- * Exception cutoffs use the assessment's late-handling setting.</p>
+ * cutoff for ordering checks is the latest among the assessment cutoff and each
+ * exception cutoff. Exception retract dates count even without assessment late
+ * handling. Scheduled feedback still requires an assessment due date of its own;
+ * an exception cutoff cannot substitute for a missing assessment due date.</p>
  */
 public final class AssessmentFeedbackDateRules {
 
@@ -112,14 +114,15 @@ public final class AssessmentFeedbackDateRules {
     }
 
     boolean hasFeedbackDate = feedbackStartDate != null || feedbackEndDate != null;
-    Date cutoffDate = getFeedbackCutoffDate(dueDate, retractDate, lateHandling, exceptionDates);
-    if (cutoffDate == null) {
+    Date assessmentCutoffDate = singleFeedbackCutoffDate(dueDate, retractDate, lateHandling);
+    if (assessmentCutoffDate == null) {
       if (hasFeedbackDate) {
         violations.add(violation(Error.MISSING_DUE_DATE));
       }
       return violations;
     }
 
+    Date cutoffDate = getFeedbackCutoffDate(dueDate, retractDate, lateHandling, exceptionDates);
     if (feedbackStartDate != null && feedbackStartDate.before(cutoffDate)) {
       violations.add(violation(Error.FEEDBACK_START_BEFORE_DUE_DATE));
     }
@@ -197,7 +200,7 @@ public final class AssessmentFeedbackDateRules {
 
   private static Date exceptionFeedbackCutoffDate(Date dueDate, Date retractDate) {
     if (dueDate == null) {
-      return null;
+      return retractDate;
     }
 
     if (retractDate != null && retractDate.after(dueDate)) {
