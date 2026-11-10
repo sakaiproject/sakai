@@ -20,6 +20,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     data: { state: true },
     _userWidgetFilters: { state: true },
     _availableWidgetCount: { state: true },
+    _heroAutoHeight: { state: true },
   };
 
   constructor() {
@@ -52,6 +53,7 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     this._heroResizeObserver?.disconnect();
     this._heroResizeObserver = undefined;
+    this._heroObservedHero = undefined;
     super.disconnectedCallback();
   }
 
@@ -377,9 +379,12 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     const width = this._normalizeHeroWidth(this.data?.heroWidth);
     const panel = this.querySelector("sakai-widget-panel");
-    const columns = typeof panel?._columnCount === "function" ? panel._columnCount() : (panel?._narrowColumns ? 1 : 3);
-    const autoHeight = width === HERO_FULL || columns < 2 || (width === HERO_WIDE && columns < 3);
-    hero.toggleAttribute("data-hero-auto-height", autoHeight);
+    const autoHeight = typeof panel?.heroFillsRow === "function"
+      ? panel.heroFillsRow()
+      : (width === HERO_FULL || width === HERO_WIDE);
+    if (this._heroAutoHeight !== autoHeight) {
+      this._heroAutoHeight = autoHeight;
+    }
 
     if (autoHeight) {
       if (hero.style.gridColumn !== "1 / -1") {
@@ -508,7 +513,8 @@ export class SakaiCourseDashboard extends SakaiElement {
           class="course-dashboard-hero"
           data-hero-width="${heroWidth}"
           ?data-show-image=${showImage}
-          ?data-overview-empty=${overviewEmpty}>
+          ?data-overview-empty=${overviewEmpty}
+          ?data-hero-auto-height=${this._heroAutoHeight}>
         ${this._heroChrome()}
         <div class="course-dashboard-hero-media"
             style="${heroImageUrl ? `--course-dashboard-hero-image: ${heroImageUrl}` : ""}">
