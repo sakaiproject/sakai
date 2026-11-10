@@ -114,6 +114,7 @@ public class LessonsSearchAccessTest {
         @Bean(name = "org.sakaiproject.time.api.TimeService") public TimeService timeService() { return mock(TimeService.class); }
         @Bean(name = "org.sakaiproject.lessonbuildertool.service.BltiEntity") public LessonEntity bltiEntity() { return mock(LessonEntity.class); }
         @Bean(name = "org.sakaiproject.lessonbuildertool.service.ScormEntity") public LessonEntity scormEntity() { return mock(LessonEntity.class); }
+        @Bean(name = "org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity") public VideoTrainingEntity videoTrainingEntity() { return new VideoTrainingEntity(); }
     }
 
     @Autowired private LessonsAccess lessonsAccess;

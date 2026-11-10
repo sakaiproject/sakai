@@ -365,6 +365,7 @@ simplePageBean.addForumSummary,
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
+    <property name="videoTrainingEntity" ref="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
     <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>

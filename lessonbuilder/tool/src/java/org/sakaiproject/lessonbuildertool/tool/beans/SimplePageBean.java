@@ -617,7 +617,8 @@ public class SimplePageBean {
     		scormEntity = (LessonEntity)e;
     	}
 
-		private LessonEntity videoTrainingEntity = null;
+	@Autowired @Qualifier("org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity")
+	private LessonEntity videoTrainingEntity = null;
     	public void setVideoTrainingEntity(Object e) {
     		videoTrainingEntity = (LessonEntity)e;
     	}
