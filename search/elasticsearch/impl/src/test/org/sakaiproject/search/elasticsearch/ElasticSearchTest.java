@@ -33,9 +33,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -585,6 +587,35 @@ public class ElasticSearchTest {
                 elasticSearchIndexBuilder.getPendingDocuments() == 0);
         assertTrue(elasticSearchService.getNDocs() == 106);
 
+    }
+
+    @Test
+    public void testGetResourceNamesOnlyReturnsSiteDocuments() {
+        // 25 more documents in the test site, on top of resourceName, alongside 105 in other sites
+        List<String> expected = new ArrayList<>();
+        expected.add(resourceName);
+        for (int i = 0; i < 25; i++) {
+            String name = "site doc " + i;
+            Event newEvent = mock(Event.class);
+            when(newEvent.getResource()).thenReturn(name);
+            when(entityContentProducer.matches(newEvent)).thenReturn(true);
+            when(entityContentProducer.getSiteId(name)).thenReturn(siteId);
+            when(entityContentProducer.getAction(newEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
+            when(entityContentProducer.getContent(name)).thenReturn(generateContent());
+            when(entityContentProducer.getType(name)).thenReturn("sakai:content");
+            when(entityContentProducer.getId(name)).thenReturn(name);
+            events.add(newEvent);
+            expected.add(name);
+        }
+
+        addResources();
+        elasticSearchIndexBuilder.refreshIndex();
+        assertEquals(131, elasticSearchService.getNDocs());
+
+        Collection<String> names = elasticSearchIndexBuilder.getResourceNames(siteId);
+
+        assertEquals(expected.size(), names.size());
+        assertEquals(new HashSet<>(expected), new HashSet<>(names));
     }
 
     @Test
