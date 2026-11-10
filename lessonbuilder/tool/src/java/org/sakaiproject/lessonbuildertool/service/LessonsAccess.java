@@ -48,6 +48,8 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 // This class is used to check whether a page or item should be
 // accessible for the user. It checks all conditions. SimplePageBean
@@ -55,7 +57,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 // for use in services where individual checks aren't needed.
 // In general this will be used by services such as /access or /direct
 @Slf4j
-public class LessonsAccess {
+public class LessonsAccess implements ApplicationContextAware {
+    @Setter private ApplicationContext applicationContext;
     // Sakai Service Beans
     @Setter private SimplePageToolDao dao;
     @Setter private MessageLocator messageLocator;
@@ -353,7 +356,8 @@ public class LessonsAccess {
 
     public SimplePageBean makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage) {
 	if (simplePageBean == null) {
-	    simplePageBean = new SimplePageBean(true);
+	    simplePageBean = applicationContext.getAutowireCapableBeanFactory().createBean(SimplePageBean.class);
+	    simplePageBean.init();
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());
