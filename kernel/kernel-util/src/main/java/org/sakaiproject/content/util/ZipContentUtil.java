@@ -238,13 +238,14 @@ public class ZipContentUtil {
 
 	/**
 	 * Extracts a compressed (zip) ContentResource to a new folder with the same name.
+	 * If the folder already exists, appends a number to create a separate folder.
 	 * 
      * @param referenceId the sakai entity reference id
 	 * @throws Exception on failure
 	 */
 	public void extractArchive(String referenceId) throws Exception {
 		ContentResource resource = contentHostingService.getResource(referenceId);
-		String rootCollectionId = extractZipCollectionPrefix(resource);
+		String rootCollectionId = null;
 
 		boolean collectionCreated = false;
 
@@ -268,9 +269,12 @@ public class ZipContentUtil {
                         Zip.validateEntryName(validationEntries.nextElement().getName());
                     }
                     if (!collectionCreated) {
-                        ContentCollectionEdit rootCollection = contentHostingService.addCollection(rootCollectionId);
+                        ContentCollectionEdit rootCollection = contentHostingService.addCollection(
+                            resource.getContainingCollection().getId(), extractZipCollectionName(resource),
+                            MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+                        rootCollectionId = rootCollection.getId();
                         ResourcePropertiesEdit prop = rootCollection.getPropertiesEdit();
-                        prop.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, extractZipCollectionName(resource));
+                        prop.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, extractName(rootCollectionId));
                         contentHostingService.commitCollection(rootCollection);
                         collectionCreated = true;
                     }
@@ -554,12 +558,6 @@ public class ZipContentUtil {
         }
 	}
 	
-	private String extractZipCollectionPrefix(ContentResource resource) {
-        return resource.getContainingCollection().getId() +
-            extractZipCollectionName(resource) +
-            Entity.SEPARATOR;
-	}
-
 	private String extractName(String collectionName) {
 		String[] tmp = collectionName.split(Entity.SEPARATOR);
 		return tmp[tmp.length-1];

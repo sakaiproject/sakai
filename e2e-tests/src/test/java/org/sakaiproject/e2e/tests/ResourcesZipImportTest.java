@@ -35,9 +35,34 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 @EnabledIfSystemProperty(named = "resources.security.zipExpansion", matches = "true")
 class ResourcesZipImportTest extends SakaiUiTestBase {
     @Test
+    void repeatedExpansionCreatesDistinctFoldersWithTheirOwnContents() throws IOException {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.resources"));
+        page.navigate(siteUrl);
+        sakai.toolClick("Resources");
+        upload("safe-package.zip", false);
+
+        expand("safe-package.zip");
+        expand("safe-package.zip");
+        expand("safe-package.zip");
+
+        for (String folder : List.of("safe-package", "safe-package-1", "safe-package-2")) {
+            assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folder).setExact(true)))
+                .isVisible();
+        }
+        for (String folder : List.of("safe-package", "safe-package-1", "safe-package-2")) {
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folder).setExact(true)).click();
+            assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("safe.txt").setExact(true)))
+                .isVisible();
+            page.navigate(siteUrl);
+            sakai.toolClick("Resources");
+        }
+    }
+
+    @Test
     void rejectsTraversalWithoutPartialImportAndStillExpandsSafeArchive() throws IOException {
         sakai.login("instructor1");
-        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.resources"));
+        String siteUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.resources"));
         page.navigate(siteUrl);
         sakai.toolClick("Resources");
         upload("unsafe-package.zip", true);
