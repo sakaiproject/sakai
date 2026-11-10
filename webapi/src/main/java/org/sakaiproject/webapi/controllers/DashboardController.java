@@ -95,6 +95,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     private static final String PROP_WIDGET_FILTERS = "widgetFilters";
     private static final String PROP_COURSE_LAYOUTS = "courseLayouts";
     private static final String PROP_COURSE_HERO_WIDTH = "dashboard.course.hero.width";
+    private static final String DEFAULT_COURSE_HERO_WIDTH = "full";
     private static final String PROP_COURSE_SHOW_IMAGE = "dashboard.course.hero.showImage";
     private static final String PROP_COURSE_LAYOUT_STUDENT = "dashboard.course.widget.layout.student";
     private static final String PROP_COURSE_LAYOUT_INSTRUCTOR = "dashboard.course.widget.layout.instructor";
@@ -436,7 +437,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
                     if (!(config.get("heroWidth") instanceof String)
                             || StringUtils.isBlank((String) config.get("heroWidth"))) {
                         config.put("heroWidth", normalizeHeroWidth(
-                                serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, "wide")));
+                                serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, DEFAULT_COURSE_HERO_WIDTH)));
                     }
                     config.remove("widgetLayout");
                     config.remove("template");
@@ -494,7 +495,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
         if (siteConfig.get("heroWidth") instanceof String) {
             return normalizeHeroWidth((String) siteConfig.get("heroWidth"));
         }
-        return normalizeHeroWidth(serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, "wide"));
+        return normalizeHeroWidth(serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, DEFAULT_COURSE_HERO_WIDTH));
     }
 
     @SuppressWarnings("unchecked")
@@ -693,14 +694,14 @@ public class DashboardController extends AbstractSakaiApiController implements E
         if ("full".equals(heroWidth) || "wide".equals(heroWidth) || "narrow".equals(heroWidth)) {
             return heroWidth;
         }
-        return "wide";
+        return DEFAULT_COURSE_HERO_WIDTH;
     }
 
     private Map<String, Object> siteChromeConfigForCopy(String fromConfigJson) {
 
         Map<String, Object> result = new HashMap<>();
         result.put("showImage", Boolean.TRUE);
-        result.put("heroWidth", "wide");
+        result.put("heroWidth", DEFAULT_COURSE_HERO_WIDTH);
         if (StringUtils.isBlank(fromConfigJson)) {
             return result;
         }
