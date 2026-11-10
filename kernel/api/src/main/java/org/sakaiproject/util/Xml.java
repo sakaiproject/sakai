@@ -285,11 +285,7 @@ public class Xml
 		try
 		{
 			out = new FileOutputStream(fileName);
-//			 get an instance of the DOMImplementation registry
-			 DocumentBuilderFactory factory 
-			   = DocumentBuilderFactory.newInstance();
-			  DocumentBuilder builder = factory.newDocumentBuilder();
-			  DOMImplementation impl = builder.getDOMImplementation();
+			DOMImplementation impl = doc.getImplementation();
 			  
 			DOMImplementationLS feature = (DOMImplementationLS) impl.getFeature("LS","3.0");
 			LSSerializer serializer = feature.createLSSerializer();
@@ -329,10 +325,7 @@ public class Xml
 		{
 			StringWriter sw = new StringWriter();
 			
-			 DocumentBuilderFactory factory 
-			   = DocumentBuilderFactory.newInstance();
-			  DocumentBuilder builder = factory.newDocumentBuilder();
-			  DOMImplementation impl = builder.getDOMImplementation();
+			DOMImplementation impl = doc.getImplementation();
 			  
 			
 			DOMImplementationLS feature = (DOMImplementationLS) impl.getFeature("LS",

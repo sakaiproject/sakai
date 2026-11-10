@@ -291,6 +291,45 @@ public class XmlTest {
         assertTrue("Should contain node name", result.contains("Name: root"));
     }
 
+    @Test
+    public void testWriteDocumentWithNullAttribute() {
+        Document doc = createArchiveWithNullAttribute();
+
+        Xml.writeDocument(doc, tempFile.getPath());
+
+        Document restored = Xml.readDocument(tempFile.getPath());
+        assertArchiveAttributes(restored);
+    }
+
+    @Test
+    public void testWriteDocumentToStringWithNullAttribute() {
+        Document doc = createArchiveWithNullAttribute();
+
+        String xml = Xml.writeDocumentToString(doc);
+
+        assertNotNull("Archive XML should be serialized", xml);
+        assertArchiveAttributes(Xml.readDocumentFromString(xml));
+    }
+
+    private Document createArchiveWithNullAttribute() {
+        // SAK-53107: the deployed Xerces serializer must not be mixed with the JDK DOM.
+        Document doc = Xml.createDocument();
+        Element root = doc.createElement("archive");
+        doc.appendChild(root);
+        root.setAttribute("redirect", null);
+        root.setAttribute("title", "caf\u00e9 & chat");
+        return doc;
+    }
+
+    private void assertArchiveAttributes(Document doc) {
+        assertNotNull("Archive XML should be readable", doc);
+        Element root = doc.getDocumentElement();
+        assertEquals("archive", root.getTagName());
+        assertTrue("Null attribute should be preserved as empty", root.hasAttribute("redirect"));
+        assertEquals("", root.getAttribute("redirect"));
+        assertEquals("caf\u00e9 & chat", root.getAttribute("title"));
+    }
+
     private ByteArrayInputStream toInputStream(String xml) {
         return new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
     }
