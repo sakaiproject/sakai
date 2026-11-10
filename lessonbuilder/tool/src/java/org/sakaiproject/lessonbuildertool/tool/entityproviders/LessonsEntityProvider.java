@@ -841,6 +841,10 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	    Placement p = toolManager.getCurrentPlacement();
 	    if (p == null || !site.getId().equals(p.getContext())) {
 		ToolConfiguration siteTool = site.getToolForCommonId(TOOL_COMMON_ID);
+		if (siteTool == null) {
+			throw new EntityNotFoundException(
+					"No tool " + TOOL_COMMON_ID + " in site: " + site.getId(), site.getId());
+		}
 		ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
 		Session ses = sessionManager.getCurrentSession();
 		ToolSession toolSession = ses.getToolSession(siteTool.getId());
