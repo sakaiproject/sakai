@@ -1,0 +1,292 @@
+/**
+ * Copyright (c) 2026 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.sakaiproject.e2e.tests;
+
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.microsoft.playwright.APIResponse;
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.RequestOptions;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.sakaiproject.e2e.support.AbstractToolSearchTest;
+
+// Text boxes have no title of their own, so the text sits on a subpage carrying the title
+class LessonsSearchTest extends AbstractToolSearchTest {
+
+    private String subpageTitle;
+
+    @Override
+    protected String toolId() {
+        return "sakai\\.lessonbuildertool";
+    }
+
+    @Override
+    protected String searchToolName() {
+        return "lessons";
+    }
+
+    // what the portal search panel calls the tool (toolname_lesson)
+    @Override
+    protected String toolLabel() {
+        return "Lesson";
+    }
+
+    // the page is visible to every member; release and prerequisite rules are LessonsAccess's
+    @Override
+    protected String deniedUser() {
+        return null;
+    }
+
+    @Override
+    protected String createItem(String siteId, String title, String body) {
+        openLessons(siteId);
+        addSubpage(title);
+        subpageTitle = title;
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        page.locator("#addContentDiv .add-text-link").click();
+        saveText(body);
+
+        String href = page.locator(".edit-col a.itemLink").first().getAttribute("href");
+        Matcher id = Pattern.compile("itemId=(\\d+)").matcher(href);
+        if (!id.find()) {
+            throw new IllegalStateException("no item id in " + href);
+        }
+        return "/lessonbuilder/item/" + id.group(1);
+    }
+
+    @Override
+    protected void updateItem(String siteId, String itemKey, String body) {
+        openTextEditor(siteId);
+        saveText(body);
+    }
+
+    @Override
+    protected void deleteItem(String siteId, String itemKey) {
+        openTextEditor(siteId);
+        page.onceDialog(dialog -> dialog.accept());
+        page.locator("input.deleteButton").click();
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(subpageTitle);
+    }
+
+    @Test
+    @Order(3)
+    void subpageIsFoundByItsTitle() {
+        sakai.login(author());
+        JsonObject subpage = await("'" + titleWord + "' to find the subpage", () -> subpageResult(search(titleWord)), r -> r != null);
+
+        sakai.gotoPath(subpage.get("url").getAsString().replaceFirst("^https?://[^/]+", ""));
+
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(subpageTitle);
+    }
+
+    @Test
+    @Order(4)
+    void membersFindTheContentAndOutsidersDoNot() {
+        sakai.login(author());
+        addStudent(siteId, "student0011");
+
+        sakai.login("student0011");
+        assertNotNull(findItem(search(bodyWord)), "member did not find the text");
+        assertNotNull(await("'" + titleWord + "' to find the subpage for a member", () -> subpageResult(search(titleWord)), r -> r != null));
+
+        becomeNewUser();
+        assertNull(findItem(search(bodyWord)), "outsider found the text");
+        assertNull(findItem(search(bodyWord, "&site=" + siteId)), "outsider found the text by naming the site");
+        assertNull(subpageResult(search(titleWord)), "outsider found the subpage");
+    }
+
+    // these two make their own sites, after the shared fixture is done with
+
+    @Test
+    @Order(100)
+    void textBoxTitleFollowsItsPageWhenThePageIsRenamed() {
+        sakai.login(author());
+        String renameSite = sakai.siteIdFromUrl(sakai.createCourse(author(), List.of(toolId(), "sakai\\.search")));
+        String oldWord = uniqueWord();
+        String newWord = uniqueWord();
+        String body = uniqueWord();
+        String text = createItem(renameSite, "Week " + oldWord, "Reading " + body);
+        assertTrue(awaitItem(body, text).get("title").getAsString().contains(oldWord));
+
+        page.locator("#edit-title").click();
+        Locator dialog = page.locator("#edit-title-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#pageTitle").fill("Introduction " + newWord);
+        dialog.locator("button[type=submit], input[type=submit]").first().click();
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(newWord);
+
+        await("'" + body + "' to carry the new page title", () -> findItem(search(body), text),
+            result -> result != null && result.get("title").getAsString().contains(newWord));
+    }
+
+    @Test
+    @Order(100)
+    void membersOfEitherGroupOpenTheResultThroughTheirOwnLink() {
+        sakai.login(author());
+        String siteUrl = sakai.createCourse(author(), List.of(toolId(), "sakai\\.search"));
+        String linksSite = sakai.siteIdFromUrl(siteUrl);
+        for (String student : List.of("student0011", "student0012", "student0013")) {
+            addStudent(linksSite, student);
+        }
+        String groupA = "Group A " + uniqueWord();
+        String groupB = "Group B " + uniqueWord();
+        sakai.addGroup(siteUrl, groupA, "student0011");
+        sakai.addGroup(siteUrl, groupB, "student0012");
+
+        String title = "Shared " + uniqueWord();
+        String body = uniqueWord();
+        String text = createItem(linksSite, title, "Reading " + body);
+
+        openLessons(linksSite);
+        addLinkToExistingPage(title);
+        restrictLinkToGroup(title, 0, groupA);
+        restrictLinkToGroup(title, 1, groupB);
+
+        // the indexed url names the same link for everyone, so it is someone else's for one of them
+        for (String student : List.of("student0011", "student0012")) {
+            sakai.login(student);
+            JsonObject result = awaitItem(body, text);
+            sakai.gotoPath(result.get("url").getAsString().replaceFirst("^https?://[^/]+", ""));
+            assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
+            assertThat(page.locator("#content")).containsText(body);
+        }
+
+        sakai.login("student0013");
+        assertNull(findItem(search(body), text), "a student in neither group found the text");
+    }
+
+    private void addStudent(String siteId, String eid) {
+        String studentId = JsonParser.parseString(page.request().get("/direct/user/" + eid + ".json").text())
+            .getAsJsonObject().get("id").getAsString();
+        APIResponse membership = page.request().post("/direct/membership/new", RequestOptions.create().setForm(FormData.create()
+            .set("locationReference", "/site/" + siteId).set("userId", studentId).set("memberRole", "Student").set("active", "true")));
+        assertTrue(membership.ok(), membership.text());
+    }
+
+    private void addLinkToExistingPage(String title) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        Locator addContentDialog = page.locator("#addContentDiv");
+        assertThat(addContentDialog).isVisible();
+        addContentDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add Subpage").setExact(true)).click();
+        page.locator("#subpage-dialog #subpage-choose").click();
+        page.locator(".page-picker-item").filter(new Locator.FilterOptions().setHasText(title)).first()
+            .locator("input[type=radio]").check();
+        page.locator(".PagePicker").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("Use selected item", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.locator("#content a.itemlink").filter(new Locator.FilterOptions().setHasText(title))).hasCount(2);
+    }
+
+    private void restrictLinkToGroup(String title, int link, String group) {
+        Locator row = page.locator("#content a.itemlink").filter(new Locator.FilterOptions().setHasText(title)).nth(link)
+            .locator("xpath=ancestor::*[.//a[contains(@class,'edit-link')]][1]");
+        row.hover();
+        row.locator(".edit-col a.edit-link").first().click();
+        Locator dialog = page.locator("#edit-item-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#editgroups a").click();
+        dialog.locator("#grouplist p.checkbox").filter(new Locator.FilterOptions().setHasText(group))
+            .locator("input[type=checkbox]").check();
+        dialog.locator("button[type=submit].btn-primary").first().click();
+        assertThat(dialog).isHidden();
+    }
+
+    // a user in no site, as the seeded users may come with a site's roster
+    private void becomeNewUser() {
+        sakai.login("admin");
+        String eid = uniqueWord();
+        APIResponse user = page.request().post("/direct/user/new", RequestOptions.create().setForm(FormData.create()
+            .set("eid", eid).set("firstName", "Search").set("lastName", "Outsider").set("email", eid + "@example.com").set("type", "registered")));
+        assertTrue(user.ok(), user.text());
+        APIResponse become = page.request().get("/direct/session/becomeuser/" + eid + ".json");
+        assertTrue(become.ok(), become.text());
+    }
+
+    private JsonObject subpageResult(JsonArray results) {
+        for (JsonElement element : results) {
+            JsonObject result = element.getAsJsonObject();
+            String reference = result.get("reference").getAsString();
+            if (reference.startsWith("/lessonbuilder/item/") && !reference.equals(itemKey)
+                    && result.get("title").getAsString().contains(titleWord)) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void assertOpensTool() {
+        // the result opens the subpage holding the text, not the top of the tool
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(subpageTitle);
+        assertThat(page.locator("#content")).containsText(bodyWord);
+    }
+
+    private void openLessons(String siteId) {
+        sakai.gotoPath("/portal/site/" + siteId);
+        sakai.toolClick("Lessons");
+    }
+
+    private void openSubpage(String siteId) {
+        openLessons(siteId);
+        page.locator("#content a").filter(new Locator.FilterOptions().setHasText(subpageTitle)).first().click();
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(subpageTitle);
+    }
+
+    private void openTextEditor(String siteId) {
+        openSubpage(siteId);
+        // the edit button only shows while the text box is hovered
+        page.locator(".textbox").first().hover();
+        page.locator(".edit-col a.itemLink").first().click();
+    }
+
+    // as LessonsTest does
+    private void addSubpage(String title) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        Locator addContentDialog = page.locator("#addContentDiv");
+        assertThat(addContentDialog).isVisible();
+        addContentDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add Subpage").setExact(true)).click();
+        Locator subpageDialog = page.locator("#subpage-dialog");
+        assertThat(subpageDialog).isVisible();
+        subpageDialog.locator("#subpage-title").fill(title);
+        subpageDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Create").setExact(true)).click();
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
+    }
+
+    private void saveText(String html) {
+        if (!sakai.typeFirstCkEditorIfPresent(html)) {
+            throw new IllegalStateException("no editor on the text form");
+        }
+        page.locator("input[type=submit].active").first().click();
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(subpageTitle);
+    }
+}

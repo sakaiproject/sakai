@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.lessonbuildertool.service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,8 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
@@ -34,7 +38,11 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -64,11 +72,14 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
 			LessonBuilderEvents.ITEM_CREATE, SearchBuilderItem.ACTION_ADD,
 			LessonBuilderEvents.ITEM_UPDATE, SearchBuilderItem.ACTION_ADD,
-			LessonBuilderEvents.ITEM_DELETE, SearchBuilderItem.ACTION_DELETE
+			LessonBuilderEvents.ITEM_DELETE, SearchBuilderItem.ACTION_DELETE,
+			// pages aren't indexed, but the text boxes on them take their title
+			LessonBuilderEvents.PAGE_UPDATE, SearchBuilderItem.ACTION_UNKNOWN
 	);
-	
+
 	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
-    
+
+	private EventTrackingService eventTrackingService;
 	private SecurityService securityService;
 	private ToolManager toolManager;
 	private SessionManager sessionManager;
@@ -82,6 +93,10 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
+	}
+
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
 	}
 
 	public void setSecurityService(SecurityService securityService) {
@@ -147,7 +162,8 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
 		if (item != null) {
-			return item.getHtml();
+			// a subpage is found by its title
+			return item.getType() == SimplePageItem.PAGE ? item.getName() : item.getHtml();
         }
 		else {
 			log.info("Could not getContent for reference  "+id);
@@ -162,11 +178,16 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		long id = idFromRef(reference);
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
-		String ret = "";
-		if (item != null) { 
-			ret = SearchUtils.appendCleanString(item.getName(), null).toString();
+		if (item == null) {
+			return "";
 		}
-		return ret;
+		String title = item.getName();
+		if (StringUtils.isBlank(title)) {
+			// text boxes have no name, so they take the title of the page they are on
+			SimplePage page = simplePageToolDao.getPage(item.getPageId());
+			title = page != null ? StringUtils.defaultString(page.getTitle()) : "";
+		}
+		return SearchUtils.appendCleanString(title, null).toString().trim();
 
 	}
 
@@ -187,7 +208,19 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 	
 	public Integer getAction(Event event)
 	{
+		if (LessonBuilderEvents.PAGE_UPDATE.equals(event.getEvent())) {
+			reindexTextBoxes(idFromRef(event.getResource()));
+		}
 		return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
+	}
+
+	// the event is only handed to the index, not posted, so this doesn't show up as users editing these items
+	private void reindexTextBoxes(long pageId) {
+		for (SimplePageItem item : simplePageToolDao.findItemsOnPage(pageId)) {
+			if (item.getType() == SimplePageItem.TEXT && StringUtils.isBlank(item.getName())) {
+				searchIndexBuilder.addResource(null, eventTrackingService.newEvent(LessonBuilderEvents.ITEM_UPDATE, makeReference("item", item.getId()), false));
+			}
+		}
 	}
 
 	public boolean matches(Event event)
@@ -202,6 +235,17 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 
 	public String getUrl(String reference)
 	{
+		SimplePageItem item = simplePageToolDao.findItem(idFromRef(reference));
+		if (item != null) {
+			// open the page the item is on, or a subpage through the link that was found
+			String pageUrl = item.getType() == SimplePageItem.PAGE
+					? simplePageToolDao.getPageUrl(NumberUtils.toLong(item.getSakaiId()), item.getId())
+					: simplePageToolDao.getPageUrl(item.getPageId());
+			if (pageUrl != null) {
+				return pageUrl;
+			}
+		}
+
 		Reference ref = getReference(reference);
 		//Need to implement public String getEntityUrl(Reference ref)
 
@@ -254,53 +298,68 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 	
 	public Iterator getSiteContentIterator(String context)
 	{
-		//Limit index to text items
-		List <SimplePageItem> pages = simplePageToolDao.findTextItemsInSite(context);
-		final Iterator<SimplePageItem> allPageItemsIterator = pages.iterator();
-		return new Iterator() {
-			public boolean hasNext() {
-				return allPageItemsIterator.hasNext(); 
-			}
-			
-			public Object next() {
-				SimplePageItem pageItem = (SimplePageItem) allPageItemsIterator.next();
-				return makeReference("item",pageItem.getId());
-			}
-			
-			public void remove() {
-				throw new UnsupportedOperationException("Remove not supported");
-			}
-		};
+		List<Long> itemIds = new ArrayList<>();
+		simplePageToolDao.findTextItemsInSite(context).forEach(item -> itemIds.add(item.getId()));
+		itemIds.addAll(simplePageToolDao.findSubpageItemIdsInSite(context));
+		return itemIds.stream().map(id -> makeReference("item", id)).iterator();
 	}
 
 	public boolean isForIndex(String reference)
 	{
-		//Not entirely sure why you wouldn't want these to be indexed . . . Maybe if they're not a lessons page type?
 		long id = idFromRef(reference);
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
 	
-		if (item != null && (SimplePageItem.TEXT == item.getType() || SimplePageItem.PAGE == item.getType() || SimplePageItem.COMMENTS == item.getType() ||
-				SimplePageItem.STUDENT_CONTENT == item.getType())) {
-			return true;
-		}
-		return false;
+		// top-level pages are in the site navigation already
+		return item != null && item.getPageId() != 0L
+				&& (SimplePageItem.TEXT == item.getType() || SimplePageItem.PAGE == item.getType()
+				|| SimplePageItem.COMMENTS == item.getType() || SimplePageItem.STUDENT_CONTENT == item.getType());
 	}
 
 	public boolean canRead(String reference)
 	{
-		//Looks like /lessonbuilder/item/39
-		long itemId = idFromRef(reference);
-		log.debug("canRead:" + reference + " itemId:" + itemId);
-		//Does this need to be synchronized?
-		boolean isVisible = false;
-		synchronized(this) {
-			//For optimization it was suggested to use the following
-			//lessonAccess.makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage);
-			//But I'm not sure if that's possible in this context since the page is likely to always change?
-			isVisible=lessonsAccess.isItemAccessible(itemId, null, UserDirectoryService.getCurrentUser().getId(), null);
+		try {
+			//Looks like /lessonbuilder/item/39
+			long itemId = idFromRef(reference);
+			log.debug("canRead:{} itemId:{}", reference, itemId);
+			SimplePageItem item = simplePageToolDao.findItem(itemId);
+			SimplePage page = item != null ? simplePageToolDao.getPage(item.getPageId()) : null;
+			if (page == null || !canReadLessonsInSite(page.getSiteId())) {
+				return false;
+			}
+			if (item.getType() == SimplePageItem.PAGE && !canOpenSubpage(item, page.getSiteId())) {
+				return false;
+			}
+			// no lock needed, each check builds its own bean and LessonsAccess only holds services
+			return lessonsAccess.isItemAccessible(itemId, page.getSiteId(), UserDirectoryService.getCurrentUser().getId(), null);
+		} catch (Exception e) {
+			// deny this result rather than fail the search for every tool
+			log.error("Could not check access to {}", reference, e);
+			return false;
 		}
-		return isVisible;
+	}
+
+	// isItemAccessible checks the link but not the subpage it opens, which ShowPageProducer refuses until it is released
+	private boolean canOpenSubpage(SimplePageItem link, String siteId) {
+		SimplePage subpage = simplePageToolDao.getPage(NumberUtils.toLong(link.getSakaiId()));
+		if (subpage == null) {
+			return false;
+		}
+		if (lessonsAccess.canEditPage(siteId, subpage)
+				|| securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, siteService.siteReference(siteId))) {
+			return true;
+		}
+		return !subpage.isHidden() && (subpage.getReleaseDate() == null || !subpage.getReleaseDate().after(new Date()));
+	}
+
+	// isItemAccessible doesn't check site permissions, and search covers every site unless told otherwise
+	private boolean canReadLessonsInSite(String siteId) {
+		try {
+			siteService.getSiteVisit(siteId);
+		} catch (IdUnusedException | PermissionException e) {
+			return false;
+		}
+		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, siteService.siteReference(siteId));
 	}
 
 	public Map getCustomProperties(String ref)
