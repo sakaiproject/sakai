@@ -48,6 +48,18 @@ export class SakaiCourseDashboard extends SakaiElement {
     this._loadData();
   }
 
+  disconnectedCallback() {
+
+    this._heroResizeObserver?.disconnect();
+    this._heroResizeObserver = undefined;
+    super.disconnectedCallback();
+  }
+
+  updated() {
+
+    this._syncHeroGridPlacement();
+  }
+
   get _layoutEditable() {
     return this.data?.layoutEditable !== false;
   }
@@ -101,7 +113,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     if (value === HERO_FULL || value === HERO_WIDE || value === HERO_NARROW) {
       return value;
     }
-    return HERO_WIDE;
+    return HERO_FULL;
   }
 
   _updateAvailableWidgetCount() {
@@ -315,9 +327,12 @@ export class SakaiCourseDashboard extends SakaiElement {
 
   widgetPanel() {
 
+    const heroWidth = this._normalizeHeroWidth(this.data?.heroWidth);
+
     return html`
       <sakai-widget-panel
         id="course-dashboard-widget-grid"
+        hero-width="${heroWidth}"
         @changed=${this.widgetLayoutChanged}
         @available-changed=${this._availableWidgetsChanged}
         .widgetIds=${this.data.widgets}
@@ -327,8 +342,84 @@ export class SakaiCourseDashboard extends SakaiElement {
         site-id="${this.siteId}"
         user-id="${this.userId}"
         ?editing=${this.editing && this._layoutEditable}>
+        ${this._heroBlock()}
       </sakai-widget-panel>
     `;
+  }
+
+  _syncHeroGridPlacement() {
+
+    const hero = this.querySelector(".course-dashboard-hero");
+    if (!hero) {
+      this._heroResizeObserver?.disconnect();
+      this._heroObservedHero = undefined;
+      return;
+    }
+
+    if (!this._heroResizeObserver) {
+      this._heroResizeObserver = new ResizeObserver(() => {
+        if (this._heroObservedHero) {
+          this._applyHeroRowSpan(this._heroObservedHero);
+        }
+      });
+    }
+
+    if (this._heroObservedHero !== hero) {
+      this._heroResizeObserver.disconnect();
+      this._heroObservedHero = hero;
+      this._heroResizeObserver.observe(hero);
+    }
+
+    this._applyHeroRowSpan(hero);
+  }
+
+  _applyHeroRowSpan(hero) {
+
+    const width = this._normalizeHeroWidth(this.data?.heroWidth);
+    const panel = this.querySelector("sakai-widget-panel");
+    const columns = typeof panel?._columnCount === "function" ? panel._columnCount() : (panel?._narrowColumns ? 1 : 3);
+    const autoHeight = width === HERO_FULL || columns < 2 || (width === HERO_WIDE && columns < 3);
+    hero.toggleAttribute("data-hero-auto-height", autoHeight);
+
+    if (autoHeight) {
+      if (hero.style.gridColumn !== "1 / -1") {
+        hero.style.gridColumn = "1 / -1";
+      }
+      if (hero.style.gridRow) {
+        hero.style.gridRow = "";
+      }
+      return;
+    }
+
+    const col = width === HERO_WIDE ? "span 2" : "span 1";
+    let span = 1;
+    const prevHeight = hero.style.height;
+    const prevMaxHeight = hero.style.maxHeight;
+    const prevOverflow = hero.style.overflow;
+    const prevRow = hero.style.gridRow;
+    hero.style.height = "max-content";
+    hero.style.maxHeight = "none";
+    hero.style.overflow = "visible";
+    hero.style.gridRow = "span 1";
+    const height = hero.getBoundingClientRect().height;
+    hero.style.height = prevHeight;
+    hero.style.maxHeight = prevMaxHeight;
+    hero.style.overflow = prevOverflow;
+    hero.style.gridRow = prevRow;
+
+    const styles = panel ? getComputedStyle(panel) : null;
+    const rowHeight = parseFloat(styles?.getPropertyValue("--sakai-widget-panel-row-height")) || 420;
+    const gap = parseFloat(styles?.getPropertyValue("--sakai-widget-panel-gutter-width")) || 16;
+    const unit = rowHeight + gap;
+    span = Math.max(1, Math.ceil((height + gap) / unit));
+    const row = `span ${span}`;
+
+    if (hero.style.gridColumn !== col) {
+      hero.style.gridColumn = col;
+    }
+    if (hero.style.gridRow !== row) {
+      hero.style.gridRow = row;
+    }
   }
 
   _overviewEmpty() {
@@ -391,6 +482,15 @@ export class SakaiCourseDashboard extends SakaiElement {
     `;
   }
 
+  _heroImageCssUrl() {
+
+    if (!this.data?.image) {
+      return "";
+    }
+    const escaped = String(this.data.image).replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+    return `url("${escaped}")`;
+  }
+
   _heroBlock() {
 
     if (!this._heroVisible()) {
@@ -401,14 +501,17 @@ export class SakaiCourseDashboard extends SakaiElement {
     const overviewEmpty = this._overviewEmpty();
     const heroWidth = this._normalizeHeroWidth(this.data.heroWidth);
     const editSite = this.editing && this._siteEditable;
+    const heroImageUrl = showImage ? this._heroImageCssUrl() : "";
 
     return html`
-      <section class="course-dashboard-hero"
+      <section slot="hero"
+          class="course-dashboard-hero"
           data-hero-width="${heroWidth}"
           ?data-show-image=${showImage}
           ?data-overview-empty=${overviewEmpty}>
         ${this._heroChrome()}
-        <div class="course-dashboard-hero-media">
+        <div class="course-dashboard-hero-media"
+            style="${heroImageUrl ? `--course-dashboard-hero-image: ${heroImageUrl}` : ""}">
           ${showImage ? html`
             <div class="course-dashboard-hero-image">
               <div class="course-dashboard-media-block course-dashboard-image-block">
@@ -435,17 +538,16 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     const heroWidth = this._normalizeHeroWidth(this.data.heroWidth);
     const showImage = Boolean(this.data.showImage);
+    const overviewEmpty = this._overviewEmpty();
 
     return html`
-      <div class="course-dashboard-container mt-2">
+      <div class="course-dashboard-container mt-2"
+          data-hero-width="${heroWidth}"
+          ?data-show-image=${showImage}
+          ?data-overview-empty=${overviewEmpty}
+          ?data-has-hero=${this._heroVisible()}>
         ${this.titleBlock()}
-        <div class="course-dashboard-layout"
-            data-hero-width="${heroWidth}"
-            ?data-show-image=${showImage}
-            ?data-has-hero=${this._heroVisible()}>
-          <div class="course-dashboard-layout-hero">${this._heroBlock()}</div>
-          <div class="course-dashboard-layout-widgets">${this.widgetPanel()}</div>
-        </div>
+        ${this.widgetPanel()}
       </div>
     `;
   }
