@@ -255,7 +255,10 @@ public class AssignmentTestConfiguration {
 
     @Bean(name = "org.sakaiproject.event.api.LearningResourceStoreService")
     public LearningResourceStoreService learningResourceStoreService() {
-        return mock(LearningResourceStoreService.class);
+        LearningResourceStoreService service = mock(LearningResourceStoreService.class);
+        Mockito.when(service.getActor(Mockito.anyString())).thenAnswer(invocation ->
+                new LearningResourceStoreService.LRS_Actor(invocation.getArgument(0) + "@example.edu"));
+        return service;
     }
 
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")

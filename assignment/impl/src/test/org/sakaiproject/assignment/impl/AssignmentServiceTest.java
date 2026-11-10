@@ -3855,6 +3855,47 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Mockito.verifyNoInteractions(userMessagingService, taskService);
     }
 
+    @Test
+    public void releasingGradeOnStudentDraftSendsReleaseNotification() throws Exception {
+        assertDraftReturnSendsReleaseNotification(false);
+    }
+
+    @Test
+    public void releasingDraftWithEqualSubmitAndReturnTimesSendsReleaseNotification() throws Exception {
+        assertDraftReturnSendsReleaseNotification(true);
+    }
+
+    private void assertDraftReturnSendsReleaseNotification(boolean matchingTimestamps) throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        submission.getAssignment().setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        submission.getAssignment().setScaleFactor(100);
+        submission.getAssignment().setMaxGradePoint(10000);
+        configureScale(100, Locale.ENGLISH);
+        submission.setSubmitted(false);
+        submission.setDateSubmitted(null);
+        submission.setSubmittedText("Student draft answer");
+        submission.setGrade("8500");
+        submission.setFeedbackComment("Instructor feedback on a student draft");
+        submission.setGraded(true);
+        submission.setGradeReleased(true);
+        submission.setReturned(true);
+        Instant returnTime = Instant.now();
+        submission.setDateReturned(returnTime);
+        if (matchingTimestamps) {
+            submission.setDateSubmitted(returnTime);
+        }
+        submission.getAssignment().getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+
+        assignmentService.updateSubmission(submission, false);
+
+        ArgumentCaptor<Message> message = ArgumentCaptor.forClass(Message.class);
+        verify(userMessagingService).message(Mockito.anySet(), message.capture(),
+                eq(List.of(MessageMedium.EMAIL)), Mockito.anyMap(), eq(NotificationService.NOTI_REQUIRED));
+        Assert.assertEquals("releasegrade", message.getValue().getType());
+        Assert.assertFalse(assignmentService.getSubmission(submission.getId()).getSubmitted());
+    }
+
     private AssignmentSubmission createNotificationSubmission() throws Exception {
         String context = UUID.randomUUID().toString();
         String studentId = UUID.randomUUID().toString();

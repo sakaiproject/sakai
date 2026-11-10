@@ -2333,8 +2333,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // Assignment Submission Notifications
         Instant dateReturned = submission.getDateReturned();
         Instant dateSubmitted = submission.getDateSubmitted();
-        if (!submission.getSubmitted()) {
-            // if the submission is not submitted then saving a submission event
+        log.debug("Submission {} notification state: submitted={}, returned={}, released={}, dateSubmitted={}, dateReturned={}, dateModified={}, notifySubmission={}",
+                submission.getId(), submission.getSubmitted(), submission.getReturned(), submission.getGradeReleased(),
+                dateSubmitted, dateReturned, submission.getDateModified(), notifySubmission);
+        if (!submission.getSubmitted() && (dateReturned == null || !submission.getReturned())) {
+            // A draft save is not a submission, but explicitly returned feedback still needs a release notification.
             if (notifySubmission) {
                 eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION, reference, true));
             }
@@ -2356,7 +2359,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
                 }
             }
-        } else if (dateReturned != null && submission.getReturned() && (dateSubmitted == null || dateReturned.isAfter(dateSubmitted) || dateSubmitted.isAfter(dateReturned) && submission.getDateModified().isAfter(dateSubmitted))) {
+        } else if (dateReturned != null && submission.getReturned() && (dateSubmitted == null || !dateReturned.isBefore(dateSubmitted) || dateSubmitted.isAfter(dateReturned) && submission.getDateModified().isAfter(dateSubmitted))) {
             // Send a non LRS event for other listeners to handle, user notifications for instance.
             Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_NONE, true);
             eventTrackingService.post(event);
@@ -6113,6 +6116,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return;
         }
 
+        log.debug("Release notification for submission {}: released={}, option={}, recipients={}", submission.getId(),
+                released, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE), filteredUsers.size());
         if (released && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE))) {
             for (User user : filteredUsers) {
                 userMessagingService.message(Collections.singleton(user),
