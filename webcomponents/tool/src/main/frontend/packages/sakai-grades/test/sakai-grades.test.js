@@ -1,3 +1,4 @@
+import { sendKeys } from "@web/test-runner-commands";
 import "../sakai-grades.js";
 import * as data from "./data.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
@@ -79,6 +80,44 @@ describe("sakai-grades tests", () => {
     expect(el.shadowRoot.querySelector(".sak-banner-info")).to.exist;
     expect(el.shadowRoot.querySelector(".sak-banner-info").innerHTML).to.contain(el._i18n.no_grades);
   });
+
+  for (const siteId of [ undefined, "course1" ]) {
+    it(`toggles scores repeatedly in ${siteId ? "site" : "home"} mode`, async () => {
+
+      fetchMock.get(siteId ? `/api/sites/${siteId}/grades` : data.gradesUrl,
+        { grades: data.grades, sites: sitePickerData.sites });
+      const el = await fixture(html`
+        <sakai-grades user-id="${data.userId}" .siteId=${siteId} secret></sakai-grades>
+      `);
+      await waitUntil(() => el.renderRoot.querySelector(".score-toggle"));
+
+      const button = el.renderRoot.querySelector(".score-toggle");
+      const score = button.querySelector("span");
+      expect(button.getAttribute("aria-pressed")).to.equal("false");
+      expect(score.getAttribute("aria-hidden")).to.equal("true");
+      expect(getComputedStyle(score).filter).to.equal("blur(3px)");
+      await expect(el).to.be.accessible();
+
+      // Clicking the assignment title must not reveal grades.
+      el.renderRoot.querySelector(".assignment").click();
+      await elementUpdated(el);
+      expect(button.getAttribute("aria-pressed")).to.equal("false");
+
+      for (const [ revealed, key ] of [ [ true, null ], [ false, "Enter" ], [ true, "Space" ] ]) {
+        button.focus();
+        if (key) {
+          await sendKeys({ press: key });
+        } else {
+          button.click();
+        }
+        await elementUpdated(el);
+        expect(button.getAttribute("aria-pressed")).to.equal(String(revealed));
+        expect(score.getAttribute("aria-hidden")).to.equal(String(!revealed));
+        expect(getComputedStyle(score).filter).to.equal(revealed ? "none" : "blur(3px)");
+      }
+      expect(el.secret).to.be.true;
+    });
+  }
 
   it("shows scores without blur when secret is false", async () => {
 

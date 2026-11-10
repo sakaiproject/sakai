@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { css, html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { siteStatsCompactMetricsStyles } from "./site-stats-compact-styles.js";
 
@@ -6,6 +6,8 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
 
   static properties = {
     endpoint: { type: String },
+    revealOnClick: { attribute: "reveal-on-click", type: Boolean },
+    _scoresRevealed: { state: true },
     dashboard: { type: Boolean, reflect: true },
     _metrics: { state: true },
     _loading: { state: true },
@@ -18,12 +20,30 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
   static styles = [
     ...SakaiShadowElement.styles,
     siteStatsCompactMetricsStyles,
+    css`
+      .score-toggle {
+        min-width: 24px;
+        min-height: 24px;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: inherit;
+        cursor: pointer;
+      }
+      .blurred {
+        filter: blur(3px);
+      }
+    `,
   ];
 
   constructor() {
 
     super();
     this.dashboard = false;
+    this.revealOnClick = false;
+    this._scoresRevealed = false;
     this._expandedHelp = new Set();
     this.loadTranslations("sitestats");
   }
@@ -128,10 +148,16 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     return html`
       <div class="sitestats-metric ${expanded ? "is-expanded" : ""}">
         <dd>
-          <span class="sitestats-metric-primary">${primary ?? ""}</span>
-          ${snapshot.percentage != null ? html`
-            <span class="sitestats-metric-percentage">${this._formatPercentage(snapshot.percentage)}</span>
-          ` : nothing}
+          ${this.revealOnClick ? html`
+            <button type="button" class="score-toggle"
+                aria-label=${this._scoresRevealed ? nothing : metric.label}
+                aria-pressed="${this._scoresRevealed}"
+                @click=${() => { this._scoresRevealed = !this._scoresRevealed; }}>
+              <span class="${this._scoresRevealed ? "" : "blurred"}" aria-hidden="${!this._scoresRevealed}">
+                ${this._dashboardValue(snapshot)}
+              </span>
+            </button>
+          ` : this._dashboardValue(snapshot)}
         </dd>
         <div class="sitestats-metric-header">
           <dt>${metric.label}</dt>
@@ -146,6 +172,16 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
           ` : nothing}
         </div>
       </div>
+    `;
+  }
+
+  _dashboardValue(snapshot) {
+
+    return html`
+      <span class="sitestats-metric-primary">${snapshot.primary ?? ""}</span>
+      ${snapshot.percentage != null ? html`
+        <span class="sitestats-metric-percentage">${this._formatPercentage(snapshot.percentage)}</span>
+      ` : nothing}
     `;
   }
 

@@ -15,6 +15,7 @@ export class SakaiGrades extends SakaiPageableElement {
     savedFilters: { attribute: false, type: Object },
     saveFilters: { attribute: "save-filters", type: Boolean },
     filtersOpen: { attribute: "filters-open", type: Boolean },
+    _scoresRevealed: { state: true },
     _canGradeAny: { state: true },
     _currentSort: { state: true },
     _pickerSiteId: { state: true },
@@ -25,6 +26,7 @@ export class SakaiGrades extends SakaiPageableElement {
     super();
 
     this.showPager = true;
+    this._scoresRevealed = false;
     this._currentSort = UNGRADED_LEAST_TO_MOST;
     this.filtersOpen = false;
     this.loadTranslations({ bundle: "grades", requiredKeys: [ "no_grades" ] });
@@ -185,15 +187,6 @@ export class SakaiGrades extends SakaiPageableElement {
     this.sortChanged({ target: { value: UNGRADED_LEAST_TO_MOST } });
   }
 
-  firstUpdated() {
-
-    if (this.dataPage.length === 0 || !this.secret) return;
-
-    this.shadowRoot.getElementById("grades").addEventListener("click", () => {
-      this.secret = false;
-    }, { once: true });
-  }
-
   shouldUpdate(changedProperties) {
     return this._i18n && super.shouldUpdate(changedProperties);
   }
@@ -257,7 +250,7 @@ export class SakaiGrades extends SakaiPageableElement {
   }
 
   statusMessage() {
-    return this.secret ? this._i18n.score_reveal_msg : null;
+    return this.secret && !this._scoresRevealed ? this._i18n.score_reveal_msg : null;
   }
 
   content() {
@@ -283,8 +276,17 @@ export class SakaiGrades extends SakaiPageableElement {
               <div class="course title">${a.siteTitle} / ${a.name}</div>
               `}
             </div>
-            <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret ? " blurred" : ""}" aria-hidden="${this.secret ? "true" : "false"}">
+            <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret && !this._scoresRevealed ? " blurred" : ""}">
+              ${this.secret ? html`
+                <button type="button" class="score-toggle"
+                    aria-label=${this._scoresRevealed ? nothing : this._i18n.score}
+                    aria-pressed="${this._scoresRevealed}"
+                    @click=${() => { this._scoresRevealed = !this._scoresRevealed; }}>
+                  <span aria-hidden="${!this._scoresRevealed}">${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
+                </button>
+              ` : html`
                 <span>${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
+              `}
             </div>
             <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
               <a href="${a.url}"
@@ -433,6 +435,16 @@ export class SakaiGrades extends SakaiPageableElement {
           display: flex;
           justify-content: right;
           align-items: center;
+        }
+        .score-toggle {
+          min-width: 24px;
+          min-height: 24px;
+          border: 0;
+          padding: 0;
+          background: transparent;
+          color: inherit;
+          font: inherit;
+          cursor: pointer;
         }
         .blurred span {
           filter: blur(3px);
