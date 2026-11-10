@@ -1811,7 +1811,11 @@
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
-      font-weight: 500;
+    }
+
+    .page-picker-shared-badge {
+      color: var(--sakai-color-gold--darker-7);
+      background-color: var(--sakai-color-gold--lighter-1)
     }
 
     .page-picker-release-note {
