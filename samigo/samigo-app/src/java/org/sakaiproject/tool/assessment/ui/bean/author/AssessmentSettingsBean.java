@@ -2095,7 +2095,9 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
         accessControl.setStartDate(this.startDate);
         accessControl.setDueDate(this.dueDate);
-        accessControl.setLateHandling(Integer.valueOf(this.lateHandling));
+        if (StringUtils.isNotBlank(this.lateHandling)) {
+            accessControl.setLateHandling(Integer.valueOf(this.lateHandling));
+        }
         accessControl.setRetractDate(this.retractDate);
         this.extendedTime.syncDates(accessControl);
         List<ExtendedTime> extendedTimesTempList = new ArrayList<ExtendedTime>(extendedTimes);

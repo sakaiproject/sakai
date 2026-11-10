@@ -75,14 +75,13 @@ public class ExtendedTimeValidatorTest {
     }
 
     @Test
-    public void rejectsExceptionLateDeadlineAfterFeedbackDate() {
+    public void rejectsExceptionRetractAfterFeedbackDateRegardlessOfLateHandling() {
         try (MockedStatic<ContextUtil> contextUtil = mockStatic(ContextUtil.class)) {
             contextUtil.when(() -> ContextUtil.getLocalizedString(anyString(), anyString()))
                     .thenAnswer(invocation -> invocation.getArgument(1));
 
             FacesContext facesContext = mock(FacesContext.class);
             AssessmentSettingsBean settings = feedbackByDateSettings(date("2030-06-28T00:00:00Z"));
-            when(settings.getLateHandling()).thenReturn(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString());
 
             ExtendedTime entry = exceptionEntry(date("2030-06-01T00:00:00Z"), date("2030-06-26T00:00:00Z"),
                     date("2030-06-30T00:00:00Z"));

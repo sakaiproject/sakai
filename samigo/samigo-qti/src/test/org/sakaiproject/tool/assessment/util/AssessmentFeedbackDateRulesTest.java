@@ -175,13 +175,13 @@ public class AssessmentFeedbackDateRulesTest {
     }
 
     @Test
-    public void usesExceptionLateSubmissionCutoffWithAssessmentLateHandling() {
+    public void usesExceptionRetractCutoffIndependentOfAssessmentLateHandling() {
         Date assessmentDue = date("2026-06-25T00:00:00Z");
         Date exceptionDue = date("2026-06-26T00:00:00Z");
         Date exceptionRetract = date("2026-06-30T00:00:00Z");
 
         assertEquals(exceptionRetract, AssessmentFeedbackDateRules.getFeedbackCutoffDate(assessmentDue, null,
-                AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION,
+                AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION,
                 Collections.singletonList(new DueRetract(exceptionDue, exceptionRetract))));
     }
 
@@ -209,21 +209,20 @@ public class AssessmentFeedbackDateRulesTest {
     @Test
     public void detectsExceptionCutoffAfterFeedbackDate() {
         assertTrue(AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(
-                date("2026-06-28T00:00:00Z"), null, null, date("2026-06-27T00:00:00Z")));
+                date("2026-06-28T00:00:00Z"), null, date("2026-06-27T00:00:00Z")));
     }
 
     @Test
     public void allowsExceptionCutoffOnFeedbackDate() {
         Date feedbackDate = date("2026-06-28T00:00:00Z");
         assertFalse(AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(
-                feedbackDate, null, null, feedbackDate));
+                feedbackDate, null, feedbackDate));
     }
 
     @Test
-    public void detectsExceptionLateCutoffAfterFeedbackDate() {
+    public void detectsExceptionRetractCutoffAfterFeedbackDate() {
         assertTrue(AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(
-                date("2026-06-26T00:00:00Z"), date("2026-06-30T00:00:00Z"),
-                AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION, date("2026-06-28T00:00:00Z")));
+                date("2026-06-26T00:00:00Z"), date("2026-06-30T00:00:00Z"), date("2026-06-28T00:00:00Z")));
     }
 
     private Date date(String value) {

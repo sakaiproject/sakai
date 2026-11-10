@@ -146,8 +146,7 @@ public final class AssessmentFeedbackDateRules {
       if (exceptionDate == null) {
         continue;
       }
-      Date exceptionCutoff = singleFeedbackCutoffDate(exceptionDate.getDueDate(), exceptionDate.getRetractDate(),
-          lateHandling);
+      Date exceptionCutoff = exceptionFeedbackCutoffDate(exceptionDate.getDueDate(), exceptionDate.getRetractDate());
       if (exceptionCutoff != null && (cutoffDate == null || exceptionCutoff.after(cutoffDate))) {
         cutoffDate = exceptionCutoff;
       }
@@ -159,13 +158,12 @@ public final class AssessmentFeedbackDateRules {
   /**
    * True when an exception's effective cutoff is after the Show Feedback Date.
    */
-  public static boolean isExceptionCutoffAfterFeedbackDate(Date exceptionDueDate, Date exceptionRetractDate,
-      Integer lateHandling, Date feedbackStartDate) {
+  public static boolean isExceptionCutoffAfterFeedbackDate(Date exceptionDueDate, Date exceptionRetractDate, Date feedbackStartDate) {
     if (feedbackStartDate == null) {
       return false;
     }
 
-    Date exceptionCutoff = singleFeedbackCutoffDate(exceptionDueDate, exceptionRetractDate, lateHandling);
+    Date exceptionCutoff = exceptionFeedbackCutoffDate(exceptionDueDate, exceptionRetractDate);
     return exceptionCutoff != null && exceptionCutoff.after(feedbackStartDate);
   }
 
@@ -191,6 +189,18 @@ public final class AssessmentFeedbackDateRules {
 
     if (AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(lateHandling) && retractDate != null
         && retractDate.after(dueDate)) {
+      return retractDate;
+    }
+
+    return dueDate;
+  }
+
+  private static Date exceptionFeedbackCutoffDate(Date dueDate, Date retractDate) {
+    if (dueDate == null) {
+      return null;
+    }
+
+    if (retractDate != null && retractDate.after(dueDate)) {
       return retractDate;
     }
 

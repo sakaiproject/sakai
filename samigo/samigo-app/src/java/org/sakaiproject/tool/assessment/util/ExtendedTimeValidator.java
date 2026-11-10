@@ -177,7 +177,7 @@ public class ExtendedTimeValidator
             }
 
             if (isFeedbackByDate() && AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(dueDate,
-                    retractDate, parseLateHandling(getLateHandling()), getFeedbackDate()))
+                    retractDate, getFeedbackDate()))
             {
                 addError(ERROR_KEY_AFTER_FEEDBACK, entry, context);
             }
@@ -431,23 +431,6 @@ public class ExtendedTimeValidator
         }
 
         return null;
-    }
-
-    private Integer parseLateHandling(String lateHandling)
-    {
-        if (lateHandling == null)
-        {
-            return null;
-        }
-
-        try
-        {
-            return Integer.valueOf(lateHandling);
-        }
-        catch (NumberFormatException e)
-        {
-            return null;
-        }
     }
 
     /**
