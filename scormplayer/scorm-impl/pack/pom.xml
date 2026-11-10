@@ -40,10 +40,6 @@
             <groupId>org.sakaiproject.scorm</groupId>
             <artifactId>scorm-service-impl</artifactId>
         </dependency>
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
