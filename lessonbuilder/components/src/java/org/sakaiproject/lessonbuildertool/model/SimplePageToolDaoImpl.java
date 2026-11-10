@@ -1210,6 +1210,10 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 
 		List<SimplePageItem> pageItems = findPageItemsBySakaiId(Long.toString(pageId));
 		if (pageItems.size() == 0) {
+			SimplePageItem studentPageItem = findItemFromStudentPage(pageId);
+			if (studentPageItem != null) {
+				return getPageUrl(pageId, studentPageItem.getId());
+			}
 			pageItems = findPageItemsByPageId(pageId);
 			if (pageItems.size() == 0) {
 				log.error("No page items found for lessons page with id: {}", pageId);

@@ -2925,14 +2925,12 @@ public class SimplePageBean {
 			// add an entry for the parent page
 			SimplePage parentPage = null;
 
-			// the current page may have a parent
-			if (currentPage.getParent() != null && currentPage.getParent() != 0) {
-				parentPage = getPage(currentPage.getParent());
-
-			// try and get it from the current item
-			} else if (currentPageItemId != null) {
-				SimplePageItem item = getCurrentPageItem(currentPageItemId);
+			// Follow the selected link, which may be on a different parent page.
+			SimplePageItem item = getCurrentPageItem(pageItemId);
+			if (item != null && item.getPageId() != 0) {
 				parentPage = getPage(item.getPageId());
+			} else if (currentPage.getParent() != null && currentPage.getParent() != 0) {
+				parentPage = getPage(currentPage.getParent());
 			}
 
 			PathEntry parentEntry = new PathEntry();

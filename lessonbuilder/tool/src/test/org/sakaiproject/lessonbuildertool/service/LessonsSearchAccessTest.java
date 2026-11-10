@@ -28,6 +28,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -57,10 +60,14 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -117,6 +124,7 @@ public class LessonsSearchAccessTest {
     @Autowired private SiteService siteService;
     @Autowired @Qualifier("org.sakaiproject.time.api.UserTimeService") private UserTimeService userTimeService;
     @Autowired private ActiveToolManager toolManager;
+    @Autowired private SessionManager sessionManager;
     @Autowired private org.sakaiproject.user.api.UserDirectoryService userDirectoryService;
     @Autowired private User lessonBuilderTestUser;
 
@@ -319,6 +327,69 @@ public class LessonsSearchAccessTest {
         memberOfGroups(GROUP_B);
 
         assertEquals(link.getId(), newBean().findAccessibleLink(link).getId());
+    }
+
+    @Test
+    public void studentPageTextResultOpensThroughItsStudentContentItem() {
+        toolSession();
+        SitePage sitePage = mock(SitePage.class);
+        ToolConfiguration tool = mock(ToolConfiguration.class);
+        when(sitePage.getSiteId()).thenReturn(SITE_ID);
+        when(tool.getId()).thenReturn("tool-instance");
+        when(sitePage.getTools(any(String[].class))).thenReturn(List.of(tool));
+        when(siteService.findPage("tool")).thenReturn(sitePage);
+        when(serverConfigurationService.getPortalUrl()).thenReturn("https://sakai.example/portal");
+        SimplePage studentPage = emptyPage();
+        studentPage.setOwner(USER_ID);
+        studentPage.setOwned(false);
+        assertTrue(dao.quickUpdate(studentPage));
+        SimplePageItem container = dao.makeItem(subpage.getPageId(), 3, SimplePageItem.STUDENT_CONTENT, "", "Student pages");
+        assertTrue(dao.quickSaveItem(container));
+        assertTrue(dao.quickSaveItem(dao.makeStudentPage(container.getId(), studentPage.getPageId(), "Student page", USER_ID, null)));
+        SimplePageItem studentText = dao.makeItem(studentPage.getPageId(), 1, SimplePageItem.TEXT, "", "");
+        assertTrue(dao.quickSaveItem(studentText));
+
+        String url = producer.getUrl("/lessonbuilder/item/" + studentText.getId());
+        long pageItemId = Long.parseLong(url.replaceAll(".*&itemId=(\\d+).*", "$1"));
+        assertEquals(container.getId(), pageItemId);
+        SimplePageBean bean = newBean();
+        bean.setCurrentPage(studentPage);
+        bean.setCurrentPageId(studentPage.getPageId());
+        assertEquals(container.getId(), bean.getCurrentPageItem(pageItemId).getId());
+    }
+
+    @Test
+    public void sharedPageBreadcrumbUsesTheAccessibleLinksParent() {
+        ToolSession session = toolSession();
+        restrict(link, GROUP_A);
+        SimplePage otherParent = dao.makePage("tool", SITE_ID, "Alternate parent", null, null);
+        assertTrue(dao.quickSaveItem(otherParent));
+        assertTrue(dao.quickSaveItem(dao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(otherParent.getPageId()), "Alternate parent")));
+        SimplePageItem otherLink = dao.makeItem(otherParent.getPageId(), 1, SimplePageItem.PAGE, link.getSakaiId(), "Readings again");
+        assertTrue(dao.quickSaveItem(otherLink));
+        restrict(otherLink, GROUP_B);
+        memberOfGroups(GROUP_B);
+        SimplePageBean bean = newBean();
+        SimplePageItem accessibleLink = bean.findAccessibleLink(link);
+        assertEquals(otherLink.getId(), accessibleLink.getId());
+        bean.getCurrentPageItem(accessibleLink.getId());
+
+        bean.adjustPath("clear_and_push", subpage.getPageId(), accessibleLink.getId(), subpage.getTitle());
+
+        List<?> path = (List<?>) session.getAttribute(SimplePageBean.LESSONBUILDER_PATH);
+        assertEquals(otherParent.getPageId(), (long) ((SimplePageBean.PathEntry) path.get(0)).pageId);
+    }
+
+    private ToolSession toolSession() {
+        ToolSession session = mock(ToolSession.class);
+        Map<String, Object> attributes = new HashMap<>();
+        when(session.getAttribute(anyString())).thenAnswer(call -> attributes.get(call.getArgument(0)));
+        doAnswer(call -> {
+            attributes.put(call.getArgument(0), call.getArgument(1));
+            return null;
+        }).when(session).setAttribute(anyString(), any());
+        when(sessionManager.getCurrentToolSession()).thenReturn(session);
+        return session;
     }
 
     private boolean canReadText() {
