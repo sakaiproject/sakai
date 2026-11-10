@@ -37,6 +37,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     _toolnames: { state: true },
     _narrowColumns: { state: true },
     _columns: { state: true },
+    _hasHero: { state: true },
     widgetFilters: { type: Object },
     gradesRevealOnClick: { attribute: "grades-reveal-on-click", type: Boolean },
     heroWidth: { attribute: "hero-width", type: String },
@@ -51,6 +52,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     this._dragIndex = undefined;
     this._narrowColumns = false;
     this._columns = 1;
+    this._hasHero = false;
     this.gradesRevealOnClick = true;
     this.loadTranslations("widgetpanel");
     loadToolnames().then(r => this._toolnames = r || {});
@@ -74,14 +76,32 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
 
     this._resizeObserver?.disconnect();
     this._resizeObserver = undefined;
+    this._heroSlot?.removeEventListener("slotchange", this._onHeroSlotChange);
+    this._heroSlot = undefined;
     super.disconnectedCallback();
   }
 
-  _columnCount(width = this.clientWidth) {
+  firstUpdated() {
+
+    this._heroSlot = this.renderRoot?.querySelector("slot[name=\"hero\"]");
+    this._onHeroSlotChange = () => this._syncHeroSlot();
+    this._heroSlot?.addEventListener("slotchange", this._onHeroSlotChange);
+    this._syncHeroSlot();
+  }
+
+  _syncHeroSlot() {
+
+    const hasHero = Boolean(this._heroSlot?.assignedElements({ flatten: true }).length);
+    if (hasHero !== this._hasHero) {
+      this._hasHero = hasHero;
+    }
+  }
+
+  columnCount(width = this.clientWidth) {
 
     const styles = getComputedStyle(this);
     const minWidget = parseFloat(styles.getPropertyValue("--sakai-widget-panel-min-widget-width")) || 380;
-    const gap = parseFloat(styles.getPropertyValue("--sakai-widget-panel-gutter-width")) || 14;
+    const gap = parseFloat(styles.getPropertyValue("--sakai-widget-panel-gutter-width")) || 16;
     if (!(width > 0)) {
       return 1;
     }
@@ -90,7 +110,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
 
   _updateNarrowColumns(width) {
 
-    const columns = this._columnCount(width);
+    const columns = this.columnCount(width);
     const narrow = columns < 2;
     if (columns !== this._columns) {
       this._columns = columns;
@@ -100,14 +120,19 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     }
   }
 
-  _heroUsesAutoHeight() {
+  heroFillsRow() {
 
     const width = this.heroWidth;
-    const columns = this._columns || this._columnCount();
+    const columns = this._columns || this.columnCount();
     return width === "full"
       || this.heroAutoHeight
       || columns < 2
       || (width === "wide" && columns < 3);
+  }
+
+  heroUsesAutoHeight() {
+
+    return this._hasHero && this.heroFillsRow();
   }
 
   set editing(value) {
@@ -543,7 +568,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
       ` : nothing}
 
       <div id="grid"
-          ?data-hero-auto=${this._heroUsesAutoHeight()}
+          ?data-hero-auto=${this.heroUsesAutoHeight()}
           @dragover=${this.editing ? this._onDragOver : nothing}
           @drop=${this.editing ? e => this._onDrop(e, this._layout.length) : nothing}>
         <slot name="hero"></slot>

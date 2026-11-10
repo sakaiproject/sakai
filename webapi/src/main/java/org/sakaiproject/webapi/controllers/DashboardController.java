@@ -492,7 +492,9 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
     private String resolveSiteHeroWidth(Map<String, Object> siteConfig) {
 
-        if (siteConfig.get("heroWidth") instanceof String) {
+        if (siteConfig != null
+                && siteConfig.get("heroWidth") instanceof String
+                && StringUtils.isNotBlank((String) siteConfig.get("heroWidth"))) {
             return normalizeHeroWidth((String) siteConfig.get("heroWidth"));
         }
         return normalizeHeroWidth(serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, DEFAULT_COURSE_HERO_WIDTH));
@@ -699,24 +701,18 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
     private Map<String, Object> siteChromeConfigForCopy(String fromConfigJson) {
 
+        Map<String, Object> from = new HashMap<>();
+        if (StringUtils.isNotBlank(fromConfigJson)) {
+            try {
+                from = new ObjectMapper().readValue(fromConfigJson, HashMap.class);
+            } catch (Exception e) {
+                log.warn("Failed to parse dashboard-config for site copy: {}", e.toString());
+            }
+        }
         Map<String, Object> result = new HashMap<>();
-        result.put("showImage", Boolean.TRUE);
-        result.put("heroWidth", DEFAULT_COURSE_HERO_WIDTH);
-        if (StringUtils.isBlank(fromConfigJson)) {
-            return result;
-        }
-        try {
-            Map<String, Object> from = new ObjectMapper().readValue(fromConfigJson, HashMap.class);
-            Object showImage = from.get("showImage");
-            if (showImage instanceof Boolean) {
-                result.put("showImage", showImage);
-            }
-            if (from.get("heroWidth") instanceof String) {
-                result.put("heroWidth", normalizeHeroWidth((String) from.get("heroWidth")));
-            }
-        } catch (Exception e) {
-            log.warn("Failed to parse dashboard-config for site copy: {}", e.toString());
-        }
+        Object showImage = from.get("showImage");
+        result.put("showImage", showImage instanceof Boolean ? showImage : Boolean.TRUE);
+        result.put("heroWidth", resolveSiteHeroWidth(from));
         return result;
     }
 
