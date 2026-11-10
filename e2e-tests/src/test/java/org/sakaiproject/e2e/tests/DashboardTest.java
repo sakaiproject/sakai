@@ -34,7 +34,7 @@ class DashboardTest extends SakaiUiTestBase {
     @Order(1)
     void createsSiteWithDashboard() {
         sakai.login("instructor1");
-        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.dashboard"));
+        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.dashboard", "sakai\\.announcements", "sakai\\.schedule"));
     }
 
     @Test
@@ -116,4 +116,50 @@ class DashboardTest extends SakaiUiTestBase {
         org.junit.jupiter.api.Assertions.assertTrue(text.contains("alerts_first"), text);
         org.junit.jupiter.api.Assertions.assertTrue(text.contains("compact"), text);
     }
+
+    @Test
+    @Order(5)
+    void missingToolsAreAbsentFromDashboardAndPicker() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.dashboard"));
+        sakai.gotoPath(siteUrl);
+        sakai.toolClick("Dashboard");
+        assertThat(page.locator("#course-dashboard-edit")).isVisible();
+        assertThat(page.locator("sakai-grades-widget, sakai-forums-widget, sakai-announcements-widget, sakai-calendar-widget"))
+            .hasCount(0);
+        assertThat(page.locator("sakai-sitestats-widget#sitestats-grades, sakai-sitestats-widget#sitestats-submissions, "
+            + "sakai-sitestats-widget#sitestats-communication, sakai-sitestats-widget#sitestats-lessons")).hasCount(0);
+
+        page.locator("#course-dashboard-edit").click();
+        assertThat(page.locator("#course-dashboard-save")).isVisible();
+        assertThat(page.locator("#available-widgets .available-widget").filter(
+            new com.microsoft.playwright.Locator.FilterOptions().setHasText(
+                Pattern.compile("Grades|Forums|Announcements|Calendar|Submissions|Communication|Lessons"))))
+            .hasCount(0);
+    }
+
+    @Test
+    @Order(6)
+    void freshGradebookDashboardLoadsWithoutGradingErrors() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.dashboard", "sakai\\.gradebookng"));
+        String siteId = siteUrl.replaceAll(".*/site/([^/]+).*", "$1");
+        sakai.gotoPath(siteUrl);
+        com.microsoft.playwright.Response metrics = page.waitForResponse(
+            response -> response.url().endsWith("/sitestats/widgets/grades/metrics"), () -> {
+                com.microsoft.playwright.Response highlights = page.waitForResponse(
+                    response -> response.url().endsWith("/sitestats/widgets/grades/highlights"), () -> {
+                        com.microsoft.playwright.Response grades = page.waitForResponse(
+                            response -> response.url().endsWith("/sites/" + siteId + "/grades"),
+                            () -> sakai.toolClick("Dashboard"));
+                        org.junit.jupiter.api.Assertions.assertTrue(grades.ok(), grades.text());
+                        org.junit.jupiter.api.Assertions.assertTrue(grades.text().contains("\"grades\":[]"), grades.text());
+                    });
+                org.junit.jupiter.api.Assertions.assertTrue(highlights.ok(), highlights.text());
+            });
+        org.junit.jupiter.api.Assertions.assertTrue(metrics.ok(), metrics.text());
+        assertThat(page.locator("sakai-grades-widget")).isVisible();
+        assertThat(page.locator("sakai-sitestats-widget#sitestats-grades")).isVisible();
+    }
+
 }

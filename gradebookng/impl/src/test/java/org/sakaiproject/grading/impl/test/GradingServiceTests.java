@@ -153,6 +153,42 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void existingGradebookLookupDoesNotInitializeGradebook() throws Exception {
+        siteId = "lookup-site";
+        Site site = createSiteMock(siteId);
+        org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
+        when(site.getProperties()).thenReturn(properties);
+        assertFalse(gradingService.isGradebookDefined(siteId));
+        assertTrue(gradingService.getExistingGradebookUids(siteId).isEmpty());
+        sessionFactory.getCurrentSession().flush();
+        assertEquals(Long.valueOf(0), sessionFactory.getCurrentSession()
+                .createQuery("select count(g) from Gradebook g", Long.class).uniqueResult());
+
+        Gradebook gradebook = createGradebook();
+        assertTrue(gradingService.isGradebookDefined(siteId));
+        assertEquals(List.of(siteId), gradingService.getExistingGradebookUids(siteId));
+        assertEquals(1, courseGradeRepository.findByGradebook_Id(gradebook.getId()).size());
+    }
+
+    @Test
+    public void existingGradebookLookupDoesNotInitializeGroupGradebooks() throws Exception {
+        siteId = "lookup-group-site";
+        groupId = "lookup-group";
+        Gradebook gradebook = createGroupGradebook();
+        Site site = siteService.getSite(siteId);
+        org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
+        when(properties.getProperty("gradebook_group")).thenReturn("true");
+        when(site.getProperties()).thenReturn(properties);
+        when(siteService.getToolPlacementPropertyValues(siteId, "sakai.gradebookng", "gb-group"))
+                .thenReturn(List.of(groupId, "uninitialized-group"));
+        assertEquals(List.of(groupId), gradingService.getExistingGradebookUids(siteId));
+        sessionFactory.getCurrentSession().flush();
+        assertEquals(Long.valueOf(1), sessionFactory.getCurrentSession()
+                .createQuery("select count(g) from Gradebook g", Long.class).uniqueResult());
+        assertEquals(1, courseGradeRepository.findByGradebook_Id(gradebook.getId()).size());
+    }
+
+    @Test
     public void addGradebook() {
 
         Gradebook gradebook = createGradebook();

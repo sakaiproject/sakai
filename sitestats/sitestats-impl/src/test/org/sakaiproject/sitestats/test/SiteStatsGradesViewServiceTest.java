@@ -149,6 +149,7 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(true);
 		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_OWN, SITE_REF)).thenReturn(true);
 
+		when(gradingService.getExistingGradebookUids(SITE_ID)).thenReturn(List.of(SITE_ID));
 		when(gradingService.getAssignments(anyString(), anyString(), any(SortType.class))).thenReturn(Collections.emptyList());
 		when(gradingService.getViewableAssignmentsForCurrentUser(anyString(), anyString(), any(SortType.class)))
 				.thenReturn(Collections.emptyList());
@@ -160,6 +161,19 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 		prefsData.setListToolEventsOnlyAvailableInSite(false);
 		prefsData.setToolEventsDef(Arrays.asList(tool(FakeData.TOOL_CHAT, FakeData.EVENT_CHATNEW)));
 		assertTrue(statsManager.setPreferences(SITE_ID, prefsData));
+	}
+
+	@Test
+	public void uninitializedGradebooksDoNotLoadAssignments() {
+		when(gradingService.getExistingGradebookUids(SITE_ID)).thenReturn(Collections.emptyList());
+		assertFalse(service.getWidgetMetrics(SITE_ID, WIDGET_GRADES).isEmpty());
+		service.getWidgetHighlights(SITE_ID, WIDGET_GRADES, null);
+		service.getWidgetMetrics(SITE_ID, WIDGET_STUDENT_GRADES);
+		org.mockito.Mockito.verify(gradingService, org.mockito.Mockito.never())
+				.getAssignments(anyString(), anyString(), any(SortType.class));
+		org.mockito.Mockito.verify(gradingService, org.mockito.Mockito.never())
+				.getViewableAssignmentsForCurrentUser(anyString(), anyString(), any(SortType.class));
+		org.mockito.Mockito.verify(gradingService, org.mockito.Mockito.never()).getGradebookGroupInstancesIds(anyString());
 	}
 
 	@Test
@@ -711,11 +725,33 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 	}
 
 	@Test
+	public void studentGroupMembershipDoesNotInitializeOtherGradebooks() throws Exception {
+		Assignment essay = countedItem(11L, "Essay", 10d, "2026-06-15T23:59:59Z");
+		essay.setContext("group-gb");
+		when(gradingService.isGradebookGroupEnabled(SITE_ID)).thenReturn(true);
+		when(gradingService.getExistingGradebookUids(SITE_ID)).thenReturn(List.of("group-gb"));
+		when(gradingService.getViewableAssignmentsForCurrentUser(eq("group-gb"), eq(SITE_ID), any(SortType.class)))
+				.thenReturn(List.of(essay));
+		stubGroup("group-gb", "Lab 1", USER_A_ID);
+		Site site = siteService.getSite(SITE_ID);
+		when(siteService.getOptionalSite(SITE_ID)).thenReturn(java.util.Optional.of(site));
+		when(site.getGroup("group-gb").getMember(USER_A_ID)).thenReturn(mock(org.sakaiproject.authz.api.Member.class));
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_STUDENT_GRADES, TAB_BY_ITEM, request);
+		assertEquals(1, view.getTable().getTotalRows());
+		org.mockito.Mockito.verify(gradingService, org.mockito.Mockito.never()).getGradebookInstancesForUser(anyString(), anyString());
+		org.mockito.Mockito.verify(gradingService, org.mockito.Mockito.never()).getGradebookGroupInstancesIds(anyString());
+	}
+
+	@Test
 	public void multiGradebookOnlyCountsMembersOfTheItemGroup() throws Exception {
 		Assignment essay = countedItem(11L, "Essay", 10d, "2026-06-15T23:59:59Z");
 		essay.setContext("group-gb");
 		when(gradingService.isGradebookGroupEnabled(SITE_ID)).thenReturn(true);
-		when(gradingService.getGradebookGroupInstancesIds(SITE_ID)).thenReturn(Collections.singletonList("group-gb"));
+		when(gradingService.getExistingGradebookUids(SITE_ID)).thenReturn(Collections.singletonList("group-gb"));
 		when(gradingService.getAssignments(eq("group-gb"), eq(SITE_ID), any(SortType.class)))
 				.thenReturn(Collections.singletonList(essay));
 
