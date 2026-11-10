@@ -3106,8 +3106,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return false;
         }
         Assignment assignment = submission.getAssignment();
-        if (assignment.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE
-                ? doesSubmissionHaveInstructorFeedback(submission) : StringUtils.isNotBlank(submission.getGrade())) {
+        if (doesSubmissionHaveInstructorFeedback(submission)
+                || (assignment.getTypeOfGrade() != Assignment.GradeType.UNGRADED_GRADE_TYPE && StringUtils.isNotBlank(submission.getGrade()))) {
             return true;
         }
         SubmissionStatus status = getGradersCanonicalSubmissionStatus(submission);
