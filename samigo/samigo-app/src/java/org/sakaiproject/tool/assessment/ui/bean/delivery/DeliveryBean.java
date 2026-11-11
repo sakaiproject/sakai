@@ -1864,7 +1864,8 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
   public void setPublishedAssessment(PublishedAssessmentFacade publishedAssessment) {
 	  this.publishedAssessment = publishedAssessment;
 	  itemTimersDisabled = false;
-	  if (publishedAssessment == null || publishedAssessment.getPublishedAssessmentId() == null) {
+	  // Draft preview uses a detached assessment whose temporary database row is removed.
+	  if (actionMode == PREVIEW_ASSESSMENT || publishedAssessment == null || publishedAssessment.getPublishedAssessmentId() == null) {
 		  extendedTimeDeliveryService = null;
 		  return;
 	  }
@@ -2347,7 +2348,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
 	  Date currentDate = new Date();
 		Date startDate;
 		verifyExtendedTimeDeliveryService();
-		if (extendedTimeDeliveryService.hasExtendedTime()) {
+		if (extendedTimeDeliveryService != null && extendedTimeDeliveryService.hasExtendedTime()) {
 			startDate = extendedTimeDeliveryService.getStartDate();
 		} else {
 			startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
@@ -2362,10 +2363,10 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
     boolean pastDueDate = true;
     Date currentDate = new Date();
     verifyExtendedTimeDeliveryService();
-    Date due = extendedTimeDeliveryService.hasExtendedTime() ? extendedTimeDeliveryService.getDueDate() : publishedAssessment.getAssessmentAccessControl().getDueDate();
+    Date due = (extendedTimeDeliveryService != null && extendedTimeDeliveryService.hasExtendedTime()) ? extendedTimeDeliveryService.getDueDate() : publishedAssessment.getAssessmentAccessControl().getDueDate();
 
     if (due == null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling())) {
-      Date retract = extendedTimeDeliveryService.hasExtendedTime() ? extendedTimeDeliveryService.getRetractDate() : publishedAssessment.getAssessmentAccessControl().getRetractDate();
+      Date retract = (extendedTimeDeliveryService != null && extendedTimeDeliveryService.hasExtendedTime()) ? extendedTimeDeliveryService.getRetractDate() : publishedAssessment.getAssessmentAccessControl().getRetractDate();
       if (due == null && retract != null) {
         due = retract;
       }
@@ -2381,7 +2382,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
 	  boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 	  //If using extended Time Delivery, the late submission setting is based on retracted
 	  verifyExtendedTimeDeliveryService();
-	  if (extendedTimeDeliveryService.hasExtendedTime()) {
+	  if (extendedTimeDeliveryService != null && extendedTimeDeliveryService.hasExtendedTime()) {
 		  //Accept if extended time late submission field is blank or has not expired
 		  acceptLateSubmission = !isRetracted(false);
 	  }
@@ -2403,7 +2404,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
     Date retractDate = null;
     boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
     verifyExtendedTimeDeliveryService();
-    if (extendedTimeDeliveryService.hasExtendedTime()) {
+    if (extendedTimeDeliveryService != null && extendedTimeDeliveryService.hasExtendedTime()) {
     	retractDate = extendedTimeDeliveryService.getRetractDate();
     } else if (acceptLateSubmission) {
     	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
@@ -2858,7 +2859,8 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
      * Ensure that the ExtendedTimeDeliveryService instance is making reference to the correct assessment.
      */
     private void verifyExtendedTimeDeliveryService() {
-        if(!Objects.equals(extendedTimeDeliveryService.getPublishedAssessmentId(), publishedAssessment.getPublishedAssessmentId())) {
+        if (actionMode != PREVIEW_ASSESSMENT && (extendedTimeDeliveryService == null
+                || !Objects.equals(extendedTimeDeliveryService.getPublishedAssessmentId(), publishedAssessment.getPublishedAssessmentId()))) {
             extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
         }
     }
