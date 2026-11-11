@@ -1012,7 +1012,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assertDeletionBlocksSubmission(true);
     }
 
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deletionBlocksPlaceholderBatchFromAnAlreadyOpenRequest() throws Exception {
+        assertDeletionBlocksSubmission(false, true);
+    }
+
     private void assertDeletionBlocksSubmission(boolean existingPlaceholder) throws Exception {
+        assertDeletionBlocksSubmission(existingPlaceholder, false);
+    }
+
+    private void assertDeletionBlocksSubmission(boolean existingPlaceholder, boolean placeholderBatch) throws Exception {
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         Assignment assignment = transaction.execute(status -> {
             try {
@@ -1029,6 +1039,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Member member = buildGroupMember(UUID.randomUUID().toString());
         when(group.getMembers()).thenReturn(Set.of(member));
         when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        if (placeholderBatch) {
+            String studentId = member.getUserId();
+            User user = mock(User.class);
+            when(user.getId()).thenReturn(studentId);
+            when(user.getSortName()).thenReturn("student");
+            when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference))
+                    .thenReturn(List.of(user));
+            when(group.getId()).thenReturn(groupId);
+            when(siteService.getSite(assignment.getContext()).getGroupsWithMember(studentId)).thenReturn(List.of(group));
+        }
 
         String submissionId = existingPlaceholder ? assignmentService.addSubmission(assignment.getId(), groupId).getId() : null;
         if (existingPlaceholder) {
@@ -1058,7 +1078,9 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                     Assert.assertTrue("Deletion did not acquire its lock", deletionLocked.await(10, TimeUnit.SECONDS));
                     submissionAttempted.countDown();
                     try {
-                        if (existingPlaceholder) {
+                        if (placeholderBatch) {
+                            return assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext()).isEmpty();
+                        } else if (existingPlaceholder) {
                             placeholder.setGrade("0");
                             assignmentService.updateSubmission(placeholder);
                         } else {
@@ -3182,6 +3204,94 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertTrue(groups.isEmpty());
         Mockito.verify(securityService, Mockito.never()).unlock(Mockito.isNull(String.class),
                 eq(AssignmentServiceConstants.SECURE_ALL_GROUPS), eq(siteReference));
+    }
+
+    @Test
+    public void placeholderBatchPreservesSubmissionsWithoutRepeatedReloads() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "2");
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, "1795000000000");
+        List<User> users = configurePlaceholderUsers(assignment, 40);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        AssignmentSubmission existing = assignmentService.addSubmission(assignment.getId(), users.get(0).getId());
+        existing.setSubmittedText("Student work");
+        existing.setFeedbackComment("Saved feedback");
+        existing.setGrade("0");
+        existing.setUserSubmission(true);
+        String existingId = existing.getId();
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+
+        org.hibernate.stat.Statistics statistics = sessionFactory.getStatistics();
+        boolean statisticsEnabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        long loadsBefore = statistics.getEntityLoadCount();
+        Map<User, AssignmentSubmission> submissions;
+        try {
+            submissions = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+            sessionFactory.getCurrentSession().flush();
+            long loadedEntities = statistics.getEntityLoadCount() - loadsBefore;
+            Assert.assertTrue("Placeholder creation must not repeatedly reload the growing submission graph: " + loadedEntities,
+                    loadedEntities < users.size() * 10);
+        } finally {
+            statistics.setStatisticsEnabled(statisticsEnabled);
+        }
+
+        Assert.assertEquals(users.size(), submissions.size());
+        AssignmentSubmission preserved = submissions.get(users.get(0));
+        Assert.assertEquals(existingId, preserved.getId());
+        Assert.assertEquals("Student work", preserved.getSubmittedText());
+        Assert.assertEquals("Saved feedback", preserved.getFeedbackComment());
+        Assert.assertEquals("0", preserved.getGrade());
+        Assert.assertTrue(preserved.getUserSubmission());
+        for (User user : users.subList(1, users.size())) {
+            AssignmentSubmission placeholder = submissions.get(user);
+            Assert.assertTrue(placeholder.getSubmitted());
+            Assert.assertFalse(placeholder.getUserSubmission());
+            Assert.assertEquals("2", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+            Assert.assertEquals("1795000000000", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+        }
+
+        sessionFactory.getCurrentSession().clear();
+        Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+        Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
+                reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void placeholderBatchDoesNotCreateSubmissionsForDeletedAssignment() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        configurePlaceholderUsers(assignment, 3);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        assignmentService.softDeleteAssignment(assignment);
+
+        Assert.assertTrue(assignmentService.getSubmitterMap("true", null, "student", reference, context).isEmpty());
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getSubmissions().isEmpty());
+    }
+
+    private List<User> configurePlaceholderUsers(Assignment assignment, int count) throws Exception {
+        String context = assignment.getContext();
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String submissionReference = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
+        Site site = mock(Site.class);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            String id = UUID.randomUUID().toString();
+            User user = mock(User.class);
+            when(user.getId()).thenReturn(id);
+            when(user.getSortName()).thenReturn("student " + i);
+            when(site.getMember(id)).thenReturn(mock(Member.class));
+            users.add(user);
+        }
+        when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(users);
+        return users;
     }
 
     @Test
