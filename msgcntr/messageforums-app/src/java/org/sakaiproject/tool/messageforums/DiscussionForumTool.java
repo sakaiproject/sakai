@@ -241,6 +241,7 @@ public class DiscussionForumTool implements Serializable {
   private Map<String, MembershipItem> courseMemberMap;
   private List<PermissionBean> permissions;
   private List levels;
+  private Locale levelsLocale;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
   private AreaManager areaManager;
   private int numPendingMessages = 0;
@@ -7366,7 +7367,8 @@ public class DiscussionForumTool implements Serializable {
      public List getLevels()
      {
        boolean hasCustom = false;
-       if (levels == null || levels.size() == 0)
+       Locale locale = rb.getLocale();
+       if (levels == null || levels.size() == 0 || !locale.equals(levelsLocale))
        {
          levels = new ArrayList();
          List origLevels = permissionLevelManager.getOrderedPermissionLevelNames();
@@ -7388,6 +7390,7 @@ public class DiscussionForumTool implements Serializable {
          {
            levels.add(new SelectItem("Custom", getResourceBundleString("perm_level_custom")));
          }
+         levelsLocale = locale;
        }       
        return levels;
      }
