@@ -598,14 +598,7 @@ public class SiteStatsGradesAnalytics {
 	}
 
 	private List<String> gradebookUids(String siteId) {
-		if (!gradingService.isGradebookGroupEnabled(siteId)) {
-			return Collections.singletonList(siteId);
-		}
-		List<String> uids = gradingService.getGradebookGroupInstancesIds(siteId);
-		if (uids == null || uids.isEmpty()) {
-			return Collections.singletonList(siteId);
-		}
-		return uids;
+		return gradingService.getExistingGradebookUids(siteId);
 	}
 
 	private String gradebookUid(String siteId, Assignment assignment) {
@@ -618,8 +611,10 @@ public class SiteStatsGradesAnalytics {
 				|| !gradingService.isGradebookGroupEnabled(siteId)) {
 			return true;
 		}
-		List<String> instances = gradingService.getGradebookInstancesForUser(siteId, userId);
-		return instances != null && instances.contains(gradebookUid);
+		return context.getSiteService().getOptionalSite(siteId).map(site -> {
+			Group group = site.getGroup(gradebookUid);
+			return group != null && group.getMember(userId) != null;
+		}).orElse(false);
 	}
 
 	private String gradebookGroupTitle(String siteId, String gradebookUid) {

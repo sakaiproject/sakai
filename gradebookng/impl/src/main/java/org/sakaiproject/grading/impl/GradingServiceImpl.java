@@ -4907,6 +4907,26 @@ public class GradingServiceImpl implements GradingService {
         gradingPersistenceManager.deleteInternalComment(studentUid, gradebookUid, assignmentId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isGradebookDefined(String gradebookUid) {
+        return gradingPersistenceManager.getGradebook(gradebookUid).isPresent();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getExistingGradebookUids(String siteId) {
+        Collection<String> uids = isGradebookGroupEnabled(siteId)
+                ? siteService.getOptionalSite(siteId).stream()
+                        .flatMap(site -> site.getTools("sakai.gradebookng").stream())
+                        .map(tool -> tool.getPlacementConfig().getProperty(GB_GROUP_TOOL_PROPERTY, siteId))
+                        .toList()
+                : List.of(siteId);
+        return uids.stream().distinct()
+                .filter(this::isGradebookDefined)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     @Override
     public Gradebook getGradebook(String uid) {

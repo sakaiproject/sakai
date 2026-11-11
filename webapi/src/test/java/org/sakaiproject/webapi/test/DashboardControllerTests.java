@@ -106,6 +106,8 @@ public class DashboardControllerTests {
         mocks = MockitoAnnotations.openMocks(this);
 
         dashboardController = new DashboardController();
+        ReflectionTestUtils.setField(dashboardController, "dashboardWidgetService",
+                new org.sakaiproject.webapi.services.DashboardWidgetService());
         dashboardController.setSessionManager(sessionManager);
 
         ReflectionTestUtils.setField(dashboardController, "announcementService", announcementService);
@@ -285,6 +287,7 @@ public class DashboardControllerTests {
 
         String siteId = "site1";
         Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
         ResourceProperties properties = mock(ResourceProperties.class);
         when(siteService.getSite(siteId)).thenReturn(site);
         when(site.getProperties()).thenReturn(properties);
@@ -320,6 +323,7 @@ public class DashboardControllerTests {
 
         String siteId = "site1";
         Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
         when(siteService.getSite(siteId)).thenReturn(site);
         when(site.getReference()).thenReturn("/site/site1");
         when(securityService.isSuperUser()).thenReturn(false);
@@ -348,6 +352,7 @@ public class DashboardControllerTests {
 
         String siteId = "course1";
         Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
         ResourceProperties properties = mock(ResourceProperties.class);
         when(siteService.getSite(siteId)).thenReturn(site);
         when(site.getTitle()).thenReturn("Course 1");
@@ -386,6 +391,31 @@ public class DashboardControllerTests {
     }
 
     @Test
+    public void testMissingToolsAreRemovedFromPickerAndSavedLayout() throws Exception {
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("instructor");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+        Site site = mock(Site.class);
+        when(siteService.getSite("course1")).thenReturn(site);
+        when(site.getProperties()).thenReturn(mock(ResourceProperties.class));
+        when(site.getToolForCommonId("sakai.schedule"))
+                .thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
+        Preferences preferences = mock(Preferences.class);
+        ResourceProperties prefProps = mock(ResourceProperties.class);
+        when(preferencesService.getPreferences("instructor")).thenReturn(preferences);
+        when(preferences.getProperties("dashboard-config")).thenReturn(prefProps);
+        when(prefProps.getProperty("courseLayouts")).thenReturn(
+                "{\"course1\":{\"widgetLayout\":[{\"id\":\"grades\"},{\"id\":\"sitestats-submissions\"},{\"id\":\"calendar\"}]}}");
+        ReflectionTestUtils.setField(dashboardController, "courseWidgets", List.of("grades", "calendar"));
+        when(siteStatsViewService.getCourseDashboardWidgetIds("course1"))
+                .thenReturn(List.of("submissions", "grades", "visits"));
+
+        DashboardRestBean bean = dashboardController.getSiteDashboard("course1");
+        assertEquals(List.of("calendar", "sitestats-visits"), bean.getWidgets());
+        assertEquals(List.of("calendar"), bean.getWidgetLayout().stream().map(DashboardWidgetTile::getId).toList());
+    }
+
+    @Test
     public void testGetSiteDashboardUsesUserCourseLayoutAndHeroOverride() throws Exception {
 
         Session session = mock(Session.class);
@@ -394,6 +424,7 @@ public class DashboardControllerTests {
 
         String siteId = "course1";
         Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
         ResourceProperties properties = mock(ResourceProperties.class);
         when(siteService.getSite(siteId)).thenReturn(site);
         when(site.getTitle()).thenReturn("Course 1");
@@ -438,6 +469,7 @@ public class DashboardControllerTests {
 
         String siteId = "course1";
         Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
         ResourceProperties properties = mock(ResourceProperties.class);
         when(siteService.getSite(siteId)).thenReturn(site);
         when(site.getTitle()).thenReturn("Course 1");
@@ -476,6 +508,7 @@ public class DashboardControllerTests {
 
         String siteId = "course1";
         Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
         ResourceProperties properties = mock(ResourceProperties.class);
         when(siteService.getSite(siteId)).thenReturn(site);
         when(site.getTitle()).thenReturn("Course 1");

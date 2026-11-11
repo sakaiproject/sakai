@@ -22,6 +22,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.webapi.services.DashboardWidgetService;
 import org.sakaiproject.webapi.beans.DashboardLayoutHelper;
 import org.sakaiproject.webapi.beans.DashboardRestBean;
 import org.sakaiproject.webapi.beans.DashboardWidgetTile;
@@ -135,6 +136,9 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
     @Autowired(required = false)
     private SiteStatsViewService siteStatsViewService;
+
+    @Autowired
+    private DashboardWidgetService dashboardWidgetService;
 
     private List<String> courseWidgets = new ArrayList<>();
     private List<String> homeWidgets = new ArrayList<>();
@@ -374,7 +378,8 @@ public class DashboardController extends AbstractSakaiApiController implements E
         try {
             Site site = siteService.getSite(siteId);
             bean.setTitle(site.getTitle());
-            List<String> availableWidgets = withSitestatsWidgets(courseWidgets, sitestatsCourseWidgetIds(siteId));
+            List<String> availableWidgets = dashboardWidgetService.getAvailableWidgets(site,
+                    withSitestatsWidgets(courseWidgets, sitestatsCourseWidgetIds(siteId)));
             bean.setWidgets(availableWidgets);
             bean.setProgramme(site.getShortDescription());
             bean.setOverview(site.getDescription());

@@ -342,6 +342,20 @@ public interface GradingService extends EntityProducer {
     Gradebook getGradebook(String uid);
 
     /**
+     * Lists existing gradebooks for a site without initializing any gradebooks.
+     * In group mode, returns only initialized gradebooks attached to tool placements.
+     * This lookup does not grant access to grades; callers must use the normal authorized grading APIs.
+     *
+     * @param siteId the site identifier
+     * @return existing gradebook UIDs, or an empty list when none are initialized
+     */
+    List<String> getExistingGradebookUids(String siteId);
+
+    /** Checks for an existing site or group gradebook without initializing it. */
+    boolean isGradebookDefined(String gradebookUid);
+
+
+    /**
      * Retrieves a gradebook by its unique identifier, creating a new one if it doesn't exist.
      *
      * <p>This method first attempts to find an existing gradebook with the given UID. If no gradebook
