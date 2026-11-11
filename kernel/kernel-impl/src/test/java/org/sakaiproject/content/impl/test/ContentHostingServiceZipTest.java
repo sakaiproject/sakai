@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
@@ -81,6 +82,49 @@ public class ContentHostingServiceZipTest extends SakaiKernelTestBase {
 
         String extractedId = archiveId.substring(0, archiveId.length() - 4) + "/safe.txt";
         assertEquals("valid content", new String(content.getResource(extractedId).getContent(), StandardCharsets.UTF_8));
+        assertEquals(originalLength, content.getResource(archiveId).getContentLength());
+        assertEditable(archiveId);
+    }
+
+    @Test
+    public void existingFolderIsPreservedAndRepeatedExpansionsUseUniqueFolderNames() throws Exception {
+        String archiveId = storeArchive(Map.of("safe.txt", "extracted content"));
+        String collectionId = archiveId.substring(0, archiveId.length() - "package.zip".length());
+        ContentCollectionEdit existing = content.addCollection(collectionId + "package/");
+        content.commitCollection(existing);
+        ContentResourceEdit original = content.addResource(existing.getId() + "safe.txt");
+        original.setContent("original content".getBytes(StandardCharsets.UTF_8));
+        content.commitResource(original);
+        long originalLength = content.getResource(archiveId).getContentLength();
+
+        for (int expansion = 1; expansion <= 2; expansion++) {
+            content.expandZippedResource(archiveId);
+
+            String folderName = "package-" + expansion;
+            String extractedCollectionId = collectionId + folderName + "/";
+            assertEquals(folderName, content.getCollection(extractedCollectionId).getProperties()
+                .getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+            assertEquals("extracted content", new String(content.getResource(extractedCollectionId + "safe.txt")
+                .getContent(), StandardCharsets.UTF_8));
+            assertEquals("original content", new String(content.getResource(existing.getId() + "safe.txt")
+                .getContent(), StandardCharsets.UTF_8));
+            assertEquals(originalLength, content.getResource(archiveId).getContentLength());
+            assertEditable(archiveId);
+        }
+    }
+
+    @Test
+    public void unsafeArchiveWithExistingFolderCreatesNoRenamedFolder() throws Exception {
+        String archiveId = storeArchive(Map.of("../canary.txt", "unsafe"));
+        String rootId = archiveId.substring(0, archiveId.length() - 4);
+        ContentCollectionEdit existing = content.addCollection(rootId + "/");
+        content.commitCollection(existing);
+        long originalLength = content.getResource(archiveId).getContentLength();
+
+        assertThrows(Zip.InvalidEntryException.class, () -> content.expandZippedResource(archiveId));
+
+        assertNotNull(content.getCollection(existing.getId()));
+        assertThrows(IdUnusedException.class, () -> content.getCollection(rootId + "-1/"));
         assertEquals(originalLength, content.getResource(archiveId).getContentLength());
         assertEditable(archiveId);
     }
