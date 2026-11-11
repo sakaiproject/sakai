@@ -240,8 +240,6 @@ public class DiscussionForumTool implements Serializable {
   private List selectedGroupsUsersList;
   private Map<String, MembershipItem> courseMemberMap;
   private List<PermissionBean> permissions;
-  private List levels;
-  private Locale levelsLocale;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
   private AreaManager areaManager;
   private int numPendingMessages = 0;
@@ -7367,31 +7365,26 @@ public class DiscussionForumTool implements Serializable {
      public List getLevels()
      {
        boolean hasCustom = false;
-       Locale locale = rb.getLocale();
-       if (levels == null || levels.size() == 0 || !locale.equals(levelsLocale))
+       List levels = new ArrayList();
+       List origLevels = permissionLevelManager.getOrderedPermissionLevelNames();
+       if (origLevels != null)
        {
-         levels = new ArrayList();
-         List origLevels = permissionLevelManager.getOrderedPermissionLevelNames();
-         if (origLevels != null)
-         {
-           Iterator iter = origLevels.iterator();
+         Iterator iter = origLevels.iterator();
 
-           while (iter.hasNext())
-           {
-             String level = (String) iter.next();
-             levels.add(new SelectItem(level, getResourceBundleString("perm_level_" + level.replaceAll(" ", "_").toLowerCase())));
-             if("Custom".equals(level))
-                 {
-                   hasCustom =true;
-                 }
-           }
-         }
-         if(!hasCustom)
+         while (iter.hasNext())
          {
-           levels.add(new SelectItem("Custom", getResourceBundleString("perm_level_custom")));
+           String level = (String) iter.next();
+           levels.add(new SelectItem(level, getResourceBundleString("perm_level_" + level.replaceAll(" ", "_").toLowerCase())));
+           if("Custom".equals(level))
+               {
+                 hasCustom =true;
+               }
          }
-         levelsLocale = locale;
-       }       
+       }
+       if(!hasCustom)
+       {
+         levels.add(new SelectItem("Custom", getResourceBundleString("perm_level_custom")));
+       }
        return levels;
      }
 
