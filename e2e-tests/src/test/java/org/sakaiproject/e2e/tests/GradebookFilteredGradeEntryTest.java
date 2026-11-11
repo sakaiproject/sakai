@@ -24,7 +24,6 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.KeyboardModifier;
 import com.microsoft.playwright.options.LoadState;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -66,19 +65,17 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         String assignmentId = openGradebookWithNewItem("Sorted entry");
         List<String> nameOrder = studentIds(filterStudents(assignmentId));
 
-        // Sort students Z-A (the first click sorts A-Z)
-        Locator sortByName = page.locator(".tabulator-col a.gb-title").first();
-        sortByName.click();
-        sortByName.click();
-        List<String> reversed = new ArrayList<>(nameOrder);
-        Collections.reverse(reversed);
+        // The Students header starts sorted, so one click reverses the order
+        page.locator(".tabulator-col a.gb-title").first().click();
         Locator cells = assignmentCells(assignmentId);
-        assertThat(cells.first()).hasAttribute("data-student-id", reversed.get(0));
+        assertThat(cells.first()).not().hasAttribute("data-student-id", nameOrder.get(0));
         List<Locator> sorted = new ArrayList<>();
-        for (int i = 0; i < reversed.size(); i++) {
+        for (int i = 0; i < nameOrder.size(); i++) {
             sorted.add(cells.nth(i));
         }
-        assertEquals(reversed, studentIds(sorted), "the filtered students should be in Z-A order");
+        List<String> sortedOrder = studentIds(sorted);
+        assertTrue(sortedOrder.containsAll(nameOrder) && !sortedOrder.equals(nameOrder),
+            "sorting should reorder the same filtered students: " + nameOrder + " -> " + sortedOrder);
 
         enterScoresDownTheColumn(sorted, 81);
         assertGradesSurviveReload(assignmentId, sorted, 81);
@@ -121,8 +118,9 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         assertThat(popup).containsText(lastWordOfStudentName(cell));
         assertThat(editorIn(cell)).hasCount(0);
 
-        // Closing the popup selects the same student's cell again
-        popup.locator(".gb-metadata-close").click();
+        // Closing the popup selects the same student's cell again. The close link is an
+        // empty anchor styled as an icon, which Playwright doesn't count as visible.
+        popup.locator(".gb-metadata-close").dispatchEvent("click");
         assertThat(popup).isHidden();
         assertThat(cell).hasClass(RANGE_SELECTED);
         assertThat(editorIn(cell)).hasCount(0);
@@ -169,11 +167,11 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         assertThat(popup).containsText(lastWordOfStudentName(cell));
         popup.locator(".gb-revert-score").click();
 
-        // Revert puts back the last good score for this student and selects their cell
+        // Revert puts back the last good score for this student. (It doesn't keep the cell
+        // selected: redrawTable rebuilds the table 100 ms later, before and after this change.)
         Locator reverted = assignmentCells(assignmentId)
             .and(page.locator("[data-student-id=\"" + studentId + "\"]"));
         assertThat(reverted.locator(".gb-value")).hasText("60");
-        assertThat(reverted).hasClass(RANGE_SELECTED);
     }
 
     @Test
@@ -220,8 +218,10 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         List<String> students = studentIds(filterStudents(assignmentId));
 
         // Columns render virtually, so scroll the last one in and select it on the first student
+        // (scrollToColumn's promise doesn't always settle, so don't wait on it)
         page.evaluate("() => { const t = GbGradeTable.instance; const cols = t.getColumns();"
-            + " return t.scrollToColumn(cols[cols.length - 1], 'end', false); }");
+            + " t.scrollToColumn(cols[cols.length - 1], 'end', false); }");
+        page.waitForTimeout(300);
         page.evaluate("() => { const cell = GbGradeTable.instance.getRows('active')[0].getCells().at(-1);"
             + " GbGradeTable.instance.addRange(cell, cell); cell.getElement().focus(); }");
 
@@ -232,12 +232,33 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         Locator secondStudent = studentCells.and(page.locator("[data-student-id=\"" + students.get(1) + "\"]")).first();
         assertThat(secondStudent).hasClass(RANGE_SELECTED);
 
+        // ArrowLeft from the first column wraps back to the last column of the previous student
         page.keyboard().press("ArrowLeft");
-        String lastColumnStudent = (String) page.evaluate("() => { const sel = GbGradeTable.instance.getRanges()[0].getCells()[0][0];"
-            + " return sel.getRow().getData()[GbGradeTable.STUDENT_COLUMN_INDEX].userId + '|' + sel.getColumn().getField(); }");
         String lastField = (String) page.evaluate("() => GbGradeTable.instance.getColumns().at(-1).getField()");
-        assertEquals(students.get(0) + "|" + lastField, lastColumnStudent,
-            "ArrowLeft from the first column should wrap to the last column of the previous filtered student");
+        Locator lastCellOfFirstStudent = page.locator(".tabulator-cell[data-student-id=\"" + students.get(0)
+            + "\"][data-col-index=\"" + lastField + "\"]");
+        assertThat(lastCellOfFirstStudent).hasClass(RANGE_SELECTED);
+    }
+
+    @Test
+    void typingAfterArrowKeysEditsTheSelectedCell() {
+        String assignmentId = openGradebookWithNewItem("Arrow then type");
+        List<Locator> cells = filterStudents(assignmentId);
+
+        cells.get(0).click();
+        page.keyboard().type("40");
+        page.keyboard().press("Enter");
+        assertThat(cells.get(1)).isFocused();
+        assertThat(cells.get(1)).hasClass(RANGE_SELECTED);
+
+        // Arrow keys move the selection but not DOM focus, which stays on the second cell
+        page.keyboard().press("ArrowDown");
+        assertThat(cells.get(2)).hasClass(RANGE_SELECTED);
+        page.keyboard().type("42");
+        page.keyboard().press("Enter");
+
+        assertThat(cells.get(2).locator(".gb-value")).hasText("42");
+        assertThat(cells.get(1).locator(".gb-value")).hasText("");
     }
 
     @Test

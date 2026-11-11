@@ -722,14 +722,39 @@ GbGradeTable.cellComponentForElement = function(cellElement) {
   return row?.getCells().find(c => c.getElement() === cellElement) || null;
 };
 
+// Select a single cell. Tabulator settles a new range's bounds (and its CSS classes)
+// on the next frame, so remember the cell until then for keys that arrive sooner.
+GbGradeTable.selectSingleCell = function(cell) {
+  GbGradeTable.instance.getRanges().forEach(range => range.remove());
+  GbGradeTable.instance.addRange(cell, cell);
+
+  const element = cell.getElement();
+  GbGradeTable._justSelected = element;
+  requestAnimationFrame(() => setTimeout(() => {
+    if (GbGradeTable._justSelected === element) GbGradeTable._justSelected = null;
+  }, 0));
+};
+
+// The single selected cell. Range navigation doesn't move DOM focus, so the focused
+// element can be stale; read the range itself.
+GbGradeTable.selectedCellElement = function() {
+  if (GbGradeTable._justSelected?.isConnected) return GbGradeTable._justSelected;
+
+  const ranges = GbGradeTable.instance.getRanges();
+  if (ranges.length === 1) {
+    const cells = ranges[0].getCells().flat();
+    if (cells.length === 1) return cells[0].getElement();
+  }
+  return document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-range-only-cell-selected");
+};
+
 // Select the cell in the same column on the next displayed (filtered and sorted) row
 GbGradeTable.selectCellBelow = function(cell) {
   // getNextRow() returns false, not null, on the last row
   const nextRow = cell.getRow().getNextRow();
   const nextCell = nextRow ? nextRow.getCell(cell.getColumn()) : null;
   if (nextCell) {
-    GbGradeTable.instance.getRanges().forEach(range => range.remove());
-    GbGradeTable.instance.addRange(nextCell, nextCell);
+    GbGradeTable.selectSingleCell(nextCell);
     nextCell.getElement().focus();
   }
 };
@@ -2542,10 +2567,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
       handled = true;
     }
 
-    // The cell the key was pressed in is the current one. Fall back to the selected
-    // range, whose classes Tabulator updates a little after focus moves.
-    const current = event.target.closest(".tabulator-cell")
-      || document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-range-only-cell-selected");
+    const current = GbGradeTable.selectedCellElement();
     const focus = document.activeElement;
 
     // Focused summary links must activate themselves, not edit the selected score cell.
@@ -2592,7 +2614,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
         if ((event.key === "Tab" || event.key === "ArrowRight") && colIndex === totalColumns - 1) {
           const nextRow = currentRow?.getNextRow();
           if (nextRow) {
-            GbGradeTable.instance.addRange(nextRow.getCells()[0]);
+            GbGradeTable.selectSingleCell(nextRow.getCells()[0]);
             event.preventDefault();
           }
         }
@@ -2601,7 +2623,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
           const prevRow = currentRow?.getPrevRow();
           if (prevRow) {
             GbGradeTable.instance.scrollToColumn(totalColumns - 1, "end", true);
-            GbGradeTable.instance.addRange(prevRow.getCells()[totalColumns - 1]);
+            GbGradeTable.selectSingleCell(prevRow.getCells()[totalColumns - 1]);
             event.preventDefault();
           }
         }
