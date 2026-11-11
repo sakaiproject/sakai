@@ -196,7 +196,7 @@
 				</p>		
 				<div class="inopPanel">
 					<h4>
-						$value_Title
+						$formattedText.escapeHtml($value_Title)
 					</h4>
 					<table class="itemSummary" summary="$tlang.getString("gen.viewasstablesummary")">
 						<tr>

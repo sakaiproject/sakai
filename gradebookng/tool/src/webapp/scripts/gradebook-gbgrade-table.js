@@ -192,6 +192,15 @@ TrimPathFragmentCache.prototype.setHTML = function (target, values) {
 }
 
 $(document).ready(function() {
+  TrimPath.parseTemplate_etc.modifierDef.escapeAttribute = function(s) {
+    return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+  };
+
   // need TrimPath to load before parsing templates
   GbGradeTable.templates = {
     cell: new TrimPathFragmentCache('cell', TrimPath.parseTemplate(
