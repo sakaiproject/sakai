@@ -724,7 +724,9 @@ GbGradeTable.cellComponentForElement = function(cellElement) {
 
 // Select the cell in the same column on the next displayed (filtered and sorted) row
 GbGradeTable.selectCellBelow = function(cell) {
-  const nextCell = cell.getRow().getNextRow()?.getCell(cell.getColumn());
+  // getNextRow() returns false, not null, on the last row
+  const nextRow = cell.getRow().getNextRow();
+  const nextCell = nextRow ? nextRow.getCell(cell.getColumn()) : null;
   if (nextCell) {
     GbGradeTable.instance.getRanges().forEach(range => range.remove());
     GbGradeTable.instance.addRange(nextCell, nextCell);
@@ -934,6 +936,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     const element = cell.getElement();
     if (!element.classList.contains("tabulator-editable") || element.classList.contains("tabulator-editing")) return;
     if (e.target.closest(nonEditingClickTargets)) return;
+    // Shift/Ctrl/Cmd-click changes the selected range; editing would collapse it
+    if (e.shiftKey || e.ctrlKey || e.metaKey) return;
     // Tabulator's range selection handles this same click after us and moves focus
     // to the table, so open the editor once it's done.
     setTimeout(() => {

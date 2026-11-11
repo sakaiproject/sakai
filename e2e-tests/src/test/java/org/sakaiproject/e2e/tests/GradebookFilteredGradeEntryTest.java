@@ -16,65 +16,72 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.KeyboardModifier;
 import com.microsoft.playwright.options.LoadState;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 /**
  * SAK-52585: grade entry in the Gradebook table while the student filter is on.
  * Cells keep the row index they were drawn with, and Tabulator doesn't redraw
- * them when the filter changes, so anything that looked rows up by that index
- * landed on the wrong (or a hidden) student.
+ * them when the filter or sort changes, so anything that looked rows up by that
+ * index landed on the wrong (or a hidden) student.
  */
 class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
 
     // Matches a handful of the demo roster (Albertson, van der Pluijm, Zimmerman)
     private static final String FILTER = "be";
     private static final Pattern RANGE_SELECTED = Pattern.compile(".*tabulator-range-only-cell-selected.*");
+    private static final Pattern IN_RANGE = Pattern.compile(".*tabulator-range-selected.*");
+
+    private final List<String> pageErrors = new ArrayList<>();
+
+    @AfterEach
+    void noUncaughtScriptErrors() {
+        assertEquals(List.of(), pageErrors, "uncaught errors in the page");
+    }
 
     @Test
     void enterMovesDownThroughFilteredStudents() {
         String assignmentId = openGradebookWithNewItem("Filtered entry");
         List<Locator> cells = filterStudents(assignmentId);
 
-        // A single click on the top cell opens its editor
-        cells.get(0).click();
-        assertThat(editorIn(cells.get(0))).isFocused();
+        enterScoresDownTheColumn(cells, 71);
+        assertGradesSurviveReload(assignmentId, cells, 71);
+    }
 
-        List<String> scores = new ArrayList<>();
-        for (int i = 0; i < cells.size(); i++) {
-            String score = String.valueOf(71 + i);
-            scores.add(score);
-            // Typed as fast as Playwright can, so a dropped first or second digit shows up
-            page.keyboard().type(score);
-            page.keyboard().press("Enter");
-            assertThat(cells.get(i).locator(".gb-value")).hasText(score);
-            if (i + 1 < cells.size()) {
-                // Enter selects the same item for the next student the filter shows
-                assertThat(cells.get(i + 1)).isFocused();
-                assertThat(cells.get(i + 1)).hasClass(RANGE_SELECTED);
-            }
-        }
-        assertThat(page.locator(".modal.show")).hasCount(0);
+    @Test
+    void enterFollowsSortedAndFilteredOrder() {
+        String assignmentId = openGradebookWithNewItem("Sorted entry");
+        List<String> nameOrder = studentIds(filterStudents(assignmentId));
 
-        List<String> studentIds = new ArrayList<>();
-        for (Locator cell : cells) {
-            studentIds.add(cell.getAttribute("data-student-id"));
+        // Sort students Z-A (the first click sorts A-Z)
+        Locator sortByName = page.locator(".tabulator-col a.gb-title").first();
+        sortByName.click();
+        sortByName.click();
+        List<String> reversed = new ArrayList<>(nameOrder);
+        Collections.reverse(reversed);
+        Locator cells = assignmentCells(assignmentId);
+        assertThat(cells.first()).hasAttribute("data-student-id", reversed.get(0));
+        List<Locator> sorted = new ArrayList<>();
+        for (int i = 0; i < reversed.size(); i++) {
+            sorted.add(cells.nth(i));
         }
-        // Saved on the server. The reload clears the filter, and rows outside the
-        // viewport aren't rendered, so filter again before reading the cells.
-        page.reload();
-        filterStudents(assignmentId);
-        for (int i = 0; i < studentIds.size(); i++) {
-            assertThat(gradeCell(assignmentId, studentIds.get(i)).locator(".gb-value")).hasText(scores.get(i));
-        }
+        assertEquals(reversed, studentIds(sorted), "the filtered students should be in Z-A order");
+
+        enterScoresDownTheColumn(sorted, 81);
+        assertGradesSurviveReload(assignmentId, sorted, 81);
     }
 
     @Test
@@ -113,13 +120,66 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         assertThat(popup).containsText(comment);
         assertThat(popup).containsText(lastWordOfStudentName(cell));
         assertThat(editorIn(cell)).hasCount(0);
+
+        // Closing the popup selects the same student's cell again
+        popup.locator(".gb-metadata-close").click();
+        assertThat(popup).isHidden();
+        assertThat(cell).hasClass(RANGE_SELECTED);
+        assertThat(editorIn(cell)).hasCount(0);
+    }
+
+    @Test
+    void revertFromPopupRestoresTheRightStudent() {
+        String assignmentId = openGradebookWithNewItem("Filtered revert");
+        List<Locator> cells = filterStudents(assignmentId);
+        Locator cell = cells.get(1);
+        String studentId = cell.getAttribute("data-student-id");
+
+        cell.click();
+        page.keyboard().type("60");
+        page.keyboard().press("Enter");
+        assertThat(cell.locator(".gb-value")).hasText("60");
+
+        // Someone else changes the grade, so our next save is a concurrent edit and fails
+        Page other = context.newPage();
+        try {
+            other.navigate(page.url());
+            Locator otherCell = other.locator(".tabulator-cell[data-assignment-id=\"" + assignmentId
+                + "\"][data-student-id=\"" + studentId + "\"]");
+            Locator otherFilter = other.locator("#studentFilterInput");
+            otherFilter.fill(FILTER);
+            otherFilter.press("Enter");
+            otherCell.click();
+            assertThat(otherCell.locator("input.tabulator-input")).isFocused();
+            other.keyboard().type("70");
+            other.keyboard().press("Enter");
+            assertThat(otherCell.locator(".gb-value")).hasText("70");
+        } finally {
+            other.close();
+        }
+
+        cell.click();
+        assertThat(editorIn(cell)).isFocused();
+        page.keyboard().type("80");
+        page.keyboard().press("Enter");
+        assertThat(cell).hasClass(Pattern.compile(".*gb-save-error.*"));
+
+        cell.locator(".gb-notification").click();
+        Locator popup = page.locator(".gb-metadata:visible");
+        assertThat(popup).containsText(lastWordOfStudentName(cell));
+        popup.locator(".gb-revert-score").click();
+
+        // Revert puts back the last good score for this student and selects their cell
+        Locator reverted = assignmentCells(assignmentId)
+            .and(page.locator("[data-student-id=\"" + studentId + "\"]"));
+        assertThat(reverted.locator(".gb-value")).hasText("60");
+        assertThat(reverted).hasClass(RANGE_SELECTED);
     }
 
     @Test
     void clickInsideEditorKeepsItOpenAndEscapeCancels() {
         String assignmentId = openGradebookWithNewItem("Editor click");
-        List<Locator> cells = filterStudents(assignmentId);
-        Locator cell = cells.get(0);
+        Locator cell = filterStudents(assignmentId).get(0);
 
         cell.click();
         Locator editor = editorIn(cell);
@@ -137,23 +197,93 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
     }
 
     @Test
+    void shiftClickExtendsTheSelectionWithoutEditing() {
+        String assignmentId = openGradebookWithNewItem("Shift click");
+        List<Locator> cells = filterStudents(assignmentId);
+
+        cells.get(0).click();
+        assertThat(editorIn(cells.get(0))).isFocused();
+        page.keyboard().press("Escape");
+        assertThat(editorIn(cells.get(0))).hasCount(0);
+
+        cells.get(2).click(new Locator.ClickOptions().setModifiers(List.of(KeyboardModifier.SHIFT)));
+        page.waitForTimeout(200);
+        for (int i = 0; i <= 2; i++) {
+            assertThat(cells.get(i)).hasClass(IN_RANGE);
+            assertThat(editorIn(cells.get(i))).hasCount(0);
+        }
+    }
+
+    @Test
+    void arrowsWrapToTheNextAndPreviousFilteredStudent() {
+        String assignmentId = openGradebookWithNewItem("Wrap");
+        List<String> students = studentIds(filterStudents(assignmentId));
+
+        // Columns render virtually, so scroll the last one in and select it on the first student
+        page.evaluate("() => { const t = GbGradeTable.instance; const cols = t.getColumns();"
+            + " return t.scrollToColumn(cols[cols.length - 1], 'end', false); }");
+        page.evaluate("() => { const cell = GbGradeTable.instance.getRows('active')[0].getCells().at(-1);"
+            + " GbGradeTable.instance.addRange(cell, cell); cell.getElement().focus(); }");
+
+        // The first key in a boundary cell only registers it; the next one wraps
+        page.keyboard().press("ArrowRight");
+        page.keyboard().press("ArrowRight");
+        Locator studentCells = page.locator(".tabulator-row .tabulator-cell[data-student-id]:not([data-assignment-id])");
+        Locator secondStudent = studentCells.and(page.locator("[data-student-id=\"" + students.get(1) + "\"]")).first();
+        assertThat(secondStudent).hasClass(RANGE_SELECTED);
+
+        page.keyboard().press("ArrowLeft");
+        String lastColumnStudent = (String) page.evaluate("() => { const sel = GbGradeTable.instance.getRanges()[0].getCells()[0][0];"
+            + " return sel.getRow().getData()[GbGradeTable.STUDENT_COLUMN_INDEX].userId + '|' + sel.getColumn().getField(); }");
+        String lastField = (String) page.evaluate("() => GbGradeTable.instance.getColumns().at(-1).getField()");
+        assertEquals(students.get(0) + "|" + lastField, lastColumnStudent,
+            "ArrowLeft from the first column should wrap to the last column of the previous filtered student");
+    }
+
+    @Test
     void enterMovesDownWithoutFilter() {
         String assignmentId = openGradebookWithNewItem("Unfiltered entry");
-        Locator cells = page.locator(".tabulator-cell[data-assignment-id=\"" + assignmentId + "\"]");
+        Locator cells = assignmentCells(assignmentId);
+        List<Locator> firstFour = List.of(cells.nth(0), cells.nth(1), cells.nth(2), cells.nth(3));
 
-        cells.nth(0).click();
-        assertThat(editorIn(cells.nth(0))).isFocused();
-        for (int i = 0; i < 3; i++) {
-            String score = String.valueOf(50 + i);
+        enterScoresDownTheColumn(firstFour, 50);
+    }
+
+    /** Clicks the first cell, then types a score and Enter for each cell in turn. */
+    private void enterScoresDownTheColumn(List<Locator> cells, int firstScore) {
+        cells.get(0).click();
+        assertThat(editorIn(cells.get(0))).isFocused();
+
+        for (int i = 0; i < cells.size(); i++) {
+            String score = String.valueOf(firstScore + i);
+            // Typed as fast as Playwright can, so a dropped first or second digit shows up
             page.keyboard().type(score);
             page.keyboard().press("Enter");
-            assertThat(cells.nth(i).locator(".gb-value")).hasText(score);
-            assertThat(cells.nth(i + 1)).isFocused();
+            assertThat(cells.get(i).locator(".gb-value")).hasText(score);
+            if (i + 1 < cells.size()) {
+                // Enter selects the same item for the next student shown
+                assertThat(cells.get(i + 1)).isFocused();
+                assertThat(cells.get(i + 1)).hasClass(RANGE_SELECTED);
+            }
+        }
+        assertThat(page.locator(".modal.show")).hasCount(0);
+    }
+
+    /** Reloads and checks every score is still on the same student. */
+    private void assertGradesSurviveReload(String assignmentId, List<Locator> cells, int firstScore) {
+        List<String> ids = studentIds(cells);
+        // The reload clears the filter, and rows outside the viewport aren't rendered
+        page.reload();
+        filterStudents(assignmentId);
+        for (int i = 0; i < ids.size(); i++) {
+            assertThat(gradeCell(assignmentId, ids.get(i)).locator(".gb-value"))
+                .hasText(String.valueOf(firstScore + i));
         }
     }
 
     /** Opens the Gradebook on a new, unreleased item and returns its assignment id. */
     private String openGradebookWithNewItem(String titlePrefix) {
+        page.onPageError(pageErrors::add);
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai.gradebookng"));
         page.navigate(siteUrl);
@@ -177,8 +307,7 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
 
         // A new item selects its first cell; wait for that, and for the portal's
         // post-load focus move, before touching the table
-        assertThat(page.locator(".tabulator-cell[data-assignment-id=\"" + assignmentId + "\"]").first())
-            .hasClass(RANGE_SELECTED);
+        assertThat(assignmentCells(assignmentId).first()).hasClass(RANGE_SELECTED);
         page.waitForLoadState(LoadState.LOAD);
         page.waitForTimeout(100);
         return assignmentId;
@@ -194,7 +323,7 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         int shown = ((Number) page.evaluate("() => GbGradeTable.instance.getDataCount('active')")).intValue();
         assertTrue(shown >= 3, "the filter \"" + FILTER + "\" should show at least 3 students, showed " + shown);
 
-        Locator cells = page.locator(".tabulator-cell[data-assignment-id=\"" + assignmentId + "\"]");
+        Locator cells = assignmentCells(assignmentId);
         assertThat(cells).hasCount(shown);
         List<Locator> result = new ArrayList<>();
         for (int i = 0; i < shown; i++) {
@@ -203,8 +332,20 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         return result;
     }
 
+    private Locator assignmentCells(String assignmentId) {
+        return page.locator(".tabulator-cell[data-assignment-id=\"" + assignmentId + "\"]");
+    }
+
     private Locator gradeCell(String assignmentId, String studentId) {
         return page.locator(".tabulator-cell[data-assignment-id=\"" + assignmentId + "\"][data-student-id=\"" + studentId + "\"]");
+    }
+
+    private List<String> studentIds(List<Locator> cells) {
+        List<String> ids = new ArrayList<>();
+        for (Locator cell : cells) {
+            ids.add(cell.getAttribute("data-student-id"));
+        }
+        return ids;
     }
 
     private Locator editorIn(Locator cell) {
