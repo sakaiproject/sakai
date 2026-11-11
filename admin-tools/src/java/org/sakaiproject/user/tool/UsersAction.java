@@ -662,6 +662,7 @@ public class UsersAction extends PagedResourceActionII
 			{
 				UserEdit edit = userDirectoryService.editUser(id);
 				userDirectoryService.cancelEdit(edit);
+				context.put("showUserMetadata", Boolean.TRUE);
 				context.put("enableEdit", userDirectoryService.allowUpdateUserName(id)
 						|| userDirectoryService.allowUpdateUserEmail(id)
 						|| ((Boolean) state.getAttribute("include-password") && !isProvidedType(user.getType())
