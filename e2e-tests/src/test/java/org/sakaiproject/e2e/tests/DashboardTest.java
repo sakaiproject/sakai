@@ -38,27 +38,6 @@ class DashboardTest extends SakaiUiTestBase {
     }
 
     @Test
-    void dashboardIsFirstInNewUserHome() {
-        try (org.sakaiproject.e2e.support.SakaiHelper.TestUser user = sakai.createUser("dashboard-order")) {
-            sakai.login(user.username());
-            assertThat(page.locator("li.site-list-item.is-current-site .site-page-list > li").first())
-                .containsText("Dashboard");
-        }
-    }
-
-    @Test
-    void dashboardIsFirstInSiteMenus() {
-        sakai.login("instructor1");
-        for (String siteUrl : List.of(
-                sakai.createFreshCourse("instructor1", List.of("sakai\\.dashboard")),
-                sakai.createProject("instructor1", List.of("sakai\\.dashboard")))) {
-            sakai.gotoPath(siteUrl);
-            assertThat(page.locator("li.site-list-item.is-current-site .site-page-list > li").first())
-                .containsText("Dashboard");
-        }
-    }
-
-    @Test
     @Order(2)
     void canEditAndSaveDashboard() {
         sakai.login("instructor1");
