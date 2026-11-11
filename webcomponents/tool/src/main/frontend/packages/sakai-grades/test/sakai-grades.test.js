@@ -93,6 +93,12 @@ describe("sakai-grades tests", () => {
 
       const button = el.renderRoot.querySelector(".score-toggle");
       const score = button.querySelector("span");
+      const secondButton = el.renderRoot.querySelectorAll(".score-toggle")[1];
+      const secondScore = secondButton.querySelector("span");
+      expect(button.getAttribute("aria-label")).to.contain("Fast Fourier Transform");
+      if (!siteId) {
+        expect(button.getAttribute("aria-label")).to.contain("Math 101");
+      }
       expect(button.getAttribute("aria-pressed")).to.equal("false");
       expect(score.getAttribute("aria-hidden")).to.equal("true");
       expect(getComputedStyle(score).filter).to.equal("blur(3px)");
@@ -114,6 +120,9 @@ describe("sakai-grades tests", () => {
         expect(button.getAttribute("aria-pressed")).to.equal(String(revealed));
         expect(score.getAttribute("aria-hidden")).to.equal(String(!revealed));
         expect(getComputedStyle(score).filter).to.equal(revealed ? "none" : "blur(3px)");
+        expect(secondButton.getAttribute("aria-pressed")).to.equal("false");
+        expect(secondScore.getAttribute("aria-hidden")).to.equal("true");
+        expect(getComputedStyle(secondScore).filter).to.equal("blur(3px)");
       }
       expect(el.secret).to.be.true;
     });

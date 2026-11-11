@@ -7,7 +7,7 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
   static properties = {
     endpoint: { type: String },
     revealOnClick: { attribute: "reveal-on-click", type: Boolean },
-    _scoresRevealed: { state: true },
+    _revealedMetrics: { state: true },
     dashboard: { type: Boolean, reflect: true },
     _metrics: { state: true },
     _loading: { state: true },
@@ -43,7 +43,7 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     super();
     this.dashboard = false;
     this.revealOnClick = false;
-    this._scoresRevealed = false;
+    this._revealedMetrics = new Set();
     this._expandedHelp = new Set();
     this.loadTranslations("sitestats");
   }
@@ -51,6 +51,7 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
   updated(changedProperties) {
 
     if (changedProperties.has("endpoint")) {
+      this._revealedMetrics = new Set();
       this._load();
     }
   }
@@ -144,23 +145,26 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     const extra = !help && detail && detail !== primary ? detail : null;
     const helpText = help || extra;
     const expanded = helpText && this._expandedHelp.has(metric.id);
+    const revealed = this._revealedMetrics.has(metric.id);
+    const labelId = `sitestats-metric-label-${metric.id}`;
+    const valueId = `sitestats-metric-value-${metric.id}`;
 
     return html`
       <div class="sitestats-metric ${expanded ? "is-expanded" : ""}">
         <dd>
           ${this.revealOnClick ? html`
             <button type="button" class="score-toggle"
-                aria-label=${this._scoresRevealed ? nothing : metric.label}
-                aria-pressed="${this._scoresRevealed}"
-                @click=${() => { this._scoresRevealed = !this._scoresRevealed; }}>
-              <span class="${this._scoresRevealed ? "" : "blurred"}" aria-hidden="${!this._scoresRevealed}">
+                aria-labelledby="${revealed ? `${labelId} ${valueId}` : labelId}"
+                aria-pressed="${revealed}"
+                @click=${() => this._toggleMetric(metric.id)}>
+              <span id="${valueId}" class="${revealed ? "" : "blurred"}" aria-hidden="${!revealed}">
                 ${this._dashboardValue(snapshot)}
               </span>
             </button>
           ` : this._dashboardValue(snapshot)}
         </dd>
         <div class="sitestats-metric-header">
-          <dt>${metric.label}</dt>
+          <dt id="${labelId}">${metric.label}</dt>
           ${helpText ? html`
             <button type="button"
                 class="sitestats-metric-help ${expanded ? "is-expanded" : ""}"
@@ -173,6 +177,15 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
         </div>
       </div>
     `;
+  }
+
+  _toggleMetric(id) {
+
+    const revealed = new Set(this._revealedMetrics);
+    if (!revealed.delete(id)) {
+      revealed.add(id);
+    }
+    this._revealedMetrics = revealed;
   }
 
   _dashboardValue(snapshot) {

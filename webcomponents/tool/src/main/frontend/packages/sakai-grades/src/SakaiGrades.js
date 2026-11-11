@@ -15,7 +15,7 @@ export class SakaiGrades extends SakaiPageableElement {
     savedFilters: { attribute: false, type: Object },
     saveFilters: { attribute: "save-filters", type: Boolean },
     filtersOpen: { attribute: "filters-open", type: Boolean },
-    _scoresRevealed: { state: true },
+    _revealedScores: { state: true },
     _canGradeAny: { state: true },
     _currentSort: { state: true },
     _pickerSiteId: { state: true },
@@ -26,7 +26,7 @@ export class SakaiGrades extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this._scoresRevealed = false;
+    this._revealedScores = new Set();
     this._currentSort = UNGRADED_LEAST_TO_MOST;
     this.filtersOpen = false;
     this.loadTranslations({ bundle: "grades", requiredKeys: [ "no_grades" ] });
@@ -249,8 +249,17 @@ export class SakaiGrades extends SakaiPageableElement {
     `;
   }
 
+  _toggleScore(grade) {
+
+    const revealed = new Set(this._revealedScores);
+    if (!revealed.delete(grade)) {
+      revealed.add(grade);
+    }
+    this._revealedScores = revealed;
+  }
+
   statusMessage() {
-    return this.secret && !this._scoresRevealed ? this._i18n.score_reveal_msg : null;
+    return this.secret && this.dataPage.some(a => !this._revealedScores.has(a)) ? this._i18n.score_reveal_msg : null;
   }
 
   content() {
@@ -276,13 +285,13 @@ export class SakaiGrades extends SakaiPageableElement {
               <div class="course title">${a.siteTitle} / ${a.name}</div>
               `}
             </div>
-            <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret && !this._scoresRevealed ? " blurred" : ""}">
+            <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret && !this._revealedScores.has(a) ? " blurred" : ""}">
               ${this.secret ? html`
                 <button type="button" class="score-toggle"
-                    aria-label=${this._scoresRevealed ? nothing : this._i18n.score}
-                    aria-pressed="${this._scoresRevealed}"
-                    @click=${() => { this._scoresRevealed = !this._scoresRevealed; }}>
-                  <span aria-hidden="${!this._scoresRevealed}">${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
+                    aria-label=${this._revealedScores.has(a) ? nothing : `${this.siteId ? a.name : `${a.siteTitle} / ${a.name}`}: ${this._i18n.score}`}
+                    aria-pressed="${this._revealedScores.has(a)}"
+                    @click=${() => this._toggleScore(a)}>
+                  <span aria-hidden="${!this._revealedScores.has(a)}">${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
                 </button>
               ` : html`
                 <span>${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
