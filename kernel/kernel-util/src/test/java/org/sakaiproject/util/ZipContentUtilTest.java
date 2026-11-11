@@ -106,6 +106,7 @@ public class ZipContentUtilTest {
                 () -> util.extractArchive("/group/site/package.zip"));
 
             Mockito.verify(chs, Mockito.never()).addCollection(Mockito.anyString());
+            Mockito.verify(chs, Mockito.never()).addCollection(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
             Mockito.verify(chs, Mockito.never()).addResource(Mockito.anyString());
             Mockito.verify(chs, Mockito.never()).editResource(Mockito.anyString());
         }
@@ -119,7 +120,9 @@ public class ZipContentUtilTest {
         ContentResourceEdit resource = Mockito.mock(ContentResourceEdit.class);
         Mockito.when(collection.getPropertiesEdit()).thenReturn(Mockito.mock(ResourcePropertiesEdit.class));
         Mockito.when(resource.getPropertiesEdit()).thenReturn(Mockito.mock(ResourcePropertiesEdit.class));
-        Mockito.when(chs.addCollection("/group/site/package/")).thenReturn(collection);
+        Mockito.when(chs.addCollection("/group/site/", "package", ZipContentUtil.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS))
+            .thenReturn(collection);
+        Mockito.when(collection.getId()).thenReturn("/group/site/package/");
         Mockito.when(chs.addResource("/group/site/package/nested/file.txt")).thenReturn(resource);
 
         newZipUtil(chs).extractArchive("/group/site/package.zip");
