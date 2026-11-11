@@ -3846,7 +3846,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             submitterMap.put(user, submission);
         }
         assignmentRepository.addSubmissions(placeholders);
-        placeholders.forEach(this::postSubmissionCreated);
+        for (AssignmentSubmission submission : placeholders) {
+            try {
+                postSubmissionCreated(submission);
+            } catch (Exception e) {
+                log.warn("Could not post creation event for submission {} in assignment {}", submission.getId(), locked.getId(), e);
+            }
+        }
     }
 
     @Override

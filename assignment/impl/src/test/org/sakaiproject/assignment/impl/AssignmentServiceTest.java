@@ -3290,6 +3290,33 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void placeholderBatchCommitsWhenOneCreationEventFails() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment assignment = transaction.execute(status -> createNewAssignment(UUID.randomUUID().toString()));
+        configurePlaceholderUsers(assignment, 3);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        Mockito.clearInvocations(eventTrackingService);
+        Mockito.doThrow(new IllegalStateException("Event transport unavailable")).doNothing()
+                .when(eventTrackingService).post(Mockito.nullable(Event.class));
+        try {
+            Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+            Assert.assertEquals(3, submissions.size());
+            verify(eventTrackingService, Mockito.times(3)).post(Mockito.nullable(Event.class));
+
+            // A second service call starts a new transaction and verifies the batch committed.
+            Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+            Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
+                    reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+            verify(eventTrackingService, Mockito.times(3)).post(Mockito.nullable(Event.class));
+        } finally {
+            Mockito.doNothing().when(eventTrackingService).post(Mockito.nullable(Event.class));
+            assignmentService.deleteAssignmentAndAllReferences(assignment);
+        }
+    }
+
+    @Test
     public void placeholderBatchSharesOneGroupSubmissionAndCreationEvent() throws Exception {
         Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
         List<User> users = configurePlaceholderUsers(assignment, 2);
