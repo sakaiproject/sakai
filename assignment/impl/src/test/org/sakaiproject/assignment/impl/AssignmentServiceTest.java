@@ -3266,6 +3266,30 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void placeholderBatchPreservesOptionalResubmissionCloseTime() throws Exception {
+        for (Instant closeDate : Arrays.asList(null, Instant.parse("2026-12-01T12:00:00Z"))) {
+            for (String resubmitClose : List.of("", " ", "1795000000000")) {
+                Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+                assignment.setCloseDate(closeDate);
+                assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "-1");
+                assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, resubmitClose);
+                configurePlaceholderUsers(assignment, 1);
+                String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+                sessionFactory.getCurrentSession().flush();
+                sessionFactory.getCurrentSession().clear();
+
+                AssignmentSubmission placeholder = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext())
+                        .values().iterator().next();
+                String expected = resubmitClose.isBlank() ? (closeDate == null ? null : String.valueOf(closeDate.toEpochMilli())) : resubmitClose;
+                Assert.assertEquals(expected, placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+                Assert.assertEquals(expected != null, placeholder.getProperties().containsKey(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+                Assert.assertEquals("-1", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+            }
+        }
+    }
+
+    @Test
     public void placeholderBatchSharesOneGroupSubmissionAndCreationEvent() throws Exception {
         Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
         List<User> users = configurePlaceholderUsers(assignment, 2);

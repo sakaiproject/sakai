@@ -3816,6 +3816,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Map<String, String> properties = locked.getProperties();
         String resubmits = properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
         String resubmitClose = properties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
+        if (StringUtils.isBlank(resubmitClose) && locked.getCloseDate() != null) {
+            resubmitClose = String.valueOf(locked.getCloseDate().toEpochMilli());
+        }
         for (User user : users) {
             String submitter = getSubmitterIdForAssignment(locked, user.getId(), getMatchingAssignmentGroupIds(locked, user.getId(), site));
             if (StringUtils.isBlank(submitter)) {
@@ -3833,8 +3836,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 submission.setDateModified(submission.getDateCreated());
                 if (StringUtils.isNotBlank(resubmits)) {
                     submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, resubmits);
-                    submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                            StringUtils.isNotBlank(resubmitClose) ? resubmitClose : String.valueOf(locked.getCloseDate().toEpochMilli()));
+                    if (StringUtils.isNotBlank(resubmitClose)) {
+                        submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, resubmitClose);
+                    }
                 }
                 existing.put(submitter, submission);
                 placeholders.add(submission);
