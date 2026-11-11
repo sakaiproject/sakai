@@ -7362,18 +7362,15 @@ public class DiscussionForumTool implements Serializable {
      /**
       * @return Returns the levels.
       */
-     public List getLevels()
+     public List<SelectItem> getLevels()
      {
        boolean hasCustom = false;
-       List levels = new ArrayList();
-       List origLevels = permissionLevelManager.getOrderedPermissionLevelNames();
+       List<SelectItem> levels = new ArrayList<>();
+       List<String> origLevels = permissionLevelManager.getOrderedPermissionLevelNames();
        if (origLevels != null)
        {
-         Iterator iter = origLevels.iterator();
-
-         while (iter.hasNext())
+         for (String level : origLevels)
          {
-           String level = (String) iter.next();
            levels.add(new SelectItem(level, getResourceBundleString("perm_level_" + level.replaceAll(" ", "_").toLowerCase())));
            if("Custom".equals(level))
                {
