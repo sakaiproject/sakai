@@ -215,7 +215,7 @@ public class BeginDeliveryActionListener extends SpringBeanAutowiringSupport imp
     delivery.setFileUploadSizeMax(Math.round(sizeMax.floatValue()/1024));
     delivery.setPublishedAssessment(pub);
 
-    if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(delivery.getPublishedAssessment().getPublishedAssessmentId()))) {
+    if (!delivery.isFromPrint() && secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(delivery.getPublishedAssessment().getPublishedAssessmentId()))) {
       String secureDeliveryModuleId = pub.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
       if (StringUtils.equals(secureDeliveryModuleId, SecureDeliverySeb.MODULE_NAME)) {

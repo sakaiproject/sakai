@@ -176,6 +176,7 @@ public class ActionSelectListener implements ActionListener {
 		}
 		else if ("preview_published".equals(action)) {
 			delivery.setActionString("previewAssessment");
+			delivery.setFromPrint(false);
 			author.setIsEditPendingAssessmentFlow(false);
 			person.setPreviewFromPage("author");
 			BeginDeliveryActionListener beginDeliveryActionListener = new BeginDeliveryActionListener();
