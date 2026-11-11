@@ -1694,6 +1694,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
 
         Assert.assertNotNull(submission);
+        assertSubmitterSetStable(submission);
+        sessionFactory.getCurrentSession().flush();
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> currentUser.equals(s.getSubmitter())));
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
 
@@ -1716,6 +1718,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         try {
             assignmentService.updateSubmission(submission);
+            sessionFactory.getCurrentSession().flush();
+            sessionFactory.getCurrentSession().clear();
             AssignmentSubmission reconciledSubmission = assignmentService.getSubmission(submission.getId());
             Set<String> submitterIds = reconciledSubmission.getSubmitters().stream()
                     .map(AssignmentSubmissionSubmitter::getSubmitter)
@@ -3215,6 +3219,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         List<User> users = configurePlaceholderUsers(assignment, 40);
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         AssignmentSubmission existing = assignmentService.addSubmission(assignment.getId(), users.get(0).getId());
+        assertSubmitterSetStable(existing);
         existing.setSubmittedText("Student work");
         existing.setFeedbackComment("Saved feedback");
         existing.setGrade("0");
@@ -3232,6 +3237,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Map<User, AssignmentSubmission> submissions;
         try {
             submissions = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+            submissions.values().forEach(this::assertSubmitterSetStable);
             sessionFactory.getCurrentSession().flush();
             long loadedEntities = statistics.getEntityLoadCount() - loadsBefore;
             Assert.assertTrue("Placeholder creation must not repeatedly reload the growing submission graph: " + loadedEntities,
@@ -3261,6 +3267,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         sessionFactory.getCurrentSession().clear();
         Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+        reopened.values().forEach(this::assertSubmitterSetStable);
         Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
                 reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
     }
@@ -3340,6 +3347,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Mockito.clearInvocations(eventTrackingService);
 
         Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+        submissions.values().forEach(this::assertSubmitterSetStable);
         sessionFactory.getCurrentSession().flush();
         Assert.assertEquals(2, submissions.size());
         Assert.assertSame(submissions.get(users.get(0)), submissions.get(users.get(1)));
@@ -3361,6 +3369,76 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         sessionFactory.getCurrentSession().flush();
         sessionFactory.getCurrentSession().clear();
         Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getSubmissions().isEmpty());
+    }
+
+    private void assertSubmitterSetStable(AssignmentSubmission submission) {
+        for (AssignmentSubmissionSubmitter member : List.copyOf(submission.getSubmitters())) {
+            Assert.assertTrue(submission.getSubmitters().contains(member));
+            Assert.assertTrue(submission.getSubmitters().remove(member));
+            Assert.assertTrue(submission.getSubmitters().add(member));
+        }
+    }
+
+    @Test
+    public void unresolvableGroupUsersDoNotRepeatAssignmentLockAndRefresh() throws Exception {
+        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+        List<User> users = configurePlaceholderUsers(assignment, 1);
+        Site site = siteService.getSite(assignment.getContext());
+        List<Group> groups = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            Group group = mock(Group.class);
+            String groupId = UUID.randomUUID().toString();
+            String groupReference = "/site/" + assignment.getContext() + "/group/" + groupId;
+            when(group.getId()).thenReturn(groupId);
+            when(group.getReference()).thenReturn(groupReference);
+            assignment.getGroups().add(groupReference);
+            groups.add(group);
+        }
+        when(site.getGroupsWithMember(users.get(0).getId())).thenReturn(groups);
+        assignment.setIsGroup(true);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        Assert.assertTrue(assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext()).isEmpty());
+
+        org.hibernate.stat.Statistics statistics = sessionFactory.getStatistics();
+        boolean statisticsEnabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        long statementsBefore = statistics.getPrepareStatementCount();
+        long loadsBefore = statistics.getEntityLoadCount();
+        try {
+            Assert.assertTrue(assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext()).isEmpty());
+            Assert.assertEquals("Only the normal bulk submission lookup should execute", 1,
+                    statistics.getPrepareStatementCount() - statementsBefore);
+            Assert.assertEquals("No assignment refresh should reload entities", 0, statistics.getEntityLoadCount() - loadsBefore);
+        } finally {
+            statistics.setStatisticsEnabled(statisticsEnabled);
+        }
+    }
+
+    @Test
+    public void groupPlaceholderPreservesOpenEndedResubmissions() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        String groupReference = assignment.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Site site = siteService.getSite(assignment.getContext());
+        Group group = site.getGroup(groupReference);
+        when(group.getId()).thenReturn(groupId);
+        Member member = buildGroupMember(UUID.randomUUID().toString());
+        when(group.getMembers()).thenReturn(Set.of(member));
+        when(site.getGroup(groupId)).thenReturn(group);
+        assignment.setCloseDate(null);
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "-1");
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+
+        Assert.assertEquals(1, assignmentService.getSubmitterGroupList("false", groupId, null, assignment.getId(), assignment.getContext()).size());
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        AssignmentSubmission submission = assignmentService.getAssignment(assignment.getId()).getSubmissions().iterator().next();
+        Assert.assertNotNull("Group placeholder creation must complete without the close-date exception", submission.getDateModified());
+        Assert.assertEquals("-1", submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+        Assert.assertFalse(submission.getProperties().containsKey(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
     }
 
     private List<User> configurePlaceholderUsers(Assignment assignment, int count) throws Exception {

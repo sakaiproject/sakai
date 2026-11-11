@@ -3653,8 +3653,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                         String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                                         // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-                                        s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().toEpochMilli()));
+                                        if (StringUtils.isNotBlank(assignmentAllowResubmitCloseDate)) {
+                                            s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate);
+                                        } else if (a.getCloseDate() != null) {
+                                            s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(a.getCloseDate().toEpochMilli()));
+                                        }
                                     }
 
                                     assignmentRepository.updateSubmission(s);
@@ -3785,6 +3788,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         addPlaceholderSubmissions(a, usersWithNoSubmission, submitterMap);
                     } catch (PermissionException pe) {
                         log.debug("Placeholder submissions could not be added for assignment {}: {}", assignmentId, pe.getMessage());
+                    } catch (IdUnusedException e) {
+                        log.warn("Site {} not found while preparing placeholders for assignment {}", a.getContext(), assignmentId, e);
                     }
                 }
             }
@@ -3793,16 +3798,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     private void addPlaceholderSubmissions(Assignment assignment, List<User> users, Map<User, AssignmentSubmission> submitterMap)
-            throws PermissionException {
-        // Recheck existing submissions after locking, in case another request populated them first.
-        Assignment locked = lockAssignmentForSubmission(assignment);
-        Site site;
-        try {
-            site = siteService.getSite(locked.getContext());
-        } catch (IdUnusedException e) {
-            log.warn("Site {} not found while preparing placeholders for assignment {}", locked.getContext(), locked.getId(), e);
+            throws PermissionException, IdUnusedException {
+        Site initialSite = siteService.getSite(assignment.getContext());
+        if (users.stream().noneMatch(user -> StringUtils.isNotBlank(getSubmitterIdForAssignment(assignment, user.getId(),
+                getMatchingAssignmentGroupIds(assignment, user.getId(), initialSite))))) {
             return;
         }
+        // Recheck assignment, site, groups, and submissions under the lock before creating placeholders.
+        Assignment locked = lockAssignmentForSubmission(assignment);
+        Site site = siteService.getSite(locked.getContext());
         Map<String, AssignmentSubmission> existing = new HashMap<>();
         for (AssignmentSubmission submission : assignmentRepository.findSubmissions(List.of(locked.getId()))) {
             if (locked.getIsGroup()) {
@@ -3844,6 +3848,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 placeholders.add(submission);
             }
             submitterMap.put(user, submission);
+        }
+        if (placeholders.isEmpty()) {
+            return;
         }
         assignmentRepository.addSubmissions(placeholders);
         for (AssignmentSubmission submission : placeholders) {

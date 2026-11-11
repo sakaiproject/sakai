@@ -235,8 +235,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public void addSubmissions(Collection<AssignmentSubmission> submissions) {
         Session session = geCurrentSession();
         for (AssignmentSubmission submission : submissions) {
+            List<AssignmentSubmissionSubmitter> submitters = new ArrayList<>(submission.getSubmitters());
+            submission.setSubmitters(new HashSet<>());
+            // Assign the UUID before hashing either relationship's elements.
             session.persist(submission);
-            // UUIDs must be assigned before adding entities to the assignment's HashSet.
+            for (AssignmentSubmissionSubmitter submitter : submitters) {
+                submitter.setSubmission(submission);
+                session.persist(submitter);
+                submission.getSubmitters().add(submitter);
+            }
             submission.getAssignment().getSubmissions().add(submission);
         }
     }
