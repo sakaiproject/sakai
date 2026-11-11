@@ -39,7 +39,7 @@ export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElem
   }
 
   shouldUpdate() {
-    return this._rubricId;
+    return super.shouldUpdate() && this._rubricId;
   }
 
   render() {
