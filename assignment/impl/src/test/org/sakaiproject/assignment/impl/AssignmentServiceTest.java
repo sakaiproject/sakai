@@ -3227,6 +3227,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         boolean statisticsEnabled = statistics.isStatisticsEnabled();
         statistics.setStatisticsEnabled(true);
         long loadsBefore = statistics.getEntityLoadCount();
+        long queriesBefore = statistics.getQueryExecutionCount();
+        Mockito.clearInvocations(eventTrackingService);
         Map<User, AssignmentSubmission> submissions;
         try {
             submissions = assignmentService.getSubmitterMap("true", null, "student", reference, context);
@@ -3234,10 +3236,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             long loadedEntities = statistics.getEntityLoadCount() - loadsBefore;
             Assert.assertTrue("Placeholder creation must not repeatedly reload the growing submission graph: " + loadedEntities,
                     loadedEntities < users.size() * 10);
+            Assert.assertTrue("Existing submissions must be checked in bulk rather than once per student",
+                    statistics.getQueryExecutionCount() - queriesBefore < 10);
         } finally {
             statistics.setStatisticsEnabled(statisticsEnabled);
         }
 
+        verify(eventTrackingService, Mockito.times(users.size() - 1))
+                .newEvent(eq(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
         Assert.assertEquals(users.size(), submissions.size());
         AssignmentSubmission preserved = submissions.get(users.get(0));
         Assert.assertEquals(existingId, preserved.getId());
@@ -3257,6 +3263,38 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, context);
         Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
                 reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void placeholderBatchSharesOneGroupSubmissionAndCreationEvent() throws Exception {
+        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+        List<User> users = configurePlaceholderUsers(assignment, 2);
+        Site site = siteService.getSite(assignment.getContext());
+        String groupId = UUID.randomUUID().toString();
+        String groupReference = "/site/" + assignment.getContext() + "/group/" + groupId;
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        Set<Member> members = users.stream().map(user -> buildGroupMember(user.getId())).collect(Collectors.toSet());
+        when(group.getMembers()).thenReturn(members);
+        when(site.getGroup(groupId)).thenReturn(group);
+        for (User user : users) {
+            when(site.getGroupsWithMember(user.getId())).thenReturn(List.of(group));
+        }
+        assignment.setIsGroup(true);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.getGroups().add(groupReference);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        Mockito.clearInvocations(eventTrackingService);
+
+        Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+        sessionFactory.getCurrentSession().flush();
+        Assert.assertEquals(2, submissions.size());
+        Assert.assertSame(submissions.get(users.get(0)), submissions.get(users.get(1)));
+        Assert.assertEquals(1, assignment.getSubmissions().size());
+        Assert.assertEquals(2, submissions.get(users.get(0)).getSubmitters().size());
+        verify(eventTrackingService).newEvent(eq(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
     }
 
     @Test

@@ -232,6 +232,17 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
+    public void addSubmissions(Collection<AssignmentSubmission> submissions) {
+        Session session = geCurrentSession();
+        for (AssignmentSubmission submission : submissions) {
+            session.persist(submission);
+            // UUIDs must be assigned before adding entities to the assignment's HashSet.
+            submission.getAssignment().getSubmissions().add(submission);
+        }
+    }
+
+    @Override
+    @Transactional
     @SuppressWarnings("unchecked")
     public AssignmentSubmission findSubmissionForUser(String assignmentId, String userId) {
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();

@@ -1637,6 +1637,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return null;
         }
 
+        AssignmentSubmission submission = prepareSubmission(a, site, submitter, sessionManager.getCurrentSessionUserId());
+        if (submission != null) {
+            assignmentRepository.addSubmissions(List.of(submission));
+            postSubmissionCreated(submission);
+        }
+        return submission;
+    }
+
+    private AssignmentSubmission prepareSubmission(Assignment a, Site site, String submitter, String currentUser) {
+        String assignmentId = a.getId();
         Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
         Optional<String> groupId = Optional.empty();
         if (site != null) {
@@ -1671,16 +1681,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         // identify who the submittee is using the session
-        String currentUser = sessionManager.getCurrentSessionUserId();
         submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
 
-        AssignmentSubmission submission = assignmentRepository.newSubmission(a.getId(), groupId, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
-
-        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
-
-        log.debug("New submission: {} added to assignment: {}", submission.getId(), assignmentId);
+        AssignmentSubmission submission = new AssignmentSubmission();
+        submission.setAssignment(a);
+        submission.setDateCreated(Instant.now());
+        submission.setSubmitters(submissionSubmitters);
+        submissionSubmitters.forEach(member -> member.setSubmission(submission));
+        groupId.ifPresent(submission::setGroupId);
         return submission;
+    }
+
+    private void postSubmissionCreated(AssignmentSubmission submission) {
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, reference, true));
+        log.debug("New submission: {} added to assignment: {}", submission.getId(), submission.getAssignment().getId());
     }
 
     @Override
@@ -2857,27 +2872,34 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         try {
             Site site = siteService.getSite(assignment.getContext());
-            Group directGroup = site.getGroup(userId);
-            if (directGroup != null && assignment.getGroups().contains(directGroup.getReference())) {
-                return Collections.singletonList(directGroup.getId());
-            }
-
-            Set<String> assignmentGroups = assignment.getGroups();
-            Collection<Group> userGroups = site.getGroupsWithMember(userId);
-            if (userGroups == null) {
-                return Collections.emptyList();
-            }
-            return userGroups.stream()
-                    .filter(Objects::nonNull)
-                    .filter(group -> assignmentGroups.contains(group.getReference()))
-                    .map(Group::getId)
-                    .distinct()
-                    .collect(Collectors.toList());
+            return getMatchingAssignmentGroupIds(assignment, userId, site);
         } catch (IdUnusedException iue) {
             log.warn("Could not get the site {} for assignment {} while determining matching groups for user {}",
                     assignment.getContext(), assignment.getId(), userId);
             return Collections.emptyList();
         }
+    }
+
+    private List<String> getMatchingAssignmentGroupIds(Assignment assignment, String userId, Site site) {
+        if (assignment == null || assignment.getTypeOfAccess() != GROUP || StringUtils.isBlank(userId)) {
+            return Collections.emptyList();
+        }
+        Group directGroup = site.getGroup(userId);
+        if (directGroup != null && assignment.getGroups().contains(directGroup.getReference())) {
+            return Collections.singletonList(directGroup.getId());
+        }
+
+        Set<String> assignmentGroups = assignment.getGroups();
+        Collection<Group> userGroups = site.getGroupsWithMember(userId);
+        if (userGroups == null) {
+            return Collections.emptyList();
+        }
+        return userGroups.stream()
+                .filter(Objects::nonNull)
+                .filter(group -> assignmentGroups.contains(group.getReference()))
+                .map(Group::getId)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -3758,56 +3780,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 List<User> usersWithNoSubmission = new ArrayList<>(users);
                 usersWithNoSubmission.removeAll(submitterMap.keySet());
 
-                Assignment submissionAssignment = a;
                 if (!usersWithNoSubmission.isEmpty()) {
                     try {
-                        // The transaction retains this lock for the whole placeholder batch.
-                        submissionAssignment = lockAssignmentForSubmission(a);
+                        addPlaceholderSubmissions(a, usersWithNoSubmission, submitterMap);
                     } catch (PermissionException pe) {
                         log.debug("Placeholder submissions could not be added for assignment {}: {}", assignmentId, pe.getMessage());
-                        return submitterMap;
-                    }
-                }
-
-                for (final User user : usersWithNoSubmission) {
-                    String submitterId = getSubmitterIdForAssignment(submissionAssignment, user.getId());
-                    if (StringUtils.isNotBlank(submitterId)) {
-                        try {
-                            AssignmentSubmission submission = createSubmission(submissionAssignment, submitterId);
-                            if (submission != null) {
-                                // Note: If we had s.setSubmitted(false);, this would put it in 'draft mode'
-                                submission.setSubmitted(true);
-                                /*
-                                 * Since setSubmitted represents whether the submission is in draft mode state, we need another property. So we created isUserSubmission.
-                                 * This represents whether the submission was generated by a user.
-                                 * We set it to false because these submissions are generated so that the instructor has something to grade;
-                                 * the user did not in fact submit anything.
-                                 */
-                                submission.setUserSubmission(false);
-
-                                // set the resubmission properties
-                                // get the assignment setting for resubmitting
-                                Map<String, String> assignmentProperties = a.getProperties();
-                                String assignmentAllowResubmitNumber = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
-                                if (StringUtils.isNotBlank(assignmentAllowResubmitNumber)) {
-                                    Map<String, String> submissionProperties = submission.getProperties();
-                                    submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
-
-                                    String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
-                                    // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-                                    submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                            StringUtils.isNotBlank(assignmentAllowResubmitCloseDate)
-                                                    ? assignmentAllowResubmitCloseDate
-                                                    : String.valueOf(a.getCloseDate().toEpochMilli()));
-                                }
-                                assignmentRepository.updateSubmission(submission);
-                                submitterMap.put(user, submission);
-                            } else {
-                                log.warn("No submission was found/created for user {} in assignment {}, this should never happen", user.getId(), a.getId());
-                            }
-                        } catch (Exception e) {
-                            log.warn("Exception thrown while creating empty submission for student who has not submitted, {}", e.getMessage(), e);
-                        }
                     }
                 }
             }
@@ -3815,8 +3792,65 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submitterMap;
     }
 
+    private void addPlaceholderSubmissions(Assignment assignment, List<User> users, Map<User, AssignmentSubmission> submitterMap)
+            throws PermissionException {
+        // Recheck existing submissions after locking, in case another request populated them first.
+        Assignment locked = lockAssignmentForSubmission(assignment);
+        Site site;
+        try {
+            site = siteService.getSite(locked.getContext());
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found while preparing placeholders for assignment {}", locked.getContext(), locked.getId(), e);
+            return;
+        }
+        Map<String, AssignmentSubmission> existing = new HashMap<>();
+        for (AssignmentSubmission submission : assignmentRepository.findSubmissions(List.of(locked.getId()))) {
+            if (locked.getIsGroup()) {
+                existing.put(submission.getGroupId(), submission);
+            } else {
+                submission.getSubmitters().forEach(member -> existing.put(member.getSubmitter(), submission));
+            }
+        }
+        String currentUser = sessionManager.getCurrentSessionUserId();
+        List<AssignmentSubmission> placeholders = new ArrayList<>();
+        Map<String, String> properties = locked.getProperties();
+        String resubmits = properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+        String resubmitClose = properties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
+        for (User user : users) {
+            String submitter = getSubmitterIdForAssignment(locked, user.getId(), getMatchingAssignmentGroupIds(locked, user.getId(), site));
+            if (StringUtils.isBlank(submitter)) {
+                continue;
+            }
+            AssignmentSubmission submission = existing.get(submitter);
+            if (submission == null) {
+                submission = prepareSubmission(locked, site, submitter, currentUser);
+                if (submission == null) {
+                    continue;
+                }
+                // Grader placeholders are not student work, despite the historical submitted flag.
+                submission.setSubmitted(true);
+                submission.setUserSubmission(false);
+                submission.setDateModified(submission.getDateCreated());
+                if (StringUtils.isNotBlank(resubmits)) {
+                    submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, resubmits);
+                    submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
+                            StringUtils.isNotBlank(resubmitClose) ? resubmitClose : String.valueOf(locked.getCloseDate().toEpochMilli()));
+                }
+                existing.put(submitter, submission);
+                placeholders.add(submission);
+            }
+            submitterMap.put(user, submission);
+        }
+        assignmentRepository.addSubmissions(placeholders);
+        placeholders.forEach(this::postSubmissionCreated);
+    }
+
     @Override
     public String getSubmitterIdForAssignment(Assignment assignment, String userId) {
+        return getSubmitterIdForAssignment(assignment, userId, getMatchingAssignmentGroupIds(assignment, userId));
+    }
+
+    private String getSubmitterIdForAssignment(Assignment assignment, String userId, List<String> groupIdsMatchingAssignmentForUser) {
         String submitter = null;
         if (userId != null) {
             switch (assignment.getTypeOfAccess()) {
@@ -3826,8 +3860,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     break;
                 case GROUP:
                     // access is restricted to groups
-                    List<String> groupIdsMatchingAssignmentForUser = getMatchingAssignmentGroupIds(assignment, userId);
-
                     if (groupIdsMatchingAssignmentForUser.isEmpty()) {
                         log.debug("User {} is not a member of any groups for this assignment {}", userId, assignment.getId());
                     } else if (groupIdsMatchingAssignmentForUser.size() == 1) {
