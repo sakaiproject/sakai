@@ -35,6 +35,7 @@ class AccessibilityTest extends SakaiUiTestBase {
 
     @Test
     void canJumpToNewContentViaKeyboardOnly() {
+        sakai.waitForPortalFocus();
         Locator jumpLink = page.locator("a[href=\"#tocontent\"][title*=\"jump to content\" i], a[href=\"#tocontent\"]").first();
 
         boolean focusedJumpLink = false;
