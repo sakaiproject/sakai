@@ -4382,8 +4382,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			createToolBarLink(ScormPickerProducer.VIEW_ID, tofill, "add-scorm", "simplepage.scorm-descrip", currentPage, "simplepage.scorm");
 		    }
 
-		    UIOutput.make(tofill, "video-training-li");
-		    createToolBarLink(VideoTrainingPickerProducer.VIEW_ID, tofill, "add-video-training", "simplepage.video-training.descrip", currentPage, "simplepage.video-training.tooltip");
+		    if (!toolManager.isStealthed("sakai.video.training")) {
+			UIOutput.make(tofill, "video-training-li");
+			createToolBarLink(VideoTrainingPickerProducer.VIEW_ID, tofill, "add-video-training", "simplepage.video-training.descrip", currentPage, "simplepage.video-training.tooltip");
+		    }
 
 		    //Adding 'Embed forum conversations' component
 		    UIOutput.make(tofill, "forum-summary-li");
