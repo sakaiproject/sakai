@@ -264,12 +264,15 @@ export class SakaiGrades extends SakaiPageableElement {
 
   content() {
 
+    const message = this.statusMessage();
+
     return html`
       <div class="dashboard-widget-body">
-        <div class="dashboard-widget-main ${this.filtersOpen ? "is-blurred" : ""}">
+        <div class="dashboard-widget-main ${this.filtersOpen ? "is-blurred" : ""}" ?inert=${this.filtersOpen}>
           ${this.dataPage.length === 0 ? html`
             <div class="sak-banner-info">${this._i18n.no_grades}</div>
           ` : html`
+          ${message ? html`<p id="score-reveal-instruction" class="small mb-2">${message}</p>` : nothing}
           <div id="grades" aria-live="polite">
             <div class="header">${this._i18n.course_assignment}</div>
             <div class="header score">${this._i18n.score}</div>
@@ -288,10 +291,11 @@ export class SakaiGrades extends SakaiPageableElement {
             <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret && !this._revealedScores.has(a) ? " blurred" : ""}">
               ${this.secret ? html`
                 <button type="button" class="score-toggle"
-                    aria-label=${this._revealedScores.has(a) ? nothing : `${this.siteId ? a.name : `${a.siteTitle} / ${a.name}`}: ${this._i18n.score}`}
+                    aria-label="${this.siteId ? a.name : `${a.siteTitle} / ${a.name}`}: ${this._i18n.score}"
+                    aria-describedby=${this._revealedScores.has(a) ? `score-value-${i}` : nothing}
                     aria-pressed="${this._revealedScores.has(a)}"
                     @click=${() => this._toggleScore(a)}>
-                  <span aria-hidden="${!this._revealedScores.has(a)}">${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
+                  <span id="score-value-${i}" aria-hidden="${!this._revealedScores.has(a)}">${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
                 </button>
               ` : html`
                 <span>${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>

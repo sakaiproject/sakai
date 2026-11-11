@@ -99,6 +99,9 @@ describe("sakai-grades tests", () => {
       if (!siteId) {
         expect(button.getAttribute("aria-label")).to.contain("Math 101");
       }
+      const label = button.getAttribute("aria-label");
+      expect(button.hasAttribute("aria-describedby")).to.be.false;
+      expect(el.renderRoot.querySelector("#score-reveal-instruction").textContent).to.equal("Reveal scores by clicking on them");
       expect(button.getAttribute("aria-pressed")).to.equal("false");
       expect(score.getAttribute("aria-hidden")).to.equal("true");
       expect(getComputedStyle(score).filter).to.equal("blur(3px)");
@@ -117,6 +120,8 @@ describe("sakai-grades tests", () => {
           button.click();
         }
         await elementUpdated(el);
+        expect(button.getAttribute("aria-label")).to.equal(label);
+        expect(button.getAttribute("aria-describedby")).to.equal(revealed ? score.id : null);
         expect(button.getAttribute("aria-pressed")).to.equal(String(revealed));
         expect(score.getAttribute("aria-hidden")).to.equal(String(!revealed));
         expect(getComputedStyle(score).filter).to.equal(revealed ? "none" : "blur(3px)");
@@ -125,6 +130,18 @@ describe("sakai-grades tests", () => {
         expect(getComputedStyle(secondScore).filter).to.equal("blur(3px)");
       }
       expect(el.secret).to.be.true;
+
+      el.filtersOpen = true;
+      await elementUpdated(el);
+      expect(el.renderRoot.querySelector(".dashboard-widget-main").inert).to.be.true;
+      el.renderRoot.querySelector(".dashboard-filter-panel button").focus();
+      button.focus();
+      expect(el.renderRoot.activeElement).to.not.equal(button);
+
+      el.filtersOpen = false;
+      await elementUpdated(el);
+      button.focus();
+      expect(el.renderRoot.activeElement).to.equal(button);
     });
   }
 
