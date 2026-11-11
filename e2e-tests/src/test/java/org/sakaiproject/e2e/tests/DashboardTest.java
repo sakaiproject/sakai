@@ -150,7 +150,7 @@ class DashboardTest extends SakaiUiTestBase {
                     response -> response.url().endsWith("/sitestats/widgets/grades/highlights"), () -> {
                         com.microsoft.playwright.Response grades = page.waitForResponse(
                             response -> response.url().endsWith("/sites/" + siteId + "/grades"),
-                            () -> sakai.gotoPath(siteUrl));
+                            () -> sakai.gotoPath(siteUrl + "/dashboard"));
                         org.junit.jupiter.api.Assertions.assertTrue(grades.ok(), grades.text());
                         org.junit.jupiter.api.Assertions.assertTrue(grades.text().contains("\"grades\":[]"), grades.text());
                     });

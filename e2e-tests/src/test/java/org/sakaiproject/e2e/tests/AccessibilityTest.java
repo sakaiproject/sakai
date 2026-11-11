@@ -37,13 +37,14 @@ class AccessibilityTest extends SakaiUiTestBase {
         sakai.waitForPortalFocus();
         Locator jumpLink = page.locator("a[href=\"#tocontent\"][title*=\"jump to content\" i], a[href=\"#tocontent\"]").first();
 
-        Locator skipLinks = page.locator("#skipNav a");
-        page.keyboard().press("Tab");
-        assertThat(page.locator(":focus")).hasAttribute("href", skipLinks.first().getAttribute("href"));
-        if (!"#tocontent".equals(skipLinks.first().getAttribute("href"))) {
+        // System alerts can add focusable links before the skip navigation.
+        for (int attempt = 0; attempt < 20; attempt++) {
             page.keyboard().press("Tab");
+            if (Boolean.TRUE.equals(jumpLink.evaluate("link => link === document.activeElement"))) {
+                break;
+            }
         }
-        assertThat(page.locator(":focus")).hasAttribute("href", "#tocontent");
+        assertThat(jumpLink).isFocused();
         assertThat(jumpLink).containsText(Pattern.compile("jump to content", Pattern.CASE_INSENSITIVE));
         page.keyboard().press("Enter");
         assertThat(page.locator("#tocontent")).isFocused();
