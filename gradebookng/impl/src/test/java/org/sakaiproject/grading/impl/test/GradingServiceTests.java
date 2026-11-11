@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -56,6 +58,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -179,13 +182,52 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
         when(properties.getProperty("gradebook_group")).thenReturn("true");
         when(site.getProperties()).thenReturn(properties);
-        when(siteService.getToolPlacementPropertyValues(siteId, "sakai.gradebookng", "gb-group"))
-                .thenReturn(List.of(groupId, "uninitialized-group"));
+        List<ToolConfiguration> placements = List.of(gradebookPlacement(groupId), gradebookPlacement("uninitialized-group"));
+        when(site.getTools("sakai.gradebookng")).thenReturn(placements);
         assertEquals(List.of(groupId), gradingService.getExistingGradebookUids(siteId));
         sessionFactory.getCurrentSession().flush();
         assertEquals(Long.valueOf(1), sessionFactory.getCurrentSession()
                 .createQuery("select count(g) from Gradebook g", Long.class).uniqueResult());
         assertEquals(1, courseGradeRepository.findByGradebook_Id(gradebook.getId()).size());
+    }
+
+    @Test
+    public void groupModeWithoutGradebookPlacementsDoesNotReturnSiteGradebook() throws Exception {
+        siteId = "lookup-no-placement";
+        createGradebook();
+        Site site = siteService.getSite(siteId);
+        enableGroupGradebooks(site);
+
+        assertTrue(gradingService.getExistingGradebookUids(siteId).isEmpty());
+        assertTrue(gradingService.isGradebookDefined(siteId));
+    }
+
+    @Test
+    public void groupModeUntaggedPlacementUsesExistingSiteGradebook() throws Exception {
+        siteId = "lookup-untagged-placement";
+        createGradebook();
+        Site site = siteService.getSite(siteId);
+        enableGroupGradebooks(site);
+        ToolConfiguration placement = gradebookPlacement(null);
+        when(site.getTools("sakai.gradebookng")).thenReturn(List.of(placement));
+
+        assertEquals(List.of(siteId), gradingService.getExistingGradebookUids(siteId));
+    }
+
+    @Test
+    public void groupModeIncludesUntaggedAndTaggedPlacements() throws Exception {
+        siteId = "lookup-mixed-placements";
+        groupId = "lookup-mixed-group";
+        createGradebook();
+        createGroupGradebook();
+        Site site = siteService.getSite(siteId);
+        enableGroupGradebooks(site);
+        List<ToolConfiguration> placements = List.of(gradebookPlacement(null), gradebookPlacement(groupId),
+                gradebookPlacement("uninitialized-group"));
+        when(site.getTools("sakai.gradebookng")).thenReturn(placements);
+
+        assertEquals(List.of(siteId, groupId), gradingService.getExistingGradebookUids(siteId));
+        assertFalse(gradingService.isGradebookDefined("uninitialized-group"));
     }
 
     @Test
@@ -1148,6 +1190,22 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
     }
 
+    private void enableGroupGradebooks(Site site) {
+        org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
+        when(properties.getProperty("gradebook_group")).thenReturn("true");
+        when(site.getProperties()).thenReturn(properties);
+    }
+
+    private ToolConfiguration gradebookPlacement(String groupId) {
+        ToolConfiguration placement = mock(ToolConfiguration.class);
+        Properties properties = new Properties();
+        if (groupId != null) {
+            properties.setProperty("gb-group", groupId);
+        }
+        when(placement.getPlacementConfig()).thenReturn(properties);
+        return placement;
+    }
+
     private Gradebook createGradebook() {
 
         switchToInstructor();
@@ -1176,6 +1234,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         try {
             when(siteService.getSite(id)).thenReturn(site);
+            when(siteService.getOptionalSite(id)).thenReturn(Optional.of(site));
             when(siteService.siteExists(id)).thenReturn(true);
         } catch (Exception e) {
             Assert.fail("Failed to mock site");

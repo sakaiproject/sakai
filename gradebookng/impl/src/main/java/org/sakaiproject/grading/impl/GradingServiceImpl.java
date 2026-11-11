@@ -4917,9 +4917,12 @@ public class GradingServiceImpl implements GradingService {
     @Transactional(readOnly = true)
     public List<String> getExistingGradebookUids(String siteId) {
         Collection<String> uids = isGradebookGroupEnabled(siteId)
-                ? siteService.getToolPlacementPropertyValues(siteId, "sakai.gradebookng", GB_GROUP_TOOL_PROPERTY)
+                ? siteService.getOptionalSite(siteId).stream()
+                        .flatMap(site -> site.getTools("sakai.gradebookng").stream())
+                        .map(tool -> tool.getPlacementConfig().getProperty(GB_GROUP_TOOL_PROPERTY, siteId))
+                        .toList()
                 : List.of(siteId);
-        return (uids.isEmpty() ? List.of(siteId) : uids).stream().distinct()
+        return uids.stream().distinct()
                 .filter(this::isGradebookDefined)
                 .collect(Collectors.toList());
     }
