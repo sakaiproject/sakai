@@ -1938,13 +1938,15 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   public void addExtendedTime() {
       ExtendedTime entry = this.extendedTime;
       FacesContext context = FacesContext.getCurrentInstance();
-      if (new ExtendedTimeValidator().validateEntry(entry, context, this)) {
-          AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
-          accessControl.setStartDate(this.startDate);
-          accessControl.setDueDate(this.dueDate);
+      AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
+      accessControl.setStartDate(this.startDate);
+      accessControl.setDueDate(this.dueDate);
+      if (StringUtils.isNotBlank(this.lateHandling)) {
           accessControl.setLateHandling(Integer.valueOf(this.lateHandling));
-          accessControl.setRetractDate(this.retractDate);
-          this.extendedTime.syncDates(accessControl);
+      }
+      accessControl.setRetractDate(this.retractDate);
+      this.extendedTime.syncDates(accessControl);
+      if (new ExtendedTimeValidator().validateEntry(entry, context, this)) {
           this.extendedTimes.add(this.extendedTime);
           resetExtendedTime();
       }

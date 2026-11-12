@@ -2092,16 +2092,17 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     public void addExtendedTime() {
         ExtendedTime entry = this.extendedTime;
         FacesContext context = FacesContext.getCurrentInstance();
-        //check for duplicate users/groups
+        AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
+        accessControl.setStartDate(this.startDate);
+        accessControl.setDueDate(this.dueDate);
+        if (StringUtils.isNotBlank(this.lateHandling)) {
+            accessControl.setLateHandling(Integer.valueOf(this.lateHandling));
+        }
+        accessControl.setRetractDate(this.retractDate);
+        this.extendedTime.syncDates(accessControl);
         List<ExtendedTime> extendedTimesTempList = new ArrayList<ExtendedTime>(extendedTimes);
         extendedTimesTempList.add(entry);
         if (new ExtendedTimeValidator().validateEntries(extendedTimesTempList, context, this)) {
-            AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
-            accessControl.setStartDate(this.startDate);
-            accessControl.setDueDate(this.dueDate);
-            accessControl.setLateHandling(Integer.valueOf(this.lateHandling));
-            accessControl.setRetractDate(this.retractDate);
-            this.extendedTime.syncDates(accessControl);
             this.extendedTimes.add(this.extendedTime);
             resetExtendedTime();
         }

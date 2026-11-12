@@ -17,19 +17,24 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules.DueRetract;
 
 final class AssessmentFeedbackDateValidationHelper {
 
@@ -50,13 +55,15 @@ final class AssessmentFeedbackDateValidationHelper {
   static boolean addFeedbackDateErrors(FacesContext context, AssessmentSettingsBean settings) {
     return addFeedbackDateErrors(context, settings.getFeedbackDelivery(), settings.getFeedbackDateString(),
         settings.getIsValidFeedbackDate(), settings.getIsValidFeedbackEndDate(), settings.getDueDate(),
-        settings.getRetractDate(), settings.getLateHandling(), settings.getFeedbackDate(), settings.getFeedbackEndDate());
+        settings.getRetractDate(), settings.getLateHandling(), settings.getFeedbackDate(), settings.getFeedbackEndDate(),
+        settings.getExtendedTimes());
   }
 
   static boolean addFeedbackDateErrors(FacesContext context, PublishedAssessmentSettingsBean settings) {
     return addFeedbackDateErrors(context, settings.getFeedbackDelivery(), settings.getFeedbackDateString(),
         settings.getIsValidFeedbackDate(), settings.getIsValidFeedbackEndDate(), settings.getDueDate(),
-        settings.getRetractDate(), settings.getLateHandling(), settings.getFeedbackDate(), settings.getFeedbackEndDate());
+        settings.getRetractDate(), settings.getLateHandling(), settings.getFeedbackDate(), settings.getFeedbackEndDate(),
+        settings.getExtendedTimes());
   }
 
   private static boolean isFeedbackByDate(String feedbackDelivery) {
@@ -65,7 +72,7 @@ final class AssessmentFeedbackDateValidationHelper {
 
   private static boolean addFeedbackDateErrors(FacesContext context, String feedbackDelivery, String feedbackDateString,
       boolean validFeedbackDate, boolean validFeedbackEndDate, Date dueDate, Date retractDate, String lateHandling,
-      Date feedbackDate, Date feedbackEndDate) {
+      Date feedbackDate, Date feedbackEndDate, List<ExtendedTime> extendedTimes) {
 
     if (!isFeedbackByDate(feedbackDelivery)) {
       return false;
@@ -80,7 +87,8 @@ final class AssessmentFeedbackDateValidationHelper {
       Date feedbackEndForValidation = validFeedbackEndDate ? feedbackEndDate : null;
       Set<String> messageKeys = new LinkedHashSet<>();
       for (AssessmentFeedbackDateRules.Violation violation : AssessmentFeedbackDateRules.validate(dueDate,
-          retractDate, parseLateHandling(lateHandling), feedbackStartForValidation, feedbackEndForValidation)) {
+          retractDate, parseLateHandling(lateHandling), feedbackStartForValidation, feedbackEndForValidation,
+          toDueRetracts(extendedTimes))) {
         messageKeys.add(samigoMessageKey(violation.getError()));
       }
       for (String messageKey : messageKeys) {
@@ -99,6 +107,20 @@ final class AssessmentFeedbackDateValidationHelper {
     }
 
     return error;
+  }
+
+  private static List<DueRetract> toDueRetracts(List<ExtendedTime> extendedTimes) {
+    if (extendedTimes == null || extendedTimes.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<DueRetract> dueRetracts = new ArrayList<>(extendedTimes.size());
+    for (ExtendedTime extendedTime : extendedTimes) {
+      if (extendedTime != null) {
+        dueRetracts.add(new DueRetract(extendedTime.getDueDate(), extendedTime.getRetractDate()));
+      }
+    }
+    return dueRetracts;
   }
 
   private static Integer parseLateHandling(String lateHandling) {

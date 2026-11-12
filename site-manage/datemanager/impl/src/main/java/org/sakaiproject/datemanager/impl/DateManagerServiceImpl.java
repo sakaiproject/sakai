@@ -33,6 +33,7 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -101,10 +102,14 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
@@ -603,7 +608,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				Integer feedbackMode = isDraft ? ((AssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery()
 												: ((PublishedAssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery();
-				errored |= validateAssessmentFeedbackDates(errors, toolTitle, idx, feedbackMode, control.getLateHandling(), dueDate, acceptUntil, feedbackStart, feedbackEnd);
+				errored |= validateAssessmentFeedbackDates(errors, toolTitle, idx, feedbackMode, control.getLateHandling(), dueDate, acceptUntil, feedbackStart, feedbackEnd,
+						loadAssessmentExceptionDueRetracts(assessment, isDraft));
 
 				if (errored) {
 					continue;
@@ -640,7 +646,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 	}
 
 	private boolean validateAssessmentFeedbackDates(List<DateManagerError> errors, String toolTitle, int idx, Integer feedbackMode,
-			Integer lateHandling, Instant dueDate, Instant acceptUntil, Instant feedbackStart, Instant feedbackEnd) {
+			Integer lateHandling, Instant dueDate, Instant acceptUntil, Instant feedbackStart, Instant feedbackEnd,
+			List<AssessmentFeedbackDateRules.DueRetract> exceptionDates) {
 		if (!AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode)) {
 			return false;
 		}
@@ -656,7 +663,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		Date feedbackStartForValidation = feedbackStart != null ? Date.from(feedbackStart) : null;
 		Date feedbackEndForValidation = feedbackEnd != null ? Date.from(feedbackEnd) : null;
 		for (AssessmentFeedbackDateRules.Violation violation : AssessmentFeedbackDateRules.validate(dueDateForValidation, acceptUntilForValidation,
-				lateHandling, feedbackStartForValidation, feedbackEndForValidation)) {
+				lateHandling, feedbackStartForValidation, feedbackEndForValidation, exceptionDates)) {
 			errors.add(new DateManagerError(AssessmentFeedbackDateValidationSupport.dateManagerField(violation.getField()),
 					resourceLoader.getString(AssessmentFeedbackDateValidationSupport.dateManagerMessageKey(violation.getError())),
 					"assessments", toolTitle, idx));
@@ -664,6 +671,40 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 
 		return errored;
+	}
+
+	private List<AssessmentFeedbackDateRules.DueRetract> loadAssessmentExceptionDueRetracts(AssessmentIfc assessment, boolean isDraft) {
+		ExtendedTimeFacade extendedTimeFacade = assessmentPersistenceService.getExtendedTimeFacade();
+		if (extendedTimeFacade == null || assessment == null) {
+			return Collections.emptyList();
+		}
+
+		List<ExtendedTime> extendedTimes;
+		if (isDraft) {
+			AssessmentBaseIfc data = ((AssessmentFacade) assessment).getData();
+			if (data == null) {
+				return Collections.emptyList();
+			}
+			extendedTimes = extendedTimeFacade.getEntriesForAss(data);
+		} else {
+			PublishedAssessmentIfc data = ((PublishedAssessmentFacade) assessment).getData();
+			if (data == null) {
+				return Collections.emptyList();
+			}
+			extendedTimes = extendedTimeFacade.getEntriesForPub(data);
+		}
+
+		if (extendedTimes == null || extendedTimes.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<AssessmentFeedbackDateRules.DueRetract> exceptionDates = new ArrayList<>(extendedTimes.size());
+		for (ExtendedTime extendedTime : extendedTimes) {
+			if (extendedTime != null) {
+				exceptionDates.add(new AssessmentFeedbackDateRules.DueRetract(extendedTime.getDueDate(), extendedTime.getRetractDate()));
+			}
+		}
+		return exceptionDates;
 	}
 
 	@Override

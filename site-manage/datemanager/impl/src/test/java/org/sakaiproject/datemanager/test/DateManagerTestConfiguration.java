@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.datemanager.test;
 
+import java.util.Collections;
+
 import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
@@ -33,6 +35,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.PreferencesService;
@@ -73,6 +76,11 @@ public class DateManagerTestConfiguration {
 
         AssessmentFacadeQueriesAPI assessmentFacadeQueries = Mockito.mock(AssessmentFacadeQueriesAPI.class);
         when(persistenceService.getAssessmentFacadeQueries()).thenReturn(assessmentFacadeQueries);
+
+        ExtendedTimeFacade extendedTimeFacade = Mockito.mock(ExtendedTimeFacade.class);
+        when(extendedTimeFacade.getEntriesForAss(Mockito.any())).thenReturn(Collections.emptyList());
+        when(extendedTimeFacade.getEntriesForPub(Mockito.any())).thenReturn(Collections.emptyList());
+        when(persistenceService.getExtendedTimeFacade()).thenReturn(extendedTimeFacade);
 
         return persistenceService;
     }
