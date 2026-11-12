@@ -96,6 +96,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     private static final String PROP_WIDGET_FILTERS = "widgetFilters";
     private static final String PROP_COURSE_LAYOUTS = "courseLayouts";
     private static final String PROP_COURSE_HERO_WIDTH = "dashboard.course.hero.width";
+    private static final String DEFAULT_COURSE_HERO_WIDTH = "full";
     private static final String PROP_COURSE_SHOW_IMAGE = "dashboard.course.hero.showImage";
     private static final String PROP_COURSE_LAYOUT_STUDENT = "dashboard.course.widget.layout.student";
     private static final String PROP_COURSE_LAYOUT_INSTRUCTOR = "dashboard.course.widget.layout.instructor";
@@ -441,7 +442,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
                     if (!(config.get("heroWidth") instanceof String)
                             || StringUtils.isBlank((String) config.get("heroWidth"))) {
                         config.put("heroWidth", normalizeHeroWidth(
-                                serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, "wide")));
+                                serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, DEFAULT_COURSE_HERO_WIDTH)));
                     }
                     config.remove("widgetLayout");
                     config.remove("template");
@@ -496,10 +497,12 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
     private String resolveSiteHeroWidth(Map<String, Object> siteConfig) {
 
-        if (siteConfig.get("heroWidth") instanceof String) {
+        if (siteConfig != null
+                && siteConfig.get("heroWidth") instanceof String
+                && StringUtils.isNotBlank((String) siteConfig.get("heroWidth"))) {
             return normalizeHeroWidth((String) siteConfig.get("heroWidth"));
         }
-        return normalizeHeroWidth(serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, "wide"));
+        return normalizeHeroWidth(serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, DEFAULT_COURSE_HERO_WIDTH));
     }
 
     @SuppressWarnings("unchecked")
@@ -698,29 +701,23 @@ public class DashboardController extends AbstractSakaiApiController implements E
         if ("full".equals(heroWidth) || "wide".equals(heroWidth) || "narrow".equals(heroWidth)) {
             return heroWidth;
         }
-        return "wide";
+        return DEFAULT_COURSE_HERO_WIDTH;
     }
 
     private Map<String, Object> siteChromeConfigForCopy(String fromConfigJson) {
 
+        Map<String, Object> from = new HashMap<>();
+        if (StringUtils.isNotBlank(fromConfigJson)) {
+            try {
+                from = new ObjectMapper().readValue(fromConfigJson, HashMap.class);
+            } catch (Exception e) {
+                log.warn("Failed to parse dashboard-config for site copy: {}", e.toString());
+            }
+        }
         Map<String, Object> result = new HashMap<>();
-        result.put("showImage", Boolean.TRUE);
-        result.put("heroWidth", "wide");
-        if (StringUtils.isBlank(fromConfigJson)) {
-            return result;
-        }
-        try {
-            Map<String, Object> from = new ObjectMapper().readValue(fromConfigJson, HashMap.class);
-            Object showImage = from.get("showImage");
-            if (showImage instanceof Boolean) {
-                result.put("showImage", showImage);
-            }
-            if (from.get("heroWidth") instanceof String) {
-                result.put("heroWidth", normalizeHeroWidth((String) from.get("heroWidth")));
-            }
-        } catch (Exception e) {
-            log.warn("Failed to parse dashboard-config for site copy: {}", e.toString());
-        }
+        Object showImage = from.get("showImage");
+        result.put("showImage", showImage instanceof Boolean ? showImage : Boolean.TRUE);
+        result.put("heroWidth", resolveSiteHeroWidth(from));
         return result;
     }
 

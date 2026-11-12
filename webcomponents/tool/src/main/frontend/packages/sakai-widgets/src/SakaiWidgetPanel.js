@@ -36,8 +36,12 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     _dragIndex: { state: true },
     _toolnames: { state: true },
     _narrowColumns: { state: true },
+    _columns: { state: true },
+    _hasHero: { state: true },
     widgetFilters: { type: Object },
     gradesRevealOnClick: { attribute: "grades-reveal-on-click", type: Boolean },
+    heroWidth: { attribute: "hero-width", type: String },
+    heroAutoHeight: { attribute: "hero-auto-height", type: Boolean },
   };
 
   constructor() {
@@ -47,6 +51,8 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     this._layout = [];
     this._dragIndex = undefined;
     this._narrowColumns = false;
+    this._columns = 1;
+    this._hasHero = false;
     this.gradesRevealOnClick = true;
     this.loadTranslations("widgetpanel");
     loadToolnames().then(r => this._toolnames = r || {});
@@ -70,18 +76,63 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
 
     this._resizeObserver?.disconnect();
     this._resizeObserver = undefined;
+    this._heroSlot?.removeEventListener("slotchange", this._onHeroSlotChange);
+    this._heroSlot = undefined;
     super.disconnectedCallback();
+  }
+
+  firstUpdated() {
+
+    this._heroSlot = this.renderRoot?.querySelector("slot[name=\"hero\"]");
+    this._onHeroSlotChange = () => this._syncHeroSlot();
+    this._heroSlot?.addEventListener("slotchange", this._onHeroSlotChange);
+    this._syncHeroSlot();
+  }
+
+  _syncHeroSlot() {
+
+    const hasHero = Boolean(this._heroSlot?.assignedElements({ flatten: true }).length);
+    if (hasHero !== this._hasHero) {
+      this._hasHero = hasHero;
+    }
+  }
+
+  columnCount(width = this.clientWidth) {
+
+    const styles = getComputedStyle(this);
+    const minWidget = parseFloat(styles.getPropertyValue("--sakai-widget-panel-min-widget-width")) || 380;
+    const gap = parseFloat(styles.getPropertyValue("--sakai-widget-panel-gutter-width")) || 16;
+    if (!(width > 0)) {
+      return 1;
+    }
+    return Math.max(1, Math.floor((width + gap) / (minWidget + gap)));
   }
 
   _updateNarrowColumns(width) {
 
-    const styles = getComputedStyle(this);
-    const minWidget = parseFloat(styles.getPropertyValue("--sakai-widget-panel-min-widget-width")) || 380;
-    const gap = parseFloat(styles.getPropertyValue("--sakai-widget-panel-gutter-width")) || 14;
-    const narrow = width > 0 && width < (minWidget * 2 + gap);
+    const columns = this.columnCount(width);
+    const narrow = columns < 2;
+    if (columns !== this._columns) {
+      this._columns = columns;
+    }
     if (narrow !== this._narrowColumns) {
       this._narrowColumns = narrow;
     }
+  }
+
+  heroFillsRow() {
+
+    const width = this.heroWidth;
+    const columns = this._columns || this.columnCount();
+    return width === "full"
+      || this.heroAutoHeight
+      || columns < 2
+      || (width === "wide" && columns < 3);
+  }
+
+  heroUsesAutoHeight() {
+
+    return this._hasHero && this.heroFillsRow();
   }
 
   set editing(value) {
@@ -517,8 +568,10 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
       ` : nothing}
 
       <div id="grid"
+          ?data-hero-auto=${this.heroUsesAutoHeight()}
           @dragover=${this.editing ? this._onDragOver : nothing}
           @drop=${this.editing ? e => this._onDrop(e, this._layout.length) : nothing}>
+        <slot name="hero"></slot>
         ${repeat(this._layout ?? [], tileKey, (tile, i) => html`
           ${this.getWidget(tile, i)}
         `)}
@@ -576,6 +629,17 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         grid-auto-rows: var(--sakai-widget-panel-row-height);
         gap: var(--sakai-widget-panel-gutter-width, 1rem);
         min-height: 4rem;
+      }
+
+      #grid[data-hero-auto] {
+        grid-template-rows: auto;
+        grid-auto-rows: var(--sakai-widget-panel-row-height);
+      }
+
+      #grid ::slotted([slot="hero"]) {
+        min-width: 0;
+        min-height: 0;
+        max-width: 100%;
       }
 
       .widget-tile {

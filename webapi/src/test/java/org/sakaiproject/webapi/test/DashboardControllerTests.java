@@ -362,7 +362,7 @@ public class DashboardControllerTests {
         when(site.getProperties()).thenReturn(properties);
         when(properties.getProperty("dashboard-config")).thenReturn(null);
         when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
-        when(serverConfigurationService.getString("dashboard.course.hero.width", "wide")).thenReturn("wide");
+        when(serverConfigurationService.getString(eq("dashboard.course.hero.width"), eq("full"))).thenReturn("full");
         when(serverConfigurationService.getBoolean("dashboard.course.hero.showImage", true)).thenReturn(true);
         when(securityService.isSuperUser()).thenReturn(false);
         when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(true);
@@ -382,7 +382,7 @@ public class DashboardControllerTests {
         assertTrue(bean.getWidgets().contains("sitestats-submissions"));
         assertTrue(bean.getWidgets().contains("sitestats-grades"));
         assertFalse(bean.getWidgets().contains("sitestats-platform-health"));
-        assertEquals("wide", bean.getHeroWidth());
+        assertEquals("full", bean.getHeroWidth());
         assertTrue(bean.getShowImage());
         assertTrue(bean.getSiteEditable());
         assertTrue(bean.getLayoutEditable());
@@ -479,7 +479,7 @@ public class DashboardControllerTests {
         when(site.getProperties()).thenReturn(properties);
         when(properties.getProperty("dashboard-config")).thenReturn(null);
         when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
-        when(serverConfigurationService.getString("dashboard.course.hero.width", "wide")).thenReturn("wide");
+        when(serverConfigurationService.getString(eq("dashboard.course.hero.width"), eq("full"))).thenReturn("full");
         when(serverConfigurationService.getBoolean("dashboard.course.hero.showImage", true)).thenReturn(true);
         when(securityService.isSuperUser()).thenReturn(false);
         when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
@@ -518,7 +518,7 @@ public class DashboardControllerTests {
         when(site.getProperties()).thenReturn(properties);
         when(properties.getProperty("dashboard-config")).thenReturn(null);
         when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
-        when(serverConfigurationService.getString("dashboard.course.hero.width", "wide")).thenReturn("wide");
+        when(serverConfigurationService.getString(eq("dashboard.course.hero.width"), eq("full"))).thenReturn("full");
         when(serverConfigurationService.getBoolean("dashboard.course.hero.showImage", true)).thenReturn(true);
         when(securityService.isSuperUser()).thenReturn(false);
         when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
