@@ -73,10 +73,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         if (assignment != null) {
             // Persist a newly created assignment before locking its row in the same transaction.
             geCurrentSession().flush();
-            // Lock the assignment row before refresh, which can join related tables under Hibernate 6.
-            lockAssignmentAndCheckDeleted(id);
-            // Reload the deleted flag too, in case this request loaded the assignment before deletion.
-            geCurrentSession().refresh(assignment);
+            // Read the current deleted flag without refreshing the assignment's submission graph.
+            assignment.setDeleted(lockAssignmentAndCheckDeleted(id));
         }
         return assignment;
     }

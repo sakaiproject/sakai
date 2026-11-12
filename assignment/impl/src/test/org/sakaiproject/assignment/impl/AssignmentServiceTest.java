@@ -3211,6 +3211,24 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void addingSubmissionDoesNotReloadExistingSubmissionGraph() throws Exception {
+        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+        List<User> users = configurePlaceholderUsers(assignment, 2);
+        assignmentService.addSubmission(assignment.getId(), users.get(0).getId());
+        sessionFactory.getCurrentSession().flush();
+        org.hibernate.stat.Statistics statistics = sessionFactory.getStatistics();
+        boolean statisticsEnabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        long loadsBefore = statistics.getEntityLoadCount();
+        try {
+            Assert.assertNotNull(assignmentService.addSubmission(assignment.getId(), users.get(1).getId()));
+            Assert.assertEquals("Adding a submission must not refresh the existing graph", loadsBefore, statistics.getEntityLoadCount());
+        } finally {
+            statistics.setStatisticsEnabled(statisticsEnabled);
+        }
+    }
+
+    @Test
     public void placeholderBatchPreservesSubmissionsWithoutRepeatedReloads() throws Exception {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
