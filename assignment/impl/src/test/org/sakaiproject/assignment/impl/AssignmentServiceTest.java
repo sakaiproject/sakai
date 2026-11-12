@@ -3784,7 +3784,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void uploadingUnreleasedFeedbackAfterReturnDoesNotSendSubmissionNotifications() throws Exception {
+    public void repeatedInstructorUploadsSuppressReceiptsAndStillAllowRelease() throws Exception {
         AssignmentSubmission submission = createNotificationSubmission();
         submission.setDateSubmitted(Instant.now().minusSeconds(86400));
         submission.setDateReturned(Instant.now().minusSeconds(3600));
@@ -3795,13 +3795,33 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(true);
         try {
             Mockito.clearInvocations(eventTrackingService);
-            assignmentService.updateSubmission(submission, false);
+            Instant originalSubmissionDate = submission.getDateSubmitted();
+            String originalSubmissionText = submission.getSubmittedText();
+            for (int upload = 0; upload < 2; upload++) {
+                assignmentService.updateSubmission(submission, false);
+                submission = assignmentService.getSubmission(submission.getId());
+                Assert.assertFalse(submission.getReturned());
+                Assert.assertEquals(originalSubmissionDate, submission.getDateSubmitted());
+                Assert.assertEquals(originalSubmissionText, submission.getSubmittedText());
+            }
 
             Mockito.verifyNoInteractions(userMessagingService, taskService);
             verify(eventTrackingService, Mockito.never()).newEvent(eq(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION),
                     anyString(), Mockito.isNull(), eq(true), eq(NotificationService.NOTI_OPTIONAL),
                     Mockito.any(LRS_Statement.class));
-            Assert.assertFalse(assignmentService.getSubmission(submission.getId()).getReturned());
+
+            submission.getAssignment().getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                    AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+            submission.setReturned(true);
+            submission.setGradeReleased(true);
+            submission.setDateReturned(Instant.now());
+            assignmentService.updateSubmission(submission, false);
+
+            ArgumentCaptor<Message> message = ArgumentCaptor.forClass(Message.class);
+            verify(userMessagingService).message(Mockito.anySet(), message.capture(),
+                    eq(List.of(MessageMedium.EMAIL)), Mockito.anyMap(), eq(NotificationService.NOTI_REQUIRED));
+            Assert.assertEquals("releasegrade", message.getValue().getType());
+            Mockito.verifyNoInteractions(taskService);
         } finally {
             when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(false);
         }
