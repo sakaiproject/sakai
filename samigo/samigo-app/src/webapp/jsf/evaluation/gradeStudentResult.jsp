@@ -64,6 +64,8 @@ $Id$
           
           var dynamicList = new DynamicList(serializedImageMapId, 'imageMapTemplate_'+sequence, 'pointerClass', 'imageMapContainer_'+sequence);
           dynamicList.fillElements();
+          // The Hot Spot summary table replaces the per-item list in the grading view.
+          $(this).find('div[id^=dlContainer_]').hide();
           
         }); 
         
@@ -80,6 +82,10 @@ $Id$
           }catch(err){}
           
         }); 
+
+        $('div[id^=imageMapContainer_], div[id^=answerImageMapContainer_]').each(function() {
+          placeImageMapBadges(this.id);
+        });
 
         var sakaiReminder = new SakaiReminder();
         $('textarea.awesomplete').each(function() {
