@@ -219,7 +219,6 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         ServerConfigurationService scs = mock(ServerConfigurationService.class);
-        Mockito.when(scs.getBoolean("assignment.create.groups.on.import", true)).thenReturn(true);
         Mockito.when(scs.getBoolean("content.cleaner.filter.utf8", true)).thenReturn(Boolean.TRUE);
         Mockito.when(scs.getString("content.cleaner.filter.utf8.replacement", "")).thenReturn("");
         Mockito.when(scs.getString("assignment.timesheet.timePattern", AssignmentServiceConstants.SAK_PROP_ASSIGNMENT_TIMESHEET_TIME_PATTERN_DEFAULT)).thenReturn(AssignmentServiceConstants.SAK_PROP_ASSIGNMENT_TIMESHEET_TIME_PATTERN_DEFAULT);

@@ -5417,15 +5417,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     nGroup = existingGroup.get();
                                 } else {
                                     // create group
-                                    nGroup = nSite.addGroup();
-                                    nGroup.setTitle(oGroup.getTitle());
-                                    nGroup.setDescription(oGroup.getDescription());
-                                    nGroup.getProperties().addAll(oGroup.getProperties());
-                                    // Lessons references, external section IDs and group filters belong to the source site.
-                                    nGroup.getProperties().removeProperty("lessonbuilder_ref");
-                                    nGroup.getProperties().removeProperty("sections_eid");
-                                    nGroup.getProperties().removeProperty(Group.GROUP_PROP_FILTERED_BY);
-                                    nGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
+                                    nGroup = siteService.copyGroup(oGroup, nSite);
                                     siteChanged = true;
                                 }
                                 nAssignment.getGroups().add(nGroup.getReference());

@@ -1328,7 +1328,19 @@ public interface SiteService extends EntityProducer
 	 * @return The Group object if found, or null if not.
 	 */
 	Group findGroup(String refOrId);
-	
+
+    /**
+     * Create a group in the destination site with the source title, description and settings.
+     * Source-specific Lessons references, external section IDs, group filters and role-provider
+     * IDs are excluded. Memberships, provider group IDs and locks are not copied.
+     * The caller is responsible for checking permissions and saving the destination site.
+     *
+     * @param source the group whose settings to copy
+     * @param destination the site receiving the new group
+     * @return the newly created, unsaved group
+     */
+    Group copyGroup(Group source, Site destination);
+
 	/**
 	 * Registers a SiteAdvisor with the SiteService.  Each registered advisor will be
 	 * called immediately upon a call to save(Site).
