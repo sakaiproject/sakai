@@ -564,13 +564,15 @@ public class AssignmentToolUtils {
 
                 if (addUpdateRemoveAssignment != null) {
                     Assignment a = assignmentService.getAssignment(assignmentId);
+                    // Decode the stored title once at the plain-text Gradebook boundary.
+                    String gradebookTitle = formattedText.unEscapeHtml(a.getTitle());
                     // add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
                     if ((addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) || addUpdateRemoveAssignment.equals("update"))
                             && associateGradebookAssignment == null) {
                         // add assignment into gradebook
                         try {
                             // add assignment to gradebook
-                            gradingService.addExternalAssessment(gradebookUid, siteId, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null, assignmentRef);
+                            gradingService.addExternalAssessment(gradebookUid, siteId, assignmentRef, null, gradebookTitle, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null, assignmentRef);
                         } catch (AssignmentHasIllegalPointsException e) {
                             alerts.add(resourceLoader.getString("addtogradebook.illegalPoints"));
                             log.warn("integrateGradebook: {}", e.toString());
@@ -590,7 +592,7 @@ public class AssignmentToolUtils {
                             // if there is an external entry created in Gradebook based on this assignment, update it
                             try {
                                 // update attributes if the GB assignment was created for the assignment
-                                gradingService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, null, newAssignment_title, null, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
+                                gradingService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, null, gradebookTitle, null, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
                             } catch (Exception e) {
                                 alerts.add(resourceLoader.getFormattedMessage("cannotfin_assignment", assignmentRef));
                                 log.warn("{}", resourceLoader.getFormattedMessage("cannotfin_assignment", assignmentRef));

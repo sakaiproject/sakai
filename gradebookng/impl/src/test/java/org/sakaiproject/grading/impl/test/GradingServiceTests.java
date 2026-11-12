@@ -31,6 +31,8 @@ import java.time.temporal.ChronoUnit;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.authz.api.SecurityService;
@@ -380,6 +382,96 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(dueDate, assignment.getDueDate());
         assertEquals(description, assignment.getExternalAppName());
         assertTrue(assignment.getExternallyMaintained());
+    }
+
+    @Test
+    public void externalAssessmentTitlesRemainPlainTextOnCreateAndUpdate() {
+        Gradebook gradebook = createGradebook();
+        switchToInstructor();
+        Date dueDate = Date.from(Instant.parse("2026-11-01T12:00:00Z"));
+        int index = 0;
+        for (String title : List.of("Camión", "Research \"A & B\"", "Single 'quotes' < >",
+                "Quiz 😀 🫠 𝄞", "Literal &amp; and &#128512;", "<b>Literal text</b>")) {
+            String externalId = "plain-title-" + index++;
+            gradingService.addExternalAssessment(gradebook.getUid(), siteId, externalId, "link", title,
+                    10D, dueDate, "sakai.samigo", "data", false, null, null);
+            for (String updatedTitle : List.of(title, title + " edited", title + " edited")) {
+                gradingService.updateExternalAssessment(gradebook.getUid(), externalId, "link", "data",
+                        updatedTitle, null, 10D, dueDate, false);
+                sessionFactory.getCurrentSession().flush();
+                sessionFactory.getCurrentSession().clear();
+                Assignment item = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+                assertEquals(updatedTitle, item.getName());
+                assertEquals(updatedTitle, sessionFactory.getCurrentSession().createNativeQuery(
+                        "SELECT NAME FROM GB_GRADABLE_OBJECT_T WHERE ID = :id", String.class)
+                        .setParameter("id", item.getId()).getSingleResult());
+                assertEquals(Double.valueOf(10D), item.getPoints());
+                assertEquals(dueDate, item.getDueDate());
+                assertEquals("data", item.getExternalData());
+                assertEquals("sakai.samigo", item.getExternalAppName());
+                assertTrue(item.getExternallyMaintained());
+                assertTrue(item.getReleased());
+            }
+        }
+    }
+
+    @Test
+    public void externalAssessmentTitlesAreTrimmedBeforeConflictChecksAndPersistence() {
+        Gradebook gradebook = createGradebook();
+        switchToInstructor();
+        gradingService.addExternalAssessment(gradebook.getUid(), siteId, "first", null, "  Camión  ",
+                10D, null, "sakai.samigo", null, false, null, null);
+        assertEquals("Camión", gradingService.getExternalAssignment(gradebook.getUid(), "first").getName());
+        assertThrows(ConflictingAssignmentNameException.class,
+                () -> gradingService.addExternalAssessment(gradebook.getUid(), siteId, "second", null,
+                        " Camión ", 10D, null, "sakai.samigo", null, false, null, null));
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", null, null,
+                " Updated title ", null, 10D, null, false);
+        assertEquals("Updated title", gradingService.getExternalAssignment(gradebook.getUid(), "first").getName());
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", null, null,
+                "UPDATED TITLE", null, 10D, null, false);
+        assertEquals("UPDATED TITLE", gradingService.getExternalAssignment(gradebook.getUid(), "first").getName());
+    }
+
+    @Test
+    public void conflictingExternalAssessmentRenameLeavesTheItemUnchanged() {
+        Gradebook gradebook = createGradebook();
+        switchToInstructor();
+        addCancellationAssessment(gradebook, "first", null, 10D);
+        addCancellationAssessment(gradebook, "second", null, 10D);
+        assertThrows(ConflictingAssignmentNameException.class,
+                () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", "new-link", "new-data",
+                        " second ", -1L, 20D, new Date(), true));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Assignment item = gradingService.getExternalAssignment(gradebook.getUid(), "first");
+        assertEquals("first", item.getName());
+        assertEquals(Double.valueOf(10D), item.getPoints());
+        assertEquals("data", item.getExternalData());
+        assertFalse(item.getUngraded());
+        assertNull(item.getDueDate());
+    }
+
+    @Test
+    public void externalAssessmentTitleLengthIsValidatedBeforePersistence() {
+        Gradebook gradebook = createGradebook();
+        switchToInstructor();
+        String title = "x".repeat(255);
+        gradingService.addExternalAssessment(gradebook.getUid(), siteId, "first", null, title,
+                10D, null, "sakai.samigo", null, false, null, null);
+        String tooLong = title + "x";
+        assertThrows(InvalidGradeItemNameException.class,
+                () -> gradingService.addExternalAssessment(gradebook.getUid(), siteId, "second", null, tooLong,
+                        10D, null, "sakai.samigo", null, false, null, null));
+        assertThrows(InvalidGradeItemNameException.class,
+                () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", "new-link", "new-data",
+                        tooLong, null, 20D, new Date(), true));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertFalse(gradingService.isExternalAssignmentDefined(gradebook.getUid(), "second"));
+        Assignment item = gradingService.getExternalAssignment(gradebook.getUid(), "first");
+        assertEquals(title, item.getName());
+        assertEquals(Double.valueOf(10D), item.getPoints());
     }
 
     @Test

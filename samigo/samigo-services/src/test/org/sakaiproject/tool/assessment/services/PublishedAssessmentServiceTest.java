@@ -429,6 +429,32 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     }
 
     @Test
+    public void gradebookTitlesAreDecodedOnceForBothInitialAndSubsequentExports() throws Exception {
+        for (String[] titles : List.of(
+                new String[] {"Cami&oacute;n", "Camión"},
+                new String[] {"Research &quot;A &amp; B&quot;", "Research \"A & B\""},
+                new String[] {"Quiz &#128512; &#129760;", "Quiz 😀 🫠"},
+                new String[] {"Literal &amp;amp; and &amp;#128512;", "Literal &amp; and &#128512;"})) {
+            PublishedAssessmentData current = data();
+            current.setTitle(titles[0]);
+            when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(false);
+            clearInvocations(gradebookService);
+            service.updateGradebook(current);
+            verify(gradebookService).addExternalAssessment(eq(siteId), eq(siteId), eq(assessment.getId()),
+                    isNull(), eq(titles[1]), eq(3D), isNull(), eq("sakai.samigo"), isNull(), eq(false),
+                    any(), anyString());
+            when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(true);
+            for (int update = 0; update < 2; update++) {
+                clearInvocations(gradebookService);
+                service.updateGradebook(current);
+                verify(gradebookService).updateExternalAssessment(eq(siteId), eq(assessment.getId()),
+                        isNull(), isNull(), eq(titles[1]), any(), eq(3D), isNull(), isNull());
+                assertEquals(titles[0], current.getTitle());
+            }
+        }
+    }
+
+    @Test
     public void singleExportMapsConfiguredAndUncategorizedItemsForCreateAndUpdate() {
         for (Long categoryId : Arrays.asList(10L, null, -1L)) {
             PublishedAssessmentData current = data();

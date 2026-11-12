@@ -198,6 +198,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		  List<String> gradebookList, Map<String, String> gradebookCategoryMap, GradingService g) throws Exception
   {
     log.debug("updateGradebook start");
+    String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
 
     for (String gradebookUid : gradebookList) {
       String category = gradebookCategoryMap != null ? gradebookCategoryMap.get(gradebookUid) : null;
@@ -207,7 +208,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
                 publishedAssessment.getPublishedAssessmentId().toString(),
                 null,
                 null,
-                publishedAssessment.getTitle(),
+                title,
                 category != null ? Long.parseLong(category) : null,
                 publishedAssessment.getTotalScore(),
                 publishedAssessment.getAssessmentAccessControl().getDueDate(),

@@ -80,6 +80,7 @@ import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.GradingEventStatus;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.grading.api.InvalidGradeException;
 import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.SortType;
@@ -4258,6 +4259,15 @@ public class GradingServiceImpl implements GradingService {
         return result || !providerResponded;
     }
 
+    private String validateExternalAssessmentTitle(String title) {
+        String validatedTitle = GradebookHelper.validateGradeItemName(title);
+        // GB_GRADABLE_OBJECT_T.NAME is VARCHAR(255); count characters, not UTF-16 units.
+        if (validatedTitle.codePointCount(0, validatedTitle.length()) > 255) {
+            throw new InvalidGradeItemNameException("Grade item titles must not exceed 255 characters");
+        }
+        return validatedTitle;
+    }
+
     @Override
     public void addExternalAssessment(final String gradebookUid, final String siteId, final String externalId, final String externalUrl, final String title, final Double points,
                                            final Date dueDate, final String externalServiceDescription, String externalData, final Boolean ungraded, final Long categoryId, String gradableReference)
@@ -4275,13 +4285,12 @@ public class GradingServiceImpl implements GradingService {
             throw new AssignmentHasIllegalPointsException("Points can't be null or Points must be > 0");
         }
 
+        String validatedTitle = validateExternalAssessmentTitle(title);
+
         // Ensure that the assessment name is unique within this gradebook
-        if (isAssignmentDefined(gradebookUid, siteId, title)) {
+        if (isAssignmentDefined(gradebookUid, siteId, validatedTitle)) {
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
-
-        // name cannot contain these chars as they are reserved for special columns in import/export
-        GradebookHelper.validateGradeItemName(title);
 
         // Ensure that the externalId is unique within this gradebook
         Long conflicts = gradingPersistenceManager.countAssignmentsByGradbookAndExternalId(gradebookUid, externalId);
@@ -4296,7 +4305,7 @@ public class GradingServiceImpl implements GradingService {
         Category persistedCategory = validateExternalAssessmentCategory(gradebook, categoryId, points, null);
 
         // Create the external assignment
-        final GradebookAssignment asn = new GradebookAssignment(gradebook, title, points, dueDate);
+        final GradebookAssignment asn = new GradebookAssignment(gradebook, validatedTitle, points, dueDate);
         asn.setReference(gradableReference);
         asn.setExternallyMaintained(true);
         asn.setExternalId(externalId);
@@ -4368,8 +4377,13 @@ public class GradingServiceImpl implements GradingService {
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
 
-        // name cannot contain these chars as they are reserved for special columns in import/export
-        GradebookHelper.validateGradeItemName(title);
+        String validatedTitle = validateExternalAssessmentTitle(title);
+        if (!Objects.equals(asn.getName(), validatedTitle)) {
+            GradebookAssignment sameName = getAssignmentWithoutStats(gradebookUid, validatedTitle);
+            if (sameName != null && !sameName.getId().equals(asn.getId())) {
+                throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
+            }
+        }
 
         Long effectiveCategoryId = categoryId == null
                 ? (asn.getCategory() == null ? null : asn.getCategory().getId())
@@ -4379,7 +4393,7 @@ public class GradingServiceImpl implements GradingService {
         asn.setExternalInstructorLink(externalUrl);
         asn.setExternalStudentLink(externalUrl);
         asn.setExternalData(externalData);
-        asn.setName(title);
+        asn.setName(validatedTitle);
         asn.setDueDate(dueDate);
         // support selective release
         asn.setReleased(BooleanUtils.isTrue(asn.getReleased()));

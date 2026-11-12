@@ -5545,7 +5545,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                                 nAssignment.getContext(),
                                                 nAssignmentRef,
                                                 null,
-                                                nAssignment.getTitle(),
+                                                formattedText.unEscapeHtml(nAssignment.getTitle()),
                                                 nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
                                                 Date.from(nAssignment.getDueDate()),
                                                 this.getToolId(),
