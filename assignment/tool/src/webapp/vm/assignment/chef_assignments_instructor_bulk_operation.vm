@@ -30,7 +30,7 @@
 							#if ($assignment.draft)
 								<span class="highlight">$tlang.getString("gen.dra2") </span>
 							#end
-							$assignmentTitleFormatter.escapeHtml($assignment.Title)
+							$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))
 							#if ($showGroupLockConsequences && $assignment.isGroup)
 								<p class="instruction">
 									#if ($service.canReleaseGroupLocks($assignment))

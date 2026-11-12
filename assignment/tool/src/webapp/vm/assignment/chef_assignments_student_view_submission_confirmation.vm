@@ -79,7 +79,7 @@
                     $tlang.getString('assignment.title')
                 </th>
                 <td>
-					$assignmentTitleFormatter.escapeHtml($!assignment.Title)
+					$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))
                     #assignmentIcons($assignment)
                 </td>
             </tr>

@@ -10,7 +10,7 @@
 		<p class="discTria">
 			<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doHide_view_assignment")'; return false;" title="$tlang.getString("gen.hidassinf")">
 				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.hidassinf")" border="0" width="13" height="13" />
-				$tlang.getString("gen.settfor") "$assignmentTitleFormatter.escapeHtml($assignment.title)"
+				$tlang.getString("gen.settfor") "$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.title))"
 			 </a>
 		</p>
 		<table class="itemSummary" border="0" summary="$tlang.getString("gen.viewasstablesummary")">
@@ -214,7 +214,7 @@
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("viewassig.shoassinf")" border="0" width="13" height="13" align="top"  />
-				$tlang.getString("gen.settfor") "$assignmentTitleFormatter.escapeHtml($assignment.title)"
+				$tlang.getString("gen.settfor") "$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.title))"
 				</a>
 			</p>	
 		#end
@@ -225,7 +225,7 @@
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doHide_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" />
-				$tlang.getString("gen.stuvieof") "$assignmentTitleFormatter.escapeHtml($assignment.title)"
+				$tlang.getString("gen.stuvieof") "$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.title))"
 				</a>
 			</p>
 			<div class="inopPanel">
@@ -397,7 +397,7 @@
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" />
-				$tlang.getString("gen.stuvieof") "$assignmentTitleFormatter.escapeHtml($assignment.Title)"
+				$tlang.getString("gen.stuvieof") "$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))"
 				</a>
 			</p>	
 

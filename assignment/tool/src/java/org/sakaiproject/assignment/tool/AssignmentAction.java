@@ -1087,7 +1087,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     private AssignmentService assignmentService;
     private AssignmentToolUtils assignmentToolUtils;
-    private final AssignmentTitleFormatter assignmentTitleFormatter = new AssignmentTitleFormatter();
     private AssignmentSupplementItemService assignmentSupplementItemService;
     private AuthzGroupService authzGroupService;
     private CalendarService calendarService;
@@ -1266,7 +1265,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("tlang", rb);
         context.put("dateFormat", getDateFormatString());
         context.put("cheffeedbackhelper", this);
-        context.put("assignmentTitleFormatter", assignmentTitleFormatter);
         context.put("service", assignmentService);
 
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
@@ -3847,7 +3845,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     // gradebook assignment label
                     String label = gAssignment.getName();
                     if (gAssignmentIdTitles.containsKey(gaId)) {
-                        String associatedTitles = assignmentTitleFormatter.toPlainText(gAssignmentIdTitles.get(gaId));
+                        String associatedTitles = formattedText.unEscapeHtml(gAssignmentIdTitles.get(gaId));
                         label += " ( " + rb.getFormattedMessage("usedGradebookAssignment", new Object[]{associatedTitles}) + " )";
                     }
                     gradebookAssignmentsLabel.put(formattedText.escapeHtml(gaId), label);
@@ -10325,7 +10323,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(a.getContext())) {
                     state.setAttribute(TAG_SELECTOR, String.join(",", tagService.getTagAssociationIds(a.getContext(), a.getId())));
                 }
-                state.setAttribute(NEW_ASSIGNMENT_TITLE, assignmentTitleFormatter.toPlainText(a.getTitle()));
+                state.setAttribute(NEW_ASSIGNMENT_TITLE, formattedText.unEscapeHtml(a.getTitle()));
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, a.getContentId());
                 if ( a.getContentId() != null ) {
                    try {
@@ -10532,7 +10530,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 sb.append(rb.getString("grading.associate"))
                         .append(": ");
                 if (assignmentReference.equals(properties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))) {
-                    sb.append(assignmentTitleFormatter.toPlainText(a.getTitle()));
+                    sb.append(formattedText.unEscapeHtml(a.getTitle()));
                 } else {
                     sb.append(properties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
                 }

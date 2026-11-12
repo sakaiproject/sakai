@@ -38,20 +38,19 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class AssignmentTitleFormatterTest {
+public class AssignmentTitleRenderingTest {
 
     private static FormattedTextImpl formattedText;
-    private final AssignmentTitleFormatter formatter = new AssignmentTitleFormatter();
 
     @BeforeClass
     public static void setUpFormattedText() {
         BasicConfigurationService configuration = new BasicConfigurationService();
         configuration.setThreadLocalManager(new ThreadLocalComponent());
         configuration.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem(
-                "content.cleaner.errors.handling", "none", "AssignmentTitleFormatterTest"));
+                "content.cleaner.errors.handling", "none", "AssignmentTitleRenderingTest"));
         formattedText = new FormattedTextImpl();
         formattedText.setServerConfigurationService(configuration);
-        // The formatter only consults the database vendor during initialization.
+        // FormattedText only consults the database vendor during initialization.
         formattedText.setSqlService(mock(SqlService.class));
         formattedText.init();
     }
@@ -61,7 +60,7 @@ public class AssignmentTitleFormatterTest {
         for (String title : List.of("Double \"quotes\"", "Single 'quotes'", "Research & Development",
                 "2 < 3 > 1", "\"Quotes\" & 'apostrophes' < >", "Café — 日本語")) {
             String storedTitle = sanitize(title);
-            String escapedTitle = formatter.escapeHtml(storedTitle);
+            String escapedTitle = formattedText.escapeHtml(formattedText.unEscapeHtml(storedTitle));
             Document document = Jsoup.parseBodyFragment(
                     "<span title=\"" + escapedTitle + "\">" + escapedTitle + "</span>");
             assertEquals(title, document.selectFirst("span").text());
@@ -74,7 +73,7 @@ public class AssignmentTitleFormatterTest {
         String title = "Research \"A & B\" < 10";
         String storedTitle = sanitize(title);
         for (int save = 0; save < 3; save++) {
-            String editableTitle = formatter.toPlainText(storedTitle);
+            String editableTitle = formattedText.unEscapeHtml(storedTitle);
             assertEquals(title, editableTitle);
             String savedAgain = sanitize(editableTitle);
             assertEquals(storedTitle, savedAgain);
@@ -84,9 +83,9 @@ public class AssignmentTitleFormatterTest {
 
     @Test
     public void decodesOnlyOneLayerOfEntities() {
-        assertEquals("Literal &amp; and &#34;", formatter.toPlainText("Literal &amp;amp; and &amp;#34;"));
+        assertEquals("Literal &amp; and &#34;", formattedText.unEscapeHtml("Literal &amp;amp; and &amp;#34;"));
         assertEquals("Literal &amp;amp; and &amp;#34;",
-                formatter.escapeHtml("Literal &amp;amp; and &amp;#34;"));
+                formattedText.escapeHtml(formattedText.unEscapeHtml("Literal &amp;amp; and &amp;#34;")));
     }
 
     @Test
@@ -104,7 +103,7 @@ public class AssignmentTitleFormatterTest {
                 "&lt;img src=x onerror=alert(1)&gt;",
                 "&amp;lt;img src=x onerror=alert(1)&amp;gt;",
                 "\" onmouseover=\"alert(1)")) {
-            String escapedTitle = formatter.escapeHtml(sanitize(title));
+            String escapedTitle = formattedText.escapeHtml(formattedText.unEscapeHtml(sanitize(title)));
             Document document = Jsoup.parseBodyFragment(
                     "<span title=\"" + escapedTitle + "\">" + escapedTitle + "</span>");
             assertEquals(1, document.body().childrenSize());
@@ -119,7 +118,6 @@ public class AssignmentTitleFormatterTest {
         assignment.setTitle(sanitize(title));
         VelocityContext context = new VelocityContext();
         context.put("assignment", assignment);
-        context.put("assignmentTitleFormatter", formatter);
         context.put("formattedText", formattedText);
         Document document = render("chef_assignments_student_view_group_error.vm", context);
         assertEquals(title, document.selectFirst("table.itemSummary tr td").text());
@@ -138,9 +136,9 @@ public class AssignmentTitleFormatterTest {
 
     @Test
     public void handlesEmptyTitles() {
-        assertEquals("", formatter.escapeHtml(null));
-        assertEquals("", formatter.escapeHtml(""));
-        assertEquals("", formatter.toPlainText(null));
+        assertEquals("", formattedText.escapeHtml(formattedText.unEscapeHtml(null)));
+        assertEquals("", formattedText.escapeHtml(formattedText.unEscapeHtml("")));
+        assertEquals("", formattedText.unEscapeHtml(null));
     }
 
     private Document render(String template, VelocityContext context) throws Exception {

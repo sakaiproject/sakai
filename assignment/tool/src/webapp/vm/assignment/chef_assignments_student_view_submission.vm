@@ -111,7 +111,7 @@ $(document).ready(function(){
 				#if ($!assignment.isGroup) <p class="sak-banner-warn">$tlang.getString("exampleassign3")</p> #end
 			#else
 			<h3>
-				$assignmentTitleFormatter.escapeHtml($assignment.Title)
+				$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))
 				<span class="highlight">
 					 - $!service.getSubmissionStatus($submission.Id, true)
 				</span>
@@ -194,7 +194,7 @@ $(document).ready(function(){
 				</div>
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
-						$assignmentTitleFormatter.escapeHtml($assignment.Title)
+						$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))
 						#assignmentIcons($assignment)
 						#set ($deleted = false)
 						#set ($deleted = $assignment.Deleted)

@@ -42,7 +42,7 @@
         <div class="navPanel">
             <div class="highlight gradingHeader">
                 <h3>
-                    $assignmentTitleFormatter.escapeHtml($!assignment.Title)
+                    $formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))
                     #assignmentIcons($!assignment)
                     <span class="highlight"> -
                         #if (!$!submission.Graded)
