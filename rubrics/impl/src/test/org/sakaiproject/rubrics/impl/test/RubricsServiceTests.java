@@ -455,6 +455,8 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
             rubricsService.deleteRubricAssociation(toolId, draftItemId);
             RubricTransferBean current = rubricsService.getRubric(rubric.getId()).orElseThrow();
             rubricsService.deleteRubric(rubric.getId(), current.getVersion());
+            RubricTransferBean deleted = rubricsService.getRubric(rubric.getId()).orElseThrow();
+            rubricsService.permanentlyDeleteRubric(rubric.getId(), deleted.getVersion());
         }
     }
 
@@ -547,6 +549,27 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         assertTrue(deletedOk);
 
+        Optional<RubricTransferBean> softDeleted = rubricsService.getRubric(rubricBean.getId());
+        assertTrue(softDeleted.isPresent());
+        assertNotNull(softDeleted.get().getSoftRemovedDate());
+        assertEquals(0, rubricsService.getRubricsForSite(siteId).size());
+        assertEquals(1, rubricsService.getDeletedRubricsForSite(siteId).size());
+
+        associations = associationRepository.findAll();
+        assertEquals(2, associations.size());
+        associations.forEach(ass -> {
+            assertFalse(Boolean.TRUE.equals(ass.getActive()));
+            assertEquals(Integer.valueOf(1), ass.getParameters().get(RubricsConstants.RBCS_RUBRIC_SOFT_DELETED));
+        });
+
+        assertTrue(rubricsService.restoreRubric(rubricBean.getId(), rubricsService.getRubric(rubricBean.getId()).get().getVersion()));
+        assertEquals(1, rubricsService.getRubricsForSite(siteId).size());
+        assertEquals(0, rubricsService.getDeletedRubricsForSite(siteId).size());
+
+        assertTrue(rubricsService.deleteRubric(rubricBean.getId(), rubricsService.getRubric(rubricBean.getId()).get().getVersion()));
+        Long softDeletedVersion = rubricsService.getRubric(rubricBean.getId()).get().getVersion();
+        assertTrue(rubricsService.permanentlyDeleteRubric(rubricBean.getId(), softDeletedVersion));
+
         assertFalse(rubricsService.getRubric(rubricBean.getId()).isPresent());
 
         List<Criterion> criteria = criterionRepository.findAll();
@@ -554,6 +577,100 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         associations = associationRepository.findAll();
         assertEquals(0, associations.size());
+    }
+
+    @Test
+    public void deleteRubricPreservesInactiveAndToolTrashedAssociations() {
+
+        switchToInstructor();
+
+        RubricTransferBean rubricBean = rubricsService.createDefaultRubric(siteId);
+        String toolId = "sakai.assignment";
+
+        Map<String, String> associateParams = new HashMap<>();
+        associateParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        associateParams.put(RubricsConstants.RBCS_LIST, rubricBean.getId().toString());
+
+        ToolItemRubricAssociation dissociated = rubricsService.saveRubricAssociation(toolId, "item1", associateParams).get();
+        ToolItemRubricAssociation toolTrashed = rubricsService.saveRubricAssociation(toolId, "item2", associateParams).get();
+
+        toolTrashed.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, 1);
+        associationRepository.save(toolTrashed);
+
+        Map<String, String> dissociateParams = new HashMap<>();
+        dissociateParams.put(RubricsConstants.RBCS_ASSOCIATE, "0");
+        dissociateParams.put(RubricsConstants.RBCS_LIST, "0");
+        assertFalse(rubricsService.saveRubricAssociation(toolId, "item1", dissociateParams).isPresent());
+
+        assertTrue(rubricsService.deleteRubric(rubricBean.getId(), rubricsService.getRubric(rubricBean.getId()).get().getVersion()));
+
+        ToolItemRubricAssociation inactiveAssociation = associationRepository.findById(dissociated.getId()).get();
+        assertFalse(Boolean.TRUE.equals(inactiveAssociation.getActive()));
+        assertFalse(inactiveAssociation.getParameters().containsKey(RubricsConstants.RBCS_RUBRIC_SOFT_DELETED));
+        assertFalse(inactiveAssociation.getParameters().containsKey(RubricsConstants.RBCS_SOFT_DELETED));
+
+        ToolItemRubricAssociation toolTrashedAssociation = associationRepository.findById(toolTrashed.getId()).get();
+        assertFalse(Boolean.TRUE.equals(toolTrashedAssociation.getActive()));
+        assertEquals(Integer.valueOf(1), toolTrashedAssociation.getParameters().get(RubricsConstants.RBCS_RUBRIC_SOFT_DELETED));
+        assertEquals(Integer.valueOf(1), toolTrashedAssociation.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED));
+
+        assertTrue(rubricsService.restoreRubric(rubricBean.getId(), rubricsService.getRubric(rubricBean.getId()).get().getVersion()));
+
+        inactiveAssociation = associationRepository.findById(dissociated.getId()).get();
+        assertFalse(Boolean.TRUE.equals(inactiveAssociation.getActive()));
+
+        toolTrashedAssociation = associationRepository.findById(toolTrashed.getId()).get();
+        assertTrue(Boolean.TRUE.equals(toolTrashedAssociation.getActive()));
+        assertFalse(toolTrashedAssociation.getParameters().containsKey(RubricsConstants.RBCS_RUBRIC_SOFT_DELETED));
+        assertEquals(Integer.valueOf(1), toolTrashedAssociation.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED));
+    }
+
+    @Test
+    public void softDeletedRubricRejectsWritesAndPreservesShared() {
+
+        switchToInstructor();
+
+        RubricTransferBean rubricBean = rubricsService.createDefaultRubric(siteId);
+        rubricBean.setShared(true);
+        rubricBean = rubricsService.saveRubric(rubricBean);
+        Long rubricId = rubricBean.getId();
+        assertTrue(Boolean.TRUE.equals(rubricBean.getShared()));
+        assertTrue(rubricsService.getSharedRubrics().stream().anyMatch(r -> r.getId().equals(rubricId)));
+
+        Map<String, String> rbcsParams = new HashMap<>();
+        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams.put(RubricsConstants.RBCS_LIST, rubricId.toString());
+        ToolItemRubricAssociation association
+            = rubricsService.saveRubricAssociation("sakai.assignment", "item-soft-delete", rbcsParams).get();
+
+        assertTrue(rubricsService.deleteRubric(rubricId, rubricsService.getRubric(rubricId).get().getVersion()));
+
+        RubricTransferBean softDeleted = rubricsService.getRubric(rubricId).get();
+        assertNotNull(softDeleted.getSoftRemovedDate());
+        assertTrue(Boolean.TRUE.equals(softDeleted.getShared()));
+        assertTrue(rubricsService.getSharedRubrics().stream().noneMatch(r -> r.getId().equals(rubricId)));
+
+        CriterionTransferBean criterion = softDeleted.getCriteria().get(0);
+        RatingTransferBean rating = criterion.getRatings().get(0);
+        assertThrows(IllegalStateException.class, () -> rubricsService.updateCriterion(criterion, siteId));
+        assertThrows(IllegalStateException.class,
+            () -> rubricsService.deleteCriterion(softDeleted.getId(), criterion.getId(), siteId, softDeleted.getVersion()));
+        assertThrows(IllegalStateException.class, () -> rubricsService.updateRating(rating, siteId));
+        assertThrows(IllegalStateException.class, () -> rubricsService.deleteRating(
+            rating.getId(), criterion.getId(), siteId, softDeleted.getId(), rating.getVersion()));
+        assertThrows(IllegalStateException.class,
+            () -> rubricsService.createDefaultCriterion(siteId, softDeleted.getId(), softDeleted.getVersion()));
+
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), softDeleted, "item-soft-delete");
+        assertThrows(IllegalStateException.class, () -> rubricsService.saveEvaluation(evaluation, siteId));
+        association.setActive(true);
+        associationRepository.save(association);
+        assertThrows(IllegalStateException.class, () -> rubricsService.saveEvaluation(evaluation, siteId));
+
+        assertTrue(rubricsService.restoreRubric(softDeleted.getId(), softDeleted.getVersion()));
+        RubricTransferBean restored = rubricsService.getRubric(rubricId).get();
+        assertTrue(Boolean.TRUE.equals(restored.getShared()));
+        assertTrue(rubricsService.getSharedRubrics().stream().anyMatch(r -> r.getId().equals(rubricId)));
     }
 
     @Test
@@ -672,12 +789,26 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         TestTransaction.end();
         verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_UPDATED, reference, siteId, true, NotificationService.NOTI_NONE);
 
-        // deleting also cleans up the committed rubric
+        // soft-delete posts rubric.deleted
         TestTransaction.start();
         TestTransaction.flagForCommit();
         assertTrue(rubricsService.deleteRubric(rubricBean.getId(), rubricsService.getRubric(rubricBean.getId()).get().getVersion()));
         TestTransaction.end();
         verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_DELETED, reference, siteId, true, NotificationService.NOTI_NONE);
+
+        TestTransaction.start();
+        TestTransaction.flagForCommit();
+        assertTrue(rubricsService.restoreRubric(rubricBean.getId(), rubricsService.getRubric(rubricBean.getId()).get().getVersion()));
+        TestTransaction.end();
+        verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_RESTORED, reference, siteId, true, NotificationService.NOTI_NONE);
+
+        TestTransaction.start();
+        TestTransaction.flagForCommit();
+        assertTrue(rubricsService.deleteRubric(rubricBean.getId(), rubricsService.getRubric(rubricBean.getId()).get().getVersion()));
+        Long softDeletedVersion = rubricsService.getRubric(rubricBean.getId()).get().getVersion();
+        assertTrue(rubricsService.permanentlyDeleteRubric(rubricBean.getId(), softDeletedVersion));
+        TestTransaction.end();
+        verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_PERMANENTLY_DELETED, reference, siteId, true, NotificationService.NOTI_NONE);
 
         TestTransaction.start();
     }
