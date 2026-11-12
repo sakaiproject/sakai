@@ -195,7 +195,7 @@ class SamigoTest extends SakaiUiTestBase {
 
     @Test
     @Order(3)
-    void canPreviewDraftAssessmentWithoutLeavingExtraAssessmentsBehind() {
+    void canPreviewTimedPartWithLinearNavigationWithoutLeavingExtraAssessmentsBehind() {
         String previewTitle = "Playwright Preview " + System.currentTimeMillis();
 
         String courseUrl = ensureCourseUrl();
@@ -208,17 +208,44 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm\\:title").fill(previewTitle);
         page.locator("#authorIndexForm\\:createnew").click(new Locator.ClickOptions().setForce(true));
 
-        addMultipleChoiceQuestion(
-            "10.00",
-            "Preview flow smoke question",
-            List.of("Option A", "Option B"),
-            0
-        );
+        for (int question = 1; question <= 3; question++) {
+            addMultipleChoiceQuestion("10.00", "Timed preview question " + question,
+                List.of("Option A", "Option B"), 0);
+        }
 
-        page.locator(".navViewAction").filter(new Locator.FilterOptions().setHasText("Preview")).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator("[id='assessmentForm:parts:0:editPart']").click();
+        page.locator("input[name='modifyPartForm:selTimed'][value='true']").check();
+        page.locator("[id='modifyPartForm:timeSection'] input[type='number']").nth(1).fill("3");
+        clickSubmit("Save");
+        assertThat(page.locator("#assessmentForm\\:parts")).isVisible();
 
-        clickFirstVisibleIfPresent(page.locator("input[type=\"submit\"][value*=\"Begin Assessment\"]"));
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).click();
+        page.getByText("Layout and Appearance", new Page.GetByTextOptions().setExact(true)).click();
+        page.locator("input[name='assessmentSettingsAction:itemNavigation'][value='1']").check();
+        page.locator("input[name='assessmentSettingsAction:assessmentFormat'][value='1']").check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
+        assertThat(page.locator("#assessmentForm\\:parts")).isVisible();
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Preview").setExact(true)).click();
+        assertThat(page.locator("#takeAssessmentForm")).isVisible();
+        Locator begin = page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Begin Assessment").setExact(true));
+        Locator honorPledge = page.locator("[id='takeAssessmentForm:honor_pledge']");
+        if (honorPledge.isVisible()) {
+            assertThat(begin).isDisabled();
+            honorPledge.check();
+        }
+        begin.click();
+
+        assertThat(page.locator("body")).containsText("Timed preview question 1");
+        Locator progress = page.locator("#questionProgressPanel table[id$=':tocquestions']");
+        assertThat(progress.locator(".progressItem .linearButton")).hasCount(3);
+        assertThat(progress.locator(".progressItem img[alt='unanswered icon']")).hasCount(3);
+        Locator next = page.locator("input[id$=':next']");
+        assertThat(next).isEnabled();
+        next.click();
+        assertThat(page.locator("body")).containsText("Timed preview question 2");
+        assertThat(progress.locator(".currentQuestion")).containsText("2");
 
         if (!clickFirstVisibleIfPresent(page.locator(".exit-preview-button, button:has-text(\"Exit\"), a:has-text(\"Exit\"), a:has-text(\"Assessments\")"))) {
             page.navigate(testsUrl);
