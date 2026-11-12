@@ -212,38 +212,24 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         if (assignment != null) {
             AssignmentSubmission submission = new AssignmentSubmission();
             submission.setDateCreated(Instant.now());
-            submitters.ifPresent(submission::setSubmitters);
-            submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
             feedbackAttachments.ifPresent(submission::setFeedbackAttachments);
             submittedAttachments.ifPresent(submission::setAttachments);
             properties.ifPresent(submission::setProperties);
             if (assignment.getIsGroup()) { groupId.ifPresent(submission::setGroupId); }
 
             submission.setAssignment(assignment);
+            Session session = geCurrentSession();
+            // Assign the UUID before hashing either relationship's elements.
+            session.persist(submission);
+            submitters.ifPresent(members -> members.forEach(member -> {
+                member.setSubmission(submission);
+                session.persist(member);
+                submission.getSubmitters().add(member);
+            }));
             assignment.getSubmissions().add(submission);
-
-            geCurrentSession().persist(assignment);
             return submission;
         }
         return null;
-    }
-
-    @Override
-    @Transactional
-    public void addSubmissions(Collection<AssignmentSubmission> submissions) {
-        Session session = geCurrentSession();
-        for (AssignmentSubmission submission : submissions) {
-            List<AssignmentSubmissionSubmitter> submitters = new ArrayList<>(submission.getSubmitters());
-            submission.setSubmitters(new HashSet<>());
-            // Assign the UUID before hashing either relationship's elements.
-            session.persist(submission);
-            for (AssignmentSubmissionSubmitter submitter : submitters) {
-                submitter.setSubmission(submission);
-                session.persist(submitter);
-                submission.getSubmitters().add(submitter);
-            }
-            submission.getAssignment().getSubmissions().add(submission);
-        }
     }
 
     @Override

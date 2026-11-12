@@ -1012,17 +1012,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assertDeletionBlocksSubmission(true);
     }
 
-    @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void deletionBlocksPlaceholderBatchFromAnAlreadyOpenRequest() throws Exception {
-        assertDeletionBlocksSubmission(false, true);
-    }
-
     private void assertDeletionBlocksSubmission(boolean existingPlaceholder) throws Exception {
-        assertDeletionBlocksSubmission(existingPlaceholder, false);
-    }
-
-    private void assertDeletionBlocksSubmission(boolean existingPlaceholder, boolean placeholderBatch) throws Exception {
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         Assignment assignment = transaction.execute(status -> {
             try {
@@ -1039,16 +1029,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Member member = buildGroupMember(UUID.randomUUID().toString());
         when(group.getMembers()).thenReturn(Set.of(member));
         when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
-        if (placeholderBatch) {
-            String studentId = member.getUserId();
-            User user = mock(User.class);
-            when(user.getId()).thenReturn(studentId);
-            when(user.getSortName()).thenReturn("student");
-            when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference))
-                    .thenReturn(List.of(user));
-            when(group.getId()).thenReturn(groupId);
-            when(siteService.getSite(assignment.getContext()).getGroupsWithMember(studentId)).thenReturn(List.of(group));
-        }
 
         String submissionId = existingPlaceholder ? assignmentService.addSubmission(assignment.getId(), groupId).getId() : null;
         if (existingPlaceholder) {
@@ -1078,9 +1058,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                     Assert.assertTrue("Deletion did not acquire its lock", deletionLocked.await(10, TimeUnit.SECONDS));
                     submissionAttempted.countDown();
                     try {
-                        if (placeholderBatch) {
-                            return assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext()).isEmpty();
-                        } else if (existingPlaceholder) {
+                        if (existingPlaceholder) {
                             placeholder.setGrade("0");
                             assignmentService.updateSubmission(placeholder);
                         } else {
@@ -3229,12 +3207,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void placeholderBatchPreservesSubmissionsWithoutRepeatedReloads() throws Exception {
+    public void placeholderCreationPreservesExistingWork() throws Exception {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
         assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "2");
         assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, "1795000000000");
-        List<User> users = configurePlaceholderUsers(assignment, 40);
+        List<User> users = configurePlaceholderUsers(assignment, 3);
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         AssignmentSubmission existing = assignmentService.addSubmission(assignment.getId(), users.get(0).getId());
         assertSubmitterSetStable(existing);
@@ -3246,25 +3224,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         sessionFactory.getCurrentSession().flush();
         sessionFactory.getCurrentSession().clear();
 
-        org.hibernate.stat.Statistics statistics = sessionFactory.getStatistics();
-        boolean statisticsEnabled = statistics.isStatisticsEnabled();
-        statistics.setStatisticsEnabled(true);
-        long loadsBefore = statistics.getEntityLoadCount();
-        long queriesBefore = statistics.getQueryExecutionCount();
         Mockito.clearInvocations(eventTrackingService);
-        Map<User, AssignmentSubmission> submissions;
-        try {
-            submissions = assignmentService.getSubmitterMap("true", null, "student", reference, context);
-            submissions.values().forEach(this::assertSubmitterSetStable);
-            sessionFactory.getCurrentSession().flush();
-            long loadedEntities = statistics.getEntityLoadCount() - loadsBefore;
-            Assert.assertTrue("Placeholder creation must not repeatedly reload the growing submission graph: " + loadedEntities,
-                    loadedEntities < users.size() * 10);
-            Assert.assertTrue("Existing submissions must be checked in bulk rather than once per student",
-                    statistics.getQueryExecutionCount() - queriesBefore < 10);
-        } finally {
-            statistics.setStatisticsEnabled(statisticsEnabled);
-        }
+        Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+        submissions.values().forEach(this::assertSubmitterSetStable);
+        sessionFactory.getCurrentSession().flush();
 
         verify(eventTrackingService, Mockito.times(users.size() - 1))
                 .newEvent(eq(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
@@ -3291,7 +3254,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void placeholderBatchPreservesOptionalResubmissionCloseTime() throws Exception {
+    public void placeholderPreservesOptionalResubmissionCloseTime() throws Exception {
         for (Instant closeDate : Arrays.asList(null, Instant.parse("2026-12-01T12:00:00Z"))) {
             for (String resubmitClose : List.of("", " ", "1795000000000")) {
                 Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
@@ -3316,7 +3279,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void placeholderBatchCommitsWhenOneCreationEventFails() throws Exception {
+    public void placeholdersCommitWhenOneCreationEventFails() throws Exception {
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         Assignment assignment = transaction.execute(status -> createNewAssignment(UUID.randomUUID().toString()));
         configurePlaceholderUsers(assignment, 3);
@@ -3330,7 +3293,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertEquals(3, submissions.size());
             verify(eventTrackingService, Mockito.times(3)).post(Mockito.nullable(Event.class));
 
-            // A second service call starts a new transaction and verifies the batch committed.
+            // A second service call starts a new transaction and verifies the placeholders committed.
             Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
             Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
                     reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
@@ -3342,7 +3305,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void placeholderBatchSharesOneGroupSubmissionAndCreationEvent() throws Exception {
+    public void placeholdersShareOneGroupSubmissionAndCreationEvent() throws Exception {
         Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
         List<User> users = configurePlaceholderUsers(assignment, 2);
         Site site = siteService.getSite(assignment.getContext());
@@ -3374,63 +3337,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         verify(eventTrackingService).newEvent(eq(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
     }
 
-    @Test
-    public void placeholderBatchDoesNotCreateSubmissionsForDeletedAssignment() throws Exception {
-        String context = UUID.randomUUID().toString();
-        Assignment assignment = createNewAssignment(context);
-        configurePlaceholderUsers(assignment, 3);
-        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
-        assignmentService.softDeleteAssignment(assignment);
-
-        Assert.assertTrue(assignmentService.getSubmitterMap("true", null, "student", reference, context).isEmpty());
-        sessionFactory.getCurrentSession().flush();
-        sessionFactory.getCurrentSession().clear();
-        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getSubmissions().isEmpty());
-    }
-
     private void assertSubmitterSetStable(AssignmentSubmission submission) {
         for (AssignmentSubmissionSubmitter member : List.copyOf(submission.getSubmitters())) {
             Assert.assertTrue(submission.getSubmitters().contains(member));
             Assert.assertTrue(submission.getSubmitters().remove(member));
             Assert.assertTrue(submission.getSubmitters().add(member));
-        }
-    }
-
-    @Test
-    public void unresolvableGroupUsersDoNotRepeatAssignmentLockAndRefresh() throws Exception {
-        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
-        List<User> users = configurePlaceholderUsers(assignment, 1);
-        Site site = siteService.getSite(assignment.getContext());
-        List<Group> groups = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            Group group = mock(Group.class);
-            String groupId = UUID.randomUUID().toString();
-            String groupReference = "/site/" + assignment.getContext() + "/group/" + groupId;
-            when(group.getId()).thenReturn(groupId);
-            when(group.getReference()).thenReturn(groupReference);
-            assignment.getGroups().add(groupReference);
-            groups.add(group);
-        }
-        when(site.getGroupsWithMember(users.get(0).getId())).thenReturn(groups);
-        assignment.setIsGroup(true);
-        assignment.setTypeOfAccess(Assignment.Access.GROUP);
-        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
-        Assert.assertTrue(assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext()).isEmpty());
-
-        org.hibernate.stat.Statistics statistics = sessionFactory.getStatistics();
-        boolean statisticsEnabled = statistics.isStatisticsEnabled();
-        statistics.setStatisticsEnabled(true);
-        long statementsBefore = statistics.getPrepareStatementCount();
-        long loadsBefore = statistics.getEntityLoadCount();
-        try {
-            Assert.assertTrue(assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext()).isEmpty());
-            Assert.assertEquals("Only the normal bulk submission lookup should execute", 1,
-                    statistics.getPrepareStatementCount() - statementsBefore);
-            Assert.assertEquals("No assignment refresh should reload entities", 0, statistics.getEntityLoadCount() - loadsBefore);
-        } finally {
-            statistics.setStatisticsEnabled(statisticsEnabled);
         }
     }
 

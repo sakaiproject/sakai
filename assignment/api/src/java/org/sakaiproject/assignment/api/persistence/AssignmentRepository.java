@@ -71,9 +71,6 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
                        Optional<Set<String>> submittedAttachments,
                        Optional<Map<String, String>> properties);
 
-    /** Persist fully prepared submissions and maintain their assignment relationship. */
-    void addSubmissions(Collection<AssignmentSubmission> submissions);
-
     AssignmentSubmission findSubmissionForUser(String assignmentId, String userId);
 
     List<AssignmentSubmission> findSubmissionForUsers(String assignmentId, List<String> userIds);
