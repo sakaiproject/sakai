@@ -3637,7 +3637,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 try {
                                     securityService.pushAdvisor(securityAdvisor);
                                     log.debug("context {} for assignment {} for group {}", contextString, a.getId(), g.getId());
-                                    AssignmentSubmission s = addSubmission(a.getId(), g.getId());
+                                    AssignmentSubmission s = addSubmission(a.getId(), g.getId(), true);
                                     s.setSubmitted(true);
                                     s.setUserSubmission(false);
 

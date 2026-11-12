@@ -3346,7 +3346,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void groupPlaceholderPreservesOpenEndedResubmissions() throws Exception {
+    public void groupPlaceholderPreservesOpenEndedResubmissionsWhenCreationEventFails() throws Exception {
         Assignment assignment = createPublishedGroupAssignment();
         String groupReference = assignment.getGroups().iterator().next();
         String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
@@ -3361,11 +3361,19 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
 
-        Assert.assertEquals(1, assignmentService.getSubmitterGroupList("false", groupId, null, assignment.getId(), assignment.getContext()).size());
+        Mockito.doThrow(new IllegalStateException("Event transport unavailable"))
+                .when(eventTrackingService).post(Mockito.nullable(Event.class));
+        try {
+            Assert.assertEquals(1, assignmentService.getSubmitterGroupList("false", groupId, null, assignment.getId(), assignment.getContext()).size());
+        } finally {
+            Mockito.doNothing().when(eventTrackingService).post(Mockito.nullable(Event.class));
+        }
         sessionFactory.getCurrentSession().flush();
         sessionFactory.getCurrentSession().clear();
         AssignmentSubmission submission = assignmentService.getAssignment(assignment.getId()).getSubmissions().iterator().next();
-        Assert.assertNotNull("Group placeholder creation must complete without the close-date exception", submission.getDateModified());
+        Assert.assertNotNull("Group placeholder creation must complete despite the event failure", submission.getDateModified());
+        Assert.assertTrue(submission.getSubmitted());
+        Assert.assertFalse(submission.getUserSubmission());
         Assert.assertEquals("-1", submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
         Assert.assertFalse(submission.getProperties().containsKey(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
     }
