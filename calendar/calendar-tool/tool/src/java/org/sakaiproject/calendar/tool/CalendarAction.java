@@ -3284,7 +3284,6 @@ extends VelocityPortletStateAction
 		context.put("icalInfoStr",icalInfoStr);
 
 		context.put("opaqueUrl", opaqueUrl);
-		context.put("webcalUrl", opaqueUrl.replaceFirst("http", "webcal"));
 		context.put("isMyWorkspace", isOnWorkspaceTab());
 		context.put("form-regenerate", BUTTON + "doOpaqueUrlRegenerate");
 		context.put("form-delete", BUTTON + "doOpaqueUrlDelete");
