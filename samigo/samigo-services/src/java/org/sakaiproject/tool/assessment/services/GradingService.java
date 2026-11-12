@@ -1453,7 +1453,7 @@ public class GradingService
 
               if (initialScore.compareTo(BigDecimal.ZERO) == 1){
                   automaticScore = initialScore.divide(new BigDecimal(correctAnswers), MathContext.DECIMAL128);
-              } else{
+              } else if (correctAnswers > 0) {
                   automaticScore = new BigDecimal(getTotalCorrectScore(itemGrading, publishedAnswerHash))
                       .divide(new BigDecimal(correctAnswers), MathContext.DECIMAL128);
                   automaticScore = automaticScore.multiply(new BigDecimal(-1.0d), MathContext.DECIMAL128);
