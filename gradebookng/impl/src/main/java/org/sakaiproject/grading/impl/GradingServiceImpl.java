@@ -4287,8 +4287,15 @@ public class GradingServiceImpl implements GradingService {
 
         String validatedTitle = validateExternalAssessmentTitle(title);
 
-        // Ensure that the assessment name is unique within this gradebook
-        if (isAssignmentDefined(gradebookUid, siteId, validatedTitle)) {
+        if (!isUserAbleToViewAssignments(siteId)) {
+            log.warn("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to add external assessment {}",
+                    getUserUid(), gradebookUid, externalId);
+            throw new GradingSecurityException();
+        }
+
+        // Ensure that the assessment name is unique within this gradebook.
+        // Titles containing only digits are names, not assignment IDs.
+        if (gradingPersistenceManager.countAssignmentsByNameAndGradebookUid(validatedTitle, gradebookUid) > 0L) {
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
 
@@ -4379,7 +4386,8 @@ public class GradingServiceImpl implements GradingService {
 
         String validatedTitle = validateExternalAssessmentTitle(title);
         if (!Objects.equals(asn.getName(), validatedTitle)) {
-            GradebookAssignment sameName = getAssignmentWithoutStats(gradebookUid, validatedTitle);
+            GradebookAssignment sameName = gradingPersistenceManager
+                    .getAssignmentByNameAndGradebook(validatedTitle, gradebookUid).orElse(null);
             if (sameName != null && !sameName.getId().equals(asn.getId())) {
                 throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
             }

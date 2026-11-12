@@ -35,6 +35,7 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.site.api.SitePage;
@@ -135,14 +136,13 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		  GradingService g) throws
     Exception
   {
-    boolean added = false;
     String siteId = GradebookFacade.getGradebookUId();
     if (gradebookUId == null) {
       return false;
     }
 
     String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
-    if (!g.isAssignmentDefined(gradebookUId, siteId, title)) {
+    try {
       g.addExternalAssessment(gradebookUId, siteId,
               publishedAssessment.getPublishedAssessmentId().toString(),
               null,
@@ -154,9 +154,10 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
               false,
               categoryId,
               publishedAssessment.getReference());
-      added = true;
+      return true;
+    } catch (ConflictingAssignmentNameException e) {
+      return false;
     }
-    return added;
   }
 
   public void buildItemToGradebook(PublishedAssessmentData publishedAssessment, List<String> selectedGroups, GradingService g)

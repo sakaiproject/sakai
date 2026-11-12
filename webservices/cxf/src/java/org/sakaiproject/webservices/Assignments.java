@@ -330,7 +330,7 @@ public class Assignments extends AbstractWebService {
     		log.debug("time is " + dt.toString());
 
     		//set the values for the assignemnt
-    		assign.setTitle(title);
+		assign.setTitle(formattedText.processFormattedText(title, null, true, true));
     		assign.setDraft(false);
     		assign.setDueDate(dt);
     		assign.setDropDeadDate(dt);
@@ -367,7 +367,7 @@ public class Assignments extends AbstractWebService {
     		//do GB integration
     		String aReference = AssignmentReferenceReckoner.reckoner().assignment(assign).reckon().getReference();
 
-    		integrateGradebook(aReference, null, "add", title, maxGradePoints, Date.from(dt), null, null, gradebookUid, context);
+		integrateGradebook(aReference, null, "add", formattedText.unEscapeHtml(assign.getTitle()), maxGradePoints, Date.from(dt), null, null, gradebookUid, context);
 
     		Calendar c = null;
     		try {

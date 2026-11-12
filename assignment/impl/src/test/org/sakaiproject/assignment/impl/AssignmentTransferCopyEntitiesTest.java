@@ -171,8 +171,8 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         String fromContext = UUID.randomUUID().toString();
         String toContext = UUID.randomUUID().toString();
         Assignment source = createPublishedAssignment(fromContext);
-        String storedTitle = "Cami&oacute;n &amp; &quot;quotes&quot;";
-        String plainTitle = "Camión & \"quotes\"";
+        String storedTitle = "Cami&oacute;n &amp; &quot;quotes&quot; &amp;lt;img src=x onerror=alert(1)&amp;gt;";
+        String plainTitle = "Camión & \"quotes\" &lt;img src=x onerror=alert(1)&gt;";
         source.setTitle(storedTitle);
         source.setMaxGradePoint(100);
         source.setScaleFactor(1);
@@ -192,7 +192,19 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
                 eq(plainTitle), any(), any(), eq(assignmentService.getToolId()), isNull(), eq(false), isNull(), isNull());
         Collection<Assignment> copies = assignmentService.getAssignmentsForContext(toContext);
         assertEquals(1, copies.size());
-        assertEquals(storedTitle, copies.iterator().next().getTitle());
+        Assignment copy = copies.iterator().next();
+        assertEquals(storedTitle, copy.getTitle());
+
+        String nextContext = UUID.randomUUID().toString();
+        stubContextPermissions(nextContext);
+        String copyRef = AssignmentReferenceReckoner.reckoner().assignment(copy).reckon().getReference();
+        when(gradingService.isExternalAssignmentDefined(toContext, copyRef)).thenReturn(true);
+        ((EntityTransferrer) assignmentService).transferCopyEntities(toContext, nextContext,
+                List.of(copy.getId()), List.of(EntityTransferrer.PUBLISH_OPTION));
+        verify(gradingService).addExternalAssessment(eq(nextContext), eq(nextContext), anyString(), isNull(),
+                eq(plainTitle), any(), any(), eq(assignmentService.getToolId()), isNull(), eq(false), isNull(), isNull());
+        assertEquals(storedTitle, assignmentService.getAssignmentsForContext(nextContext).iterator().next().getTitle());
+        assertEquals(storedTitle, assignmentService.getAssignment(source.getId()).getTitle());
     }
 
     @Test

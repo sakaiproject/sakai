@@ -453,6 +453,32 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void numericExternalAssessmentTitlesAreNamesOnCreateAndUpdate() {
+        Gradebook gradebook = createGradebook();
+        switchToInstructor();
+        addCancellationAssessment(gradebook, "first", null, 10D);
+        addCancellationAssessment(gradebook, "second", null, 10D);
+        addCancellationAssessment(gradebook, "2026", null, 10D);
+        String numericTitle = gradingService.getExternalAssignment(gradebook.getUid(), "first").getId().toString();
+        String otherNumericTitle = gradingService.getExternalAssignment(gradebook.getUid(), "second").getId().toString();
+        gradingService.addExternalAssessment(gradebook.getUid(), siteId, "numeric", null, " " + otherNumericTitle + " ",
+                10D, null, "sakai.samigo", null, false, null, null);
+        assertEquals(otherNumericTitle, gradingService.getExternalAssignment(gradebook.getUid(), "numeric").getName());
+        assertThrows(ConflictingAssignmentNameException.class,
+                () -> gradingService.addExternalAssessment(gradebook.getUid(), siteId, "duplicate", null, "2026",
+                        10D, null, "sakai.samigo", null, false, null, null));
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", null, "data",
+                numericTitle, null, 10D, null, false);
+        assertEquals(numericTitle, gradingService.getExternalAssignment(gradebook.getUid(), "first").getName());
+        assertThrows(ConflictingAssignmentNameException.class,
+                () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", null, "data",
+                        "2026", null, 10D, null, false));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertEquals(numericTitle, gradingService.getExternalAssignment(gradebook.getUid(), "first").getName());
+    }
+
+    @Test
     public void externalAssessmentTitleLengthIsValidatedBeforePersistence() {
         Gradebook gradebook = createGradebook();
         switchToInstructor();

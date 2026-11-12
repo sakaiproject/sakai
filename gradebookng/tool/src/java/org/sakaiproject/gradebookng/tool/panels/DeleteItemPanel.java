@@ -51,7 +51,7 @@ public class DeleteItemPanel extends BasePanel {
 		final Form<Long> form = new Form<>("form", Model.of(assignmentId));
 
 		final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
-		final String assignmentTitle = assignment.getName();
+		final String assignmentTitle = formattedText.escapeHtml(assignment.getName());
 		form.add(new Label("confirmationMessage", new StringResourceModel( "delete.warning").setParameters(assignmentTitle)).setEscapeModelStrings(false));
 
 		final GbAjaxButton submit = new GbAjaxButton("submit") {
