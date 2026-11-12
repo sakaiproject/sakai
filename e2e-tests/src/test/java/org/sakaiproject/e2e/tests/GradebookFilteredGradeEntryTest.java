@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.options.KeyboardModifier;
 import com.microsoft.playwright.options.LoadState;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +41,6 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
     // Matches a handful of the demo roster (Albertson, van der Pluijm, Zimmerman)
     private static final String FILTER = "be";
     private static final Pattern RANGE_SELECTED = Pattern.compile(".*tabulator-range-only-cell-selected.*");
-    private static final Pattern IN_RANGE = Pattern.compile(".*tabulator-range-selected.*");
 
     private final List<String> pageErrors = new ArrayList<>();
 
@@ -82,19 +80,17 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
     }
 
     @Test
-    void cellMenuOpensWithoutEditorAndCommentsTheRightStudent() {
+    void cellMenuCommentsTheRightStudent() {
         String assignmentId = openGradebookWithNewItem("Filtered menu");
         List<Locator> cells = filterStudents(assignmentId);
 
         // Enter a grade first: that redraws the row, which is what used to mix up row indexes
         Locator cell = cells.get(1);
-        cell.click();
-        assertThat(editorIn(cell)).isFocused();
+        select(cell);
         page.keyboard().type("64");
         page.keyboard().press("Enter");
         assertThat(cell.locator(".gb-value")).hasText("64");
 
-        // The cell menu opens on a single click and leaves the grade alone
         cell.locator(".dropdown-toggle").click();
         Locator menu = cell.locator(".dropdown-menu.show");
         assertThat(menu).isVisible();
@@ -133,7 +129,7 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         Locator cell = cells.get(1);
         String studentId = cell.getAttribute("data-student-id");
 
-        cell.click();
+        select(cell);
         page.keyboard().type("60");
         page.keyboard().press("Enter");
         assertThat(cell.locator(".gb-value")).hasText("60");
@@ -148,7 +144,7 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
             otherFilter.fill(FILTER);
             otherFilter.press("Enter");
             otherCell.click();
-            assertThat(otherCell.locator("input.tabulator-input")).isFocused();
+            assertThat(otherCell).hasClass(RANGE_SELECTED);
             other.keyboard().type("70");
             other.keyboard().press("Enter");
             assertThat(otherCell.locator(".gb-value")).hasText("70");
@@ -156,8 +152,7 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
             other.close();
         }
 
-        cell.click();
-        assertThat(editorIn(cell)).isFocused();
+        select(cell);
         page.keyboard().type("80");
         page.keyboard().press("Enter");
         assertThat(cell).hasClass(Pattern.compile(".*gb-save-error.*"));
@@ -175,44 +170,6 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
     }
 
     @Test
-    void clickInsideEditorKeepsItOpenAndEscapeCancels() {
-        String assignmentId = openGradebookWithNewItem("Editor click");
-        Locator cell = filterStudents(assignmentId).get(0);
-
-        cell.click();
-        Locator editor = editorIn(cell);
-        assertThat(editor).isFocused();
-
-        // Tabulator used to treat this as a new cell click and blur (save and close) the editor
-        editor.click();
-        assertThat(editor).isFocused();
-        page.keyboard().type("9");
-        assertThat(editor).hasValue("9");
-
-        page.keyboard().press("Escape");
-        assertThat(editor).hasCount(0);
-        assertThat(cell.locator(".gb-value")).hasText("");
-    }
-
-    @Test
-    void shiftClickExtendsTheSelectionWithoutEditing() {
-        String assignmentId = openGradebookWithNewItem("Shift click");
-        List<Locator> cells = filterStudents(assignmentId);
-
-        cells.get(0).click();
-        assertThat(editorIn(cells.get(0))).isFocused();
-        page.keyboard().press("Escape");
-        assertThat(editorIn(cells.get(0))).hasCount(0);
-
-        cells.get(2).click(new Locator.ClickOptions().setModifiers(List.of(KeyboardModifier.SHIFT)));
-        page.waitForTimeout(200);
-        for (int i = 0; i <= 2; i++) {
-            assertThat(cells.get(i)).hasClass(IN_RANGE);
-            assertThat(editorIn(cells.get(i))).hasCount(0);
-        }
-    }
-
-    @Test
     void arrowsWrapToTheNextAndPreviousFilteredStudent() {
         String assignmentId = openGradebookWithNewItem("Wrap");
         List<String> students = studentIds(filterStudents(assignmentId));
@@ -223,7 +180,13 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
             + " t.scrollToColumn(cols[cols.length - 1], 'end', false); }");
         page.waitForTimeout(300);
         page.evaluate("() => { const cell = GbGradeTable.instance.getRows('active')[0].getCells().at(-1);"
-            + " GbGradeTable.instance.addRange(cell, cell); cell.getElement().focus(); }");
+            + " GbGradeTable.selectSingleCell(cell); cell.getElement().focus(); }");
+        String lastField = (String) page.evaluate("() => GbGradeTable.instance.getColumns().at(-1).getField()");
+        Locator lastCellOfFirstStudent = page.locator(".tabulator-cell[data-student-id=\"" + students.get(0)
+            + "\"][data-col-index=\"" + lastField + "\"]");
+        // Tabulator sets a new range's bounds in a timeout and its arrow keys throw before
+        // then, so wait for the selection to show (as anyone at a keyboard would)
+        assertThat(lastCellOfFirstStudent).hasClass(RANGE_SELECTED);
 
         // The first key in a boundary cell only registers it; the next one wraps
         page.keyboard().press("ArrowRight");
@@ -234,9 +197,6 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
 
         // ArrowLeft from the first column wraps back to the last column of the previous student
         page.keyboard().press("ArrowLeft");
-        String lastField = (String) page.evaluate("() => GbGradeTable.instance.getColumns().at(-1).getField()");
-        Locator lastCellOfFirstStudent = page.locator(".tabulator-cell[data-student-id=\"" + students.get(0)
-            + "\"][data-col-index=\"" + lastField + "\"]");
         assertThat(lastCellOfFirstStudent).hasClass(RANGE_SELECTED);
     }
 
@@ -245,7 +205,7 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         String assignmentId = openGradebookWithNewItem("Arrow then type");
         List<Locator> cells = filterStudents(assignmentId);
 
-        cells.get(0).click();
+        select(cells.get(0));
         page.keyboard().type("40");
         page.keyboard().press("Enter");
         assertThat(cells.get(1)).isFocused();
@@ -270,10 +230,9 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         enterScoresDownTheColumn(firstFour, 50);
     }
 
-    /** Clicks the first cell, then types a score and Enter for each cell in turn. */
+    /** Selects the first cell, then types a score and Enter for each cell in turn. */
     private void enterScoresDownTheColumn(List<Locator> cells, int firstScore) {
-        cells.get(0).click();
-        assertThat(editorIn(cells.get(0))).isFocused();
+        select(cells.get(0));
 
         for (int i = 0; i < cells.size(); i++) {
             String score = String.valueOf(firstScore + i);
@@ -367,6 +326,13 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
             ids.add(cell.getAttribute("data-student-id"));
         }
         return ids;
+    }
+
+    /** Clicks a grade cell to select it; the first digit typed then opens its editor. */
+    private void select(Locator cell) {
+        cell.click();
+        assertThat(cell).hasClass(RANGE_SELECTED);
+        assertThat(editorIn(cell)).hasCount(0);
     }
 
     private Locator editorIn(Locator cell) {

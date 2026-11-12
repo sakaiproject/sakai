@@ -718,27 +718,24 @@ GbGradeTable.cellComponentForElement = function(cellElement) {
   const rowElement = cellElement?.closest(".tabulator-row");
   if (!rowElement) return null;
 
-  const row = GbGradeTable.instance.getRows("active").find(r => r.getElement() === rowElement);
-  return row?.getCells().find(c => c.getElement() === cellElement) || null;
+  const row = GbGradeTable.instance.getRow(rowElement);
+  if (!row) return null;
+  return row.getCells().find(c => c.getElement() === cellElement) || null;
 };
 
-// Select a single cell. Tabulator settles a new range's bounds (and its CSS classes)
-// on the next frame, so remember the cell until then for keys that arrive sooner.
+// Select a single cell. Tabulator sets a new range's bounds (and its CSS classes) in a
+// timeout, so until then the range reads as row 0 / column 0; remember the cell until
+// a range is added (see the rangeAdded listener in renderTable).
 GbGradeTable.selectSingleCell = function(cell) {
   GbGradeTable.instance.getRanges().forEach(range => range.remove());
   GbGradeTable.instance.addRange(cell, cell);
-
-  const element = cell.getElement();
-  GbGradeTable._justSelected = element;
-  requestAnimationFrame(() => setTimeout(() => {
-    if (GbGradeTable._justSelected === element) GbGradeTable._justSelected = null;
-  }, 0));
+  GbGradeTable._pendingSelection = cell.getElement();
 };
 
 // The single selected cell. Range navigation doesn't move DOM focus, so the focused
 // element can be stale; read the range itself.
 GbGradeTable.selectedCellElement = function() {
-  if (GbGradeTable._justSelected?.isConnected) return GbGradeTable._justSelected;
+  if (GbGradeTable._pendingSelection?.isConnected) return GbGradeTable._pendingSelection;
 
   const ranges = GbGradeTable.instance.getRanges();
   if (ranges.length === 1) {
@@ -875,13 +872,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       inputContainer.appendChild(input);
       inputContainer.appendChild(outOf);
 
-      // Keep clicks inside the editor away from Tabulator. Its range selection treats
-      // them as a new cell click and moves focus to the table, which blurs (and so
-      // saves and closes) this editor.
-      ["mousedown", "mouseup", "click", "dblclick"].forEach(type => {
-        inputContainer.addEventListener(type, e => e.stopPropagation());
-      });
-
       onRendered(function() {
 
         const columnData = cell.getColumn().getDefinition().formatterParams._data_;
@@ -951,23 +941,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       rowElement.setAttribute("scope", "row");
       rowElement.classList.add("border-bottom");
     }
-  });
-
-  // Single click edits a grade, except when the click lands on the cell's menu,
-  // notification flags, links or buttons. Tabulator's "click" edit trigger can't
-  // filter by target, so editTriggerEvent stays "dblclick" and we start the edit here.
-  const nonEditingClickTargets = ".dropdown, .dropdown-toggle, .dropdown-menu, .gb-notification, .gb-comment-notification, .gb-course-comment-notification, a, button";
-  GbGradeTable.instance.on("cellClick", (e, cell) => {
-    const element = cell.getElement();
-    if (!element.classList.contains("tabulator-editable") || element.classList.contains("tabulator-editing")) return;
-    if (e.target.closest(nonEditingClickTargets)) return;
-    // Shift/Ctrl/Cmd-click changes the selected range; editing would collapse it
-    if (e.shiftKey || e.ctrlKey || e.metaKey) return;
-    // Tabulator's range selection handles this same click after us and moves focus
-    // to the table, so open the editor once it's done.
-    setTimeout(() => {
-      if (!element.classList.contains("tabulator-editing")) cell.edit();
-    }, 0);
   });
 
   GbGradeTable.instance.on("headerClick", (e, column) => {
@@ -1102,6 +1075,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     });
   });
 
+  // A range now has real bounds (a click, arrow keys, or one added by selectSingleCell
+  // has settled), so read the selection from the range API again
+  GbGradeTable.instance.on("rangeAdded", () => GbGradeTable._pendingSelection = null);
+
   // Ignore the transient top-left range Tabulator fires on mousedown before the pressed cell
   let pressedCell = null;
   GbGradeTable.instance.on("cellMouseDown", (event, cell) => {
@@ -1110,15 +1087,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
    GbGradeTable.instance.on("rangeChanged", function (range) {
-    const colIndex = range._range.end.col;
-    const rowIndex = range._range.end.row;
-    const table = GbGradeTable.instance;
+    const { end } = range.getBounds();
+    if (!end) return;
 
-    // Range positions count displayed (filtered and sorted) rows
-    const cell = table.getRows("display")[rowIndex]?.getCells()[colIndex];
-    if (!cell) return;
-
-    const cellElement = cell.getElement();
+    const cellElement = end.getElement();
     if (pressedCell && cellElement !== pressedCell) return;
 
     
