@@ -15053,9 +15053,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // commit
                     try {
-                        boolean hasUploadedSubmission = (hasSubmissionText && w.hasSubmissionText())
-                                || (hasSubmissionAttachment && !w.getSubmissionAttachments().isEmpty());
-                        assignmentService.updateSubmission(submission, hasUploadedSubmission);
+                        // Instructor uploads must not generate student submission receipts.
+                        assignmentService.updateSubmission(submission, false);
                         if (releaseGrades && graded) {
                             // update grade in gradebook
                             if (associateGradebookAssignment != null) {
@@ -16977,8 +16976,6 @@ public class AssignmentAction extends PagedResourceActionII {
          */
         String m_text = null;
 
-        private boolean m_hasSubmissionText;
-
         /**
          * the submission attachment list
          */
@@ -17040,11 +17037,6 @@ public class AssignmentAction extends PagedResourceActionII {
          */
         public void setText(String text) {
             m_text = text;
-            m_hasSubmissionText = true;
-        }
-
-        public boolean hasSubmissionText() {
-            return m_hasSubmissionText;
         }
 
         /**
