@@ -6,7 +6,7 @@
 			<th>$tlang.getString("gen.title")</th>
 			<td>
 				#if ($!assignment.getIsGroup())<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>#end
-				$formattedText.escapeHtml($assignment.getTitle())
+				$assignmentTitleFormatter.escapeHtml($assignment.getTitle())
 				#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
 				#if ($!deleted.equalsIgnoreCase("true"))<span class="highlight">(Assignment has been deleted)</span>#end
 			</td>

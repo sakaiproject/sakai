@@ -26,7 +26,7 @@ function printView(url) {
 	<div id="assignment-header">
 		<div class="page-header">
 			<h1>
-			$formattedText.escapeHtml($assignment.Title)
+			$assignmentTitleFormatter.escapeHtml($assignment.Title)
 			<small>
 			#if ($!assignment.IsGroup )
 				<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
@@ -661,7 +661,7 @@ function printView(url) {
 				$tlang.getString("gen.asstit")
 			</th>
 			<td>
-					$formattedText.escapeHtml($assignment.Title)
+					$assignmentTitleFormatter.escapeHtml($assignment.Title)
 					#assignmentIcons($assignment)
 			</td>
 		</tr>

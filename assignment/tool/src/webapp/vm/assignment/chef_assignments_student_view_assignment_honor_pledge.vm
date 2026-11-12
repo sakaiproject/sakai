@@ -9,7 +9,7 @@
     #else
         <h3>
             $tlang.getString('assignment.title')
-            $formattedText.escapeHtml($!assignment.Title)
+            $assignmentTitleFormatter.escapeHtml($!assignment.Title)
             #assignmentIcons($assignment)
         </h3>
 

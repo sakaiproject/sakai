@@ -171,7 +171,7 @@
 								</div>
 							</td>
 							<td headers="assignment">
-								$formattedText.escapeHtml($!assignment.Title)
+								$assignmentTitleFormatter.escapeHtml($!assignment.Title)
 								#assignmentIcons($assignment)
 							</td>
 							#if($!isAdditionalNotesEnabled)

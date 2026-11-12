@@ -32,7 +32,7 @@
                 $tlang.getString("gen.title")
             </th>
             <td>
-				$formattedText.escapeHtml($assignment.Title)
+				$assignmentTitleFormatter.escapeHtml($assignment.Title)
                 #assignmentIcons($assignment)
             </td>
         </tr>
