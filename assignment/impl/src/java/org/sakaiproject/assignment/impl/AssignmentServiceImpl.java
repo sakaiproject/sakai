@@ -1573,6 +1573,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     @Transactional
     public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException {
+        return addSubmission(assignmentId, submitter, false);
+    }
+
+    private AssignmentSubmission addSubmission(String assignmentId, String submitter, boolean gradingPlaceholder) throws PermissionException {
 
         if (StringUtils.isBlank(submitter)) return null;
         Optional<Assignment> assignment = Optional.empty();
@@ -1665,8 +1669,32 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             AssignmentSubmission submission = assignmentRepository.newSubmission(a.getId(), groupId, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
+            if (gradingPlaceholder) {
+                // Grader placeholders are not student work, despite the historical submitted flag.
+                submission.setSubmitted(true);
+                submission.setUserSubmission(false);
+                submission.setDateModified(submission.getDateCreated());
+                String resubmits = a.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+                if (StringUtils.isNotBlank(resubmits)) {
+                    submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, resubmits);
+                    String resubmitClose = a.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
+                    if (StringUtils.isNotBlank(resubmitClose)) {
+                        submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, resubmitClose);
+                    } else if (a.getCloseDate() != null) {
+                        submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(a.getCloseDate().toEpochMilli()));
+                    }
+                }
+            }
+
             String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+            try {
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+            } catch (Exception e) {
+                if (!gradingPlaceholder) {
+                    throw e;
+                }
+                log.warn("Could not post creation event for submission {} in assignment {}", submission.getId(), assignmentId, e);
+            }
 
             log.debug("New submission: {} added to assignment: {}", submission.getId(), assignmentId);
             return submission;
@@ -3609,7 +3637,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 try {
                                     securityService.pushAdvisor(securityAdvisor);
                                     log.debug("context {} for assignment {} for group {}", contextString, a.getId(), g.getId());
-                                    AssignmentSubmission s = addSubmission(a.getId(), g.getId());
+                                    AssignmentSubmission s = addSubmission(a.getId(), g.getId(), true);
                                     s.setSubmitted(true);
                                     s.setUserSubmission(false);
 
@@ -3622,8 +3650,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                         String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                                         // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-                                        s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().toEpochMilli()));
+                                        if (StringUtils.isNotBlank(assignmentAllowResubmitCloseDate)) {
+                                            s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate);
+                                        } else if (a.getCloseDate() != null) {
+                                            s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(a.getCloseDate().toEpochMilli()));
+                                        }
                                     }
 
                                     assignmentRepository.updateSubmission(s);
@@ -3749,46 +3780,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 List<User> usersWithNoSubmission = new ArrayList<>(users);
                 usersWithNoSubmission.removeAll(submitterMap.keySet());
 
-                for (final User user : usersWithNoSubmission) {
+                for (User user : usersWithNoSubmission) {
                     String submitterId = getSubmitterIdForAssignment(a, user.getId());
                     if (StringUtils.isNotBlank(submitterId)) {
                         try {
-                            AssignmentSubmission submission = addSubmission(assignmentId, submitterId);
+                            AssignmentSubmission submission = addSubmission(assignmentId, submitterId, true);
                             if (submission != null) {
-                                // Note: If we had s.setSubmitted(false);, this would put it in 'draft mode'
-                                submission.setSubmitted(true);
-                                /*
-                                 * Since setSubmitted represents whether the submission is in draft mode state, we need another property. So we created isUserSubmission.
-                                 * This represents whether the submission was generated by a user.
-                                 * We set it to false because these submissions are generated so that the instructor has something to grade;
-                                 * the user did not in fact submit anything.
-                                 */
-                                submission.setUserSubmission(false);
-
-                                // set the resubmission properties
-                                // get the assignment setting for resubmitting
-                                Map<String, String> assignmentProperties = a.getProperties();
-                                String assignmentAllowResubmitNumber = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
-                                if (StringUtils.isNotBlank(assignmentAllowResubmitNumber)) {
-                                    Map<String, String> submissionProperties = submission.getProperties();
-                                    submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
-
-                                    String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
-                                    // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-                                    submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                            StringUtils.isNotBlank(assignmentAllowResubmitCloseDate)
-                                                    ? assignmentAllowResubmitCloseDate
-                                                    : String.valueOf(a.getCloseDate().toEpochMilli()));
-                                }
-                                assignmentRepository.updateSubmission(submission);
                                 submitterMap.put(user, submission);
-                            } else {
-                                log.warn("No submission was found/created for user {} in assignment {}, this should never happen", user.getId(), a.getId());
                             }
                         } catch (PermissionException pe) {
-                            log.debug("A new submission could not be added because the user lacks a permission, {}", pe.getMessage());
-                        } catch (Exception e) {
-                            log.warn("Exception thrown while creating empty submission for student who has not submitted, {}", e.getMessage(), e);
+                            log.debug("Placeholder submission could not be added for assignment {}: {}", assignmentId, pe.getMessage());
                         }
                     }
                 }

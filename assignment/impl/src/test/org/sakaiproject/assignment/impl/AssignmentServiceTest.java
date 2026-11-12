@@ -1672,6 +1672,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
 
         Assert.assertNotNull(submission);
+        assertSubmitterSetStable(submission);
+        sessionFactory.getCurrentSession().flush();
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> currentUser.equals(s.getSubmitter())));
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
 
@@ -1694,6 +1696,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         try {
             assignmentService.updateSubmission(submission);
+            sessionFactory.getCurrentSession().flush();
+            sessionFactory.getCurrentSession().clear();
             AssignmentSubmission reconciledSubmission = assignmentService.getSubmission(submission.getId());
             Set<String> submitterIds = reconciledSubmission.getSubmitters().stream()
                     .map(AssignmentSubmissionSubmitter::getSubmitter)
@@ -3182,6 +3186,216 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertTrue(groups.isEmpty());
         Mockito.verify(securityService, Mockito.never()).unlock(Mockito.isNull(String.class),
                 eq(AssignmentServiceConstants.SECURE_ALL_GROUPS), eq(siteReference));
+    }
+
+    @Test
+    public void addingSubmissionDoesNotReloadExistingSubmissionGraph() throws Exception {
+        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+        List<User> users = configurePlaceholderUsers(assignment, 2);
+        assignmentService.addSubmission(assignment.getId(), users.get(0).getId());
+        sessionFactory.getCurrentSession().flush();
+        org.hibernate.stat.Statistics statistics = sessionFactory.getStatistics();
+        boolean statisticsEnabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        long loadsBefore = statistics.getEntityLoadCount();
+        try {
+            Assert.assertNotNull(assignmentService.addSubmission(assignment.getId(), users.get(1).getId()));
+            Assert.assertEquals("Adding a submission must not refresh the existing graph", loadsBefore, statistics.getEntityLoadCount());
+        } finally {
+            statistics.setStatisticsEnabled(statisticsEnabled);
+        }
+    }
+
+    @Test
+    public void placeholderCreationPreservesExistingWork() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "2");
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, "1795000000000");
+        List<User> users = configurePlaceholderUsers(assignment, 3);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        AssignmentSubmission existing = assignmentService.addSubmission(assignment.getId(), users.get(0).getId());
+        assertSubmitterSetStable(existing);
+        existing.setSubmittedText("Student work");
+        existing.setFeedbackComment("Saved feedback");
+        existing.setGrade("0");
+        existing.setUserSubmission(true);
+        String existingId = existing.getId();
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+
+        Mockito.clearInvocations(eventTrackingService);
+        Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+        submissions.values().forEach(this::assertSubmitterSetStable);
+        sessionFactory.getCurrentSession().flush();
+
+        verify(eventTrackingService, Mockito.times(users.size() - 1))
+                .newEvent(eq(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
+        Assert.assertEquals(users.size(), submissions.size());
+        AssignmentSubmission preserved = submissions.get(users.get(0));
+        Assert.assertEquals(existingId, preserved.getId());
+        Assert.assertEquals("Student work", preserved.getSubmittedText());
+        Assert.assertEquals("Saved feedback", preserved.getFeedbackComment());
+        Assert.assertEquals("0", preserved.getGrade());
+        Assert.assertTrue(preserved.getUserSubmission());
+        for (User user : users.subList(1, users.size())) {
+            AssignmentSubmission placeholder = submissions.get(user);
+            Assert.assertTrue(placeholder.getSubmitted());
+            Assert.assertFalse(placeholder.getUserSubmission());
+            Assert.assertEquals("2", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+            Assert.assertEquals("1795000000000", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+        }
+
+        sessionFactory.getCurrentSession().clear();
+        Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+        reopened.values().forEach(this::assertSubmitterSetStable);
+        Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
+                reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void placeholderPreservesOptionalResubmissionCloseTime() throws Exception {
+        for (Instant closeDate : Arrays.asList(null, Instant.parse("2026-12-01T12:00:00Z"))) {
+            for (String resubmitClose : List.of("", " ", "1795000000000")) {
+                Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+                assignment.setCloseDate(closeDate);
+                assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "-1");
+                assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, resubmitClose);
+                configurePlaceholderUsers(assignment, 1);
+                String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+                sessionFactory.getCurrentSession().flush();
+                sessionFactory.getCurrentSession().clear();
+
+                AssignmentSubmission placeholder = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext())
+                        .values().iterator().next();
+                String expected = resubmitClose.isBlank() ? (closeDate == null ? null : String.valueOf(closeDate.toEpochMilli())) : resubmitClose;
+                Assert.assertEquals(expected, placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+                Assert.assertEquals(expected != null, placeholder.getProperties().containsKey(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+                Assert.assertEquals("-1", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+            }
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void placeholdersCommitWhenOneCreationEventFails() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment assignment = transaction.execute(status -> createNewAssignment(UUID.randomUUID().toString()));
+        configurePlaceholderUsers(assignment, 3);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        Mockito.clearInvocations(eventTrackingService);
+        Mockito.doThrow(new IllegalStateException("Event transport unavailable")).doNothing()
+                .when(eventTrackingService).post(Mockito.nullable(Event.class));
+        try {
+            Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+            Assert.assertEquals(3, submissions.size());
+            verify(eventTrackingService, Mockito.times(3)).post(Mockito.nullable(Event.class));
+
+            // A second service call starts a new transaction and verifies the placeholders committed.
+            Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+            Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
+                    reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+            verify(eventTrackingService, Mockito.times(3)).post(Mockito.nullable(Event.class));
+        } finally {
+            Mockito.doNothing().when(eventTrackingService).post(Mockito.nullable(Event.class));
+            assignmentService.deleteAssignmentAndAllReferences(assignment);
+        }
+    }
+
+    @Test
+    public void placeholdersShareOneGroupSubmissionAndCreationEvent() throws Exception {
+        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+        List<User> users = configurePlaceholderUsers(assignment, 2);
+        Site site = siteService.getSite(assignment.getContext());
+        String groupId = UUID.randomUUID().toString();
+        String groupReference = "/site/" + assignment.getContext() + "/group/" + groupId;
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        Set<Member> members = users.stream().map(user -> buildGroupMember(user.getId())).collect(Collectors.toSet());
+        when(group.getMembers()).thenReturn(members);
+        when(site.getGroup(groupId)).thenReturn(group);
+        for (User user : users) {
+            when(site.getGroupsWithMember(user.getId())).thenReturn(List.of(group));
+        }
+        assignment.setIsGroup(true);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.getGroups().add(groupReference);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        Mockito.clearInvocations(eventTrackingService);
+
+        Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+        submissions.values().forEach(this::assertSubmitterSetStable);
+        sessionFactory.getCurrentSession().flush();
+        Assert.assertEquals(2, submissions.size());
+        Assert.assertSame(submissions.get(users.get(0)), submissions.get(users.get(1)));
+        Assert.assertEquals(1, assignment.getSubmissions().size());
+        Assert.assertEquals(2, submissions.get(users.get(0)).getSubmitters().size());
+        verify(eventTrackingService).newEvent(eq(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
+    }
+
+    private void assertSubmitterSetStable(AssignmentSubmission submission) {
+        for (AssignmentSubmissionSubmitter member : List.copyOf(submission.getSubmitters())) {
+            Assert.assertTrue(submission.getSubmitters().contains(member));
+            Assert.assertTrue(submission.getSubmitters().remove(member));
+            Assert.assertTrue(submission.getSubmitters().add(member));
+        }
+    }
+
+    @Test
+    public void groupPlaceholderPreservesOpenEndedResubmissionsWhenCreationEventFails() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        String groupReference = assignment.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Site site = siteService.getSite(assignment.getContext());
+        Group group = site.getGroup(groupReference);
+        when(group.getId()).thenReturn(groupId);
+        Member member = buildGroupMember(UUID.randomUUID().toString());
+        when(group.getMembers()).thenReturn(Set.of(member));
+        when(site.getGroup(groupId)).thenReturn(group);
+        assignment.setCloseDate(null);
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "-1");
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+
+        Mockito.doThrow(new IllegalStateException("Event transport unavailable"))
+                .when(eventTrackingService).post(Mockito.nullable(Event.class));
+        try {
+            Assert.assertEquals(1, assignmentService.getSubmitterGroupList("false", groupId, null, assignment.getId(), assignment.getContext()).size());
+        } finally {
+            Mockito.doNothing().when(eventTrackingService).post(Mockito.nullable(Event.class));
+        }
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        AssignmentSubmission submission = assignmentService.getAssignment(assignment.getId()).getSubmissions().iterator().next();
+        Assert.assertNotNull("Group placeholder creation must complete despite the event failure", submission.getDateModified());
+        Assert.assertTrue(submission.getSubmitted());
+        Assert.assertFalse(submission.getUserSubmission());
+        Assert.assertEquals("-1", submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+        Assert.assertFalse(submission.getProperties().containsKey(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+    }
+
+    private List<User> configurePlaceholderUsers(Assignment assignment, int count) throws Exception {
+        String context = assignment.getContext();
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String submissionReference = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
+        Site site = mock(Site.class);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            String id = UUID.randomUUID().toString();
+            User user = mock(User.class);
+            when(user.getId()).thenReturn(id);
+            when(user.getSortName()).thenReturn("student " + i);
+            when(site.getMember(id)).thenReturn(mock(Member.class));
+            users.add(user);
+        }
+        when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(users);
+        return users;
     }
 
     @Test
