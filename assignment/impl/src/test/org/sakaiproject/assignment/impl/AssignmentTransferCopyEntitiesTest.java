@@ -78,6 +78,9 @@ import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -96,6 +99,7 @@ import org.springframework.test.util.AopTestUtils;
 @ContextConfiguration(classes = {AssignmentTestConfiguration.class})
 public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired private SiteService siteService;
     @Autowired private LTIService ltiService;
     @Autowired private AssignmentService assignmentService;
     @Resource(name = "org.sakaiproject.announcement.api.AnnouncementService")
@@ -381,6 +385,48 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         assertEquals(AssignmentConstants.GRADEBOOK_INTEGRATION_NO,
             importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
         Assert.assertNull(importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_CATEGORY));
+    }
+
+    @Test
+    public void transferCopyEntitiesDropsSourceLessonsReferenceAndPreservesGroupSettings() throws Exception {
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        stubContextPermissions(toContext);
+        Site sourceSite = mock(Site.class);
+        Site destinationSite = mock(Site.class);
+        Group sourceGroup = mock(Group.class);
+        Group destinationGroup = mock(Group.class);
+        ResourceProperties sourceProperties = new BaseResourcePropertiesEdit();
+        sourceProperties.addProperty("lessonbuilder_ref", "/lessonbuilder/source/item/123");
+        sourceProperties.addProperty("sections_category", "lecture");
+        sourceProperties.addProperty("sections_location", "Room 52946");
+        ResourceProperties destinationProperties = new BaseResourcePropertiesEdit();
+        String sourceRef = "/site/" + fromContext + "/group/source";
+        String destinationRef = "/site/" + toContext + "/group/destination";
+        when(siteService.getSite(fromContext)).thenReturn(sourceSite);
+        when(siteService.getSite(toContext)).thenReturn(destinationSite);
+        when(sourceSite.getGroup(sourceRef)).thenReturn(sourceGroup);
+        when(sourceGroup.getTitle()).thenReturn("Imported group");
+        when(sourceGroup.getProperties()).thenReturn(sourceProperties);
+        when(destinationSite.getGroups()).thenReturn(Collections.emptyList());
+        when(destinationSite.addGroup()).thenReturn(destinationGroup);
+        when(destinationGroup.getReference()).thenReturn(destinationRef);
+        when(destinationGroup.getProperties()).thenReturn(destinationProperties);
+
+        Assignment source = createPublishedAssignment(fromContext);
+        source.setDraft(true);
+        source.setTypeOfAccess(Assignment.Access.GROUP);
+        source.getGroups().add(sourceRef);
+        updateAssignment(source);
+        ((EntityTransferrer) assignmentService).transferCopyEntities(fromContext, toContext, List.of(source.getId()), List.of());
+
+        Assignment copy = assignmentService.getAssignmentsForContext(toContext).iterator().next();
+        assertEquals(Collections.singleton(destinationRef), copy.getGroups());
+        Assert.assertNull(destinationProperties.getProperty("lessonbuilder_ref"));
+        assertEquals("lecture", destinationProperties.getProperty("sections_category"));
+        assertEquals("Room 52946", destinationProperties.getProperty("sections_location"));
+        assertEquals("/lessonbuilder/source/item/123", sourceProperties.getProperty("lessonbuilder_ref"));
+        verify(siteService).save(destinationSite);
     }
 
     private Assignment createPublishedAssignment(String context) {

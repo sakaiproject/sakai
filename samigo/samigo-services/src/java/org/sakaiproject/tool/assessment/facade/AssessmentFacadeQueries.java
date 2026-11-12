@@ -1888,7 +1888,8 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 						targetGroup.setTitle(sourceGroup.getTitle());
 						targetGroup.setDescription(sourceGroup.getDescription());
 						targetGroup.getProperties().addAll(sourceGroup.getProperties());
-						// External section IDs and group filters belong to the source site.
+						// Lessons references, external section IDs and group filters belong to the source site.
+						targetGroup.getProperties().removeProperty("lessonbuilder_ref");
 						targetGroup.getProperties().removeProperty("sections_eid");
 						targetGroup.getProperties().removeProperty(Group.GROUP_PROP_FILTERED_BY);
 						targetGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());

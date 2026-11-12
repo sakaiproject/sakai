@@ -69,6 +69,9 @@ class GroupImportTest extends SakaiUiTestBase {
         assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHas(
             page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(setTitle + " 1").setExact(true)))))
             .containsText("(7)");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(setTitle + " 1").setExact(true)).click();
+        assertThat(page.locator("#groupAllowPreviewMembership")).isChecked();
+        openGroups(destinationSite);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(setTitle).setExact(true)).click();
         assertThat(page.locator("#allowUnjoin")).isChecked();
         assertThat(page.locator("#joinableOpenDate")).hasValue("2020-01-01T09:00");
