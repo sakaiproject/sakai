@@ -1623,7 +1623,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
         if (canGrade(assignment)) {
-            rv = assignment.getSubmissions().stream().map(ss -> {
+            rv = assignment.getSubmissions().stream()
+                .filter(ss -> ss.getSubmitters().stream().anyMatch(submitter -> activeSubmitters.contains(submitter.getSubmitter())))
+                .map(ss -> {
                 try {
                     return new SimpleSubmission(ss, new SimpleAssignment(assignment), activeSubmitters);
                 } catch (Exception e) {
@@ -2039,7 +2041,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (hydrate) {
                 if (canGrade(a) && a.getSubmissions().stream().findAny().isPresent()) {
                     this.submissions = new ArrayList<>();
-                    this.submissions = a.getSubmissions().stream().map(ss -> {
+                    this.submissions = a.getSubmissions().stream()
+                        .filter(ss -> ss.getSubmitters().stream().anyMatch(submitter -> activeSubmitters.contains(submitter.getSubmitter())))
+                        .map(ss -> {
                         try {
                             return new SimpleSubmission(ss, this, activeSubmitters);
                         } catch (Exception e) {
