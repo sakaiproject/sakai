@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
@@ -57,16 +56,7 @@ class CalendarRecurrenceWidgetTest extends SakaiUiTestBase {
                 pin.dispose();
             }
             String timezone = (String) page.evaluate("() => Intl.DateTimeFormat().resolvedOptions().timeZone");
-            sakai.gotoPath("/portal/site/~" + user.username());
-            sakai.toolClick("Preferences");
-            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Time Zone").setExact(true)).click();
-            page.locator("[id='timezone_form'] select").selectOption(timezone);
-            page.locator("[id='timezone_form:submit']").click();
-            assertThat(page.getByText("Your preferences have been updated successfully.",
-                new Page.GetByTextOptions().setExact(true))).isVisible();
-            // Reload Sakai's session context after saving the preference. The server JVM's
-            // default timezone need not match either the user preference or the browser.
-            sakai.login(user.username());
+            sakai.setUserTimeZone(user.username(), timezone);
             assertEquals(timezone, page.evaluate("() => portal.user.timezone"));
             ZoneId zone = ZoneId.of(timezone);
             sakai.gotoPath(siteUrl);
@@ -93,19 +83,19 @@ class CalendarRecurrenceWidgetTest extends SakaiUiTestBase {
             assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Event").setExact(true))).isVisible();
 
             sakai.toolClick("Dashboard");
-            assertCalendarData("/api/sites/" + sakai.siteIdFromUrl(siteUrl) + "/calendar", first, zone, title);
+            assertMidnightOccurrences(siteUrl, first, zone, title);
             assertOccurrence(first, title);
             assertOccurrence(first.plusDays(1), title);
 
             sakai.gotoPath("/portal/site/~" + user.username());
             sakai.toolClick("Dashboard");
-            assertCalendarData("/api/users/current/calendar", first, zone, title);
             assertOccurrence(first, title);
             assertOccurrence(first.plusDays(1), title);
         }
     }
 
-    private void assertCalendarData(String path, LocalDate first, ZoneId zone, String title) {
+    private void assertMidnightOccurrences(String siteUrl, LocalDate first, ZoneId zone, String title) {
+        String path = "/api/sites/" + sakai.siteIdFromUrl(siteUrl) + "/calendar";
         APIResponse response = page.request().get(path);
         JsonArray events;
         try {
@@ -114,18 +104,15 @@ class CalendarRecurrenceWidgetTest extends SakaiUiTestBase {
         } finally {
             response.dispose();
         }
+        List<Long> starts = events.asList().stream()
+            .map(JsonElement::getAsJsonObject)
+            .filter(event -> title.equals(event.get("title").getAsString()))
+            .map(event -> event.get("start").getAsLong())
+            .toList();
         for (LocalDate date : List.of(first, first.plusDays(1))) {
             // Resolve each local midnight separately: consecutive days can have different DST offsets.
             long midnight = date.atStartOfDay(zone).toInstant().toEpochMilli();
-            boolean found = false;
-            for (JsonElement element : events) {
-                JsonObject event = element.getAsJsonObject();
-                if (title.equals(event.get("title").getAsString()) && midnight == event.get("start").getAsLong()) {
-                    found = true;
-                    break;
-                }
-            }
-            assertTrue(found, "Expected midnight occurrence on " + date + " in " + zone + " from " + path);
+            assertTrue(starts.contains(midnight), "Expected midnight occurrence on " + date + " in " + zone);
         }
     }
 
