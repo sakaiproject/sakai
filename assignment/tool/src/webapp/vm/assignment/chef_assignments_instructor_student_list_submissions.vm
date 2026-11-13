@@ -155,7 +155,7 @@
 									#set($displayAssignment = true)
 								#end
 								#set ($assignmentReference = $!service.assignmentReference($assignment.Id))
-								#set($assignmentTitle = $formattedText.escapeHtml($assignment.Title))
+								#set($assignmentTitle = $formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title)))
 								#if ((!$assignment.Draft) && ($displayAssignment))
 									## do not show draft assignments
 									#set($submission = false)

@@ -109,7 +109,7 @@
 								#if ($!assignment.Draft)
 									<span class="badge text-bg-secondary">$tlang.getString("gen.dra2")</span>
 								#end
-								<span class="sakai-reorder-title" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($!assignment.Title)</span>
+								<span class="sakai-reorder-title" title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))">$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))</span>
 							</div>
 							<div class="sakai-reorder-meta">
 								<span>$tlang.getString("listassig.sorbyope"): $!service.getUsersLocalDateTimeString($!assignment.OpenDate)</span>

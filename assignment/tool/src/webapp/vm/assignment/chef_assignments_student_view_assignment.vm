@@ -12,7 +12,7 @@
 	#end
 	#if (!$hideAssignmentFlag)
 		<p class="lead mb-3">
-			 $tlang.getString("gen.settfor") "$formattedText.escapeHtml($assignment.title)"
+			 $tlang.getString("gen.settfor") "$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.title))"
 		</p>
 		<div class="card mb-4">
 			<div class="card-body">
@@ -97,7 +97,7 @@
 		<div class="d-flex align-items-center mb-3">
 			<button class="btn btn-link p-0" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">
 				<i class="bi bi-chevron-right"></i>
-				$tlang.getString("gen.settfor") "$formattedText.escapeHtml($assignment.title)"
+				$tlang.getString("gen.settfor") "$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.title))"
 			</button>
 		</div>
 	#end

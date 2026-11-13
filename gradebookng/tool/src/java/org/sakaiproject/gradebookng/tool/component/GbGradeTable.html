@@ -79,8 +79,8 @@
                     </span>
                 {/if}
                 <div class="{if extraCredit && externallyMaintained} gb-item-title-3 {elseif extraCredit || externallyMaintained} gb-item-title-2 {else} gb-item-title-1 {/if} d-inline-block overflow-hidden text-truncate">
-                    <a class="gb-title" title="${tooltip}">
-                        ${abbrevTitle}
+                    <a class="gb-title" title="${tooltip|escapeAttribute}">
+                        ${abbrevTitle|escape}
                     </a>
                     {if hasAssociatedRubric}
                         <span class="si si-sakai-rubrics" wicket:message="title:rubrics.question_use_rubric"></span>
@@ -168,7 +168,7 @@
                         {/if}
                     </ul>
                     <div id="gb-messager-for-${assignmentId}" style="display: none;" wicket:message="title:label.submission-messager.title">
-                      <sakai-submission-messager assignment-id="${assignmentId}" gradebook-id="${settings.gUid}" title="${abbrevTitle}"></sakai-submission-messager>
+                      <sakai-submission-messager assignment-id="${assignmentId}" gradebook-id="${settings.gUid}" title="${abbrevTitle|escapeAttribute}"></sakai-submission-messager>
                     </div>
                 </div>
             </div>
@@ -407,7 +407,7 @@
                         <dd>${student.lastName}, ${student.firstName} (${student.eid})</dd>
                         {if defined('assignment')}
                         <dt><wicket:message key="metadata.assignment" /></dt>
-                        <dd>${assignment.title}</dd>
+                        <dd>${assignment.title|escape}</dd>
                         {/if}
                         {if defined('value')}
                         <dt><wicket:message key="metadata.score" /></dt>

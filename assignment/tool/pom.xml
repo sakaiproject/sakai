@@ -164,5 +164,12 @@
             <artifactId>mockito-inline</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-impl</artifactId>
+            <version>${sakai.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

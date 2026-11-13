@@ -115,6 +115,7 @@ var TrimPath;
     TrimPath.parseTemplate_etc.modifierDef = {
         "eat"        : function(v)    { return ""; },
         "escape"     : function(s)    { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); },
+        "escapeAttribute" : function(s) { return TrimPath.parseTemplate_etc.modifierDef.escape(s).replace(/"/g, "&quot;").replace(/'/g, "&#39;"); },
         "capitalize" : function(s)    { return String(s).toUpperCase(); },
         "default"    : function(s, d) { return s != null ? s : d; }
     }

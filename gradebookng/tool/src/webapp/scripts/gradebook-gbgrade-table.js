@@ -614,7 +614,7 @@ GbGradeTable.headerFormatter = function(templateId, columnData) {
       switch (columnData.type) {
         case "assignment":
           templateId = "assignmentHeader";
-          templateData.tooltip = GbGradeTable.i18n["label.gradeitem.assignmentheadertooltip"].replace("{0}", cleanedTitle);
+          templateData.tooltip = GbGradeTable.i18n["label.gradeitem.assignmentheadertooltip"].replace("{0}", () => columnData.title || "");
           break;
         case "category":
           templateId = "categoryScoreHeader";
