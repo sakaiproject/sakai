@@ -246,6 +246,9 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
                 assertThat(cells.get(i + 1)).hasClass(RANGE_SELECTED);
             }
         }
+        // The value is displayed before the asynchronous save completes. Wait for
+        // the final acknowledgement before a subsequent reload can discard the last score.
+        assertThat(cells.get(cells.size() - 1)).hasClass(Pattern.compile(".*\\bgb-save-success\\b.*"));
         assertThat(page.locator(".modal.show")).hasCount(0);
     }
 
