@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -163,6 +164,47 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         assertEquals("The registered copy callback must retain the service transaction between repository calls",
             List.of(true), transactions);
         Assert.assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
+    }
+
+    @Test
+    public void copiedExternalAssessmentTitleIsPlainTextInGradebook() throws Exception {
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        Assignment source = createPublishedAssignment(fromContext);
+        String storedTitle = "Cami&oacute;n &amp; &quot;quotes&quot; &amp;lt;img src=x onerror=alert(1)&amp;gt;";
+        String plainTitle = "Camión & \"quotes\" &lt;img src=x onerror=alert(1)&gt;";
+        source.setTitle(storedTitle);
+        source.setMaxGradePoint(100);
+        source.setScaleFactor(1);
+        String sourceRef = AssignmentReferenceReckoner.reckoner().assignment(source).reckon().getReference();
+        source.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+                AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
+        source.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, sourceRef);
+        updateAssignment(source);
+        stubContextPermissions(toContext);
+        when(gradingService.isExternalAssignmentDefined(fromContext, sourceRef)).thenReturn(true);
+        when(formattedText.unEscapeHtml(storedTitle)).thenReturn(plainTitle);
+
+        ((EntityTransferrer) assignmentService).transferCopyEntities(fromContext, toContext,
+                List.of(source.getId()), List.of(EntityTransferrer.PUBLISH_OPTION));
+
+        verify(gradingService).addExternalAssessment(eq(toContext), eq(toContext), anyString(), isNull(),
+                eq(plainTitle), any(), any(), eq(assignmentService.getToolId()), isNull(), eq(false), isNull(), isNull());
+        Collection<Assignment> copies = assignmentService.getAssignmentsForContext(toContext);
+        assertEquals(1, copies.size());
+        Assignment copy = copies.iterator().next();
+        assertEquals(storedTitle, copy.getTitle());
+
+        String nextContext = UUID.randomUUID().toString();
+        stubContextPermissions(nextContext);
+        String copyRef = AssignmentReferenceReckoner.reckoner().assignment(copy).reckon().getReference();
+        when(gradingService.isExternalAssignmentDefined(toContext, copyRef)).thenReturn(true);
+        ((EntityTransferrer) assignmentService).transferCopyEntities(toContext, nextContext,
+                List.of(copy.getId()), List.of(EntityTransferrer.PUBLISH_OPTION));
+        verify(gradingService).addExternalAssessment(eq(nextContext), eq(nextContext), anyString(), isNull(),
+                eq(plainTitle), any(), any(), eq(assignmentService.getToolId()), isNull(), eq(false), isNull(), isNull());
+        assertEquals(storedTitle, assignmentService.getAssignmentsForContext(nextContext).iterator().next().getTitle());
+        assertEquals(storedTitle, assignmentService.getAssignment(source.getId()).getTitle());
     }
 
     @Test

@@ -35,6 +35,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
@@ -49,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService.TotalScoreCancellationException;
 import org.sakaiproject.user.api.User;
@@ -426,6 +428,46 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
                 .updateExternalAssessment(anyString(), anyString(), any(), any(), anyString(), any(), any(), any(), any());
         assertThrows(InvalidCategoryException.class, () -> service.updateGradebook(data()));
         assertEquals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), data().getEvaluationModel().getToGradeBook());
+    }
+
+    @Test
+    public void gradebookTitlesAreDecodedOnceForBothInitialAndSubsequentExports() throws Exception {
+        // The legacy lookup also accepts IDs; it must not block a numeric title.
+        when(gradebookService.isAssignmentDefined(siteId, siteId, "2026")).thenReturn(true);
+        for (String[] titles : List.of(
+                new String[] {"Cami&oacute;n", "Camión"},
+                new String[] {"&#50;&#48;&#50;&#54;", "2026"},
+                new String[] {"Research &quot;A &amp; B&quot;", "Research \"A & B\""},
+                new String[] {"Quiz &#128512; &#129760;", "Quiz 😀 🫠"},
+                new String[] {"Literal &amp;amp; and &amp;#128512;", "Literal &amp; and &#128512;"},
+                new String[] {"&lt;img src=x onerror=alert(1)&gt;", "<img src=x onerror=alert(1)>"},
+                new String[] {"&amp;lt;img src=x onerror=alert(1)&amp;gt;", "&lt;img src=x onerror=alert(1)&gt;"})) {
+            PublishedAssessmentData current = data();
+            current.setTitle(titles[0]);
+            when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(false);
+            clearInvocations(gradebookService);
+            service.updateGradebook(current);
+            verify(gradebookService).addExternalAssessment(eq(siteId), eq(siteId), eq(assessment.getId()),
+                    isNull(), eq(titles[1]), eq(3D), isNull(), eq("sakai.samigo"), isNull(), eq(false),
+                    any(), anyString());
+            when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(true);
+            for (int update = 0; update < 2; update++) {
+                clearInvocations(gradebookService);
+                service.updateGradebook(current);
+                verify(gradebookService).updateExternalAssessment(eq(siteId), eq(assessment.getId()),
+                        isNull(), isNull(), eq(titles[1]), any(), eq(3D), isNull(), isNull());
+                assertEquals(titles[0], current.getTitle());
+            }
+        }
+    }
+
+    @Test
+    public void initialGradebookExportStillReturnsFalseForAConflictingName() throws Exception {
+        GradebookServiceHelper helper = applicationContext.getBean("gradebookServiceHelper", GradebookServiceHelper.class);
+        doThrow(new ConflictingAssignmentNameException("duplicate title")).when(gradebookService)
+                .addExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
+                        anyString(), any(), any(), any(), any());
+        assertFalse(helper.addToGradebook(siteId, data(), null, gradebookService));
     }
 
     @Test
