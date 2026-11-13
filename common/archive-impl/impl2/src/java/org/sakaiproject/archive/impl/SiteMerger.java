@@ -119,7 +119,7 @@ public class SiteMerger {
 		File[] files = null;
         Path permittedRoot;
 
-		// See if the name is a rooted directory in tomcat.home
+		// Resolve relative archive names against the configured storage directory.
 		if (!Path.of(fileName).isAbsolute()) {
 			fileName = m_storagePath + fileName;
 		}
@@ -131,10 +131,14 @@ public class SiteMerger {
 			return results.toString();
 		} else {
 			try {
-				// Embedded archives stay in their trusted cartridge root; ordinary archives stay in tomcat.home.
-				permittedRoot = archiveRoot != null ? archiveRoot.toRealPath()
+				// Embedded archives stay in their trusted cartridge root. Ordinary archives may
+				// also reside in the configured storage directory outside tomcat.home.
+				Path defaultRoot = archiveRoot != null ? archiveRoot.toRealPath()
 						: new File(serverConfigurationService.getSakaiHomePath()).getParentFile().toPath().toRealPath();
-				if (!file.toPath().toRealPath().startsWith(permittedRoot)) {
+				Path archivePath = file.toPath().toRealPath();
+				permittedRoot = archiveRoot == null && !archivePath.startsWith(defaultRoot)
+						? Path.of(m_storagePath).toRealPath() : defaultRoot;
+				if (!archivePath.startsWith(permittedRoot)) {
 					throw new IOException("Archive is outside its permitted directory");
 				}
 			} catch (Exception ex) {
