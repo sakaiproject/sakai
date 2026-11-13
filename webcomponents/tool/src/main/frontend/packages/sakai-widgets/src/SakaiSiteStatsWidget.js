@@ -10,6 +10,7 @@ export class SakaiSiteStatsWidget extends SakaiDashboardWidget {
   static properties = {
     ...SakaiDashboardWidget.properties,
     sitestatsWidgetId: { attribute: "sitestats-widget-id", type: String },
+    revealOnClick: { attribute: "reveal-on-click", type: Boolean },
     _forbidden: { state: true },
   };
 
@@ -52,6 +53,7 @@ export class SakaiSiteStatsWidget extends SakaiDashboardWidget {
 
     super();
     this.hasOptions = false;
+    this.revealOnClick = true;
     this._forbidden = false;
     this.addEventListener("sitestats-unavailable", this._onUnavailable);
   }
@@ -114,6 +116,7 @@ export class SakaiSiteStatsWidget extends SakaiDashboardWidget {
       <div class="sitestats-dashboard-widget">
         <sakai-sitestats-widget-metrics
             dashboard
+            ?reveal-on-click=${this.revealOnClick && [ "grades", "student-grades" ].includes(this.sitestatsWidgetId)}
             endpoint="${ifDefined(this._endpoint("metrics"))}">
         </sakai-sitestats-widget-metrics>
         <sakai-sitestats-highlights
