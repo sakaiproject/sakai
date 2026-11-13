@@ -1,0 +1,23 @@
+include:
+  - ../docker-compose.yml
+
+services:
+
+  dblocal:
+    image: container-registry.oracle.com/database/free:latest
+    ports:
+        - 1521:1521
+    environment:
+        - ORACLE_PDB=FREEPDB1
+        - DBHOST=dblocal
+        - ORACLE_PWD=sakairoot
+        #- NLS_LANG=SPANISH_SPAIN.WE8DEC
+        #- NLS_LANG=SPANISH_SPAIN.AL32UTF8
+    volumes:
+        - oracle-data-vol:/opt/oracle/oradata
+        - ./db:/opt/oracle/scripts/startup
+    networks:
+        - backend-local            
+
+volumes:
+    oracle-data-vol:
