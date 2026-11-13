@@ -99,16 +99,13 @@ public class EntityActionsManager {
         ActionReturn actionReturn = handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream, entityView, searchParams);
         // now process the return into the request or response as needed
         if (actionReturn != null) {
+            // also sets the response code when handling the action
+            if (actionReturn.responseCode > 0) {
+                response.setStatus(actionReturn.responseCode);
+            } else {
+                response.setStatus(HttpServletResponse.SC_OK);
+            }
             if (actionReturn.output != null || actionReturn.outputString != null) {
-                if (actionReturn.output == null) {
-                    // write the string into the response outputstream
-                    try {
-                        outputStream.write( actionReturn.outputString.getBytes() );
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed encoding for outputstring: " + actionReturn.outputString);
-                    }
-                    actionReturn.output = outputStream;
-                }
                 // now set the encoding, mimetype into the response
                 actionReturn.format = entityView.getExtension();
                 if (actionReturn.encoding == null || actionReturn.mimeType == null) {
@@ -121,12 +118,18 @@ public class EntityActionsManager {
                     response.setCharacterEncoding(actionReturn.encoding);
                     response.setContentType(actionReturn.mimeType);
                 }
-            }
-            // also sets the response code when handling the action
-            if (actionReturn.responseCode > 0) {
-                response.setStatus(actionReturn.responseCode);
-            } else {
-                response.setStatus(HttpServletResponse.SC_OK);
+                if (actionReturn.output == null) {
+                    if (actionReturn.headers != null) {
+                        actionReturn.headers.forEach(response::addHeader);
+                    }
+                    // write the string into the response outputstream
+                    try {
+                        outputStream.write( actionReturn.outputString.getBytes() );
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed encoding for outputstring: " + actionReturn.outputString);
+                    }
+                    actionReturn.output = outputStream;
+                }
             }
             // other returns require no extra work here
         } else {
