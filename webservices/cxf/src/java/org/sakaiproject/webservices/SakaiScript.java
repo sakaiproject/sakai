@@ -281,7 +281,7 @@ public class SakaiScript extends AbstractWebService {
             if (userEdit != null && userEdit.isActiveEdit()) {
                 userDirectoryService.cancelEdit(userEdit);
             }
-            log.error("WS changeUserInfo(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeUserInfo(): {} : {}", e.getClass().getName(), e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
