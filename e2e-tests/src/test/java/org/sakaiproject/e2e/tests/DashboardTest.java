@@ -144,14 +144,13 @@ class DashboardTest extends SakaiUiTestBase {
         sakai.login("instructor1");
         String siteUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.dashboard", "sakai\\.gradebookng"));
         String siteId = siteUrl.replaceAll(".*/site/([^/]+).*", "$1");
-        sakai.gotoPath(siteUrl);
         com.microsoft.playwright.Response metrics = page.waitForResponse(
             response -> response.url().endsWith("/sitestats/widgets/grades/metrics"), () -> {
                 com.microsoft.playwright.Response highlights = page.waitForResponse(
                     response -> response.url().endsWith("/sitestats/widgets/grades/highlights"), () -> {
                         com.microsoft.playwright.Response grades = page.waitForResponse(
                             response -> response.url().endsWith("/sites/" + siteId + "/grades"),
-                            () -> sakai.toolClick("Dashboard"));
+                            () -> sakai.gotoPath(siteUrl + "/dashboard"));
                         org.junit.jupiter.api.Assertions.assertTrue(grades.ok(), grades.text());
                         org.junit.jupiter.api.Assertions.assertTrue(grades.text().contains("\"grades\":[]"), grades.text());
                     });

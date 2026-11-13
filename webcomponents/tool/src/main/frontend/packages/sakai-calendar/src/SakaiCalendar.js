@@ -112,7 +112,7 @@ export class SakaiCalendar extends LionCalendar {
       this._events = data.events;
       !this.siteId && (this._sites = data.sites);
 
-      this.renderRoot.querySelector(".calendar__day-button[today]")?.click();
+      this.selectedDate = new Date(this._selectedDayStart);
       this._setDaysEvents(this._selectedDayStart);
     })
     .catch (error => console.error(error));
