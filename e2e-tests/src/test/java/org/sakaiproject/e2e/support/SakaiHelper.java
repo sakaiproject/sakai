@@ -120,6 +120,18 @@ public class SakaiHelper {
         assertThat(page.locator("body")).isVisible();
     }
 
+    /** Saves the signed-in user's timezone through Preferences and reloads their session. */
+    public void setUserTimeZone(String username, String timezone) {
+        gotoPath("/portal/site/~" + resolveUser(username));
+        toolClick("Preferences");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Time Zone").setExact(true)).click();
+        page.locator("[id='timezone_form'] select").selectOption(timezone);
+        page.locator("[id='timezone_form:submit']").click();
+        assertThat(page.getByText("Your preferences have been updated successfully.",
+            new Page.GetByTextOptions().setExact(true))).isVisible();
+        login(username);
+    }
+
     public void waitForPortalFocus() {
         // The portal moves focus here in a timer after window.load.
         page.waitForLoadState(LoadState.LOAD);

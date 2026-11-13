@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.LoadState;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,7 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
     // Matches a handful of the demo roster (Albertson, van der Pluijm, Zimmerman)
     private static final String FILTER = "be";
     private static final Pattern RANGE_SELECTED = Pattern.compile(".*tabulator-range-only-cell-selected.*");
+    private static final Pattern SAVE_SUCCESS = Pattern.compile(".*\\bgb-save-success\\b.*");
 
     private final List<String> pageErrors = new ArrayList<>();
 
@@ -90,6 +92,8 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         page.keyboard().type("64");
         page.keyboard().press("Enter");
         assertThat(cell.locator(".gb-value")).hasText("64");
+        // Saving reformats the cell and replaces its menu, so open it after completion.
+        assertThat(cell).hasClass(SAVE_SUCCESS);
 
         cell.locator(".dropdown-toggle").click();
         Locator menu = cell.locator(".dropdown-menu.show");
@@ -246,6 +250,9 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
                 assertThat(cells.get(i + 1)).hasClass(RANGE_SELECTED);
             }
         }
+        // The value is displayed before the asynchronous save completes. Wait for
+        // the final acknowledgement before a subsequent reload can discard the last score.
+        assertThat(cells.get(cells.size() - 1)).hasClass(SAVE_SUCCESS);
         assertThat(page.locator(".modal.show")).hasCount(0);
     }
 
@@ -278,7 +285,8 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
         dialog.locator("input[name$=\"released\"]").uncheck();
         dialog.locator("input[name$=\"counted\"]").uncheck();
         dialog.locator("button.gb-create-or-save").click();
-        assertThat(dialog).isHidden();
+        // Allow the save the same 15 seconds as other browser actions under CI load.
+        assertThat(dialog).isHidden(new LocatorAssertions.IsHiddenOptions().setTimeout(15_000));
 
         Locator column = page.locator(".tabulator-col[data-assignment-id]")
             .filter(new Locator.FilterOptions().setHasText(title));
