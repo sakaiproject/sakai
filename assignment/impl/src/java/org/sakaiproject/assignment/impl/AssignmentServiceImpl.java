@@ -635,6 +635,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 default:
                     log.warn("Unknown Entity subtype: {} in ref: {}", reference.getSubType(), reference.getReference());
             }
+        } catch (PermissionException e) {
+            log.debug("Assignment is not accessible for authz group lookup: {}", e.getMessage());
         } catch (Exception e) {
             log.warn("Could not get the Entity's authz groups with ref = {}", reference.getReference(), e);
         }
