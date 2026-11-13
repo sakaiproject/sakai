@@ -291,8 +291,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertThat(page.locator(".sak-banner-warn")).isVisible();
         assertThat(page.locator("table.table-bordered")).containsText(FUTURE_ANNOUNCEMENT_TITLE);
         assertThat(page.locator("table.table-bordered")).not().containsText(CURRENT_ANNOUNCEMENT_TITLE);
-        page.locator("input[name=\"eventSubmit_doCancel\"]").click();
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        sakai.submitForm(() -> page.locator("input[name=\"eventSubmit_doCancel\"]").click());
 
         search.fill("No matching SAK-49926 announcement");
         search.press("Enter");
