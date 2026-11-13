@@ -16,8 +16,15 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.microsoft.playwright.APIResponse;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
@@ -68,6 +75,68 @@ class CalendarTest extends SakaiUiTestBase {
 
     @Test
     @Order(3)
+    void canSubscribeWithPrivateWebUrlAndRevokeIt() {
+        sakai.login("instructor1");
+        sakai.gotoPath(sakaiUrl);
+        sakai.toolClick("Calendar");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+            .setName("Publish (private)").setExact(true)).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+            .setName("Generate").setExact(true)).click();
+
+        Locator subscriptionLink = page.locator(".portletBody a[href*='/access/calendar/']");
+        assertThat(subscriptionLink).hasCount(1);
+        assertThat(page.locator("a[href^='webcal:'], a[href^='webcals:']")).hasCount(0);
+        assertThat(page.getByText("In Outlook, choose Add calendar > Subscribe from web",
+            new Page.GetByTextOptions().setExact(false))).isVisible();
+        String originalUrl = subscriptionLink.getAttribute("href");
+        assertTrue(originalUrl.startsWith("https://") || originalUrl.startsWith("http://"));
+        assertPrivateFeedContainsEvent(originalUrl);
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+            .setName("Regenerate Link").setExact(true)).click();
+        String regeneratedUrl = subscriptionLink.getAttribute("href");
+        assertNotEquals(originalUrl, regeneratedUrl);
+        assertPrivateFeedContainsEvent(regeneratedUrl);
+        assertPrivateFeedRevoked(originalUrl);
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+            .setName("Delete Link").setExact(true)).click();
+        assertThat(subscriptionLink).hasCount(0);
+        assertPrivateFeedRevoked(regeneratedUrl);
+    }
+
+    private void assertPrivateFeedContainsEvent(String url) {
+        // A calendar client has no Sakai login cookies. Use a fresh context for each fetch.
+        try (BrowserContext anonymous = context.browser().newContext(
+                new Browser.NewContextOptions().setIgnoreHTTPSErrors(true))) {
+            APIResponse response = anonymous.request().get(url);
+            try {
+                assertEquals(200, response.status());
+                assertTrue(response.headers().get("content-type").startsWith("text/calendar"));
+                assertTrue(response.text().startsWith("BEGIN:VCALENDAR"));
+                assertTrue(response.text().contains("SUMMARY:" + EVENT_TITLE));
+                assertTrue(response.text().contains("END:VCALENDAR"));
+            } finally {
+                response.dispose();
+            }
+        }
+    }
+
+    private void assertPrivateFeedRevoked(String url) {
+        try (BrowserContext anonymous = context.browser().newContext(
+                new Browser.NewContextOptions().setIgnoreHTTPSErrors(true))) {
+            APIResponse response = anonymous.request().get(url);
+            try {
+                assertEquals(404, response.status());
+            } finally {
+                response.dispose();
+            }
+        }
+    }
+
+    @Test
+    @Order(4)
     void canEditEvent() {
         sakai.login("instructor1");
         sakai.gotoPath(sakaiUrl);
@@ -85,7 +154,7 @@ class CalendarTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void canDeleteEvent() {
         sakai.login("instructor1");
         sakai.gotoPath(sakaiUrl);
@@ -101,7 +170,7 @@ class CalendarTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void studentOutsideGroupCannotSeeGroupRestrictedEvent() {
         String groupTitle = "Playwright Calendar Group " + System.currentTimeMillis();
         String eventTitle = "Playwright Group Event " + System.currentTimeMillis();
