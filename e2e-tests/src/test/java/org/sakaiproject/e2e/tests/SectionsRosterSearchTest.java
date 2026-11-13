@@ -19,8 +19,6 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Response;
-import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -46,13 +44,13 @@ class SectionsRosterSearchTest extends SakaiUiTestBase {
         assertThat(filter).isVisible();
         assertTrue(sections.count() > 0, "the course has no roster section to filter by");
         String section = sections.first().getAttribute("value");
-        submits(() -> filter.selectOption(section));
+        sakai.submitForm(() -> filter.selectOption(section));
         assertThat(filter).hasValue(section);
         assertThat(search).hasAttribute("type", "search");
         assertThat(students.nth(1)).isVisible();
         int listed = students.count();
 
-        submits(() -> {
+        sakai.submitForm(() -> {
             search.fill("student0011");
             search.press("Enter");
         });
@@ -60,17 +58,10 @@ class SectionsRosterSearchTest extends SakaiUiTestBase {
         assertThat(search).hasValue("student0011");
 
         // deleting the text, as the native clear button does, drops the search and keeps the section
-        submits(() -> search.fill(""));
+        sakai.submitForm(() -> search.fill(""));
         assertThat(students).hasCount(listed);
         assertThat(search).hasValue("");
         assertThat(filter).hasValue(section);
     }
 
-    /** Runs an action that posts the roster form and waits for the page it answers with. */
-    private void submits(Runnable action) {
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        Response response = page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/roster"), action);
-        response.finished();
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-    }
 }
