@@ -25,7 +25,7 @@ jobs:
       MAVEN_ARGS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       PLAYWRIGHT_BROWSER: "chromium"
-      TOMCAT_VERSION: "9.0.123"
+      TOMCAT_VERSION: "9.0.124"
       SAKAI_FATAL_ERRORS: 'BeanCreationException|NoClassDefFoundError|NoSuchMethodError|ServiceConfigurationError|ExceptionInInitializerError|listeners failed to start|Context \[.*\] startup failed|Error deploying web application|Exception sending context initialized event'
     steps:
       - name: Git Checkout
