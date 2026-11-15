@@ -756,6 +756,14 @@ GbGradeTable.selectCellBelow = function(cell) {
   }
 };
 
+// Tabulator's editable callback gets no event, so note clicks on a cell's menu, flags or links,
+// and range-extending clicks, which must not start an edit (see the grade columns' editable)
+GbGradeTable.noteCellControlClick = function(event) {
+  GbGradeTable.clickOnCellControl = !!event.target.closest?.(".dropdown-menu, .gb-notification, .gb-comment-notification, a, button")
+    || event.shiftKey || event.ctrlKey || event.metaKey;
+  setTimeout(() => GbGradeTable.clickOnCellControl = false, 0);
+};
+
 GbGradeTable.cellSelector = function (rowIndex, colIndex) {
   GbGradeTable.instance.getRanges().forEach(range => range.remove());
   const cell = GbGradeTable.instance.getRows()[rowIndex]?.getCells()[colIndex];
@@ -912,6 +920,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   });
 
+  document.addEventListener("click", GbGradeTable.noteCellControlClick, true);
+
   GbGradeTable.container = document.getElementById("gradebookSpreadsheet");
 
   GbGradeTable.columnDOMNodeCache = {};
@@ -930,7 +940,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
-    editTriggerEvent:"dblclick",
+    editTriggerEvent:"click",
     selectableRange:1,
     selectableRangeColumns:true,
     selectableRangeClearCells:true,
@@ -1124,7 +1134,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       }
     }
 
-    cellElement.focus();
+    // Don't take focus from an editor that was just opened in this cell
+    if (!cellElement.contains(document.activeElement)) {
+      cellElement.focus();
+    }
   });
   
 
@@ -1912,6 +1925,7 @@ GbGradeTable.getFilteredColumns = function() {
         width: 180,
         sorter: (a, b) => GbGradeTable.parseGradeValue(a) - GbGradeTable.parseGradeValue(b),
         editor: column.type === 'category' || column.externallyMaintained ? false : "GbGradeTableEditor",
+        editable: () => !GbGradeTable.clickOnCellControl,
       }))
   );
 };

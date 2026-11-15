@@ -57,7 +57,9 @@ class GradebookFirstKeystrokeTest extends SakaiUiTestBase {
         page.waitForLoadState(LoadState.LOAD);
         // The portal moves focus 50 ms after load; let that finish before opening an editor.
         page.waitForTimeout(100);
-        cell.click();
+        // Focus, not click: a click would open the editor before the first key
+        cell.focus();
+        assertThat(cell.locator("input.tabulator-input")).hasCount(0);
         cell.press(firstKey);
         Locator editor = cell.locator("input.tabulator-input");
         assertThat(editor).isFocused();
