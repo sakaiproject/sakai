@@ -2528,7 +2528,21 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
   let inBoundaryCell = false;
 
-  document.querySelector("#gradeTableWrapper").addEventListener("keydown", function(event) {
+  const wrapper = document.querySelector("#gradeTableWrapper");
+
+  // Tabulator starts an edit on Enter from its table body, before this handler runs. It doesn't
+  // check the cell is editable (it throws on the student column) and it swallows Enter on links,
+  // so take Enter from the table body first. Editors and cell menus handle their own Enter.
+  wrapper.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter" || !event.target.closest(".tabulator-tableholder")
+        || event.target.closest(".tabulator-editing, .dropdown-menu")) return;
+    event.stopPropagation();
+    handleKeydown(event);
+  }, true);
+
+  wrapper.addEventListener("keydown", handleKeydown);
+
+  function handleKeydown(event) {
     let handled = false;
 
     function iGotThis(allowDefault) {
@@ -2660,7 +2674,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
       }
 
     }
-  });
+  }
 };
 
 GbGradeTable.clearMetadata = function() {
