@@ -9599,8 +9599,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				ContentCollection folder = getCollection(member);
 				if (folder.getMemberCount() == 0)
 				{
-					removeCollection(member);
-					log.info("createDropboxCollection(): Removed the empty dropbox collection for member: " + member);
+					ContentCollectionEdit edit = editCollection(member);
+					try
+					{
+						// Recheck contents under the existing edit lock; never remove uploads recursively.
+						removeCollection(edit);
+						log.info("Removed the empty dropbox collection for member: {}", member);
+					}
+					finally
+					{
+						if (edit.isActiveEdit())
+						{
+							cancelCollection(edit);
+						}
+					}
 				} else {
 				    log.warn("createDropboxCollection(): Could not remove the dropbox collection for member (" + member +") because the root contains "+folder.getMemberCount()+" members");
 				}
@@ -9616,6 +9628,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			catch(InUseException e)
 			{
 				log.warn("createDropboxCollection(): Unable to delete collection as collection is in use: " + member);
+			}
+			catch(InconsistentException e)
+			{
+				log.debug("Retaining dropbox collection because it is no longer empty: {}", member);
 			}
 			catch(ServerOverloadException e)
 			{

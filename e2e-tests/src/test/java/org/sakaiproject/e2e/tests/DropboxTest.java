@@ -90,5 +90,15 @@ class DropboxTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName("Student, 0200 (student0200)").setExact(true)).click();
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName("dropbox-regression.txt").setExact(true))).isVisible();
+
+        // Removing a participant must retain a populated Drop Box and its uploads.
+        sakai.toolClick("Site Info");
+        page.getByRole(AriaRole.CHECKBOX, new Page.GetByRoleOptions().setName("Remove student0200").setExact(true)).check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update Participants").setExact(true)).click();
+        page.navigate(dropboxUrl);
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("Student, 0200 (student0200)").setExact(true)).click();
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("dropbox-regression.txt").setExact(true))).isVisible();
     }
 }
