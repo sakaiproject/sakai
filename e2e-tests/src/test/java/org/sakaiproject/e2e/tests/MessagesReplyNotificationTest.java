@@ -27,7 +27,6 @@ import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
-import com.microsoft.playwright.options.SelectOption;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,7 +47,15 @@ class MessagesReplyNotificationTest extends SakaiUiTestBase {
         sakai.gotoPath(courseUrl);
         sakai.toolClick("Messages");
         page.locator("#messagesComposeMenuLink").click();
-        page.locator("[id='compose:list1']").selectOption(new SelectOption().setLabel("Student Role"));
+        sakai.waitForPortalFocus();
+        Locator recipients = page.locator("[id='compose:list1'] + sakai-user-picker");
+        Locator recipientSearch = recipients.getByRole(AriaRole.COMBOBOX);
+        recipientSearch.fill("Student Role");
+        recipients.getByRole(AriaRole.OPTION,
+            new Locator.GetByRoleOptions().setName("Student Role").setExact(true)).click();
+        recipientSearch.press("Escape");
+        assertThat(recipients.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Remove Student Role").setExact(true))).isVisible();
         page.locator("[id='compose:subject']").fill(subject);
         sakai.typeCkEditor("compose:pvt_message_body_inputRichText", "<p>Original instructor message</p>");
         send();
