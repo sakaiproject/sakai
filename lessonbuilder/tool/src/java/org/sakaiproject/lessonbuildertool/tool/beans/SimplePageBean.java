@@ -8408,9 +8408,11 @@ public class SimplePageBean {
 
 	private void updateGradebookItem(List<String> updateableList, SimplePageItem item, Integer pointsInt) {
 		if (updateableList != null && updateableList.size() > 0) {
-			gradebookIfc.updateExternalAssessment(updateableList, item.getGradebookId(), null, gradebookTitle, pointsInt, null);
-
-			item.setGradebookTitle(gradebookTitle);
+			if (gradebookIfc.updateExternalAssessment(updateableList, item.getGradebookId(), null, gradebookTitle, pointsInt, null)) {
+				item.setGradebookTitle(gradebookTitle);
+			} else {
+				setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
+			}
 		}
 	}
 
