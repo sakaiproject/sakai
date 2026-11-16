@@ -131,7 +131,7 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		if (itemId == null || itemId == -1)
 		    toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
 		else
-		    toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, new Integer(1));
+		    toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, Integer.valueOf(1));
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, new ArrayList());
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER, null);
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, ServerConfigurationService.getString("lessonbuilder.attachlinks", "true"));

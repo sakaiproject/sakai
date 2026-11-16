@@ -370,7 +370,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 		if (contextToReplace.isEmpty()) contextToReplace=null;
 		
 		if (!poolId.isEmpty()) {
-			poolIds.add(new Long(poolId));
+			poolIds.add(Long.valueOf(poolId));
 		}
 		else 
 		{

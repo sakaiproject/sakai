@@ -692,7 +692,7 @@ public class SelectActionListener extends SpringBeanAutowiringSupport implements
                     //We need the total score of the assessment
                     PublishedAssessmentData assessmentData = publishedAssessmentFacadeQueries.loadPublishedAssessment(p.getPublishedAssessmentId());
                     double maxScore = assessmentData.getTotalScore() != null ? assessmentData.getTotalScore().doubleValue() : 0.0;
-                    Double earnedScorePercentage = maxScore != 0.0 ? new Double(finalScore.doubleValue() * 100.0 / maxScore) : new Double(0.0);
+                    Double earnedScorePercentage = maxScore != 0.0 ? Double.valueOf(finalScore.doubleValue() * 100.0 / maxScore) : Double.valueOf(0.0);
                     Double scoreThresholdDouble = p.getFeedbackScoreThreshold();
                     //Display when the earned score percentage is lower than the score threshold
                     hasFeedback = earnedScorePercentage.compareTo(scoreThresholdDouble) < 0 ? "show" : "blank";

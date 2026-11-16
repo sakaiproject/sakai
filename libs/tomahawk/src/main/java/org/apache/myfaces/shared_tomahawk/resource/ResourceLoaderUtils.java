@@ -72,7 +72,7 @@ public class ResourceLoaderUtils
         {
             return null;
         }
-        return new Long(date.getTime());
+        return Long.valueOf(date.getTime());
     }
     
     //Taken from trinidad URLUtils

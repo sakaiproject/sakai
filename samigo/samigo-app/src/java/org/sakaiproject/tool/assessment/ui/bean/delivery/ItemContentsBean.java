@@ -969,7 +969,7 @@ public class ItemContentsBean implements Serializable {
     }
     for (int i=0; i<mediaList.size(); i++){
       MediaData m = (MediaData) mediaList.get(i);
-      double duration = (new Double(m.getDuration())).doubleValue();
+      double duration = (Double.valueOf(m.getDuration())).doubleValue();
       if (duration > maxDurationAllowed)
         m.setDurationIsOver(true);
       else

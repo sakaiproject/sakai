@@ -161,12 +161,12 @@ public class ItemText
         // There's at least one distractor; add the distractor answer to the end of the list for presentation purposes
         if (isDistractor) {
           Answer distractor = new Answer();
-          distractor.setId(new Long(0));
+          distractor.setId(Long.valueOf(0));
           distractor.setLabel(rb.getString("choice_labels").split(":")[answersSorted.size()]);
           distractor.setText("none_above");
           distractor.setIsCorrect(false);
           distractor.setScore(this.getItem().getScore());
-          distractor.setSequence(new Long(answers.size()));
+          distractor.setSequence(Long.valueOf(answers.size()));
           answers.add(distractor);
           break;
         }

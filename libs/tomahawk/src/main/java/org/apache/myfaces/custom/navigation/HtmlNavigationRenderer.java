@@ -55,7 +55,7 @@ public class HtmlNavigationRenderer
 {
     private static final Log log = LogFactory.getLog(HtmlNavigationRenderer.class);
 
-    private static final Integer ZERO_INTEGER = new Integer(0);
+    private static final Integer ZERO_INTEGER = Integer.valueOf(0);
 
     public boolean getRendersChildren()
     {

@@ -1070,7 +1070,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     itemXml.add(respCond, "conditionvar/and");
     and = respCond + "/conditionvar/and";
 
-    for (int i = 1; i < (new Integer(responseCondNo)).intValue(); i++)
+    for (int i = 1; i < (Integer.valueOf(responseCondNo)).intValue(); i++)
     {
       List or = itemXml.selectNodes("item/resprocessing/respcondition[" + i +
                                     "]/conditionvar/or");
@@ -1380,7 +1380,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     itemXml.add(respCond, "conditionvar/and");
     and = respCond + "/conditionvar/and";
 
-    for (int i = 1; i < (new Integer(responseCondNo)).intValue(); i++)
+    for (int i = 1; i < (Integer.valueOf(responseCondNo)).intValue(); i++)
     {
       List or = itemXml.selectNodes("item/resprocessing/respcondition[" + i +
                                     "]/conditionvar/or");
@@ -1542,7 +1542,7 @@ public class ItemHelper12Impl extends ItemHelperBase
         		  if (idList.size() == 1)
         		  {
         			  addFIBRespconditionNotMutuallyExclusive(
-        					  itemXml, new Integer(respConditionNo).toString(),
+        					  itemXml, Integer.valueOf(respConditionNo).toString(),
         					  (String) idList.get(0), points, responses);
         			  respConditionNo = respConditionNo + 1;
         		  }
@@ -1552,7 +1552,7 @@ public class ItemHelper12Impl extends ItemHelperBase
         			  {
 
         				  addFIBRespconditionMutuallyExclusive(itemXml,
-        						  new Integer(respConditionNo).toString(), idList, points,
+        						  Integer.valueOf(respConditionNo).toString(), idList, points,
         						  responses[k]);
         				  respConditionNo = respConditionNo + 1;
 
@@ -1564,12 +1564,12 @@ public class ItemHelper12Impl extends ItemHelperBase
         }
         // add respcondition for all correct answers
         addFIBRespconditionCorrectFeedback(itemXml,
-                                           new Integer(respConditionNo).
+                                           Integer.valueOf(respConditionNo).
                                            toString());
         respConditionNo = respConditionNo + 1;
         //add respcondition for all incorrect answers
         addFIBRespconditionInCorrectFeedback(itemXml,
-                                             new Integer(respConditionNo).
+                                             Integer.valueOf(respConditionNo).
                                              toString());
       }
 
@@ -1606,7 +1606,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 						if (idList != null && idList.size() > 0) {
 							if (idList.size() == 1) {
 								addFINRespconditionNotMutuallyExclusive(
-										itemXml, new Integer(respConditionNo)
+										itemXml, Integer.valueOf(respConditionNo)
 										.toString(), (String) idList
 										.get(0), points, responses);
 								respConditionNo = respConditionNo + 1;
@@ -1615,7 +1615,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 
 									addFINRespconditionMutuallyExclusive(
 											itemXml,
-											new Integer(respConditionNo)
+											Integer.valueOf(respConditionNo)
 											.toString(), idList,
 											points, responses[k]);
 									respConditionNo = respConditionNo + 1;
@@ -1627,11 +1627,11 @@ public class ItemHelper12Impl extends ItemHelperBase
 					}
 				}
 				// add respcondition for all correct answers
-				addFINRespconditionCorrectFeedback(itemXml, new Integer(
+				addFINRespconditionCorrectFeedback(itemXml, Integer.valueOf(
 						respConditionNo).toString());
 				respConditionNo = respConditionNo + 1;
 				// add respcondition for all incorrect answers
-				addFINRespconditionInCorrectFeedback(itemXml, new Integer(
+				addFINRespconditionInCorrectFeedback(itemXml, Integer.valueOf(
 						respConditionNo).toString());
 			}
 

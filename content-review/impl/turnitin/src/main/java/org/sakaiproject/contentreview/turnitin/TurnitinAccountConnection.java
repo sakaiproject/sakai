@@ -85,7 +85,7 @@ public class TurnitinAccountConnection {
 
 		if (!"".equals(proxyHost) && !"".equals(proxyPort)) {
 			try {
-				SocketAddress addr = new InetSocketAddress(proxyHost, new Integer(proxyPort).intValue());
+				SocketAddress addr = new InetSocketAddress(proxyHost, Integer.valueOf(proxyPort).intValue());
 				proxy = new Proxy(Proxy.Type.HTTP, addr);
 				log.debug("Using proxy: " + proxyHost + " " + proxyPort);
 			} catch (NumberFormatException e) {
@@ -93,7 +93,7 @@ public class TurnitinAccountConnection {
 			}
 		} else if (System.getProperty("http.proxyHost") != null && !System.getProperty("http.proxyHost").equals("")) {
 			try {
-				SocketAddress addr = new InetSocketAddress(System.getProperty("http.proxyHost"), new Integer(System.getProperty("http.proxyPort")).intValue());
+				SocketAddress addr = new InetSocketAddress(System.getProperty("http.proxyHost"), Integer.valueOf(System.getProperty("http.proxyPort")).intValue());
 				proxy = new Proxy(Proxy.Type.HTTP, addr);
 				log.debug("Using proxy: " + System.getProperty("http.proxyHost") + " " + System.getProperty("http.proxyPort"));
 			} catch (NumberFormatException e) {

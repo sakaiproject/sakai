@@ -81,7 +81,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
           itemId = (String) iter.next();
 
           ItemService delegate = new ItemService();
-          ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+          ItemFacade itemfacade= delegate.getItem(Long.valueOf(itemId), AgentFacade.getAgentString());
           items.add(itemfacade);
 
         }

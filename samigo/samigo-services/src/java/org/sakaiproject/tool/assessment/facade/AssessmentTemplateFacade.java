@@ -41,9 +41,9 @@ public class AssessmentTemplateFacade
   public static final String BGCOLOR = "ASSESSMENTTEMPLATE_BGCOLOR";
   public static final String BGIMAGE = "ASSESSMENTTEMPLATE_BGIMAGE";
 
-  public static final Long DEFAULTTEMPLATE = new Long("1");
-  public static final Integer INACTIVE_STATUS = new Integer("0");
-  public static final Integer ACTIVE_STATUS = new Integer("1");
+  public static final Long DEFAULTTEMPLATE = Long.valueOf("1");
+  public static final Integer INACTIVE_STATUS = Integer.valueOf("0");
+  public static final Integer ACTIVE_STATUS = Integer.valueOf("1");
   private org.osid.assessment.Assessment assessment;
   private AssessmentTemplateIfc data;
   private Long assessmentTemplateId;

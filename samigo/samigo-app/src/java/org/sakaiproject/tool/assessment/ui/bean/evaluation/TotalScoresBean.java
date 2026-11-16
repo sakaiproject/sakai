@@ -981,7 +981,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 
 	    // If the selected value now falls out of legal range due to sections
 	    // being deleted, throw it back to the default value (meaning everyone).
-	    int selectedSectionVal = new Integer(selectedSectionFilterValue).intValue();
+	    int selectedSectionVal = Integer.valueOf(selectedSectionFilterValue).intValue();
 	    if ((selectedSectionVal >= 0) && (selectedSectionVal >= availableSections.size())) {
 	    	if (isReleasedToGroups()) {
 	    		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
@@ -1065,7 +1065,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
     		|| uid.equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE) ){
       return null;
     } else {
-      CourseSection section = (CourseSection)(availableSections.get(new Integer(uid).intValue()));
+      CourseSection section = (CourseSection)(availableSections.get(Integer.valueOf(uid).intValue()));
       return section.getUuid();
     }
   }

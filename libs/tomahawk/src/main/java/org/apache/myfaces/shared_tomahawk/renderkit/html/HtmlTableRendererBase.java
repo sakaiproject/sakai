@@ -339,7 +339,7 @@ public class HtmlTableRendererBase extends HtmlRenderer
             bodyrows = new Integer[bodyrowsString.length];
             for(int i = 0; i < bodyrowsString.length; i++) 
             {
-                bodyrows[i] = new Integer(bodyrowsString[i]);
+                bodyrows[i] = Integer.valueOf(bodyrowsString[i]);
             }
             
         }
@@ -1121,7 +1121,7 @@ public class HtmlTableRendererBase extends HtmlRenderer
         // Only render colspan if is > 0
         if (totalColumns > 0)
         {
-            writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(totalColumns), null);
+            writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(totalColumns), null);
         }
         if (styleClass != null)
         {
@@ -1292,7 +1292,7 @@ public class HtmlTableRendererBase extends HtmlRenderer
         writer.startElement(determineHeaderCellTag(facesContext, uiComponent.getParent()), uiComponent);
         if (colspan > 1)
         {
-            writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(colspan), null);
+            writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(colspan), null);
         }
         if (headerStyleClass != null)
         {
@@ -1347,7 +1347,7 @@ public class HtmlTableRendererBase extends HtmlRenderer
         writer.startElement(HTML.TD_ELEM, uiComponent);
         if (colspan > 1)
         {
-            writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(colspan), null);
+            writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(colspan), null);
         }
         if (footerStyleClass != null)
         {

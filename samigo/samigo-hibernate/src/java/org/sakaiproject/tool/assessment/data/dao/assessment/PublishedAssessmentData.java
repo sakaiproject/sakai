@@ -704,11 +704,11 @@ public class PublishedAssessmentData
 
         // adding a second condition because metadata are not removed from DB
         if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null && s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-            numberToBeFixed= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+            numberToBeFixed= Integer.valueOf(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
         }
 
         if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-          numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+          numberToBeDrawn= Integer.valueOf(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
         }
 
         int samplesize = numberToBeDrawn.intValue();

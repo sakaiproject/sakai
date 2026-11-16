@@ -79,7 +79,7 @@ public class DeleteTemplateListener extends TemplateBaseListener implements Acti
       // its status = 0 (inactive) instead of removing it from the DB
       List l = delegate.getAssessmentByTemplate(deleteId);
       if (l.size()==0){ // save to delete
-        delegate.deleteAssessmentTemplate(new Long(deleteId));
+        delegate.deleteAssessmentTemplate(Long.valueOf(deleteId));
       }
       else{ // set status to "0"
 	AssessmentTemplateFacade t = delegate.getAssessmentTemplate(deleteId);

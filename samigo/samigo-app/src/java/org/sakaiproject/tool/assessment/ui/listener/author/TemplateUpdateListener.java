@@ -290,7 +290,7 @@ public class TemplateUpdateListener
 	  feedback.setEditComponents(Integer.valueOf("0"));
       // if 'No feedback' (it corresponds to value 3) is selected, 
       // all components are unchecked
-      if (feedback.getFeedbackDelivery().equals(new Integer("3")))
+      if (feedback.getFeedbackDelivery().equals(Integer.valueOf("3")))
       {
     	  feedback.setShowQuestionText(false);
     	  feedback.setShowStudentResponse(false);

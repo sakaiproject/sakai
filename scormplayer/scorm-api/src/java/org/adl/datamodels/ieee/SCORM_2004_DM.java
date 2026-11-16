@@ -471,7 +471,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		children.add(desc);
 
 		// objectvies progress measure.
-		desc = new DMElementDescriptor("progress_measure", null, new RealRangeValidator(new Double(0), 1.0));
+		desc = new DMElementDescriptor("progress_measure", null, new RealRangeValidator(Double.valueOf(0), 1.0));
 		desc.mDependentOn = new Vector<>();
 		desc.mDependentOn.add("id");
 
@@ -495,7 +495,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		mElements.put(desc.mBinding, element);
 
 		// progress_measure
-		desc = new DMElementDescriptor("progress_measure", null, new RealRangeValidator(new Double(0), 1.0));
+		desc = new DMElementDescriptor("progress_measure", null, new RealRangeValidator(Double.valueOf(0), 1.0));
 		element = new SCORM_2004_DMElement(desc, null, this);
 		mElements.put(desc.mBinding, element);
 

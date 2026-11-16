@@ -301,7 +301,7 @@ public class HelpManagerImpl implements HelpManager
 	 */
 	protected ResourceBean getResourceFromDocument(Document document)
 	{
-		Long id = new Long(document.getField("id").stringValue());
+		Long id = Long.valueOf(document.getField("id").stringValue());
 		return (ResourceBean) getResource(id);
 	}
 

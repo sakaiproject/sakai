@@ -77,14 +77,14 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
     boolean isUnique=true;
     QuestionPoolService service = new QuestionPoolService();
     QuestionPoolDataBean bean = qpoolbean.getCurrentPool();
-    Long currentId = new Long ("0");
+    Long currentId = Long.valueOf("0");
     FacesContext context = FacesContext.getCurrentInstance();
       if(bean.getId() != null)
       {
 	  currentId = bean.getId();
       }
 
-      Long currentParentId = new Long("0");
+      Long currentParentId = Long.valueOf("0");
       if(bean.getParentPoolId() != null)
       {
         currentParentId = bean.getParentPoolId();
@@ -140,13 +140,13 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 
   public boolean savePool(QuestionPoolBean qpbean) {
       QuestionPoolDataBean bean = qpbean.getCurrentPool();
-      Long beanid = new Long ("0");
+      Long beanid = Long.valueOf("0");
       if(bean.getId() != null)
       {
         beanid = bean.getId();
       }
 
-      Long parentid = new Long("0");
+      Long parentid = Long.valueOf("0");
       if(bean.getParentPoolId() != null)
       {
         parentid = bean.getParentPoolId();
@@ -251,7 +251,7 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
           itemId = (String) iter.next();
 
           ItemService delegate = new ItemService();
-          ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+          ItemFacade itemfacade= delegate.getItem(Long.valueOf(itemId), AgentFacade.getAgentString());
           items.add(itemfacade);
 
         }

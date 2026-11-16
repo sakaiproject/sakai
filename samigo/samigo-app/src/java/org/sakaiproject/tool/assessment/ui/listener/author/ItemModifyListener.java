@@ -270,19 +270,19 @@ public class ItemModifyListener implements ActionListener
       bean.setGeneralFeedback(itemfacade.getGeneralItemFeedback());
       populateMetaData(itemauthorbean, itemfacade, bean);
 
-      if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATCHING)) {
+      if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MATCHING)) {
     	  populateItemTextForMatching(itemauthorbean, itemfacade, bean);
       }
       else if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
     	  populateItemTextForEMI(itemauthorbean, itemfacade, bean);
       }
-      else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.CALCULATED_QUESTION)) {
+      else if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.CALCULATED_QUESTION)) {
           populateItemTextForCalculatedQuestion(itemauthorbean, itemfacade, bean);          
       }
-      else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.IMAGEMAP_QUESTION)) {
+      else if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.IMAGEMAP_QUESTION)) {
     	  populateItemTextForImageMapQuestion(itemauthorbean, itemfacade, bean);          
       }
-      else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATRIX_CHOICES_SURVEY)){
+      else if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MATRIX_CHOICES_SURVEY)){
     	  populateItemTextForMatrix(itemauthorbean, itemfacade, bean);
       }
       else {
@@ -298,7 +298,7 @@ public class ItemModifyListener implements ActionListener
       
       int itype=0; // default to true/false
       if (itemauthorbean.getItemType()!=null) {
-                itype = new Integer(itemauthorbean.getItemType()).intValue();
+                itype = Integer.valueOf(itemauthorbean.getItemType()).intValue();
       }
       switch (itype) {
                 case 1:
@@ -414,7 +414,7 @@ public class ItemModifyListener implements ActionListener
 		  /////////////////////////////////////////////////////////////
 		  bean.setItemText(itemText.getText());
 
-		  if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.TRUE_FALSE)) {
+		  if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.TRUE_FALSE)) {
 
 			  Set answerSet = itemText.getAnswerSet();
 			  Iterator iter1 = answerSet.iterator();
@@ -430,7 +430,7 @@ public class ItemModifyListener implements ActionListener
 			  }
 		  }
 
-		  if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.ESSAY_QUESTION)) {
+		  if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.ESSAY_QUESTION)) {
 
 			  Set answerSet = itemText.getAnswerSet();
 			  Iterator iter1 = answerSet.iterator();
@@ -452,7 +452,7 @@ public class ItemModifyListener implements ActionListener
 		  }
 
 
-		  if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_BLANK)) {
+		  if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_BLANK)) {
 
 			  // restore the original question text, which includes answers in the braces.
 
@@ -488,7 +488,7 @@ public class ItemModifyListener implements ActionListener
 
 		  } //fib
 
-		  if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_NUMERIC)) {
+		  if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_NUMERIC)) {
 
 			  //    	 restore the original question text, which includes answers in the braces.
 

@@ -51,8 +51,8 @@ public class QualifierHierarchyData
   public QualifierHierarchyData(String childId, String parentId){
 //    this.childId = childId;
 //    this.parentId = parentId;
-    this.childId = (new Long(childId)).longValue();
-    this.parentId = (new Long(parentId)).longValue();
+    this.childId = (Long.valueOf(childId)).longValue();
+    this.parentId = (Long.valueOf(parentId)).longValue();
   }
 
   public QualifierHierarchyData(QualifierData child, QualifierData parent){

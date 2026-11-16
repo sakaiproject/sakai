@@ -127,7 +127,7 @@ public class Bb55AssessmentTranslator implements IMSResourceTranslator{
 			questionNode = (Node)i.next();
 			String questionId = XPathHelper.getNodeValue("./@id", questionNode);
 			int questionPosition = XPathHelper.selectNodes("../QUESTIONLIST/QUESTION[@id='" + questionId + "']/preceding-sibling::QUESTION", questionNode).size() + 1;
-			q.setPosition(new Integer(questionPosition));
+			q.setPosition(Integer.valueOf(questionPosition));
 			List answerNodes = XPathHelper.selectNodes("./ANSWER", questionNode);
 			for (Iterator j = answerNodes.iterator();j.hasNext();) {
 				a = new AssessmentAnswer();
@@ -185,7 +185,7 @@ public class Bb55AssessmentTranslator implements IMSResourceTranslator{
 				// this just means we didn't get a number out when we tried to get a point value
 				// Jimmy suggests that questions should have a default point value of 2 points.
 				// Update: Whitten requested this be changed to one point
-				q.setPointValue(new Double(1.0));
+				q.setPointValue(Double.valueOf(1.0));
 			}
 			List correctAnswerNodes = XPathHelper.selectNodes("./GRADABLE/CORRECTANSWER", questionNode);
 			Set correctAnswerIDs = new HashSet();

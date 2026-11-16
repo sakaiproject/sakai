@@ -271,11 +271,11 @@ public class PagerRenderer extends Renderer {
         }
 
         // we don't count lastItem changing as a full state change (value of this component doesn't change)
-        if (theNewLastItem != lastItem) RendererUtil.setAttribute(context, component, "lastItem", new Integer(theNewLastItem));
+        if (theNewLastItem != lastItem) RendererUtil.setAttribute(context, component, "lastItem", Integer.valueOf(theNewLastItem));
 
         // send the newly changed values where they need to go
-        if (newPageSize != pageSize) RendererUtil.setAttribute(context, component, "pageSize", new Integer(newPageSize));
-        if (theNewFirstItem != firstItem) RendererUtil.setAttribute(context, component, "firstItem", new Integer(theNewFirstItem));
+        if (newPageSize != pageSize) RendererUtil.setAttribute(context, component, "pageSize", Integer.valueOf(newPageSize));
+        if (theNewFirstItem != firstItem) RendererUtil.setAttribute(context, component, "firstItem", Integer.valueOf(theNewFirstItem));
 
         // Set value, which causes registered valueChangeListener to be called
         EditableValueHolder evh = (EditableValueHolder) component;

@@ -195,9 +195,9 @@ class _SerializableDataModel
     public Object saveState(FacesContext context)
     {
         Object values[] = new Object[4];
-        values[0] = new Integer(_first);
-        values[1] = new Integer(_rows);
-        values[2] = new Integer(_rowCount);
+        values[0] = Integer.valueOf(_first);
+        values[1] = Integer.valueOf(_rows);
+        values[2] = Integer.valueOf(_rowCount);
         values[3] = _list;
         return ((Object) (values));
     }

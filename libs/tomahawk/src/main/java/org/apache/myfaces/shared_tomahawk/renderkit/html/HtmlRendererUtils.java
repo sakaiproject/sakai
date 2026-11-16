@@ -203,7 +203,7 @@ public final class HtmlRendererUtils
     {
         if (obj instanceof String)
         {
-            return new Boolean((String) obj);
+            return Boolean.valueOf((String) obj);
         }
         if (!(obj instanceof Boolean))
         {

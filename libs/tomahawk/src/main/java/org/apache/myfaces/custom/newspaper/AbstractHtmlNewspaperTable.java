@@ -55,7 +55,7 @@ public abstract class AbstractHtmlNewspaperTable
     public static final String NEWSPAPER_COLUMNS_PROPERTY = "newspaperColumns";
     public static final String SPACER_FACET_NAME = "spacer";
     
-    private static final Integer DEFAULT_NEWSPAPER_COLUMNS = new Integer(1);
+    private static final Integer DEFAULT_NEWSPAPER_COLUMNS = Integer.valueOf(1);
 
     /**
      * Set the number of columns the table will be divided over.

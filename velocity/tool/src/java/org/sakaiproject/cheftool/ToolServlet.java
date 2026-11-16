@@ -496,7 +496,7 @@ public abstract class ToolServlet extends VmServlet
 				initState(state, req, res);
 
 				// mark this state as initialized
-				state.setAttribute(ALERT_STATE_INITED, new Boolean(true));
+				state.setAttribute(ALERT_STATE_INITED, Boolean.valueOf(true));
 			}
 
 			// othewise update it

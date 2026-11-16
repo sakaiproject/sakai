@@ -138,7 +138,7 @@ public class SakaiBootStrap
       log.debug("setAutoDdl(String " + value + ")");
     }
 
-    //autoDdl = new Boolean(value).booleanValue();
+    //autoDdl = Boolean.valueOf(value).booleanValue();
     if (("true").equals(value)){
 	autoDdl = true;
     }

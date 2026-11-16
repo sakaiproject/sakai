@@ -103,19 +103,19 @@ public class HtmlDataScrollerRenderer extends HtmlRenderer
         if (pageCountVar != null)
         {
             int pageCount = scroller.getPageCount();
-            requestMap.put(pageCountVar, new Integer(pageCount));
+            requestMap.put(pageCountVar, Integer.valueOf(pageCount));
         }
         String pageIndexVar = scroller.getPageIndexVar();
         if (pageIndexVar != null)
         {
             int pageIndex = (scroller.getRowCount() > 0)? scroller.getPageIndex() : 0;
-            requestMap.put(pageIndexVar, new Integer(pageIndex));
+            requestMap.put(pageIndexVar, Integer.valueOf(pageIndex));
         }
         String rowsCountVar = scroller.getRowsCountVar();
         if (rowsCountVar != null)
         {
             int rowsCount = scroller.getRowCount();
-            requestMap.put(rowsCountVar, new Integer(rowsCount));
+            requestMap.put(rowsCountVar, Integer.valueOf(rowsCount));
         }
         String displayedRowsCountVar = scroller.getDisplayedRowsCountVar();
         if (displayedRowsCountVar != null)
@@ -124,13 +124,13 @@ public class HtmlDataScrollerRenderer extends HtmlRenderer
             int max = scroller.getRowCount() - scroller.getFirstRow();
             if (displayedRowsCount > max)
                 displayedRowsCount = max;
-            requestMap.put(displayedRowsCountVar, new Integer(displayedRowsCount));
+            requestMap.put(displayedRowsCountVar, Integer.valueOf(displayedRowsCount));
         }
         String firstRowIndexVar = scroller.getFirstRowIndexVar();
         if (firstRowIndexVar != null)
         {
             int firstRowIndex = (scroller.getRowCount() > 0)? scroller.getFirstRow() + 1 : 0;
-            requestMap.put(firstRowIndexVar, new Integer(firstRowIndex));
+            requestMap.put(firstRowIndexVar, Integer.valueOf(firstRowIndex));
         }
         String lastRowIndexVar = scroller.getLastRowIndexVar();
         if (lastRowIndexVar != null)
@@ -139,7 +139,7 @@ public class HtmlDataScrollerRenderer extends HtmlRenderer
             int count = scroller.getRowCount();
             if (lastRowIndex > count)
                 lastRowIndex = count;
-            requestMap.put(lastRowIndexVar, new Integer(lastRowIndex));
+            requestMap.put(lastRowIndexVar, Integer.valueOf(lastRowIndex));
         }
     }
 

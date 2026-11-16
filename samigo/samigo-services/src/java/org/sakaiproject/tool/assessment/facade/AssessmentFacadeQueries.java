@@ -529,7 +529,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 			HashSet sh = new HashSet();
 			SectionData section = new SectionData(
 					null,
-					new Integer("1"), // FIRST section
+					Integer.valueOf("1"), // FIRST section
 					"Default", "", TypeD.DEFAULT_SECTION,
 					SectionData.ACTIVE_STATUS, AgentFacade.getAgentString(),
 					new Date(), AgentFacade.getAgentString(), new Date());
@@ -2068,14 +2068,14 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 
 		AssessmentData newAssessment = null;
 		if (originalDateAndModifiedBy) {
-			newAssessment = new AssessmentData(new Long("0"), a
+			newAssessment = new AssessmentData(Long.valueOf("0"), a
 				.getTitle(), a.getDescription(), a.getComments(), a.getAssessmentTemplateId(),
 				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
 						.getTesteeNotification(), a.getMultipartAllowed(), a
 						.getStatus(), a.getCreatedBy(), a.getCreatedDate(), a
 						.getLastModifiedBy(), a.getLastModifiedDate());
 		} else {
-			newAssessment = new AssessmentData(new Long("0"), a
+			newAssessment = new AssessmentData(Long.valueOf("0"), a
 				.getTitle(), a.getDescription(), a.getComments(), a.getAssessmentTemplateId(),
 				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
 						.getTesteeNotification(), a.getMultipartAllowed(), a

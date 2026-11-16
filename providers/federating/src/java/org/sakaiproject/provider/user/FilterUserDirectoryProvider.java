@@ -118,7 +118,7 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 			sr = new SecureRandom();
 			authenticatedProvider.set(sr);
 		}
-		providerID = new Long(sr.nextLong()); 
+		providerID = Long.valueOf(sr.nextLong()); 
 		try
 		{
 			log.info("init() FILTER as "+providerID);

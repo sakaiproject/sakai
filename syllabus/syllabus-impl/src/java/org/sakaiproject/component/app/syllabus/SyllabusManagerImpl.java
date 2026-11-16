@@ -444,7 +444,7 @@ public class SyllabusManagerImpl implements SyllabusManager
     else
     {                 
       Session session = sessionFactory.getCurrentSession();
-      Long longObj = new Long(dataId);
+      Long longObj = Long.valueOf(dataId);
       return (SyllabusData) session.get(SyllabusData.class, longObj);
     }
 
@@ -590,7 +590,7 @@ public class SyllabusManagerImpl implements SyllabusManager
     else
     {                 
       Session session = sessionFactory.getCurrentSession();
-      Long longObj = new Long(syllabusAttachId);
+      Long longObj = Long.valueOf(syllabusAttachId);
       return (SyllabusAttachment) session.get(SyllabusAttachment.class, longObj);
     }
 

@@ -365,7 +365,7 @@ public class Foorm {
 		if (value != null && value instanceof Number)
 			val = ((Number) value).intValue();
 		if (value != null && value instanceof String) {
-			Integer ival = new Integer((String) value);
+			Integer ival = Integer.valueOf((String) value);
 			val = ival.intValue();
 		}
 		if (val < 0)
@@ -1003,7 +1003,7 @@ public class Foorm {
 
 			String maxs = adjustMax(info.getProperty("maxlength", null));
 			if (maxs != null && dataField instanceof String) {
-				int maxlength = (new Integer(maxs)).intValue();
+				int maxlength = (Integer.valueOf(maxs)).intValue();
 				String truncate = info.getProperty("truncate", "true");
 				if ( maxlength >= MAX_TEXT ) {
 					// We are OK
@@ -1031,7 +1031,7 @@ public class Foorm {
 						    dataMap.put(field, ((Number) dataField).intValue());
 				} else {
 					try {
-						Integer ival = new Integer(sdf);
+						Integer ival = Integer.valueOf(sdf);
 						if (dataMap != null)
 							dataMap.put(field, ival);
 					} catch (Exception e) {

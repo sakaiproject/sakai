@@ -48,7 +48,7 @@ private long functionId;
     String functionTypeId)
   {
     //this.functionId = functionId;
-    this.functionId = (new Long(functionId)).longValue();
+    this.functionId = (Long.valueOf(functionId)).longValue();
     this.referenceName = referenceName;
     this.displayName = displayName;
     this.description = description;

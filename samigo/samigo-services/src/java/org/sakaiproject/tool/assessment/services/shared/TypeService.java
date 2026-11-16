@@ -48,7 +48,7 @@ public class TypeService
   {
     try{
       return PersistenceService.getInstance().getTypeFacadeQueries().
-          getTypeFacadeById(new Long(typeId));
+          getTypeFacadeById(Long.valueOf(typeId));
     }
     catch(Exception e)
     {

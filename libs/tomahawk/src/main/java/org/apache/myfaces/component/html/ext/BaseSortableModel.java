@@ -213,7 +213,7 @@ public class BaseSortableModel extends DataModel
             for(int i=0; i<_baseIndicesList.size(); i++) 
             {
                 Integer base = (Integer) _baseIndicesList.get(i);
-                _sortedIndicesList.set(base.intValue(), new Integer(i));
+                _sortedIndicesList.set(base.intValue(), Integer.valueOf(i));
             }
         }
         
@@ -248,7 +248,7 @@ public class BaseSortableModel extends DataModel
         private void _expandToSize(int desiredSize) 
         {
             for(int i=0; i<desiredSize; i++) 
-                add(new Integer(i));            
+                add(Integer.valueOf(i));            
         }
     }
     

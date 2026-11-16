@@ -69,7 +69,7 @@ public class Constants {
         * jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)}
      * method.
      */
-    public final static Integer METHOD_RENDER = new Integer(1);
+    public final static Integer METHOD_RENDER = Integer.valueOf(1);
 
     /**
      * The unique method identifier for render requests.  Render requests are
@@ -77,7 +77,7 @@ public class Constants {
         * jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)}
      * method.
      */
-    public final static Integer METHOD_ACTION = new Integer(3);
+    public final static Integer METHOD_ACTION = Integer.valueOf(3);
 
     /**
      * The unique method identifier for noop (load) requests.  Load requests are
@@ -85,7 +85,7 @@ public class Constants {
         * jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)}
      * method.
      */
-    public final static Integer METHOD_NOOP = new Integer(5);
+    public final static Integer METHOD_NOOP = Integer.valueOf(5);
 
 
     /**
@@ -93,5 +93,5 @@ public class Constants {
      * are requested through a call to the {@link PortletContainer#doAdmin(PortletWindow, jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)}
      * method.
      */
-    public final static Integer  METHOD_ADMIN = new Integer(7);
+    public final static Integer  METHOD_ADMIN = Integer.valueOf(7);
 }

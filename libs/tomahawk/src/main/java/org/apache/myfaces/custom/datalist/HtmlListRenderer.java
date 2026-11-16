@@ -195,7 +195,7 @@ public class HtmlListRenderer
 
         if (rowCountVar != null)
         {
-            requestMap.put(rowCountVar, new Integer(rowCount));
+            requestMap.put(rowCountVar, Integer.valueOf(rowCount));
         }
         */
 
@@ -211,7 +211,7 @@ public class HtmlListRenderer
                 /*
                 if (rowIndexVar != null)
                 {
-                    requestMap.put(rowIndexVar, new Integer(i));
+                    requestMap.put(rowIndexVar, Integer.valueOf(i));
                 }
                 */
 

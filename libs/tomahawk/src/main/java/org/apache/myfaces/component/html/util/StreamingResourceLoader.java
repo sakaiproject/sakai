@@ -68,7 +68,7 @@ public class StreamingResourceLoader implements ResourceLoader
         // cannot be for anything else...
 
         int pos = resourceUri.indexOf("/");
-        Long requestId = new Long(Long.parseLong(resourceUri.substring(0, pos), 10));
+        Long requestId = Long.valueOf(Long.parseLong(resourceUri.substring(0, pos), 10));
         
         StreamingThreadManager manager = (StreamingThreadManager) context.getAttribute(StreamingThreadManager.KEY);
         

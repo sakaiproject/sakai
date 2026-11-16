@@ -388,7 +388,7 @@ public class RestContentProvider
       HelpManager helpManager, Resource resource)
   {
     
-	Long now = new Long((new Date()).getTime());
+	Long now = Long.valueOf((new Date()).getTime());
 	  
     if (log.isDebugEnabled())
     {

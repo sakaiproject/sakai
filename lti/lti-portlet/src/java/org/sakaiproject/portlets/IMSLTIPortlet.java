@@ -335,7 +335,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 		request.setAttribute("imsti.oldvalues", oldValues);
 
 		String allowRoster = ServerConfigurationService.getString(SakaiLTIUtil.LTI_ROSTER_ENABLED, SakaiLTIUtil.LTI_ROSTER_ENABLED_DEFAULT);
-		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
+		request.setAttribute("allowRoster", Boolean.valueOf("true".equals(allowRoster)));
 
 		// For outcomes we check for tools in the site before offering the options
 		String allowOutcomes = ServerConfigurationService.getString(SakaiLTIUtil.LTI_OUTCOMES_ENABLED, SakaiLTIUtil.LTI_OUTCOMES_ENABLED_DEFAULT);
@@ -361,7 +361,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 
 		if ( ! foundGradebook ) allowOutcomes = "false";
 
-		request.setAttribute("allowOutcomes", new Boolean("true".equals(allowOutcomes)));
+		request.setAttribute("allowOutcomes", Boolean.valueOf("true".equals(allowOutcomes)));
 		if ( "true".equals(allowOutcomes) ) {
 			List<String> assignments = getGradeBookAssignments();
 			if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);

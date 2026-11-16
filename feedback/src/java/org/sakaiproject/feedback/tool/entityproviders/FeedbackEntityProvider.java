@@ -164,7 +164,7 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
 
         final String title = (String) params.get("title");
         final String description = (String) params.get("description");
-        final boolean siteExists = new Boolean((String)params.get("siteExists"));
+        final boolean siteExists = Boolean.valueOf((String)params.get("siteExists"));
 
         final String browserNameAndVersion = requestGetter.getRequest().getHeader("User-Agent");
         final String osNameAndVersion = (String) params.get("oscpu");

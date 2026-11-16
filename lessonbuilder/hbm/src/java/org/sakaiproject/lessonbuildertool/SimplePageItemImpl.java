@@ -584,7 +584,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.showPeerEval= review !=null? review:false;
 	}
 	public Boolean getShowPeerEval(){
-		return new Boolean(showPeerEval);
+		return Boolean.valueOf(showPeerEval);
 	}
 	
 

@@ -105,7 +105,7 @@ public class SamigoToolWebService {
 
       QTIService qtiservice= new QTIService();
 
-      Document doc= qtiservice.getExportedItemBank(idStringArray,new Integer(qtiVersion).intValue(), displayName);
+      Document doc= qtiservice.getExportedItemBank(idStringArray,Integer.valueOf(qtiVersion).intValue(), displayName);
       String xmlString = XmlUtil.getDOMString(doc);
       return xmlString;
     }

@@ -31,9 +31,9 @@ public class ImageMapGradingItemComparatorTest {
 		ItemGradingData it1 = Mockito.mock(ItemGradingData.class);
 		ItemGradingData it2 = Mockito.mock(ItemGradingData.class);
 		ItemGradingData it3 = Mockito.mock(ItemGradingData.class);
-		when(it1.getItemGradingId()).thenReturn(new Long(10));
-		when(it2.getItemGradingId()).thenReturn(new Long(15));
-		when(it3.getItemGradingId()).thenReturn(new Long(-10));
+		when(it1.getItemGradingId()).thenReturn(Long.valueOf(10));
+		when(it2.getItemGradingId()).thenReturn(Long.valueOf(15));
+		when(it3.getItemGradingId()).thenReturn(Long.valueOf(-10));
 		
 		assertEquals(0, nullSafeComparator.compare(null, null));
 		assertEquals(1,nullSafeComparator.compare(null, it1));

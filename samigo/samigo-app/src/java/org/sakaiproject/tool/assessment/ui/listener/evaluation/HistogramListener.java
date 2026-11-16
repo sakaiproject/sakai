@@ -1590,7 +1590,7 @@ public class HistogramListener extends SpringBeanAutowiringSupport
 			    
 			  subQuestionAnswers = (List) subQuestionAnswerMap.get(subQuestionSequence);
 			  Iterator answerIter = subQuestionAnswers.iterator();
-			  Double totalScore = new Double(0);
+			  Double totalScore = Double.valueOf(0);
 			  while (answerIter.hasNext()) {
 				  AnswerIfc subQuestionAnswer = (AnswerIfc) answerIter.next();
 				  totalScore += (subQuestionAnswer==null||subQuestionAnswer.getScore()==null?0.0:subQuestionAnswer.getScore());
@@ -2629,7 +2629,7 @@ public class HistogramListener extends SpringBeanAutowiringSupport
     }
 
     if (doubles.isEmpty())
-      doubles.add(new Double(0.0));
+      doubles.add(Double.valueOf(0.0));
 
     doubles.sort(Comparator.naturalOrder());
 
@@ -2994,7 +2994,7 @@ public class HistogramListener extends SpringBeanAutowiringSupport
       Integer nextVal = null;
       for(int i=1; i < ranges.length; i++)
       {
-        nextVal = new Integer((int) (((i + 1) * interval) + min));
+        nextVal = Integer.valueOf((int) (((i + 1) * interval) + min));
 
         if(nextVal.doubleValue() < max)
         {
@@ -3137,7 +3137,7 @@ public class HistogramListener extends SpringBeanAutowiringSupport
         
         StringBuilder newModebuf = new StringBuilder();
         for (int j = 0; j < tokens.length; j++) {
-           roundedtokens[j] = castingNum(new Double(tokens[j]).doubleValue(), 2);
+           roundedtokens[j] = castingNum(Double.valueOf(tokens[j]).doubleValue(), 2);
            newModebuf.append(", " + roundedtokens[j]);
         }
         String newMode = newModebuf.toString();

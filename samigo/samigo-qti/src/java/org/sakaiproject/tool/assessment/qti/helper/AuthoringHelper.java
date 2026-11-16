@@ -862,14 +862,14 @@ public class AuthoringHelper
           String requestedScore = section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION);
           if (StringUtils.isNotBlank(requestedScore)) {
             hasRandomPartScore = true;
-            score = new Double(requestedScore);
+            score = Double.valueOf(requestedScore);
           }
           boolean hasRandomPartDiscount = false;
           Double discount = null;
           String requestedDiscount = section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION);
           if (StringUtils.isNotBlank(requestedDiscount)) {
             hasRandomPartDiscount = true;
-            discount = new Double(requestedDiscount);
+            discount = Double.valueOf(requestedDiscount);
           }
 
           QuestionPoolFacade pool = null;
@@ -889,7 +889,7 @@ public class AuthoringHelper
           
           // The pool we used to create this assessment exists (and is the same) in this system  
           if (pool != null && pool.getTitle().equals(poolTitle)) {
-            List<ItemFacade> itemlist = questionPoolService.getAllItems(new Long(poolId));
+            List<ItemFacade> itemlist = questionPoolService.getAllItems(Long.valueOf(poolId));
             int i=0;
             for (ItemFacade item : itemlist) {
               //copy item so we can have it in more than one assessment
@@ -993,7 +993,7 @@ public class AuthoringHelper
 
               //copy item so we can have it in more than one assessment
               ItemData item2 = itemService.cloneItem(item);
-              item2.setItemId(new Long(0));
+              item2.setItemId(Long.valueOf(0));
               item2.setSection(null);
               item2.setSequence(null);
               ItemFacade itemFacade = itemService.saveItem(new ItemFacade(item2));

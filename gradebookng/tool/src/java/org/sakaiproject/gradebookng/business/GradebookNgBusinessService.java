@@ -630,7 +630,7 @@ public class GradebookNgBusinessService {
 
 		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
-			Double newGradePercentage = new Double("0.0");
+			Double newGradePercentage = Double.valueOf("0.0");
 
 			if(StringUtils.isNotBlank(newGrade)){
 				newGradePercentage = FormatHelper.validateDouble(newGrade);
@@ -772,7 +772,7 @@ public class GradebookNgBusinessService {
 		final Integer gradingType = getGradebook(gradebookUid, siteId).getGradeType();
 		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			// the stored grade represents points so the number needs to be adjusted back to percentage
-			Double storedGradePoints = new Double("0.0");
+			Double storedGradePoints = Double.valueOf("0.0");
 			if (StringUtils.isNotBlank(storedGrade)) {
 				storedGradePoints = FormatHelper.validateDouble(storedGrade);
 			}

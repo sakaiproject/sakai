@@ -131,7 +131,7 @@ public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
     control.setDueDate(assessmentSettings.getDueDate());
 
     if (assessmentSettings.getLateHandling() != null) {
-        control.setLateHandling(new Integer(assessmentSettings.getLateHandling()));
+        control.setLateHandling(Integer.valueOf(assessmentSettings.getLateHandling()));
     }
 
     if ("".equals(assessmentSettings.getRetractDateString())) {
@@ -148,7 +148,7 @@ public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
     control.setFeedbackEndDate(assessmentSettings.getFeedbackEndDate());
     //Set the value if the checkbox is selected, wipe the value otherwise.
     String feedbackScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
-    control.setFeedbackScoreThreshold(assessmentSettings.getFeedbackScoreThresholdEnabled() ? new Double(feedbackScoreThreshold) : null);
+    control.setFeedbackScoreThreshold(assessmentSettings.getFeedbackScoreThresholdEnabled() ? Double.valueOf(feedbackScoreThreshold) : null);
     control.setReleaseTo(assessmentSettings.getReleaseTo());
 
     // b. set Timed Assessment
@@ -167,13 +167,13 @@ public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
     	control.setItemNavigation(Integer.valueOf(nav));
     }
     if (StringUtils.isNotBlank(assessmentSettings.getItemNumbering())) {
-      control.setItemNumbering(new Integer(assessmentSettings.getItemNumbering()));
+      control.setItemNumbering(Integer.valueOf(assessmentSettings.getItemNumbering()));
     }
     if (StringUtils.isNotBlank(assessmentSettings.getDisplayScoreDuringAssessments())) {
-      control.setDisplayScoreDuringAssessments(new Integer(assessmentSettings.getDisplayScoreDuringAssessments()));
+      control.setDisplayScoreDuringAssessments(Integer.valueOf(assessmentSettings.getDisplayScoreDuringAssessments()));
     }
     if (StringUtils.isNotBlank(assessmentSettings.getAssessmentFormat())) {
-      control.setAssessmentFormat(new Integer(assessmentSettings.getAssessmentFormat()));
+      control.setAssessmentFormat(Integer.valueOf(assessmentSettings.getAssessmentFormat()));
     }
 
     if (assessmentSettings.getIsMarkForReview()) {
@@ -191,7 +191,7 @@ public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
     			equals(AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString())) {
     		control.setUnlimitedSubmissions(Boolean.FALSE);
     		if (assessmentSettings.getSubmissionsAllowed() != null)
-    			control.setSubmissionsAllowed(new Integer(assessmentSettings.
+    			control.setSubmissionsAllowed(Integer.valueOf(assessmentSettings.
     					getSubmissionsAllowed()));
     		else
     			control.setSubmissionsAllowed(Integer.valueOf("1"));
@@ -205,7 +205,7 @@ public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
     if (assessmentSettings.getInstructorNotification() != null) {
         try
         {
-            control.setInstructorNotification(new Integer(assessmentSettings.getInstructorNotification()));
+            control.setInstructorNotification(Integer.valueOf(assessmentSettings.getInstructorNotification()));
         }
         catch( NumberFormatException ex )
         {
@@ -215,7 +215,7 @@ public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
     }
 
     if (assessmentSettings.getSubmissionsSaved()!=null){
-      control.setSubmissionsSaved(new Integer(assessmentSettings.getSubmissionsSaved()));
+      control.setSubmissionsSaved(Integer.valueOf(assessmentSettings.getSubmissionsSaved()));
     }
     
     if (assessmentSettings.getAutoSubmit())
@@ -248,14 +248,14 @@ public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
       feedback.setAssessmentBase(assessment.getData());
     }
     if (assessmentSettings.getFeedbackDelivery()!=null)
-     feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
+     feedback.setFeedbackDelivery(Integer.valueOf(assessmentSettings.getFeedbackDelivery()));
     if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
-        feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
+        feedback.setFeedbackComponentOption(Integer.valueOf(assessmentSettings.getFeedbackComponentOption()));
     if (assessmentSettings.getFeedbackAuthoring()!=null)
-     feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
+     feedback.setFeedbackAuthoring(Integer.valueOf(assessmentSettings.getFeedbackAuthoring()));
     // if 'No feedback' (it corresponds to value 3) is selected, 
 	// all components are unchecked
-    if (feedback.getFeedbackDelivery().equals(new Integer("3")))
+    if (feedback.getFeedbackDelivery().equals(Integer.valueOf("3")))
     {
     	feedback.setShowQuestionText(false);
 		feedback.setShowStudentResponse(false);
@@ -313,7 +313,7 @@ public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
 	}
 
     if (assessmentSettings.getScoringType()!=null)
-      evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
+      evaluation.setScoringType(Integer.valueOf(assessmentSettings.getScoringType()));
 
     assessment.setEvaluationModel(evaluation);
 

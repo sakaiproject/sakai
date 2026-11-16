@@ -39,12 +39,12 @@ public class MediaService
   public void remove(String mediaId)
   {
      PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-       removeMediaById(new Long(mediaId));
+       removeMediaById(Long.valueOf(mediaId));
   }
   
   public void remove(String mediaId, Long itemGradingId)
   {
      PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-       removeMediaById(new Long(mediaId), itemGradingId);
+       removeMediaById(Long.valueOf(mediaId), itemGradingId);
   }
 }
