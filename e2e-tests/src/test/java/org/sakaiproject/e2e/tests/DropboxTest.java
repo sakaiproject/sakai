@@ -22,6 +22,9 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.FilePayload;
+import com.microsoft.playwright.options.SelectOption;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiEnvironment;
@@ -37,10 +40,14 @@ class DropboxTest extends SakaiUiTestBase {
         page.navigate(siteUrl);
         sakai.toolClick("Drop Box");
         String dropboxUrl = page.url();
+        Locator highlight = page.locator("#dropboxHighlight");
+        sakai.submitForm(() -> highlight.selectOption("14"));
 
         // SAK-52774: adding a participant after the maintainer's first visit.
         sakai.addMemberToSite(siteUrl, "student0011", "access");
-        page.reload();
+        sakai.toolClick("Site Info");
+        sakai.toolClick("Drop Box");
+        assertThat(highlight).hasValue("14");
         Locator folder = page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName("Albertson, Albert (student0011)").setExact(true));
         assertThat(folder).isVisible();
@@ -69,5 +76,19 @@ class DropboxTest extends SakaiUiTestBase {
             page.reload();
             assertThat(folder).isVisible();
         }
+
+        // Bulk upload can be entered without revisiting the list after adding a user.
+        sakai.addMemberToSite(siteUrl, "student0200", "access");
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("Upload files to multiple Drop Box folders").setExact(true)).click();
+        page.getByLabel("File To Upload").setInputFiles(new FilePayload(
+            "dropbox-regression.txt", "text/plain", "Drop Box feedback".getBytes(StandardCharsets.UTF_8)));
+        page.getByLabel("Available users").selectOption(new SelectOption().setLabel("Student, 0200"));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(">").setExact(true)).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("Student, 0200 (student0200)").setExact(true)).click();
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("dropbox-regression.txt").setExact(true))).isVisible();
     }
 }

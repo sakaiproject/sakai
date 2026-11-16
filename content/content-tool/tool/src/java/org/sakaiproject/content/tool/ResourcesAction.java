@@ -4052,6 +4052,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										SessionState state)
 	{
 		log.debug("{}.buildListContext()", this);
+
+		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// Membership may change while the tool session is preserved between visits.
+			contentHostingService.createDropboxCollection();
+		}
 		
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -8176,12 +8182,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		initStateAttributes(state, portlet);
 
-		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			// Site membership can change after this tool session has been initialized.
-			contentHostingService.createDropboxCollection();
-		}
-
 	}	// initState
 
 	public void initStateAttributes(SessionState state, VelocityPortlet portlet)
@@ -8325,6 +8325,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				if (home != null)
 				{
 					state.setAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME, contentHostingService.getDropboxDisplayName());
+
+					// create/update the collection of folders in the dropbox
+					contentHostingService.createDropboxCollection();
 				}
 			}
 
@@ -9422,6 +9425,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        }
 
 	        try {
+				// A participant may have been added since the upload form was opened.
+				contentHostingService.createDropboxCollection();
 				for (Iterator it = usersCollectionIds.iterator(); it.hasNext();) {
 					try (InputStream stream = params.getFileItem("MultipleFolderContent").getInputStream()) {
 						// A site Dropbox Collection ID will be /group-user/SITE_ID/USER_ID/
