@@ -4057,6 +4057,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			// Membership may change while the tool session is preserved between visits.
 			contentHostingService.createDropboxCollection();
+			String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+			String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+			if (!homeCollectionId.equals(collectionId))
+			{
+				try
+				{
+					contentHostingService.checkCollection(collectionId);
+				}
+				catch (IdUnusedException e)
+				{
+					// Reconciliation may have removed the empty folder being viewed.
+					state.setAttribute(STATE_COLLECTION_ID, homeCollectionId);
+					context.put("showDropboxOptions", siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext()));
+				}
+				catch (TypeException | PermissionException e)
+				{
+					log.debug("Unable to check Drop Box collection: {}", collectionId, e);
+				}
+			}
 		}
 		
 		// find the ContentTypeImage service

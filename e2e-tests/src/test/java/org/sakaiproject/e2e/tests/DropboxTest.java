@@ -53,6 +53,8 @@ class DropboxTest extends SakaiUiTestBase {
         assertThat(folder).isVisible();
 
         try (BrowserContext studentContext = context.browser().newContext(
+                new Browser.NewContextOptions().setIgnoreHTTPSErrors(true));
+             BrowserContext adminContext = context.browser().newContext(
                 new Browser.NewContextOptions().setIgnoreHTTPSErrors(true))) {
             Page studentPage = studentContext.newPage();
             SakaiHelper student = new SakaiHelper(studentPage, SakaiEnvironment.baseUrl(), studentPage.request());
@@ -62,10 +64,20 @@ class DropboxTest extends SakaiUiTestBase {
                 new Page.GetByRoleOptions().setName("Albertson, Albert (student0011)").setExact(true));
             assertThat(studentFolder).isVisible();
 
+            // Keep an administrator inside the empty folder while its owner is removed.
+            Page adminPage = adminContext.newPage();
+            SakaiHelper admin = new SakaiHelper(adminPage, SakaiEnvironment.baseUrl(), adminPage.request());
+            admin.login("admin");
+            adminPage.navigate(dropboxUrl);
+            adminPage.getByRole(AriaRole.LINK,
+                new Page.GetByRoleOptions().setName("Albertson, Albert (student0011)").setExact(true)).click();
+
             sakai.toolClick("Site Info");
             page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Manage Participants").setExact(true)).click();
             page.getByRole(AriaRole.CHECKBOX, new Page.GetByRoleOptions().setName("Remove student0011").setExact(true)).check();
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update Participants").setExact(true)).click();
+            adminPage.reload();
+            assertThat(adminPage.locator("#dropboxHighlight")).isVisible();
             page.navigate(dropboxUrl);
             assertThat(folder).hasCount(0);
 
