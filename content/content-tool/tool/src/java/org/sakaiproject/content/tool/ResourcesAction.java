@@ -9349,7 +9349,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	    String displayName = params.getString("MultipleFolderDisplayName");
 	    String[] multipleDropboxSelected = params.getStrings("usersDropbox-selection");
-	    Set usersCollectionIds = new TreeSet();
+	    Set<String> usersCollectionIds = new TreeSet<>();
 		String copyright = "";
 		String newCopyright = "";
 		boolean copyrightAlert = false;
@@ -9446,10 +9446,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        try {
 				// A participant may have been added since the upload form was opened.
 				contentHostingService.createDropboxCollection();
-				for (Iterator it = usersCollectionIds.iterator(); it.hasNext();) {
+				for (User user : userDirectoryService.getUsers(usersCollectionIds)) {
 					try (InputStream stream = params.getFileItem("MultipleFolderContent").getInputStream()) {
 						// A site Dropbox Collection ID will be /group-user/SITE_ID/USER_ID/
-						String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + it.next() + SEPARATOR;
+						String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + user.getId() + SEPARATOR;
 						cr = contentHostingService.addResource(collectionId, Validator.escapeResourceName(basename),
 								Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 
@@ -9484,6 +9484,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						}
 						contentHostingService.commitResource(cr, noti);
 						DropboxMultipleFoldersUploadInputPreserver.get().clearFormData(state);
+					} catch (IdUnusedException e) {
+						addAlert(state, trb.getFormattedMessage("multiple.file.upload.missingfolder", new Object[] { ComponentManager.get(FormattedText.class).escapeHtml(user.getDisplayName()) }));
+						log.warn("Skipping upload to missing Drop Box folder for user {} in site {}", user.getId(), siteId, e);
 					} catch (IOException e) {
 						log.warn("Failed to close stream.", e);
 					}
@@ -9491,8 +9494,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        } catch (PermissionException e) {
 	            addAlert(state, trb.getString("alert.perm"));
 	            log.warn("PermissionException {}", (Object) e);
-	        } catch (IdUnusedException e) {
-	            log.warn("IdUnusedException: Error while getting dropbox collection, this error happens when a selected group contains a maintain user");
 	        } catch (IdInvalidException e) {
 	            log.warn("IdInvalidException {}", (Object) e);
 	        } catch (IdUniquenessException e) {

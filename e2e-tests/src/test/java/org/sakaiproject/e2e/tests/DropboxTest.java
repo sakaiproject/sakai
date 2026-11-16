@@ -95,9 +95,20 @@ class DropboxTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName("Upload files to multiple Drop Box folders").setExact(true)).click();
         page.getByLabel("File To Upload").setInputFiles(new FilePayload(
             "dropbox-regression.txt", "text/plain", "Drop Box feedback".getBytes(StandardCharsets.UTF_8)));
-        page.getByLabel("Available users").selectOption(new SelectOption().setLabel("Student, 0200"));
+        page.getByLabel("Available users").selectOption(new SelectOption[] {
+            new SelectOption().setLabel("Albertson, Albert"), new SelectOption().setLabel("Student, 0200") });
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(">").setExact(true)).click();
+        // Remove one selected recipient in another tab while the upload form stays open.
+        Page rosterPage = context.newPage();
+        SakaiHelper roster = new SakaiHelper(rosterPage, SakaiEnvironment.baseUrl(), rosterPage.request());
+        rosterPage.navigate(siteUrl);
+        roster.toolClick("Site Info");
+        rosterPage.getByRole(AriaRole.CHECKBOX, new Page.GetByRoleOptions().setName("Remove student0011").setExact(true)).check();
+        rosterPage.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update Participants").setExact(true)).click();
+        rosterPage.close();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        assertThat(page.locator(".sak-banner-warn").filter(new Locator.FilterOptions().setHasText("Albert")))
+            .containsText("the Drop Box folder no longer exists.");
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName("Student, 0200 (student0200)").setExact(true)).click();
         assertThat(page.getByRole(AriaRole.LINK,
