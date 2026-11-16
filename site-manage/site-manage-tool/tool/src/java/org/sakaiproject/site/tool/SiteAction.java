@@ -6745,7 +6745,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 			}
 		}
-		log.debug(groupName + ": loaded " + new Integer(toolsInGroup.size()).toString() + " tools");
+		log.debug(groupName + ": loaded " + Integer.valueOf(toolsInGroup.size()).toString() + " tools");
 		return toolsInGroup;
 		
 	}
@@ -10594,7 +10594,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 												ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
 												resourceProperties.addProperty(
 														ResourceProperties.PROP_COLLECTION_BODY_QUOTA,
-														new Long(oldSiteQuota)
+														Long.valueOf(oldSiteQuota)
 																.toString());
 												contentHostingService.commitCollection(col);
 

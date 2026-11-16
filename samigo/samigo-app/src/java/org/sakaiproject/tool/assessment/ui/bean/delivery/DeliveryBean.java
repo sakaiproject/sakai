@@ -632,13 +632,13 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
         if (!"0".equals(getTimeLimit())) {
           setBackupTimeLimit(getTimeLimit());
         }
-        double limit = (new Double(getTimeLimit()));
-        double elapsed = (new Double(timeElapse));
+        double limit = (Double.valueOf(getTimeLimit()));
+        double elapsed = (Double.valueOf(timeElapse));
         if (limit > elapsed)
           this.timeElapse = timeElapse;
         else
           this.timeElapse = getTimeLimit();
-        setTimeElapseDouble((new Double(timeElapse)));
+        setTimeElapseDouble((Double.valueOf(timeElapse)));
       }
     } catch (Exception e){
       log.warn("setTimeElapse error:"+e.getMessage());
@@ -1743,7 +1743,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
     log.debug("***3c. addMediaToItemGrading, agent ={}", agent);
 
     // 4. prepare itemGradingData and attach it to assessmentGarding
-    PublishedItemData item = (PublishedItemData)itemHash.get(new Long(questionId));
+    PublishedItemData item = (PublishedItemData)itemHash.get(Long.valueOf(questionId));
     log.debug("***4a. addMediaToItemGrading, itemText(0) ={}", item.getItemTextArray().get(0));
     // there is only one text in audio question
     PublishedItemText itemText = (PublishedItemText) item.
@@ -1936,7 +1936,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
     //find out sectionId from questionId
     log.debug("**** attachToItemContentBean, questionId={}", questionId);
 
-    PublishedItemData publishedItem = (PublishedItemData) getPublishedItemHash().get(new Long(questionId));
+    PublishedItemData publishedItem = (PublishedItemData) getPublishedItemHash().get(Long.valueOf(questionId));
     PublishedSectionData publishedSection = (PublishedSectionData) publishedItem.getSection();
     String sectionId = publishedSection.getSectionId().toString();
     SectionContentsBean partSelected = null;

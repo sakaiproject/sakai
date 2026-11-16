@@ -1300,7 +1300,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							// Set item externalId to externalId
 							item.setExternalId(externalId);
 							// Reset retry count
-							item.setRetryCount(new Long(0));
+							item.setRetryCount(Long.valueOf(0));
 							Calendar cal = Calendar.getInstance();
 							// Reset cal to current time
 							cal.setTime(new Date());
@@ -1401,7 +1401,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		placeholderItem.setNextRetryTime(getDueDateRetryTime(dueDate));
 		placeholderItem.setDateQueued(new Date());
 		placeholderItem.setDateSubmitted(new Date());
-		placeholderItem.setRetryCount(new Long(0));	
+		placeholderItem.setRetryCount(Long.valueOf(0));	
 		// All other fields are copied from original item
 		placeholderItem.setProviderId(item.getProviderId());						
 		placeholderItem.setUserId(item.getUserId());
@@ -1457,7 +1457,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 				}
 				// Reset retry count
-				item.setRetryCount(new Long(0));
+				item.setRetryCount(Long.valueOf(0));
 				// Schedule next retry time
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);

@@ -190,7 +190,7 @@ public class MailboxAction extends PagedResourceActionII
 				cCount = channel.getCount((Filter) getSearchFilter(search, 0, 0));
 			}
 
-			lastCount = new Integer(cCount);
+			lastCount = Integer.valueOf(cCount);
 			state.setAttribute(STATE_COUNT, lastCount);
 			state.setAttribute(STATE_COUNT_SEARCH, search);
 			return cCount;

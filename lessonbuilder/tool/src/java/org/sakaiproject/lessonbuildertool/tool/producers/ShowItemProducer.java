@@ -305,7 +305,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    } else {
 			GeneralViewParameters view = new GeneralViewParameters(returnView);
 			view.setSendingPage(sendingPage);;
-			view.setItemId(new Long(((GeneralViewParameters) params).getId()));
+			view.setItemId(Long.valueOf(((GeneralViewParameters) params).getId()));
 			view.setAddBefore(((GeneralViewParameters) params).getAddBefore());
 			view.setClearAttr(clearAttr);
 			UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view);
@@ -341,15 +341,15 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (source.startsWith("CREATE/")) {
 		if (source.startsWith("CREATE/ASSIGN/")) {
 		    List<UrlItem> createLinks = assignmentEntity.createNewUrls(simplePageBean);
-		    Integer i = new Integer(source.substring("CREATE/ASSIGN/".length()));
+		    Integer i = Integer.valueOf(source.substring("CREATE/ASSIGN/".length()));
 		    source = createLinks.get(i).Url;
 		} else if (source.startsWith("CREATE/QUIZ/")) {
 		    List<UrlItem> createLinks = quizEntity.createNewUrls(simplePageBean);
-		    Integer i = new Integer(source.substring("CREATE/QUIZ/".length()));
+		    Integer i = Integer.valueOf(source.substring("CREATE/QUIZ/".length()));
 		    source = createLinks.get(i).Url;
 		} else if (source.startsWith("CREATE/FORUM/")) {
 		    List<UrlItem> createLinks = forumEntity.createNewUrls(simplePageBean);
-		    Integer i = new Integer(source.substring("CREATE/FORUM/".length()));
+		    Integer i = Integer.valueOf(source.substring("CREATE/FORUM/".length()));
 		    source = createLinks.get(i).Url;
 		} else if (source.startsWith("CREATE/SCORM/")) {
 		    if (scormEntity == null) return;

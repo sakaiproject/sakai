@@ -1066,7 +1066,7 @@ public class ItemBean
         if (list!=null) {
             // add additional answer bean
             int currentsize = list.size();
-            int newlength = currentsize+ new Integer(newvalue).intValue();
+            int newlength = currentsize+ Integer.valueOf(newvalue).intValue();
             if (newlength<=26){
                 for (int i=currentsize; i<newlength; i++){
                     AnswerBean answerbean = new AnswerBean();

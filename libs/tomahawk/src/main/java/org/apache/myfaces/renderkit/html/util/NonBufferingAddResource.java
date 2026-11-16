@@ -461,7 +461,7 @@ public class NonBufferingAddResource implements AddResource {
         Long cacheKey = (Long) applicationMap.get(RESOURCES_CACHE_KEY);
         if (cacheKey == null)
         {
-            cacheKey = new Long(System.currentTimeMillis() / 100000);
+            cacheKey = Long.valueOf(System.currentTimeMillis() / 100000);
             applicationMap.put(RESOURCES_CACHE_KEY, cacheKey);
         }
         return cacheKey.longValue();

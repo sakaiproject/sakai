@@ -111,15 +111,15 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 
 		if (state.getAttribute(STATE_PAGESIZE) == null)
 		{
-			state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
+			state.setAttribute(STATE_PAGESIZE, Integer.valueOf(DEFAULT_PAGE_SIZE));
 			PortletConfig config = portlet.getPortletConfig();
 
 			try
 			{
-				Integer size = new Integer(config.getInitParameter(PARAM_PAGESIZE));
+				Integer size = Integer.valueOf(config.getInitParameter(PARAM_PAGESIZE));
 				if (size.intValue() <= 0)
 				{
-					size = new Integer(DEFAULT_PAGE_SIZE);
+					size = Integer.valueOf(DEFAULT_PAGE_SIZE);
 					log.debug("size parameter invalid: {}", config.getInitParameter(PARAM_PAGESIZE));
 				}
 				state.setAttribute(STATE_PAGESIZE, size);
@@ -127,7 +127,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 			catch (Exception any)
 			{
 				log.debug("size parameter invalid: {}", any.toString());
-				state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
+				state.setAttribute(STATE_PAGESIZE, Integer.valueOf(DEFAULT_PAGE_SIZE));
 			}
 		}
 
@@ -228,7 +228,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 		}
 
 		// save the number of messges
-		state.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
+		state.setAttribute(STATE_NUM_MESSAGES, Integer.valueOf(numMessages));
 
 		// find the position of the message that is the top first on the page
 		int posStart = 0;

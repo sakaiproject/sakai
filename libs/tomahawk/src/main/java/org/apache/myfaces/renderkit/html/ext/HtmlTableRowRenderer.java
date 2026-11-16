@@ -100,7 +100,7 @@ public class HtmlTableRowRenderer extends HtmlTableRenderer
                 bodyrows = new Integer[bodyrowsString.length];
                 for(int i = 0; i < bodyrowsString.length; i++) 
                 {
-                    bodyrows[i] = new Integer(bodyrowsString[i]);
+                    bodyrows[i] = Integer.valueOf(bodyrowsString[i]);
                 }
                 
             }

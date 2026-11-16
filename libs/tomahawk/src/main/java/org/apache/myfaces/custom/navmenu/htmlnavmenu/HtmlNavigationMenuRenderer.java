@@ -77,7 +77,7 @@ public class HtmlNavigationMenuRenderer extends HtmlLinkRenderer
 
     public static final String RENDERER_TYPE = "org.apache.myfaces.NavigationMenu";
 
-    private static final Integer ZERO_INTEGER = new Integer(0);
+    private static final Integer ZERO_INTEGER = Integer.valueOf(0);
 
     private static final String HORIZ_MENU_SCRIPT = "HMenuIEHover.js";
 

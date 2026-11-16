@@ -355,7 +355,7 @@ public abstract class AbstractHtmlDataScroller extends UIPanel
         if(uiData.getValueBinding("first")!=null)
         {
             ValueBinding vb = uiData.getValueBinding("first");
-            vb.setValue(getFacesContext(),new Integer(value));
+            vb.setValue(getFacesContext(),Integer.valueOf(value));
         }
         else
         {

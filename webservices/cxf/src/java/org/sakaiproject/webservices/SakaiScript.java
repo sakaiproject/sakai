@@ -4608,7 +4608,7 @@ public class SakaiScript extends AbstractWebService {
 
             if (matchingServers.size() == 0) {
                 log.warn("can't find any sessions for server with id=" + serverid);
-                return new Integer(0);
+                return Integer.valueOf(0);
             }
 
             Collections.sort(matchingServers);
@@ -4619,7 +4619,7 @@ public class SakaiScript extends AbstractWebService {
         } catch (Exception e) {
             log.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
         }
-        return new Integer(0);
+        return Integer.valueOf(0);
     }
 
 
@@ -4653,7 +4653,7 @@ public class SakaiScript extends AbstractWebService {
         } catch (Exception e) {
             log.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
         }
-        return new Integer(count);
+        return Integer.valueOf(count);
     }
 
     private Integer getSessionCountForServer(Map servers, String serverKey, int millisBeforeExpire) {
@@ -4677,7 +4677,7 @@ public class SakaiScript extends AbstractWebService {
         } else {
             log.warn("can't find any sessions for server with id=" + serverKey);
         }
-        return new Integer(count);
+        return Integer.valueOf(count);
 
     }
 

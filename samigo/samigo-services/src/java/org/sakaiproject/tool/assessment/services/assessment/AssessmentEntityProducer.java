@@ -656,7 +656,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			// Pools used in assessments in the site
 			log.info("Exporting question pools used in site {}", siteId);
 			for (String poolId : questionPoolIds) {
-				targetPools.add(questionPoolService.getPool(new Long(poolId), null));
+				targetPools.add(questionPoolService.getPool(Long.valueOf(poolId), null));
 			}
 
 			// Export each pool

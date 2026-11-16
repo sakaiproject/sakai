@@ -99,8 +99,8 @@ public class AgentResults
   private List<AssessmentGradingAttachment> assessmentGradingAttachmentList;
   private Integer timeElapsed;
   private int submissionCount=0;
-  private Double scoreSummation=new Double("0");
-  private Double averageScore= new Double("0");
+  private Double scoreSummation=Double.valueOf("0");
+  private Double averageScore= Double.valueOf("0");
   private String alternativeInstructorReviewUrl;
 
   public AgentResults() {

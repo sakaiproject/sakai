@@ -147,16 +147,16 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 /*
  Use TypeFacade 's constants for item type,
   Note:   10 = import from question pool
-  public static Long MULTIPLE_CHOICE = new Long(1);
-  public static Long MULTIPLE_CORRECT = new Long(2); //not used
-  public static Long MULTIPLE_CHOICE_SURVEY = new Long(3);
-  public static Long TRUE_FALSE = new Long(4);
-  public static Long ESSAY_QUESTION = new Long(5);
-  public static Long FILE_UPLOAD = new Long(6);
-  public static Long AUDIO_RECORDING = new Long(7);
-  public static Long FILL_IN_BLANK = new Long(8);
-    public static Long FILL_IN_NUMERIC = new Long(11);
-  public static Long MATCHING = new Long(9);
+  public static Long MULTIPLE_CHOICE = Long.valueOf(1);
+  public static Long MULTIPLE_CORRECT = Long.valueOf(2); //not used
+  public static Long MULTIPLE_CHOICE_SURVEY = Long.valueOf(3);
+  public static Long TRUE_FALSE = Long.valueOf(4);
+  public static Long ESSAY_QUESTION = Long.valueOf(5);
+  public static Long FILE_UPLOAD = Long.valueOf(6);
+  public static Long AUDIO_RECORDING = Long.valueOf(7);
+  public static Long FILL_IN_BLANK = Long.valueOf(8);
+    public static Long FILL_IN_NUMERIC = Long.valueOf(11);
+  public static Long MATCHING = Long.valueOf(9);
 */
 
         item.setItemType(itemauthorbean.getItemType());
@@ -171,7 +171,7 @@ log.debug("item.getItemType() = " + item.getItemType());
         if ((item.getItemType()!=null) && !("".equals(item.getItemType())))
         {
 log.debug("item.getItemType() integer = " + item.getItemType());
-          itype = new Integer(item.getItemType()).intValue();
+          itype = Integer.valueOf(item.getItemType()).intValue();
         }
         else if ("".equals(item.getItemType()))
         {
@@ -305,7 +305,7 @@ log.debug("after getting item.getItemType() ");
 
         if (itemauthorbean.getInsertToSection()!=null) {
        // for inserting an item, this should be sequence, e.g. 1, 2, ...etc
-	  String sectionid= (assessment.getSection(new Long(itemauthorbean.getInsertToSection()))).getSectionId().toString();
+	  String sectionid= (assessment.getSection(Long.valueOf(itemauthorbean.getInsertToSection()))).getSectionId().toString();
           item.setSelectedSection(sectionid);
         }
         else {

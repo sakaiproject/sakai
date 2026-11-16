@@ -457,7 +457,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 			String id = request.getParameter(LTIService.LTI_ID);
 			String toolIdStr = request.getParameter(LTIService.LTI_TOOL_ID);
-			Long toolId = NumberUtils.toLong(toolIdStr, new Long(-1));
+			Long toolId = NumberUtils.toLong(toolIdStr, Long.valueOf(-1));
 
 			if ( doChoose != null && id == null ) {
 				if ( toolId < 1 ) {
@@ -535,7 +535,7 @@ public class SakaiIFrame extends GenericPortlet {
 		if ( pos < source.length() ) {
 			String sContentId = source.substring(pos);
 			try {
-				Long key = new Long(sContentId);
+				Long key = Long.valueOf(sContentId);
 				return key;
 			} catch (Exception e) {
 				return null;
@@ -548,11 +548,11 @@ public class SakaiIFrame extends GenericPortlet {
 		if (key == null) return null;
 
 		if (key instanceof Number)
-			return new Long(((Number) key).longValue());
+			return Long.valueOf(((Number) key).longValue());
 
 		if (key instanceof String) {
 			try {
-				return new Long((String) key);
+				return Long.valueOf((String) key);
 			} catch (Exception e) {
 				return null;
 			}

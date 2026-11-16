@@ -70,17 +70,17 @@ public class PrivacyTest extends SakaiTestBase
 	
 	public void testSetViewableState() throws Exception 
 	{
-//		privacyManager.setViewableState("main_page", "a", new Boolean(false), org.sakaiproject.api.privacy.PrivacyManager.USER_RECORD_TYPE);
-//		privacyManager.setViewableState("main_page", "a", new Boolean(true), org.sakaiproject.api.privacy.PrivacyManager.SYSTEM_RECORD_TYPE);
+//		privacyManager.setViewableState("main_page", "a", Boolean.valueOf(false), org.sakaiproject.api.privacy.PrivacyManager.USER_RECORD_TYPE);
+//		privacyManager.setViewableState("main_page", "a", Boolean.valueOf(true), org.sakaiproject.api.privacy.PrivacyManager.SYSTEM_RECORD_TYPE);
 //		
-//		privacyManager.setViewableState("main_page1", "a", new Boolean(false), org.sakaiproject.api.privacy.PrivacyManager.USER_RECORD_TYPE);
-//		privacyManager.setViewableState("main_page1", "a", new Boolean(true), org.sakaiproject.api.privacy.PrivacyManager.SYSTEM_RECORD_TYPE);
+//		privacyManager.setViewableState("main_page1", "a", Boolean.valueOf(false), org.sakaiproject.api.privacy.PrivacyManager.USER_RECORD_TYPE);
+//		privacyManager.setViewableState("main_page1", "a", Boolean.valueOf(true), org.sakaiproject.api.privacy.PrivacyManager.SYSTEM_RECORD_TYPE);
 //
-//		privacyManager.setViewableState("main_page", "b", new Boolean(false), org.sakaiproject.api.privacy.PrivacyManager.USER_RECORD_TYPE);		
-//		privacyManager.setViewableState("main_page", "b", new Boolean(true), org.sakaiproject.api.privacy.PrivacyManager.SYSTEM_RECORD_TYPE);
+//		privacyManager.setViewableState("main_page", "b", Boolean.valueOf(false), org.sakaiproject.api.privacy.PrivacyManager.USER_RECORD_TYPE);		
+//		privacyManager.setViewableState("main_page", "b", Boolean.valueOf(true), org.sakaiproject.api.privacy.PrivacyManager.SYSTEM_RECORD_TYPE);
 //
-//		privacyManager.setViewableState("main_page1", "b", new Boolean(true), org.sakaiproject.api.privacy.PrivacyManager.USER_RECORD_TYPE);		
-//		privacyManager.setViewableState("main_page1", "b", new Boolean(true), org.sakaiproject.api.privacy.PrivacyManager.SYSTEM_RECORD_TYPE);
+//		privacyManager.setViewableState("main_page1", "b", Boolean.valueOf(true), org.sakaiproject.api.privacy.PrivacyManager.USER_RECORD_TYPE);		
+//		privacyManager.setViewableState("main_page1", "b", Boolean.valueOf(true), org.sakaiproject.api.privacy.PrivacyManager.SYSTEM_RECORD_TYPE);
 	}
 	
 	public void testFindViewable() throws Exception
@@ -101,7 +101,7 @@ public class PrivacyTest extends SakaiTestBase
 	
 	public void testGetViewableState() throws Exception
 	{
-		Set resultSet = privacyManager.getViewableState("main_page1", new Boolean(true), PrivacyManager.SYSTEM_RECORD_TYPE);
+		Set resultSet = privacyManager.getViewableState("main_page1", Boolean.valueOf(true), PrivacyManager.SYSTEM_RECORD_TYPE);
 		Iterator iter = resultSet.iterator();
 		while(iter.hasNext())
 		{
@@ -126,15 +126,15 @@ public class PrivacyTest extends SakaiTestBase
 	public void testSetViewableState2() throws Exception
 	{
 		Map inputMap = new HashMap();
-		inputMap.put("a", new Boolean(false));
-		inputMap.put("b", new Boolean(true));
-		inputMap.put("c", new Boolean(true));
+		inputMap.put("a", Boolean.valueOf(false));
+		inputMap.put("b", Boolean.valueOf(true));
+		inputMap.put("c", Boolean.valueOf(true));
 		privacyManager.setViewableState("main_page", inputMap, PrivacyManager.USER_RECORD_TYPE);
 	}
 	
 	public void testIsViewable() throws Exception
 	{
 		log.info("Privacy Test -- testIsView:");
-		log.info(new Boolean(privacyManager.isViewable("main_page", "a")).toString());
+		log.info(Boolean.valueOf(privacyManager.isViewable("main_page", "a")).toString());
 	}
 }

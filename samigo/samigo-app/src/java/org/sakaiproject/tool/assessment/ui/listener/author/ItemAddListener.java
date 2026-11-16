@@ -958,7 +958,7 @@ public class ItemAddListener implements ActionListener {
 
         /*
             // Reset question pool bean
-            QuestionPoolFacade thepool= qpdelegate.getPool(new Long(itemauthor.getQpoolId()), AgentFacade.getAgentString());
+            QuestionPoolFacade thepool= qpdelegate.getPool(Long.valueOf(itemauthor.getQpoolId()), AgentFacade.getAgentString());
             qpoolbean.getCurrentPool().setNumberOfQuestions(thepool.getQuestionSize().toString());
          */
         qpoolbean.startEditPoolAgain(itemauthor.getQpoolId());

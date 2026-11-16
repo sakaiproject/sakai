@@ -51,7 +51,7 @@ public class ConfirmRetakeAssessmentListener implements ActionListener {
 		PublishedAssessmentService pubService = new PublishedAssessmentService();
 
 		String publishedAssessmentId = ContextUtil.lookupParam("publishedAssessmentId");
-		Long pubId = new Long(publishedAssessmentId);
+		Long pubId = Long.valueOf(publishedAssessmentId);
 		String agentIdString = ContextUtil.lookupParam("agentIdString");
 		AgentFacade agent = new AgentFacade(agentIdString);
 		String studentName = agent.getDisplayName();

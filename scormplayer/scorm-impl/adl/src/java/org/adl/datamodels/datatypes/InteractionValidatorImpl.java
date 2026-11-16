@@ -965,12 +965,12 @@ public class InteractionValidatorImpl extends InteractionValidator {
 									Double max = null;
 
 									if (StringUtils.isNotBlank(minString)) {
-										min = new Double(minString);
+										min = Double.valueOf(minString);
 
 									}
 
 									if (StringUtils.isNotBlank(maxString)) {
-										max = new Double(maxString);
+										max = Double.valueOf(maxString);
 									}
 
 									if (min != null && max != null) {
@@ -1070,12 +1070,12 @@ public class InteractionValidatorImpl extends InteractionValidator {
 							Double max = null;
 
 							if (StringUtils.isNotBlank(minString)) {
-								min = new Double(minString);
+								min = Double.valueOf(minString);
 
 							}
 
 							if (StringUtils.isNotBlank(maxString)) {
-								max = new Double(maxString);
+								max = Double.valueOf(maxString);
 							}
 
 							if (min != null && max != null) {

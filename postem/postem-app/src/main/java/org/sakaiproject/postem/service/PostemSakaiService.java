@@ -509,7 +509,7 @@ public class PostemSakaiService  {
             }
             if (null == usr || usr.equals("")) {
                 usersAreValid = null;
-                blankRows.add(new Integer(row));
+                blankRows.add(Integer.valueOf(row));
             } else if (null == siteMembers || (null != siteMembers && !siteMembers.contains(getUserDefined(usr)))) {
                 usersAreValid = null;
                 invalidUsernames.add(usr);

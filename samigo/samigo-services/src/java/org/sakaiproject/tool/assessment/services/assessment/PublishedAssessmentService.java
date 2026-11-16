@@ -246,7 +246,7 @@ public class PublishedAssessmentService extends AssessmentService{
     try {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
-          getPublishedAssessmentId(new Long(assessmentId));
+          getPublishedAssessmentId(Long.valueOf(assessmentId));
     }
     catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -298,7 +298,7 @@ public class PublishedAssessmentService extends AssessmentService{
 
   public void removeAssessment(String assessmentId, String action) {
 	    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-	        removeAssessment(new Long(assessmentId), action);
+	        removeAssessment(Long.valueOf(assessmentId), action);
   }
 
   /**
@@ -354,7 +354,7 @@ public class PublishedAssessmentService extends AssessmentService{
     try {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
-          getSettingsOfPublishedAssessment(new Long(assessmentId));
+          getSettingsOfPublishedAssessment(Long.valueOf(assessmentId));
     }
     catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -366,7 +366,7 @@ public class PublishedAssessmentService extends AssessmentService{
     try {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
-          loadPublishedItem(new Long(itemId));
+          loadPublishedItem(Long.valueOf(itemId));
     }
     catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -378,7 +378,7 @@ public class PublishedAssessmentService extends AssessmentService{
     try {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
-          loadPublishedItemText(new Long(itemTextId));
+          loadPublishedItemText(Long.valueOf(itemTextId));
     }
     catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -419,7 +419,7 @@ public class PublishedAssessmentService extends AssessmentService{
   public Integer getTotalSubmission(String agentId, String publishedAssessmentId) {
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
-        getTotalSubmission(agentId, new Long(publishedAssessmentId));
+        getTotalSubmission(agentId, Long.valueOf(publishedAssessmentId));
   }
 
   /**
@@ -429,7 +429,7 @@ public class PublishedAssessmentService extends AssessmentService{
   public Integer getTotalSubmissionForEachAssessment(String publishedAssessmentId){
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
-        getTotalSubmissionForEachAssessment(new Long(publishedAssessmentId));
+        getTotalSubmissionForEachAssessment(Long.valueOf(publishedAssessmentId));
   }
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByAlias(String alias) {
@@ -458,12 +458,12 @@ public class PublishedAssessmentService extends AssessmentService{
 
  public boolean publishedAssessmentTitleIsUnique(String assessmentBaseId, String title) {
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-           publishedAssessmentTitleIsUnique(new Long(assessmentBaseId), title);
+           publishedAssessmentTitleIsUnique(Long.valueOf(assessmentBaseId), title);
   }
 
   public boolean hasRandomPart(String publishedAssessmentId){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-	  hasRandomPart(new Long(publishedAssessmentId));
+	  hasRandomPart(Long.valueOf(publishedAssessmentId));
   }
   
   public List getContainRandomPartAssessmentIds(final Collection assessmentIds){
@@ -473,12 +473,12 @@ public class PublishedAssessmentService extends AssessmentService{
 
   public PublishedItemData getFirstPublishedItem(String publishedAssessmentId){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-      getFirstPublishedItem(new Long(publishedAssessmentId));
+      getFirstPublishedItem(Long.valueOf(publishedAssessmentId));
   }
 
   public List getPublishedItemIds(String publishedAssessmentId){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-      getPublishedItemIds(new Long(publishedAssessmentId));
+      getPublishedItemIds(Long.valueOf(publishedAssessmentId));
   }
   
   public Set<PublishedItemData> getPublishedItemSet(Long publishedAssessmentId, Long sectionId){
@@ -488,7 +488,7 @@ public class PublishedAssessmentService extends AssessmentService{
 
   public Long getItemType(String publishedItemId){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-      getItemType(new Long(publishedItemId));
+      getItemType(Long.valueOf(publishedItemId));
   }
 
   public Map<Long, ItemTextIfc> preparePublishedItemTextHash(PublishedAssessmentIfc publishedAssessment){
@@ -1073,7 +1073,7 @@ public class PublishedAssessmentService extends AssessmentService{
    public PublishedAssessmentData getBasicInfoOfPublishedAssessment(String publishedId) {
 	    return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
-        getBasicInfoOfPublishedAssessment(new Long(publishedId));
+        getBasicInfoOfPublishedAssessment(Long.valueOf(publishedId));
    }
 
    public String getPublishedAssessmentSiteId(String publishedAssessmentId) {
@@ -1160,7 +1160,7 @@ public class PublishedAssessmentService extends AssessmentService{
    
    public void removeAssessmentAttachment(String attachmentId) {
 		PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
-				.removeAssessmentAttachment(new Long(attachmentId));
+				.removeAssessmentAttachment(Long.valueOf(attachmentId));
    }
    
    public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section,
@@ -1179,7 +1179,7 @@ public class PublishedAssessmentService extends AssessmentService{
 
    public void removeSectionAttachment(String attachmentId) {
 	   PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
-	   .removeSectionAttachment(new Long(attachmentId));
+	   .removeSectionAttachment(Long.valueOf(attachmentId));
    }
 
    public void saveOrUpdateAttachments(List list) {

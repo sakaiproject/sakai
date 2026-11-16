@@ -1985,7 +1985,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 JSONObject content_json = new JSONObject();
                 // SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
                 content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
-                content_json.put(LTIService.LTI_PROTECT, new Integer(1));
+                content_json.put(LTIService.LTI_PROTECT, Integer.valueOf(1));
 
                 // Copy assignment specific custom parameter substitutions to pass into SakaiLTIUtil
                 content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
@@ -2047,7 +2047,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     Map<String, Object> updates = new TreeMap<String, Object>();
                     updates.put(LTIService.LTI_TITLE, assignmentTitle);
                     updates.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
-                    updates.put(LTIService.LTI_PROTECT, new Integer(1));
+                    updates.put(LTIService.LTI_PROTECT, Integer.valueOf(1));
                     if ( placement_secret == null ) {
                         placement_secret = UUID.randomUUID().toString();
                         updates.put(LTIService.LTI_PLACEMENTSECRET, placement_secret);
@@ -4974,7 +4974,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Map<Integer, String> orderedLogKeys = properties.keySet().stream()
                 .filter(k -> k.startsWith("log"))
                 .map(k -> new String[] {k, StringUtils.split(k, "log")[0]})
-                .collect(Collectors.toMap(a -> new Integer(a[1]), a -> a[0], (e1, e2) -> e1, TreeMap::new));
+                .collect(Collectors.toMap(a -> Integer.valueOf(a[1]), a -> a[0], (e1, e2) -> e1, TreeMap::new));
 
         orderedLogKeys.values().stream().map(properties::get).map(formattedText::escapeHtml).forEach(messages::add);
 
@@ -4986,7 +4986,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Map<String, String> properties = submission.getProperties();
         List<Integer> keys = properties.keySet().stream()
                 .filter(k -> k.startsWith("log"))
-                .map(k -> new Integer(StringUtils.split(k, "log")[0]))
+                .map(k -> Integer.valueOf(StringUtils.split(k, "log")[0]))
                 .sorted()
                 .collect(Collectors.toList());
         int next = keys.isEmpty() ? 0 : keys.get(keys.size() - 1) + 1;
@@ -10329,7 +10329,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
                         Long contentKey = a.getContentId().longValue();
                         Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-                        Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
+                        Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
                         if (toolKey != null) {
                             Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
                             if ( tool == null ) {

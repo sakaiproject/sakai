@@ -369,7 +369,7 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 
 		// Lets delete the score record
 		Integer count = scoreRepository.deleteBySubjectAndColumn(subject, gradeBookColumn);
-		assertEquals(count, new Integer(1));
+		assertEquals(count, Integer.valueOf(1));
 
 		score = scoreRepository.findBySubjectAndColumn(subject, gradeBookColumn);
 		assertNull(score);
@@ -377,7 +377,7 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		// Lets do a delete of non-existant score
 		gradeBookColumn = 1000l;
 		count = scoreRepository.deleteBySubjectAndColumn(subject, gradeBookColumn);
-		assertEquals(count, new Integer(0));
+		assertEquals(count, Integer.valueOf(0));
 
 		// Test ContextLog
 		ContextLog cLog = new ContextLog();

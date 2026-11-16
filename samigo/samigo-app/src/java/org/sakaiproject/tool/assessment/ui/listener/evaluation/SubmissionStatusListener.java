@@ -168,7 +168,7 @@ public class SubmissionStatusListener extends SpringBeanAutowiringSupport
 
       // we are only interested in showing last submissions
 
-      List scores = delegate.getLastSubmittedAssessmentGradingList(new Long(publishedId));
+      List scores = delegate.getLastSubmittedAssessmentGradingList(Long.valueOf(publishedId));
       List agents = new ArrayList();
       Iterator iter = scores.iterator();
       if (!iter.hasNext())

@@ -129,7 +129,7 @@ public class ParameterResourceHandler implements ResourceHandler
     {
         if (_hashCode == null)
         {
-            _hashCode = new Integer(new HashCodeBuilder().append(_parameters).toHashCode());
+            _hashCode = Integer.valueOf(new HashCodeBuilder().append(_parameters).toHashCode());
         }
         return _hashCode.intValue();
     }

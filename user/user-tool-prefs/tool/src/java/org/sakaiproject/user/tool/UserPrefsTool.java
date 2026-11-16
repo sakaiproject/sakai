@@ -1207,7 +1207,7 @@ public class UserPrefsTool
 		}
 
 		ResourceProperties props = prefs.getProperties(NotificationService.PREFS_TYPE + type);
-		String value = props.getProperty(new Integer(NotificationService.NOTI_OPTIONAL).toString());
+		String value = props.getProperty(Integer.valueOf(NotificationService.NOTI_OPTIONAL).toString());
 
 		return value;
 	}

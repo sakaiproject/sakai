@@ -94,11 +94,11 @@ public class QuestionPoolShareBean implements Serializable {
 
   		QuestionPoolService delegate = new QuestionPoolService();
     
-  		QuestionPoolFacade thepool = delegate.getPool(new Long(qpid), AgentFacade.getAgentString());
+  		QuestionPoolFacade thepool = delegate.getPool(Long.valueOf(qpid), AgentFacade.getAgentString());
          
-  		setAgentsWithAccess(delegate.getAgentsWithAccess(new Long(qpid)));
-  		setAgentsWithoutAccess(delegate.getAgentsWithoutAccess(new Long(qpid), AgentFacade.getCurrentSiteId()));
-  		setQuestionPoolId(new Long(qpid));
+  		setAgentsWithAccess(delegate.getAgentsWithAccess(Long.valueOf(qpid)));
+  		setAgentsWithoutAccess(delegate.getAgentsWithoutAccess(Long.valueOf(qpid), AgentFacade.getCurrentSiteId()));
+  		setQuestionPoolId(Long.valueOf(qpid));
   		setQuestionPoolOwnerId(thepool.getOwnerId());
   		setQuestionPoolName(thepool.getDisplayName());
 

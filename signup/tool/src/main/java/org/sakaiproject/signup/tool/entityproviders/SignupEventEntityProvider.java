@@ -96,7 +96,7 @@ public class SignupEventEntityProvider extends AbstractEntityProvider implements
 
 		Long eventId;
 		try {
-			eventId = new Long(id);
+			eventId = Long.valueOf(id);
 		} catch (NumberFormatException e) {
 			throw new EntityException("Invalid identifier provided for signupEvent", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}
@@ -110,7 +110,7 @@ public class SignupEventEntityProvider extends AbstractEntityProvider implements
 	private SignupEvent getEventById(String id, boolean mustAccessDB) {
 		Long eventId;
 		try {
-			eventId = new Long(id);
+			eventId = Long.valueOf(id);
 		} catch (NumberFormatException e) {
 			throw new EntityException("Invalid identifier provided for signupEvent", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}

@@ -134,7 +134,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 								String pageTitle = currPage.getTitle();
 								String height = toolConfig.getPlacementConfig().getProperty(HEIGHT_PROP);
 
-								webContentData.setAttribute(NEW_WINDOW, new Boolean(currPage.isPopUp()).toString());
+								webContentData.setAttribute(NEW_WINDOW, Boolean.valueOf(currPage.isPopUp()).toString());
 
 								try {
 									String encoded = new String(codec.encode(contentUrl.getBytes("UTF-8")),"UTF-8");

@@ -81,7 +81,7 @@ public class AnswerBean implements Serializable, Comparable{
   // for EMI questions
   private String requiredOptionsCount;
   //for EMI questions
-  private Double score = new Double(0.0);
+  private Double score = Double.valueOf(0.0);
   // Whether the user set the score or it was auto set
   private Boolean scoreUserSet = Boolean.FALSE;
   //Attachments for EMI questions

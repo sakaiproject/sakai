@@ -87,7 +87,7 @@ public class StreamingThreadManager
         synchronized(this)
         {
             REQUEST_ID_COUNTER++;
-            requestId = new Long(REQUEST_ID_COUNTER);
+            requestId = Long.valueOf(REQUEST_ID_COUNTER);
         }
         HeaderInfoEntry headerInfoEntry = new HeaderInfoEntry();
         synchronized (headerInfos)

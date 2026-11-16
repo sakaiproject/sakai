@@ -544,7 +544,7 @@ public class StreamingAddResource extends AddResource2
 
     private boolean checkAlreadyAdded(PositionedInfo info)
     {
-        Long key = new Long(info.hashCode());
+        Long key = Long.valueOf(info.hashCode());
         if (alreadySeenResources.contains(key))
         {
             return true;
@@ -760,7 +760,7 @@ public class StreamingAddResource extends AddResource2
         Long cacheKey = (Long) applicationMap.get(RESOURCES_CACHE_KEY);
         if (cacheKey == null)
         {
-            cacheKey = new Long(System.currentTimeMillis() / 100000);
+            cacheKey = Long.valueOf(System.currentTimeMillis() / 100000);
             applicationMap.put(RESOURCES_CACHE_KEY, cacheKey);
         }
         return cacheKey.longValue();
@@ -1204,7 +1204,7 @@ public class StreamingAddResource extends AddResource2
         synchronized(StreamingAddResource.class)
         {
             REQUEST_ID_COUNTER++;
-            requestId = new Long(REQUEST_ID_COUNTER);
+            requestId = Long.valueOf(REQUEST_ID_COUNTER);
         }
         headerInfoEntry = new HeaderInfoEntry();
         synchronized (headerInfos)

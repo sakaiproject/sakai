@@ -3828,7 +3828,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				asc = true;
 
 			state.setCurrentSortAsc(asc);
-			sstate.setAttribute(STATE_CURRENT_SORT_ASC, new Boolean(asc));
+			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.valueOf(asc));
 		}
 		else
 		{

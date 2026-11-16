@@ -401,7 +401,7 @@ public class PortletIFrame extends GenericPortlet {
 				context.put("popupdone", Boolean.valueOf(popupDone != null));
 				context.put("maximize", Boolean.valueOf(maximize));
 				context.put("placement", placement.getId().replaceAll("[^a-zA-Z0-9]","_"));
-				context.put("loadTime", new Long(xframeLoad));
+				context.put("loadTime", Long.valueOf(xframeLoad));
 
 				// SAK-23566 capture the view calendar events
 				if (placement != null && placement.getContext() != null && placement.getId() != null) {

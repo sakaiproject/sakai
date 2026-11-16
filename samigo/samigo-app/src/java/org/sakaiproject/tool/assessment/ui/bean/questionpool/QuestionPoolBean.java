@@ -1749,7 +1749,7 @@ public String getAddOrEdit()
 //          pool.setProperties((QuestionPoolData) thepool.getData());
 // TODO  which one should I use?
 //          pool.setNumberOfSubpools(
-//            new Integer(tree.getChildList(thepool.getQuestionPoolId()).size()).toString());
+//            Integer.valueOf(tree.getChildList(thepool.getQuestionPoolId()).size()).toString());
           pool.setNumberOfSubpools(thepool.getSubPoolSize().toString());
           pool.setNumberOfQuestions(thepool.getQuestionSize().toString());
           //pool.setDateCreated(thepool.getDateCreated());

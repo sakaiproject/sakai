@@ -1128,9 +1128,9 @@ public class GradingServiceImpl implements GradingService {
         if (gradeRecs == null || countedAssigns == null) {
             log.debug("getTotalPointsEarnedInternal for studentId={} returning 0 because null gradeRecs or countedAssigns", studentId);
             List<Double> returnList = new ArrayList<>();
-            returnList.add(new Double(0));
-            returnList.add(new Double(0));
-            returnList.add(new Double(0)); // 3rd one is for the pre-adjusted course grade
+            returnList.add(Double.valueOf(0));
+            returnList.add(Double.valueOf(0));
+            returnList.add(Double.valueOf(0)); // 3rd one is for the pre-adjusted course grade
             return returnList;
         }
 
@@ -2856,7 +2856,7 @@ public class GradingServiceImpl implements GradingService {
         Double score = null;
         if ( scoreStr != null ) {
             try {
-                score = new Double(scoreStr);
+                score = Double.valueOf(scoreStr);
             } catch (Exception e) {
                 log.debug("Could not parse score as number studentId={} score={}", studentId, scoreStr);
                 return;
@@ -5033,8 +5033,8 @@ public class GradingServiceImpl implements GradingService {
     private GradebookAssignment getAssignmentWithoutStats(String gradebookUid, String assignmentName) {
         // Check if assignmentName is really an assignmentId. If not get assignment by assignmentName (i.e., title).
         if (NumberUtils.isCreatable(assignmentName)) {
-            final Long assignmentId = new Long(NumberUtils.toLong(assignmentName));
-            return getAssignmentWithoutStatsByID(gradebookUid, new Long(assignmentId));
+            final Long assignmentId = Long.valueOf(NumberUtils.toLong(assignmentName));
+            return getAssignmentWithoutStatsByID(gradebookUid, Long.valueOf(assignmentId));
         }
         return gradingPersistenceManager.getAssignmentByNameAndGradebook(assignmentName, gradebookUid).orElse(null);
     }
@@ -5705,7 +5705,7 @@ public class GradingServiceImpl implements GradingService {
 
         // Avoid dividing by zero
         if (pointsEarned.compareTo(BigDecimal.ZERO) == 0 || pointsPossible.compareTo(BigDecimal.ZERO) == 0) {
-            return new Double(0);
+            return Double.valueOf(0);
         }
 
         final BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradingConstants.MATH_CONTEXT).multiply(new BigDecimal("100"));

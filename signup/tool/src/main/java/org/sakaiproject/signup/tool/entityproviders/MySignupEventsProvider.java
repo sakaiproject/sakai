@@ -96,7 +96,7 @@ public class MySignupEventsProvider extends AbstractEntityProvider implements Co
 
 		Long eventId;
 		try {
-			eventId = new Long(id);
+			eventId = Long.valueOf(id);
 		} catch (NumberFormatException e) {
 			throw new EntityException("Invalid identifier provided for mySignup", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}

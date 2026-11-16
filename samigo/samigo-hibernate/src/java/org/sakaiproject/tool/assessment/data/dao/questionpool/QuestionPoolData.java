@@ -365,7 +365,7 @@ public class QuestionPoolData
 
   public void setIntellectualProperty(String intellectualProperty)
   {
-      setIntellectualPropertyId(new Long(intellectualProperty));
+      setIntellectualPropertyId(Long.valueOf(intellectualProperty));
   }
 
   /**

@@ -112,7 +112,7 @@ public class CCUtils {
                 }
                 String numString = text.substring(last, endnum);
                 if (numString.length() >= 1) {
-                    Long itemId = new Long(numString);
+                    Long itemId = Long.valueOf(numString);
                     SimplePageItem item = simplePageToolDao.findItem(itemId);
                     sakaiId = item.getSakaiId();
                     int itemType = item.getType();
@@ -217,7 +217,7 @@ public class CCUtils {
                 }
                 String numString = text.substring(last, endnum);
                 if (numString.length() >= 1) {
-                    Long itemId = new Long(numString);
+                    Long itemId = Long.valueOf(numString);
                     SimplePageItem item = simplePageToolDao.findItem(itemId);
                     sakaiId = item.getSakaiId();
                     int itemType = item.getType();

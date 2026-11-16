@@ -4362,7 +4362,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     private void configureScale(int scale, Locale locale) {
-        int dec = new Double(Math.log10(scale)).intValue();
+        int dec = Double.valueOf(Math.log10(scale)).intValue();
         NumberFormat nf = NumberFormat.getInstance(locale);
         nf.setMaximumFractionDigits(dec);
         nf.setMinimumFractionDigits(dec);

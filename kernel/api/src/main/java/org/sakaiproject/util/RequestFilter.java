@@ -1097,7 +1097,7 @@ public class RequestFilter implements Filter
 		// // so that the tool down-the-line can handle the problem
 		// req.setAttribute("upload.status", "size_limit_exceeded");
 		// req.setAttribute("upload.exception", ex);
-		// req.setAttribute("upload.limit", new Long((upload.getFileSizeMax() / 1024L) / 1024L));
+		// req.setAttribute("upload.limit", Long.valueOf((upload.getFileSizeMax() / 1024L) / 1024L));
 		// }
 		catch (FileUploadException ex)
 		{

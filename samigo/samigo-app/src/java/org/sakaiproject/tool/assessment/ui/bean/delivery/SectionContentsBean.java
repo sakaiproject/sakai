@@ -269,7 +269,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   {
     if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
     {
-      Integer authortype = new Integer(section.getSectionMetaDataByLabel(
+      Integer authortype = Integer.valueOf(section.getSectionMetaDataByLabel(
         SectionDataIfc.AUTHOR_TYPE));
       setSectionAuthorType(authortype);
 
@@ -291,7 +291,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     String qorderString = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING);
     if (StringUtils.isNotBlank(qorderString) && StringUtils.isNumeric(qorderString))
     {
-      Integer questionorder = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
+      Integer questionorder = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
       setQuestionOrdering(questionorder);
     }
     else
@@ -307,12 +307,12 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   public void setMetadataFixed(SectionDataIfc section) {
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) != null){
-		Integer numberfixed = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+		Integer numberfixed = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
 		setNumberToBeFixed(numberfixed);
 	}
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW) != null) {
-		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW));
+		Long poolid = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW));
 		setPoolIdToBeFixed(poolid);
 	}
 
@@ -345,12 +345,12 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   public void setMetadataRandowDraw(SectionDataIfc section) {
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) != null){
-		Integer numberdrawn = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+		Integer numberdrawn = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
 		setNumberToBeDrawn(numberdrawn);
 	}
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW) != null) {
-		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+		Long poolid = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
 		setPoolIdToBeDrawn(poolid);
 		retrievePoolOwnerName(poolid);
 		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) {

@@ -565,8 +565,8 @@ implements ActionListener
 			if (!scoreThresholdError) {
 				String submittedScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
 				try {
-					Double doubleInput = new Double(submittedScoreThreshold);
-					if(doubleInput.compareTo(new Double("0.0")) == -1 || doubleInput.compareTo(new Double("100.0")) == 1){
+					Double doubleInput = Double.valueOf(submittedScoreThreshold);
+					if(doubleInput.compareTo(Double.valueOf("0.0")) == -1 || doubleInput.compareTo(Double.valueOf("100.0")) == 1){
 						throw new Exception();
 					}
 				} catch(Exception ex) {
@@ -706,7 +706,7 @@ implements ActionListener
 		control.setStartDate(assessmentSettings.getStartDate());
 		control.setDueDate(assessmentSettings.getDueDate());
 
-		Integer lateHandling = assessmentSettings.getLateHandling() != null ? new Integer(assessmentSettings.getLateHandling()) : -1;
+		Integer lateHandling = assessmentSettings.getLateHandling() != null ? Integer.valueOf(assessmentSettings.getLateHandling()) : -1;
 		if (lateHandling > 0) {
 			control.setLateHandling(lateHandling);
 		}
@@ -739,13 +739,13 @@ implements ActionListener
 			control.setItemNavigation(Integer.valueOf(nav));
 		}
 		if (assessmentSettings.getAssessmentFormat() != null ) {
-			control.setAssessmentFormat(new Integer(assessmentSettings.getAssessmentFormat()));
+			control.setAssessmentFormat(Integer.valueOf(assessmentSettings.getAssessmentFormat()));
 		}	    
 		if (assessmentSettings.getItemNumbering() != null) {
-			control.setItemNumbering(new Integer(assessmentSettings.getItemNumbering()));
+			control.setItemNumbering(Integer.valueOf(assessmentSettings.getItemNumbering()));
 		}
 		if (StringUtils.isNotBlank(assessmentSettings.getDisplayScoreDuringAssessments())) {
-			control.setDisplayScoreDuringAssessments(new Integer(assessmentSettings.getDisplayScoreDuringAssessments()));
+			control.setDisplayScoreDuringAssessments(Integer.valueOf(assessmentSettings.getDisplayScoreDuringAssessments()));
 		}
 		
 		// set Timed Assessment
@@ -771,7 +771,7 @@ implements ActionListener
 					equals(AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString())) {
 				control.setUnlimitedSubmissions(Boolean.FALSE);
 				if (assessmentSettings.getSubmissionsAllowed() != null)
-					control.setSubmissionsAllowed(new Integer(assessmentSettings.
+					control.setSubmissionsAllowed(Integer.valueOf(assessmentSettings.
 							getSubmissionsAllowed()));
 				else
 					control.setSubmissionsAllowed(Integer.valueOf("1"));
@@ -785,7 +785,7 @@ implements ActionListener
 		if (assessmentSettings.getInstructorNotification() != null){
 			try
 			{
-				control.setInstructorNotification(new Integer(assessmentSettings.getInstructorNotification()));
+				control.setInstructorNotification(Integer.valueOf(assessmentSettings.getInstructorNotification()));
 			}
 			catch( NumberFormatException ex )
 			{
@@ -795,7 +795,7 @@ implements ActionListener
 		}
 
 		if (assessmentSettings.getSubmissionsSaved()!=null){
-			control.setSubmissionsSaved(new Integer(assessmentSettings.getSubmissionsSaved()));
+			control.setSubmissionsSaved(Integer.valueOf(assessmentSettings.getSubmissionsSaved()));
 		}
 		
 		if (assessmentSettings.getAutoSubmit())
@@ -828,22 +828,22 @@ implements ActionListener
 		}
 		// Feedback authoring
 		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackAuthoring()))
-			feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
+			feedback.setFeedbackAuthoring(Integer.valueOf(assessmentSettings.getFeedbackAuthoring()));
 		// Feedback delivery
 		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackDelivery()))
-			feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
+			feedback.setFeedbackDelivery(Integer.valueOf(assessmentSettings.getFeedbackDelivery()));
 		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
-		    feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
+		    feedback.setFeedbackComponentOption(Integer.valueOf(assessmentSettings.getFeedbackComponentOption()));
 
 		control.setFeedbackDate(assessmentSettings.getFeedbackDate());
 		control.setFeedbackEndDate(assessmentSettings.getFeedbackEndDate());
 		//Set the value if the checkbox is selected, wipe the value otherwise.
 		String feedbackScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
-		control.setFeedbackScoreThreshold(assessmentSettings.getFeedbackScoreThresholdEnabled() ? new Double(feedbackScoreThreshold) : null);
+		control.setFeedbackScoreThreshold(assessmentSettings.getFeedbackScoreThresholdEnabled() ? Double.valueOf(feedbackScoreThreshold) : null);
 		// Feedback Components Students Can See
 		// if 'No feedback' (it corresponds to value 3) is selected, 
 		// all components are unchecked
-		 if (feedback.getFeedbackDelivery().equals(new Integer("3")))
+		 if (feedback.getFeedbackDelivery().equals(Integer.valueOf("3")))
 		    {
 		    	feedback.setShowQuestionText(false);
 				feedback.setShowStudentResponse(false);
@@ -895,7 +895,7 @@ implements ActionListener
 		}
 
 		if (assessmentSettings.getScoringType() != null) {
-			evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
+			evaluation.setScoringType(Integer.valueOf(assessmentSettings.getScoringType()));
 		}
 		assessment.setEvaluationModel(evaluation);
 

@@ -4088,7 +4088,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         switch (typeOfGrade) {
             case SCORE_GRADE_TYPE:
                 if (!returnGrade.isEmpty() && !"0".equals(returnGrade)) {
-                    int dec = new Double(Math.log10(scaleFactor)).intValue();
+                    int dec = Double.valueOf(Math.log10(scaleFactor)).intValue();
                     String decSeparator = formattedText.getDecimalSeparator();
                     String decimalGradePoint = returnGrade;
                     try {
@@ -4161,7 +4161,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // get localized number format
         //        NumberFormat nbFormat = FormattedText.getNumberFormat((int)Math.log10(factor),(int)Math.log10(factor),false);
         // show grade in localized number format
-        //        Double dblGrade = new Double(maxGradePoint/(double)factor);
+        //        Double dblGrade = Double.valueOf(maxGradePoint/(double)factor);
         //        return nbFormat.format(dblGrade);
         return getGradeDisplay(Integer.toString(maxGradePoint), Assignment.GradeType.SCORE_GRADE_TYPE, factor);
     }
@@ -6056,7 +6056,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String gradeDisplay = StringUtils.replace(getGradeDisplay(s.getGrade(), a.getTypeOfGrade(), a.getScaleFactor()), decSeparator, ".");
         if (Assignment.GradeType.SCORE_GRADE_TYPE == a.getTypeOfGrade() && NumberUtils.isCreatable(gradeDisplay)) { // Points
             String maxGradePointDisplay = StringUtils.replace(getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint()), decSeparator, ".");
-            result = new LRS_Result(new Float(gradeDisplay), 0.0f, new Float(maxGradePointDisplay), null);
+            result = new LRS_Result(Float.valueOf(gradeDisplay), 0.0f, Float.valueOf(maxGradePointDisplay), null);
             result.setCompletion(completed);
         } else {
             result = new LRS_Result(completed);

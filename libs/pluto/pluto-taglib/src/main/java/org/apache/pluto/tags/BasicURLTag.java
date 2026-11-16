@@ -282,7 +282,7 @@ public abstract class BasicURLTag extends TagSupport {
      */
     public void setSecure(String secure) {
         this.secure = secure;
-        this.secureBoolean = new Boolean(secure);
+        this.secureBoolean = Boolean.valueOf(secure);
     }
 
     /**

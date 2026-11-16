@@ -1201,7 +1201,7 @@ public final class RendererUtils
         Integer sequence = (Integer) map.get(SEQUENCE_PARAM);
         if (sequence == null)
         {
-            sequence = new Integer(1);
+            sequence = Integer.valueOf(1);
             map.put(SEQUENCE_PARAM, sequence);
 
             synchronized (facescontext.getExternalContext().getSession(true))

@@ -74,7 +74,7 @@ public class GrantSubmissionListener
 	// delivery.setSubmissionsRemaining(delivery.getSubmissionsRemaining() + 1);
 
 	String gradingIdParam = ContextUtil.lookupParam("gradingData");
-	Long gradingId = new Long(gradingIdParam);
+	Long gradingId = Long.valueOf(gradingIdParam);
 	String publishedAssessmentId = ContextUtil.lookupParam("publishedId");
 
 	GradingService gradingService = new GradingService();

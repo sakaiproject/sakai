@@ -66,35 +66,35 @@ public class ListFilter extends LocaleRegexTokenFilter implements CacheFilter
 	public ListFilter()
 	{
 		super();
-		openList.put(new Character('-'), "<ul class=\"minus\">");
-		openList.put(new Character('*'), "<ul class=\"star\">");
-		openList.put(new Character('#'), "<ol class=\"decimal\">");
-		openList.put(new Character('i'), "<ol class=\"roman\">");
-		openList.put(new Character('I'), "<ol class=\"ROMAN\">");
-		openList.put(new Character('a'), "<ol class=\"alpha\">");
-		openList.put(new Character('A'), "<ol class=\"ALPHA\">");
-		openList.put(new Character('g'), "<ol class=\"greek\">");
-		openList.put(new Character('h'), "<ol class=\"hiragana\">");
-		openList.put(new Character('H'), "<ol class=\"HIRAGANA\">");
-		openList.put(new Character('k'), "<ol class=\"katakana\">");
-		openList.put(new Character('K'), "<ol class=\"KATAKANA\">");
-		openList.put(new Character('j'), "<ol class=\"HEBREW\">");
-		openList.put(new Character('1'), "<ol>");
-		closeList.put(new Character('-'), UL_CLOSE);
-		closeList.put(new Character('*'), UL_CLOSE);
-		closeList.put(new Character('#'), OL_CLOSE);
-		closeList.put(new Character('i'), OL_CLOSE);
-		closeList.put(new Character('I'), OL_CLOSE);
-		closeList.put(new Character('a'), OL_CLOSE);
-		closeList.put(new Character('A'), OL_CLOSE);
-		closeList.put(new Character('1'), OL_CLOSE);
-		closeList.put(new Character('g'), OL_CLOSE);
-		closeList.put(new Character('G'), OL_CLOSE);
-		closeList.put(new Character('h'), OL_CLOSE);
-		closeList.put(new Character('H'), OL_CLOSE);
-		closeList.put(new Character('k'), OL_CLOSE);
-		closeList.put(new Character('K'), OL_CLOSE);
-		closeList.put(new Character('j'), OL_CLOSE);
+		openList.put(Character.valueOf('-'), "<ul class=\"minus\">");
+		openList.put(Character.valueOf('*'), "<ul class=\"star\">");
+		openList.put(Character.valueOf('#'), "<ol class=\"decimal\">");
+		openList.put(Character.valueOf('i'), "<ol class=\"roman\">");
+		openList.put(Character.valueOf('I'), "<ol class=\"ROMAN\">");
+		openList.put(Character.valueOf('a'), "<ol class=\"alpha\">");
+		openList.put(Character.valueOf('A'), "<ol class=\"ALPHA\">");
+		openList.put(Character.valueOf('g'), "<ol class=\"greek\">");
+		openList.put(Character.valueOf('h'), "<ol class=\"hiragana\">");
+		openList.put(Character.valueOf('H'), "<ol class=\"HIRAGANA\">");
+		openList.put(Character.valueOf('k'), "<ol class=\"katakana\">");
+		openList.put(Character.valueOf('K'), "<ol class=\"KATAKANA\">");
+		openList.put(Character.valueOf('j'), "<ol class=\"HEBREW\">");
+		openList.put(Character.valueOf('1'), "<ol>");
+		closeList.put(Character.valueOf('-'), UL_CLOSE);
+		closeList.put(Character.valueOf('*'), UL_CLOSE);
+		closeList.put(Character.valueOf('#'), OL_CLOSE);
+		closeList.put(Character.valueOf('i'), OL_CLOSE);
+		closeList.put(Character.valueOf('I'), OL_CLOSE);
+		closeList.put(Character.valueOf('a'), OL_CLOSE);
+		closeList.put(Character.valueOf('A'), OL_CLOSE);
+		closeList.put(Character.valueOf('1'), OL_CLOSE);
+		closeList.put(Character.valueOf('g'), OL_CLOSE);
+		closeList.put(Character.valueOf('G'), OL_CLOSE);
+		closeList.put(Character.valueOf('h'), OL_CLOSE);
+		closeList.put(Character.valueOf('H'), OL_CLOSE);
+		closeList.put(Character.valueOf('k'), OL_CLOSE);
+		closeList.put(Character.valueOf('K'), OL_CLOSE);
+		closeList.put(Character.valueOf('j'), OL_CLOSE);
 	};
 
 	public void handleMatch(StringBuffer buffer, MatchResult result,
@@ -170,7 +170,7 @@ public class ListFilter extends LocaleRegexTokenFilter implements CacheFilter
 				if (lastBullet[i] != '.')
 				{
 					buffer.append("</li>").append(
-							closeList.get(new Character(lastBullet[i])))
+							closeList.get(Character.valueOf(lastBullet[i])))
 							.append("\n");
 				}
 
@@ -181,7 +181,7 @@ public class ListFilter extends LocaleRegexTokenFilter implements CacheFilter
 				// Logger.log("opening " + bullet[i]);
 				if (bullet[i] != '.')
 				{
-					buffer.append(openList.get(new Character(bullet[i])))
+					buffer.append(openList.get(Character.valueOf(bullet[i])))
 							.append("<li>");
 				}
 				goneUp = true;
@@ -202,7 +202,7 @@ public class ListFilter extends LocaleRegexTokenFilter implements CacheFilter
 			if (lastBullet[i] != '.')
 			{
 				buffer.append("</li>").append(
-						closeList.get(new Character(lastBullet[i])));
+						closeList.get(Character.valueOf(lastBullet[i])));
 			}
 		}
 		buffer.append('\n');

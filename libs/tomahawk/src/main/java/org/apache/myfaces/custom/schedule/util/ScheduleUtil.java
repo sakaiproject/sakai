@@ -199,9 +199,9 @@ public class ScheduleUtil
     {
       Calendar calendar = getCalendarInstance(date, tz);
 
-      return new Integer(calendar.get(Calendar.ERA)).hashCode() ^
-        new Integer(calendar.get(Calendar.YEAR)).hashCode() ^
-        new Integer(calendar.get(Calendar.DAY_OF_YEAR)).hashCode();
+      return Integer.valueOf(calendar.get(Calendar.ERA)).hashCode() ^
+        Integer.valueOf(calendar.get(Calendar.YEAR)).hashCode() ^
+        Integer.valueOf(calendar.get(Calendar.DAY_OF_YEAR)).hashCode();
     }
 
     /**

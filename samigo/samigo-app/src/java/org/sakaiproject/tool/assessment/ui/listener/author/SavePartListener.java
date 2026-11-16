@@ -236,7 +236,7 @@ public class SavePartListener
     			if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType()) && StringUtils.isNotEmpty(sectionBean.getSelectedPool())) {
     				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, sectionBean.getSelectedPool());
     				String poolname = "";
-    				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
+    				QuestionPoolFacade poolfacade = qpservice.getPool(Long.valueOf(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
     				if (poolfacade!=null) {
     					poolname = poolfacade.getTitle();
     				}
@@ -248,7 +248,7 @@ public class SavePartListener
     					String count = (i > 0) ? (SectionDataIfc.SEPARATOR_MULTI + i) : "";
     					section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + count, pool);
     					String poolname = "";
-    					QuestionPoolFacade poolfacade = qpservice.getPool(new Long(pool), AgentFacade.getAgentString());
+    					QuestionPoolFacade poolfacade = qpservice.getPool(Long.valueOf(pool), AgentFacade.getAgentString());
     					if (poolfacade!=null) {
     						poolname = poolfacade.getTitle();
     					}
@@ -276,7 +276,7 @@ public class SavePartListener
     				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, sectionBean.getSelectedPool());
     				String poolname = "";
     				QuestionPoolService qpservice = new QuestionPoolService();
-    				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
+    				QuestionPoolFacade poolfacade = qpservice.getPool(Long.valueOf(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
     				if (poolfacade!=null) {
     					poolname = poolfacade.getTitle();
     				}
@@ -288,7 +288,7 @@ public class SavePartListener
     				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW, sectionBean.getSelectedPoolFixed());
     				String poolname = "";
     				QuestionPoolService qpservice = new QuestionPoolService();
-    				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPoolFixed()), AgentFacade.getAgentString());
+    				QuestionPoolFacade poolfacade = qpservice.getPool(Long.valueOf(sectionBean.getSelectedPoolFixed()), AgentFacade.getAgentString());
     				if (poolfacade!=null) {
     					poolname = poolfacade.getTitle();
     				}
@@ -311,14 +311,14 @@ public class SavePartListener
     		String requestedScore = sectionBean.getRandomPartScore();
     		if (requestedScore != null && !requestedScore.equals("")) {
     			hasRandomPartScore = true;
-    			score = new Double(requestedScore);
+    			score = Double.valueOf(requestedScore);
     		}
     		boolean hasRandomPartDiscount = false;
     		Double discount = null;
     		String requestedDiscount = sectionBean.getRandomPartDiscount();
     		if (requestedDiscount != null && !requestedDiscount.equals("")) {
     			hasRandomPartDiscount = true;
-    			discount = new Double(requestedDiscount);
+    			discount = Double.valueOf(requestedDiscount);
     		}
     		
     		if (hasRandomPartScore && score != null) {

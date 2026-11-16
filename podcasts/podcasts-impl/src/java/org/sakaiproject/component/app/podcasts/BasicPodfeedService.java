@@ -350,7 +350,7 @@ public class BasicPodfeedService implements PodfeedService {
 		Calendar rightNow = Calendar.getInstance();              
 		int year = rightNow.get(Calendar.YEAR); 
 		Object[] arguments = {
-			     new Integer(year).toString()			    
+			     Integer.valueOf(year).toString()			    
 			 };
 		
 		MessageFormat form = new MessageFormat(currentCopyright);

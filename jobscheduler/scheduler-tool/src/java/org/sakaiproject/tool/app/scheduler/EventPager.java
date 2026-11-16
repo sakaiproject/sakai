@@ -152,11 +152,11 @@ public class EventPager
 
     private void setAllEventTypes(boolean b)
     {
-        selectedEventTypes.put("FIRED", new Boolean(b));
-        selectedEventTypes.put("COMPLETE", new Boolean(b));
-        selectedEventTypes.put("INFO", new Boolean(b));
-        selectedEventTypes.put("DEBUG", new Boolean(b));
-        selectedEventTypes.put("ERROR", new Boolean(b));        
+        selectedEventTypes.put("FIRED", Boolean.valueOf(b));
+        selectedEventTypes.put("COMPLETE", Boolean.valueOf(b));
+        selectedEventTypes.put("INFO", Boolean.valueOf(b));
+        selectedEventTypes.put("DEBUG", Boolean.valueOf(b));
+        selectedEventTypes.put("ERROR", Boolean.valueOf(b));        
     }
 
     public void setTypes(TriggerEvent.TRIGGER_EVENT_TYPE[] types)

@@ -1298,7 +1298,7 @@ public class GradingService
       double totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore(totalAutoScore);
      
-      if (Double.compare((totalAutoScore + data.getTotalOverrideScore()), new Double("0"))<0){
+      if (Double.compare((totalAutoScore + data.getTotalOverrideScore()), Double.valueOf("0"))<0){
     	  data.setFinalScore( Double.valueOf("0"));
       }else{
     	  data.setFinalScore(totalAutoScore + data.getTotalOverrideScore());

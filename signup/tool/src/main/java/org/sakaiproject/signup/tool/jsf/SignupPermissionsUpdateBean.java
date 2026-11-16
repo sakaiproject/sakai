@@ -163,7 +163,7 @@ public class SignupPermissionsUpdateBean {
 		if (this.showPermissionLink == null) {
 			boolean show = false;
 			if (allowedToUpdate == null) {
-				allowedToUpdate = new Boolean(ENABLE_PERMISSION_FEATURE_FLAG);
+				allowedToUpdate = Boolean.valueOf(ENABLE_PERMISSION_FEATURE_FLAG);
 			}
 
 			if (sakaiFacade.isUserAdmin(sakaiFacade.getCurrentUserId())
@@ -171,7 +171,7 @@ public class SignupPermissionsUpdateBean {
 				show = true;
 			}
 
-			showPermissionLink = new Boolean(show);
+			showPermissionLink = Boolean.valueOf(show);
 		}
 
 		return showPermissionLink.booleanValue();

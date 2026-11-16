@@ -256,7 +256,7 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 	    
 	    if (result != null) {
 		for (String id: ids) {
-		    SimplePageItem i = findItem(new Long(id));
+		    SimplePageItem i = findItem(Long.valueOf(id));
 		    result.add(i);
 		}
 	    }
@@ -2018,7 +2018,7 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 
 	    List<String> counts = sqlService.dbRead("select count(*) from lesson_builder_pages where siteId = ? and folder = ?", fields, null);
 
-	    Long count = new Long(counts.get(0));
+	    Long count = Long.valueOf(counts.get(0));
 
 	    return (count > 0);
 

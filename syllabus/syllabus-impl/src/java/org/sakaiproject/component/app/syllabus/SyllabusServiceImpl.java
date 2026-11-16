@@ -599,7 +599,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                 }
 
                                 int initPosition = syllabusManager.findLargestSyllabusPosition(syllabusItem).intValue() + 1;
-                                syData = syllabusManager.createSyllabusDataObject(syData.getTitle(), (new Integer(initPosition)), syData.getAsset(),
+                                syData = syllabusManager.createSyllabusDataObject(syData.getTitle(), (Integer.valueOf(initPosition)), syData.getAsset(),
                                         syData.getView(), syData.getStatus(),
                                         syData.getEmailNotification(), syData.getStartDate(), syData.getEndDate(), syData.getLinkCalendar(),
                                         syData.getCalendarEventIdStartDate(), syData.getCalendarEventIdEndDate(), syllabusItem);
@@ -1080,7 +1080,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
 					for (SyllabusData sd : fromSyDataSet)
 					{
-						Integer positionNo = new Integer(syllabusManager
+						Integer positionNo = Integer.valueOf(syllabusManager
 								.findLargestSyllabusPosition(toSyItem)
 								.intValue() + 1);
 

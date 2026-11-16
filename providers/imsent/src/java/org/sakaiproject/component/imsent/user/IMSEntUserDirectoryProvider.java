@@ -73,7 +73,7 @@ public class IMSEntUserDirectoryProvider implements UserDirectoryProvider
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

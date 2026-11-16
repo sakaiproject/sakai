@@ -278,7 +278,7 @@ public class AuthorActionListener
   private void removeDefaultTemplate(List templateList){
     for (int i=0; i<templateList.size();i++){
       AssessmentTemplateFacade a = (AssessmentTemplateFacade) templateList.get(i);
-      if ((a.getAssessmentBaseId()).equals(new Long("1"))){
+      if ((a.getAssessmentBaseId()).equals(Long.valueOf("1"))){
         templateList.remove(a);
         return;
       }

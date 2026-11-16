@@ -1030,7 +1030,7 @@ public class HtmlCalendarRenderer
         writeCell(facesContext, writer, inputComponent, "<", cal.getTime(), null);
 
         writer.startElement(HTML.TD_ELEM, inputComponent);
-        writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(weekdays.length - 2), null);
+        writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(weekdays.length - 2), null);
         writer.writeText(months[timeKeeper.get(Calendar.MONTH)] + " " + timeKeeper.get(Calendar.YEAR), null);
         writer.endElement(HTML.TD_ELEM);
 

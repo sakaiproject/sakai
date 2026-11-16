@@ -140,7 +140,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 		PublishedAssessmentService pubService = new PublishedAssessmentService();
-		Long pubId = new Long(publishedId);
+		Long pubId = Long.valueOf(publishedId);
 		String assessmentOwner = pubService.getPublishedAssessmentOwner(pubId);
 		if (!authzBean.isUserAllowedToGradeAssessment(publishedId, assessmentOwner, true)) {
 			throw new IllegalArgumentException("QuestionScoreListener unauthorized attempt to get scores for " + publishedId);

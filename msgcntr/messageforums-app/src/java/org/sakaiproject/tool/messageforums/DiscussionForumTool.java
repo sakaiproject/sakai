@@ -6444,7 +6444,7 @@ public class DiscussionForumTool implements Serializable {
 	  Double gradeAsDouble = null;
 	  double pointsPossibleAsDouble = 0.0;
 	  try {
-	      gradeAsDouble = new Double (nf.parse(gradePoint).doubleValue());
+	      gradeAsDouble = Double.valueOf(nf.parse(gradePoint).doubleValue());
 	  } catch(ParseException pe) {
 	      // we shouldn't get here if the validation above is working properly
 	      log.warn("Error converting grade " + gradePoint + " to Double");
@@ -8959,7 +8959,7 @@ public class DiscussionForumTool implements Serializable {
 		Iterator mesiter = checkedThreads.iterator();
 		if (log.isDebugEnabled()) log.debug("processMoveThread checkedThreads size = " + checkedThreads.size());
 		while (mesiter.hasNext()) {
-			Long messageId = new Long((String) mesiter.next());
+			Long messageId = Long.valueOf((String) mesiter.next());
 			mes = messageManager.getMessageById(messageId);
 			if (log.isDebugEnabled()) log.debug("processMoveThread messageId = " + mes.getId());
 			if (log.isDebugEnabled()) log.debug("processMoveThread message title = " + mes.getTitle());
@@ -9265,7 +9265,7 @@ public class DiscussionForumTool implements Serializable {
 	public String processActionEditRank() {
 		if (log.isDebugEnabled()) log.debug("processActionEditRank()");
 		String rankId = getExternalParameterByKey("rankId");
-		Rank thisrank = rankManager.getRankById(new Long(rankId));
+		Rank thisrank = rankManager.getRankById(Long.valueOf(rankId));
 		ForumRankBean rankBean = new ForumRankBean(thisrank);
 		this.setForumRankBean(rankBean);
 
@@ -9365,7 +9365,7 @@ public class DiscussionForumTool implements Serializable {
 		List ranklist = new ArrayList();
 		Iterator iter = selectedRanks.iterator();
 		while (iter.hasNext()) {
-			rankId = new Long((String) iter.next());
+			rankId = Long.valueOf((String) iter.next());
 			Rank rankchecked = rankManager.getRankById(rankId);
 			ranklist.add(rankchecked);
 		}
@@ -9463,7 +9463,7 @@ public class DiscussionForumTool implements Serializable {
 
 	private boolean validateImageSize(FileItem item) {
 		// check size
-		long maxsize = new Long(ServerConfigurationService.getString("msgcntr.forum.rankimage.maxsize", "102400"));
+		long maxsize = Long.valueOf(ServerConfigurationService.getString("msgcntr.forum.rankimage.maxsize", "102400"));
 		long imagesize = item.getSize();
 		if (log.isDebugEnabled()) log.debug("validateImageSize(item)  imagesize = " + imagesize);
 

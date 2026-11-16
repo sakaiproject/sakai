@@ -106,11 +106,11 @@ public class ContentHostingComparator implements Comparator
 			Integer rank2 = null;
 
 			try {
-				rank1 = new Integer(entity1.getProperties().getProperty(property));
+				rank1 = Integer.valueOf(entity1.getProperties().getProperty(property));
 			} catch (NumberFormatException e) { /* ignore, rank1 will be null */ }
 
 			try {
-				rank2 = new Integer(entity2.getProperties().getProperty(property));
+				rank2 = Integer.valueOf(entity2.getProperties().getProperty(property));
 			} catch (NumberFormatException e) { /* ignore, rank2 will be null */ }
 
 			// Priorities can be null if a resource or collection was created before priorities were
