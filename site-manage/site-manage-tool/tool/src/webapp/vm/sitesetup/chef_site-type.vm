@@ -34,7 +34,7 @@
             $tlang.getString("sitetype.chothetyp.different.ways")
         </p>
     #end
-    <form name="typeform" id="typeform" action="#toolForm("$action")&special=upload" method="post">
+    <form name="typeform" id="typeform" action="$sakai_ActionURL.setAction().setParameter('special', 'upload')" method="post">
         #if ($multipleTypes)
             <p class="checkbox indnt1">
                 ## only show the radio button when there is any template site defined
