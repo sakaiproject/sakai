@@ -2528,7 +2528,20 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
   let inBoundaryCell = false;
 
-  document.querySelector("#gradeTableWrapper").addEventListener("keydown", function(event) {
+  const wrapper = document.querySelector("#gradeTableWrapper");
+
+  // Handle Enter before Tabulator, which edits non-editable cells and swallows Enter on links.
+  // https://github.com/tabulator-tables/tabulator/issues/4839
+  wrapper.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter" || !event.target.closest(".tabulator-tableholder")
+        || event.target.closest(".tabulator-editing, .dropdown-menu")) return;
+    event.stopPropagation();
+    handleKeydown(event);
+  }, true);
+
+  wrapper.addEventListener("keydown", handleKeydown);
+
+  function handleKeydown(event) {
     let handled = false;
 
     function iGotThis(allowDefault) {
@@ -2660,7 +2673,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
       }
 
     }
-  });
+  }
 };
 
 GbGradeTable.clearMetadata = function() {
