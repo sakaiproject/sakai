@@ -8176,6 +8176,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		initStateAttributes(state, portlet);
 
+		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// Site membership can change after this tool session has been initialized.
+			contentHostingService.createDropboxCollection();
+		}
+
 	}	// initState
 
 	public void initStateAttributes(SessionState state, VelocityPortlet portlet)
@@ -8319,9 +8325,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				if (home != null)
 				{
 					state.setAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME, contentHostingService.getDropboxDisplayName());
-
-					// create/update the collection of folders in the dropbox
-					contentHostingService.createDropboxCollection();
 				}
 			}
 
