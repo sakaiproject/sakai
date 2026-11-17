@@ -3761,6 +3761,20 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return msg.toString();
 	}
 
+    @Override
+    public Group copyGroup(Group source, Site destination) {
+        Group copy = destination.addGroup();
+        copy.setTitle(source.getTitle());
+        copy.setDescription(source.getDescription());
+        copy.getProperties().addAll(source.getProperties());
+        copy.getProperties().removeProperty("lessonbuilder_ref");
+        copy.getProperties().removeProperty("sections_eid");
+        copy.getProperties().removeProperty(Group.GROUP_PROP_FILTERED_BY);
+        copy.getProperties().removeProperty("group_prop_role_providerid");
+        copy.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+        return copy;
+    }
+
 	/**
 	 * @inheritDoc
 	 */

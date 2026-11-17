@@ -1884,10 +1884,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 						groupsAuthorized.add(existingGroup.get().getId());
                     } else {
 						// create group
-						targetGroup = targetSite.addGroup();
-						targetGroup.setTitle(sourceGroup.getTitle());
-						targetGroup.setDescription(sourceGroup.getDescription());
-						targetGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
+						targetGroup = SiteService.copyGroup(sourceGroup, targetSite);
 						groupsAuthorized.add(targetGroup.getId());
 						siteChanged = true;
                     }
