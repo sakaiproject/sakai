@@ -3841,27 +3841,24 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         List<User> selectedGroupUsers = new ArrayList<>();
         if (StringUtils.isNotBlank(allOrOneGroup)) {
             // now are we view all sections/groups or just specific one?
-            if (allOrOneGroup.equals(AssignmentConstants.ALL)) {
-                if (allowAllGroups(contextString)) {
-                    // site range
-                    try {
-                        Site site = siteService.getSite(contextString);
-                        authzRefs.add(site.getReference());
-                    } catch (IdUnusedException e) {
-                        log.warn("Cannot find site {} {}", contextString, e.getMessage());
-                    }
-                } else {
-                    // get all those groups that user is allowed to grade
-                    Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
-                    groups.forEach(g -> authzRefs.add(g.getReference()));
+            boolean all = AssignmentConstants.ALL.equals(allOrOneGroup);
+            if (all && allowAllGroups(contextString)) {
+                try {
+                    authzRefs.add(siteService.getSite(contextString).getReference());
+                } catch (IdUnusedException e) {
+                    log.warn("Cannot find site {} {}", contextString, e.toString());
                 }
             } else {
-                // filter out only those submissions from the selected-group members
-                try {
-                    Group group = siteService.getSite(contextString).getGroup(allOrOneGroup);
-                    authzRefs.add(group.getReference());
-                } catch (IdUnusedException e) {
-                    log.warn("Cannot add groupId = {}, {}", allOrOneGroup, e.getMessage());
+                // groups the user is allowed to grade
+                String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                Collection<Group> groups = getGroupsAllowGradeAssignment(assignmentRef);
+                if (all) {
+                    groups.stream().map(Group::getReference).forEach(authzRefs::add);
+                } else {
+                    groups.stream()
+                            .filter(g -> allOrOneGroup.equals(g.getId()) || allOrOneGroup.equals(g.getReference()))
+                            .findAny()
+                            .ifPresent(g -> authzRefs.add(g.getReference()));
                 }
             }
 
