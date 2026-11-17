@@ -23,11 +23,8 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +42,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -318,50 +316,29 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 	  int BUFFER_SIZE = 2048;
 	  byte data[] = new byte[ BUFFER_SIZE ];
 	  int count = 0;
-	  BufferedInputStream bufInputStream = null;
-	  ZipEntry ze = null;
-	  String mediaLocation = mediaData.getLocation();
-	  log.debug("mediaLocation = " + mediaLocation);
 	  String filename = getFilename(mediaData, anonymous, numberSubmission);
 	  //SAM-1468 we need to ensure the fileName is unique
 	  filename = getUniqueFilename(filename);
-	  if (mediaLocation == null || (mediaLocation.trim()).equals("")){          		  
-		  byte[] media = mediaData.getMedia();
-		  log.debug("media.length = " + media.length);
-		  bufInputStream = new BufferedInputStream(new ByteArrayInputStream(media));
-	  }
-	  else {
-		  bufInputStream = new BufferedInputStream(getFileStream(mediaLocation));
-	  }
-	  ze = new ZipEntry(filename);
-	  try {
-		  zos.putNextEntry(ze);
-		  while( (count = bufInputStream.read(data, 0, BUFFER_SIZE)) != -1 ) {
+	  try (InputStream mediaStream = mediaData.openMediaStream();
+			  BufferedInputStream bufInputStream = mediaStream != null ? new BufferedInputStream(mediaStream) : null) {
+		  if (bufInputStream == null) {
+			  log.warn("No media stream available for mediaId={}", mediaData.getMediaId());
+			  return;
+		  }
+		  zos.putNextEntry(new ZipEntry(filename));
+		  while ((count = bufInputStream.read(data, 0, BUFFER_SIZE)) != -1) {
 			  zos.write(data, 0, count);
 		  }
-	  }
-	  catch(IOException e){
-		  log.error(e.getMessage());
-		  throw e;
-	  }
-	  finally {
-		  if (bufInputStream != null) {
-			  try {
-				  bufInputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
+	  } catch (ServerOverloadException e) {
+		  log.error("Error streaming media into zip for mediaId={}: {}", mediaData.getMediaId(), e.getMessage());
+		  throw new IOException(e);
+	  } finally {
+		  try {
+			  zos.closeEntry();
+		  } catch (IOException e) {
+			  log.error(e.getMessage());
 		  }
-		  if (zos != null) {
-			  try {
-				  zos.closeEntry();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-		  }
-	  }	  
+	  }
   }
   
   //A list of the files in the Zip
@@ -392,18 +369,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 		
 	return fileName;
 }
-
-private FileInputStream getFileStream(String mediaLocation){
-    FileInputStream inputStream=null;
-    try{
-      File media=new File(mediaLocation);
-      inputStream = new FileInputStream(media);
-    }
-    catch (FileNotFoundException ex) {
-      log.warn("file not found="+ex.getMessage());
-    }
-    return inputStream;
-  }
 
   public String getAgentString(HttpServletRequest req,  HttpServletResponse res){ 
     String agentIdString = AgentFacade.getAgentString();

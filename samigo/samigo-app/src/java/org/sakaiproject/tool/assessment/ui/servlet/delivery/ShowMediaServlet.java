@@ -21,19 +21,10 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.text.Normalizer;
 import java.util.regex.Matcher;
@@ -51,6 +42,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -225,22 +217,20 @@ public class ShowMediaServlet extends HttpServlet
       
 
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
-      try (BufferedInputStream buf_inputStream = (StringUtils.isBlank(mediaLocation)) ?
-    		  new BufferedInputStream(new ByteArrayInputStream(mediaData.getMedia()))
-    		  :
-    		  new BufferedInputStream(getFileStream(mediaLocation));
-    		  BufferedOutputStream buf_outputStream = new BufferedOutputStream(res.getOutputStream());){
+      try (InputStream mediaStream = mediaData.openMediaStream();
+    		  BufferedInputStream buf_inputStream = mediaStream != null ? new BufferedInputStream(mediaStream) : null;
+    		  BufferedOutputStream buf_outputStream = new BufferedOutputStream(res.getOutputStream())) {
 
-        int i=0;
         if (buf_inputStream != null)  {
         	// skip to the start of the possible range request
         	buf_inputStream.skip(start); 
         	
         	int bytesLeft = rangeContentLength;
         	byte[] buffer = new byte[1024];
+        	int i;
 
         	while ( (i = buf_inputStream.read(buffer)) != -1 && bytesLeft > 0){
-        		buf_outputStream.write(buffer);
+        		buf_outputStream.write(buffer, 0, Math.min(i, bytesLeft));
         		bytesLeft -= i;
         	}
         }
@@ -248,25 +238,13 @@ public class ShowMediaServlet extends HttpServlet
         
         res.flushBuffer();
       }
-      catch(IOException ioe) {
+      catch(IOException | ServerOverloadException ioe) {
     	  log.warn("Error handling with IO in doPost", ioe);
       }
       catch(Exception e){
         log.warn(e.getMessage());
       }
     }
-  }
-
-  private FileInputStream getFileStream(String mediaLocation){
-    FileInputStream inputStream=null;
-    try{
-      File media=new File(mediaLocation);
-      inputStream = new FileInputStream(media);
-    }
-    catch (FileNotFoundException ex) {
-      log.warn("file not found="+ex.getMessage());
-    }
-    return inputStream;
   }
 
   public String getAgentString(HttpServletRequest req,  HttpServletResponse res){ 
