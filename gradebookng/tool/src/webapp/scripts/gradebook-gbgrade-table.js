@@ -193,6 +193,9 @@ TrimPathFragmentCache.prototype.setHTML = function (target, values) {
 
 $(document).ready(function() {
   // need TrimPath to load before parsing templates
+  TrimPath.parseTemplate_etc.modifierDef.escapeAttribute = value =>
+    TrimPath.parseTemplate_etc.modifierDef.escape(value).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
   GbGradeTable.templates = {
     cell: new TrimPathFragmentCache('cell', TrimPath.parseTemplate(
         $("#cellTemplate").html().trim().toString())),
