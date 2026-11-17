@@ -99,16 +99,18 @@
 
 		const rows = originalRows.slice();
 		const sortMode = table.tHead.rows[0].cells[columnIndex]?.querySelector("[data-sakai-forum-sort]")?.dataset.sakaiForumSort;
+		if (sortMode === "author") {
+			rows.sort(compareRows(columnIndex, ascending, locale)).forEach(row => tbody.appendChild(row));
+			return;
+		}
+
 		const sortedRows = [];
 		const groups = buildGroups(rows).sort((left, right) =>
 			compareRows(columnIndex, ascending, locale)(left.parent, right.parent));
 
 		groups.forEach(group => {
 			sortedRows.push(group.parent);
-			if (sortMode === "author") {
-				// Sort conversations by their opening author without rearranging replies.
-				sortedRows.push(...group.descendants);
-			} else if (sortMode === "thread") {
+			if (sortMode === "thread") {
 				sortedRows.push(...descendantsByThread(group.descendants, columnIndex, ascending, locale));
 			} else {
 				sortedRows.push(...group.descendants.sort(compareRows(columnIndex, ascending, locale)));
@@ -147,7 +149,7 @@
 	function init(table, userLocale) {
 		if (!table?.tHead?.rows.length) return;
 
-		// Keep the rendered hierarchy so later sorts can restore reply nesting after date sorting.
+		// Keep the rendered hierarchy so later sorts can restore reply nesting after author or date sorting.
 		const originalRows = Array.from(table.tBodies[0]?.rows || []);
 		const headers = Array.from(table.tHead.rows[0].cells);
 		const locale = userLocale.replaceAll("_", "-");
