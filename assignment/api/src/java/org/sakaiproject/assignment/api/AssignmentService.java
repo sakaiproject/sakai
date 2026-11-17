@@ -390,6 +390,11 @@ public interface AssignmentService extends EntityProducer {
      */
     public void updateAssignment(Assignment assignment) throws PermissionException;
 
+    /** Establish or validate Gradebook destinations before saving a published Assignment and its association. */
+    void updateAssignmentWithGradebook(Assignment assignment, String integration,
+            Map<String, Long> categories, Map<String, String> items) throws PermissionException;
+
+
     /**
      * Publishes an assignment, synchronizes its peer review schedule, and performs first-publish integrations.
      *

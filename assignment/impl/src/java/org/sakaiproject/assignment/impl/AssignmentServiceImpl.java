@@ -1734,6 +1734,50 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional(rollbackFor = PermissionException.class)
+    public void updateAssignmentWithGradebook(Assignment assignment, String integration,
+            Map<String, Long> categories, Map<String, String> items) throws PermissionException {
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        if (!allowUpdateAssignment(reference)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, reference);
+        }
+        Set<String> links = new LinkedHashSet<>();
+        if (GRADEBOOK_INTEGRATION_ADD.equals(integration)) {
+            for (Map.Entry<String, Long> entry : categories.entrySet()) {
+                String gradebookUid = entry.getKey();
+                if (!gradingService.isExternalAssignmentDefined(gradebookUid, reference)) {
+                    gradingService.addExternalAssessment(gradebookUid, assignment.getContext(), reference, null,
+                            assignment.getTitle(), assignment.getMaxGradePoint() / (double) assignment.getScaleFactor(),
+                            Date.from(assignment.getDueDate()), getToolId(), null, false,
+                            entry.getValue() == -1L ? null : entry.getValue(), reference);
+                }
+                links.add(reference);
+            }
+        } else if (GRADEBOOK_INTEGRATION_ASSOCIATE.equals(integration)) {
+            for (Map.Entry<String, String> entry : items.entrySet()) {
+                String link = entry.getKey();
+                if (!gradingService.isExternalAssignmentDefined(entry.getValue(), link)
+                        && !gradingService.isAssignmentDefined(entry.getValue(), assignment.getContext(), link)) {
+                    throw new AssessmentNotFoundException("Gradebook item not found: " + link);
+                }
+                links.add(link);
+            }
+        }
+        if (!GRADEBOOK_INTEGRATION_NO.equals(integration) && links.isEmpty()) {
+            throw new AssessmentNotFoundException("No Gradebook item selected");
+        }
+        Map<String, String> properties = assignment.getProperties();
+        if (links.isEmpty()) {
+            properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+            properties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        } else {
+            properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+            properties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, String.join(",", links));
+        }
+        updateAssignment(assignment);
+    }
+
+    @Override
+    @Transactional(rollbackFor = PermissionException.class)
     public void updateAssignment(Assignment assignment) throws PermissionException {
         Assert.notNull(assignment, "Assignment cannot be null");
         Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
@@ -4378,11 +4422,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     // only if a rollback were needed would we want to include here
     // /////////////////////////////////////////////////////////////
 
-    // for regular task deletion this has no effect as it has already been done on doDelete_assignment, it only works when it comes from import content + replace
+    // Keep a shared external item until its last active Assignment association is removed.
     private void removeAssociatedGradebookItem(Assignment assignment) {
         String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
         if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
-            gradingService.removeExternalAssignment(null, associatedGradebookAssignment, getToolId());
+            for (String item : associatedGradebookAssignment.split(",")) {
+                boolean shared = assignmentRepository.findAssignmentsForGradebookLink(assignment.getContext(), item).stream()
+                        .anyMatch(other -> !other.getId().equals(assignment.getId()));
+                if (!shared) {
+                    gradingService.removeExternalAssignment(null, item, getToolId());
+                }
+            }
         }
     }
 

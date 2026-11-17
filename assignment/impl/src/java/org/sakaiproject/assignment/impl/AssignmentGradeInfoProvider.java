@@ -22,13 +22,18 @@
 package org.sakaiproject.assignment.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
@@ -75,6 +80,22 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         gradingService.unregisterExternalAssignmentProvider(getAppKey());
     }
 
+    @Override
+    public boolean isGradebookItemInUse(String gradebookUid, org.sakaiproject.grading.api.Assignment item) {
+        org.sakaiproject.site.api.Group group = siteService.findGroup(gradebookUid);
+        String siteId = group == null ? gradebookUid : group.getContainingSite().getId();
+        try {
+            for (String link : new String[] {item.getId().toString(), item.getExternalId(), item.getName()}) {
+                if (StringUtils.isNotBlank(link) && !assignmentService.getAssignmentsForGradebookLink(siteId, link).isEmpty()) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (IdUnusedException | PermissionException e) {
+            throw new IllegalStateException("Cannot check Assignment links for Gradebook item " + item.getId(), e);
+        }
+    }
+
     public String getAppKey() {
         return "assignment";
     }
@@ -115,31 +136,55 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         if (!externalAppName.equals(getAppKey()) && !externalAppName.equals(assignmentService.getToolId())) {
           return false;
         }
-        return getAssignment(id) != null;
+        return !getLinkedAssignments(id).isEmpty() || getAssignment(id) != null;
+    }
+
+    private List<Assignment> getLinkedAssignments(String id) {
+        String context = AssignmentReferenceReckoner.reckoner().reference(id).reckon().getContext();
+        try {
+            return assignmentService.getAssignmentsForGradebookLink(context, id);
+        } catch (IdUnusedException | PermissionException e) {
+            throw new IllegalStateException("Cannot find Assignments linked to " + id, e);
+        }
+    }
+
+    private List<String> getExternalIds(Assignment assignment) {
+        String ownReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String links = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        return Stream.concat(Stream.of(ownReference), Arrays.stream(StringUtils.defaultString(links).split(",")))
+                .filter(link -> link.startsWith(AssignmentServiceConstants.REFERENCE_ROOT + "/"))
+                .distinct().collect(Collectors.toList());
     }
 
     public boolean isAssignmentGrouped(String id) {
-        return Assignment.Access.GROUP.equals(getAssignment(id).getTypeOfAccess());
+        List<Assignment> linked = getLinkedAssignments(id);
+        return linked.isEmpty() ? Assignment.Access.GROUP.equals(getAssignment(id).getTypeOfAccess())
+                : linked.stream().allMatch(assignment -> Assignment.Access.GROUP.equals(assignment.getTypeOfAccess()));
     }
 
     public boolean isAssignmentVisible(String id, String userId) {
         // This method is more involved than just a call to getAssignment,
         // which checks visibility, because AssignmentService assumes the
         // current user. Here, we do the checks for the specified user.
-        boolean visible = false;
-        Assignment a = getAssignment(id);
-        if (a == null) {
-            visible = false;
-        } else if (Assignment.Access.GROUP.equals(a.getTypeOfAccess())) {
-            ArrayList<String> azgList = new ArrayList<String>((Collection<String>) a.getGroups());
-            List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(azgList, userId);
-            visible = (matched.size() > 0);
-        } else {
-            visible = securityService.unlock(userId,
-                    AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT,
-                    AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
+        List<Assignment> linked = getLinkedAssignments(id);
+        if (linked.isEmpty()) {
+            Assignment assignment = getAssignment(id);
+            linked = assignment == null ? Collections.emptyList() : Collections.singletonList(assignment);
         }
-        return visible;
+        for (Assignment assignment : linked) {
+            String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            if (getAssignment(reference) == null) {
+                continue;
+            }
+            if (Assignment.Access.GROUP.equals(assignment.getTypeOfAccess())) {
+                if (!authzGroupService.getAuthzUserGroupIds(new ArrayList<>(assignment.getGroups()), userId).isEmpty()) {
+                    return true;
+                }
+            } else if (securityService.unlock(userId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, reference)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<String> getExternalAssignmentsForCurrentUser(String gradebookUid) {
@@ -149,8 +194,8 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
     public List<String> getAllExternalAssignments(String gradebookUid) {
         return assignmentService.getAssignmentsForContext(gradebookUid).stream()
                 .filter(Objects::nonNull)
-                .map(a -> AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference())
-                .collect(Collectors.toList());
+                .flatMap(assignment -> getExternalIds(assignment).stream())
+                .distinct().collect(Collectors.toList());
     }
 
     public Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds) {
@@ -161,10 +206,10 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
         Map<Assignment, List<String>> submitters = assignmentService.getSubmittableAssignmentsForContext(gradebookUid);
         for (Assignment assignment : submitters.keySet()) {
-            String externalId = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            List<String> externalIds = getExternalIds(assignment);
             for (String userId : submitters.get(assignment)) {
                 if (allExternals.containsKey(userId)) {
-                    allExternals.get(userId).add(externalId);
+                    allExternals.get(userId).addAll(externalIds);
                 }
             }
         }

@@ -180,6 +180,9 @@ public class BulkEditItemsPanel extends BasePanel {
 				}
 				BulkEditItemsPanel.this.clearDeletableItemsList();
 			}
+			catch (final org.sakaiproject.grading.api.AssessmentInUseException e) {
+				getSession().error(getString("delete.inUse"));
+			}
 			catch (final Exception e) {
 				getSession().error(getString("bulkedit.update.error"));
 				log.warn("An error occurred updating the assignment", e);

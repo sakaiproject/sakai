@@ -9235,7 +9235,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted,
                         excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow,
                         BooleanUtils.toBoolean(allowUnrestrictedExternalToolLaunch), BooleanUtils.toBoolean(ltiAutoReleaseGrades),
-                        checkIsEstimate, checkEstimateRequired, timeEstimate);
+                        checkIsEstimate, checkEstimateRequired, timeEstimate, resolvedAddtoGradebook,
+                        gradebookCategoriesMap, gradebookItemMap, newAssignment);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
                 Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
@@ -9659,6 +9660,23 @@ public class AssignmentAction extends PagedResourceActionII {
                 || GRADEBOOK_INTEGRATION_ASSOCIATE.equals(addtoGradebook) && !gradebookItemMap.isEmpty();
     }
 
+    private boolean updateAssignmentWithGradebook(SessionState state, Assignment assignment, String integration,
+            Map<String, Long> categories, Map<String, String> items) throws PermissionException {
+        try {
+            assignmentService.updateAssignmentWithGradebook(assignment, integration, categories, items);
+            return true;
+        } catch (org.sakaiproject.grading.api.ConflictingAssignmentNameException e) {
+            addAlert(state, rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + assignment.getTitle() + "\""));
+        } catch (org.sakaiproject.grading.api.InvalidGradeItemNameException e) {
+            addAlert(state, rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + assignment.getTitle() + "\""));
+        } catch (org.sakaiproject.grading.api.AssignmentHasIllegalPointsException e) {
+            addAlert(state, rb.getString("addtogradebook.illegalPoints"));
+        } catch (AssessmentNotFoundException e) {
+            addAlert(state, rb.getString("grading.associate.alert"));
+        }
+        return false;
+    }
+
     private void initIntegrateWithGradebook(SessionState state, String gradebookUid, String aOldTitle, String oAssociateGradebookAssignment, Assignment assignment, String title, Instant dueTime, Assignment.GradeType gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, long category) {
 
         String context = (String) state.getAttribute(STATE_CONTEXT_STRING);
@@ -9667,7 +9685,8 @@ public class AssignmentAction extends PagedResourceActionII {
         if (!addtoGradebook.equals(GRADEBOOK_INTEGRATION_NO)) {
             // if integrate with Gradebook
             if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ADD)) {
-                addUpdateRemoveAssignment = GRADEBOOK_INTEGRATION_ADD;
+                addUpdateRemoveAssignment = "update";
+                associateGradebookAssignment = assignmentReference;
             } else if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ASSOCIATE)) {
                 addUpdateRemoveAssignment = "update";
             }
@@ -9744,7 +9763,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         properties.put(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, Boolean.toString(checkAnonymousGrading));
 
-        updateGradebookIntegrationProperties(assignment, addtoGradebook, associateGradebookAssignment, properties, post);
+        if (!post) {
+            updateGradebookIntegrationProperties(assignment, addtoGradebook, associateGradebookAssignment, properties, false);
+        }
 
         // allow resubmit number and default assignment resubmit closeTime (dueTime)
         if (allowResubmitNumber != null && closeTime != null) {
@@ -9834,7 +9855,8 @@ public class AssignmentAction extends PagedResourceActionII {
                                   boolean ltiAutoReleaseGrades,
                                   boolean checkIsEstimate,
                                   boolean checkEstimateRequired,
-                                  String timeEstimate) {
+                                  String timeEstimate, String gradebookIntegration,
+                                  Map<String, Long> gradebookCategoriesMap, Map<String, String> gradebookItemMap, boolean newAssignment) {
         a.setTitle(processFormattedTextFromBrowser(state, title, true));
         a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
         a.setSection(section);
@@ -9977,8 +9999,20 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
 
-            // commit the changes
-            assignmentService.updateAssignment(a);
+            // A failed first publish must leave a complete draft, not the initial empty row.
+            if (post && newAssignment) {
+                a.setDraft(true);
+                assignmentService.updateAssignment(a);
+                a.setDraft(false);
+            }
+            // Establish the Gradebook destination before persisting its association.
+            if (post) {
+                if (!updateAssignmentWithGradebook(state, a, gradebookIntegration, gradebookCategoriesMap, gradebookItemMap)) {
+                    return;
+                }
+            } else {
+                assignmentService.updateAssignment(a);
+            }
 
             // content review (after changes are stored)
             if (a.getContentReview()) {
@@ -10887,7 +10921,9 @@ public class AssignmentAction extends PagedResourceActionII {
         boolean addToResolvedGradebookOnPublish = addToGradebookOnPublish && !gradebookCategoriesMap.isEmpty();
 
         if (addToResolvedGradebookOnPublish) {
-            updateGradebookIntegrationProperties(assignment, addtoGradebook, oAssociateGradebookAssignment, properties, true);
+            if (!updateAssignmentWithGradebook(state, assignment, addtoGradebook, gradebookCategoriesMap, Collections.emptyMap())) {
+                return;
+            }
             properties.remove(NEW_ASSIGNMENT_CATEGORY);
         } else if (addToGradebookOnPublish && gradebookCategoriesMap.isEmpty()) {
             updateGradebookIntegrationProperties(assignment, GRADEBOOK_INTEGRATION_NO, oAssociateGradebookAssignment, properties, true);

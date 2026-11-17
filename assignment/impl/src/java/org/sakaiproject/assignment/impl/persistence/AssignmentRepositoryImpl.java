@@ -396,7 +396,9 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                     cb.equal(root.get("context"), context),
                     cb.equal(properties.key(),
                         AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT),
-                    cb.equal(properties.value(), linkId)
+                    cb.isFalse(root.get("deleted")),
+                    cb.like(cb.concat(cb.concat(",", properties.value()), ","),
+                            "%," + linkId.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + ",%", '\\')
                 )
             );
 

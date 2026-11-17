@@ -613,6 +613,25 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void linkedGradebookItemsCannotBeRemoved() {
+        Gradebook gradebook = createGradebook();
+        Long id = createAssignment1(gradebook);
+        org.sakaiproject.grading.api.ExternalAssignmentProvider provider = mock(org.sakaiproject.grading.api.ExternalAssignmentProvider.class);
+        when(provider.getAppKey()).thenReturn("association-test");
+        when(provider.isGradebookItemInUse(eq(gradebook.getUid()), any(Assignment.class))).thenReturn(true);
+        gradingService.registerExternalAssignmentProvider(provider);
+        try {
+            Assert.assertThrows(org.sakaiproject.grading.api.AssessmentInUseException.class, () -> gradingService.removeAssignment(id));
+            assertEquals(1, gradingService.getAssignments(gradebook.getUid(), siteId, SortType.SORT_BY_SORTING).size());
+            when(provider.isGradebookItemInUse(eq(gradebook.getUid()), any(Assignment.class))).thenReturn(false);
+            gradingService.removeAssignment(id);
+            assertTrue(gradingService.getAssignments(gradebook.getUid(), siteId, SortType.SORT_BY_SORTING).isEmpty());
+        } finally {
+            gradingService.unregisterExternalAssignmentProvider(provider.getAppKey());
+        }
+    }
+
+    @Test
     public void removeExternalAssignment() {
 
         Gradebook gradebook = createGradebook();

@@ -808,6 +808,12 @@ public class GradingServiceImpl implements GradingService {
 
         Optional<GradebookAssignment> optAsn = gradingPersistenceManager.getAssignmentById(assignmentId);
         if (optAsn.isPresent()) {
+            Assignment item = getAssignmentDefinition(optAsn.get());
+            String gradebookUid = optAsn.get().getGradebook().getUid();
+            if (getExternalAssignmentProviders().values().stream()
+                    .anyMatch(provider -> provider.isGradebookItemInUse(gradebookUid, item))) {
+                throw new org.sakaiproject.grading.api.AssessmentInUseException("Gradebook item is in use: " + assignmentId);
+            }
             optAsn.get().setRemoved(true);
             Gradebook gradebook = optAsn.get().getGradebook();
             gradingPersistenceManager.saveAssignment(optAsn.get());

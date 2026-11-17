@@ -753,4 +753,47 @@ class AssignmentTest extends SakaiUiTestBase {
             return false;
         }
     }
+    @Test
+    void conflictingGradebookItemKeepsAssignmentDraftUntilCorrected() {
+        sakai.login("instructor1");
+        String course = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.gradebookng"));
+        String title = "Gradebook association " + sakai.randomId();
+        sakai.gotoPath(course);
+        sakai.toolClick("Gradebook");
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=title]").fill(title);
+        dialog.locator("input[name$=points]").fill("100");
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+
+        sakai.toolClick("Assignments");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
+        page.locator("#new_assignment_title").fill(title);
+        page.locator("#gradeAssignment").check();
+        page.locator("#new_assignment_grade_points").fill("100");
+        sakai.typeCkEditor("new_assignment_instructions", "<p>Gradebook association regression.</p>");
+        page.locator("#new_assignment_send_to_gradebook").check();
+        page.locator("#create-gradebook-item").check();
+        page.locator("input[name=post]").click();
+        assertThat(page.locator("body")).containsText("an existing item of the same name");
+        assertThat(page.locator("#new_assignment_title")).hasValue(title);
+        com.microsoft.playwright.APIResponse response = page.request().get(
+                "/direct/assignment/site/" + sakai.siteIdFromUrl(course) + ".json");
+        assertTrue(response.ok());
+        com.google.gson.JsonArray assignments = com.google.gson.JsonParser.parseString(response.text())
+                .getAsJsonObject().getAsJsonArray("assignment_collection");
+        assertEquals(1, assignments.size());
+        assertTrue(assignments.get(0).getAsJsonObject().get("draft").getAsBoolean());
+        assertTrue(assignments.get(0).getAsJsonObject().get("gradebookItemId").isJsonNull());
+
+        String corrected = title + " corrected";
+        page.locator("#new_assignment_title").fill(corrected);
+        page.locator("input[name=post]").click();
+        assertThat(page.locator("#assignments-list")).containsText(corrected);
+        sakai.toolClick("Gradebook");
+        assertThat(page.locator(".tabulator-col[data-assignment-id]")
+                .filter(new Locator.FilterOptions().setHasText(corrected))).isVisible();
+    }
+
 }
