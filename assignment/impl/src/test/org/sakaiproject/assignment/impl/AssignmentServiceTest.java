@@ -744,7 +744,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
                 AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         Assignment shared = createNewAssignment(context);
-        shared.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "12,123");
+        shared.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "12,123,raw%_\\literal");
         String reference = AssignmentReferenceReckoner.reckoner().assignment(shared).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, reference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
@@ -752,6 +752,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "12"));
         Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "123"));
         Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "2").isEmpty());
+        Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "raw%_\\literal"));
+        Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "rawXX\\literal").isEmpty());
         assignmentService.softDeleteAssignment(shared);
         Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "12").isEmpty());
     }
