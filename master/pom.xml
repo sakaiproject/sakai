@@ -66,7 +66,7 @@
     <sakai.velocity.version>2.4.1</sakai.velocity.version>
     <sakai.log4j.version>2.26.1</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.5.1</sakai.poi.version>
+    <sakai.poi.version>6.0.0</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.15.1</joda.time.version>
