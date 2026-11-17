@@ -45,7 +45,7 @@ public class LtiTool implements PersistableEntity<Long>, Serializable {
 
     @Id
     @Column(name = "id")
-    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "lti_tools_sequence", sequenceName = "lti_tools_id_sequence"))
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "lti_tools_sequence", sequenceName = "lti_tools_id_sequence", allocationSize = 1))
     @EqualsAndHashCode.Include
     private Long id;
 
