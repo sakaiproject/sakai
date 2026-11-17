@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -85,7 +86,9 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         org.sakaiproject.site.api.Group group = siteService.findGroup(gradebookUid);
         String siteId = group == null ? gradebookUid : group.getContainingSite().getId();
         try {
-            for (String link : new String[] {item.getId().toString(), item.getExternalId(), item.getName()}) {
+            // Numeric links are IDs, including in the legacy name-or-ID lookup.
+            String legacyName = NumberUtils.isCreatable(item.getName()) ? null : item.getName();
+            for (String link : new String[] {item.getId().toString(), item.getExternalId(), legacyName}) {
                 if (StringUtils.isNotBlank(link) && !assignmentService.getAssignmentsForGradebookLink(siteId, link).isEmpty()) {
                     return true;
                 }

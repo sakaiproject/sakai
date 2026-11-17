@@ -754,6 +754,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "2").isEmpty());
         Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "raw%_\\literal"));
         Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "rawXX\\literal").isEmpty());
+        AssignmentGradeInfoProvider provider = new AssignmentGradeInfoProvider();
+        provider.setAssignmentService(assignmentService);
+        provider.setSiteService(siteService);
+        org.sakaiproject.grading.api.Assignment item = new org.sakaiproject.grading.api.Assignment();
+        item.setId(456L);
+        item.setName("12");
+        Assert.assertFalse("A numeric title is not another item's ID", provider.isGradebookItemInUse(context, item));
+        item.setName("raw%_\\literal");
+        Assert.assertTrue("Legacy nonnumeric names still match", provider.isGradebookItemInUse(context, item));
+        item.setId(12L);
+        Assert.assertTrue(provider.isGradebookItemInUse(context, item));
         assignmentService.softDeleteAssignment(shared);
         Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "12").isEmpty());
     }

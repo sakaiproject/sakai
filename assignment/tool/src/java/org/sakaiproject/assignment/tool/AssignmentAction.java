@@ -9949,6 +9949,7 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setPeerAssessmentNumberReviews(peerAssessmentNumReviews);
         a.setPeerAssessmentInstructions(peerAssessmentInstructions);
 
+        List<AssignmentSubmission> submissionsToRemove = Collections.emptyList();
         try {
             if (Assignment.Access.SITE.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.SITE);
@@ -9978,7 +9979,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         }).filter(Objects::nonNull).flatMap(ag -> ag.getMembers().stream()).map(Member::getUserId).collect(Collectors.toSet());
                     }
 
-                    List<AssignmentSubmission> submissionsToRemove = submitterIds.stream().map(id -> {
+                    submissionsToRemove = submitterIds.stream().map(id -> {
                         try {
                             return assignmentService.getSubmission(a.getId(), id);
                         } catch (PermissionException pe) {
@@ -9986,15 +9987,6 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }).filter(Objects::nonNull).collect(Collectors.toList());
 
-                    submissionsToRemove.stream()
-                            .filter(s -> a.getIsGroup() ? !assignmentService.hasSubmissionWork(s) : !s.getUserSubmission())
-                            .forEach(s -> {
-                                try {
-                                    assignmentService.removeSubmission(s);
-                                } catch (PermissionException pe) {
-                                    log.warn("Group update detected on assignment {}, could not remove submission {}", a.getId(), s);
-                                }
-                            });
                     a.setGroups(currentGroupRefs);
                 }
             }
@@ -10013,6 +10005,17 @@ public class AssignmentAction extends PagedResourceActionII {
             } else {
                 assignmentService.updateAssignment(a);
             }
+
+            // Only remove old-group placeholders after the Assignment save succeeds.
+            submissionsToRemove.stream()
+                    .filter(s -> a.getIsGroup() ? !assignmentService.hasSubmissionWork(s) : !s.getUserSubmission())
+                    .forEach(s -> {
+                        try {
+                            assignmentService.removeSubmission(s);
+                        } catch (PermissionException pe) {
+                            log.warn("Group update detected on assignment {}, could not remove submission {}", a.getId(), s);
+                        }
+                    });
 
             // content review (after changes are stored)
             if (a.getContentReview()) {
