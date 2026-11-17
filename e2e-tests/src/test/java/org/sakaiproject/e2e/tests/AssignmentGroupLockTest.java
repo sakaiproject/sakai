@@ -266,7 +266,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         sakai.selectDate("#closedate", openDate.plusDays(7).toString());
         page.locator("#groupAssignment").check();
         openGroupChoices();
-        for (Locator checked : page.locator("#groupTableContainer .multiselect-container input:checked").all()) {
+        for (Locator checked : page.locator("#groupTableContainer .multiselect-container input[type=checkbox]").all()) {
             checked.uncheck();
         }
         for (String group : groups) {
