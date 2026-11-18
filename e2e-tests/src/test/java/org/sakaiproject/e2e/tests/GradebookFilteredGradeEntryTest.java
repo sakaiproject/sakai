@@ -225,6 +225,33 @@ class GradebookFilteredGradeEntryTest extends SakaiUiTestBase {
     }
 
     @Test
+    void clickOnAnotherCellMovesTheEditor() {
+        String assignmentId = openGradebookWithNewItem("Click to next");
+        List<Locator> cells = filterStudents(assignmentId);
+
+        startEditing(cells.get(0));
+        cells.get(1).click();
+        assertThat(editorIn(cells.get(0))).hasCount(0);
+        assertThat(editorIn(cells.get(1))).isFocused();
+
+        page.keyboard().type("75");
+        page.keyboard().press("Enter");
+        assertThat(cells.get(1).locator(".gb-value")).hasText("75");
+    }
+
+    @Test
+    void menuOfAnotherCellOpensWhileEditing() {
+        String assignmentId = openGradebookWithNewItem("Menu while editing");
+        List<Locator> cells = filterStudents(assignmentId);
+
+        startEditing(cells.get(0));
+        cells.get(1).locator(".dropdown-toggle").click();
+        assertThat(editorIn(cells.get(0))).hasCount(0);
+        assertThat(cells.get(1).locator(".dropdown-menu.show")).isVisible();
+        assertThat(editorIn(cells.get(1))).hasCount(0);
+    }
+
+    @Test
     void shiftClickExtendsTheSelectionWithoutEditing() {
         String assignmentId = openGradebookWithNewItem("Shift click");
         List<Locator> cells = filterStudents(assignmentId);
