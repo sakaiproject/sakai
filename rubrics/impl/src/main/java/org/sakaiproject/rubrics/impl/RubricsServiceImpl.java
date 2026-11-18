@@ -646,11 +646,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             throw new SecurityException("You must be a rubrics editor to create/edit rubrics");
         }
 
+        sanitizeRubricBean(bean);
+
         if (StringUtils.isBlank(bean.getTitle())) {
             throw new IllegalArgumentException("Rubric title must not be blank");
         }
-
-        sanitizeRubricBean(bean);
 
         Rubric rubric;
         if (bean.getId() == null) {
@@ -1061,6 +1061,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeRubricBean(RubricTransferBean bean) {
 
+        bean.setTitle(formattedText.stripUnsupportedCharacters(bean.getTitle()));
         if (bean.getCriteria() != null) {
             bean.getCriteria().forEach(this::sanitizeCriterionBean);
         }
@@ -1068,6 +1069,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeCriterionBean(CriterionTransferBean bean) {
 
+        bean.setTitle(formattedText.stripUnsupportedCharacters(bean.getTitle()));
         bean.setDescription(sanitizeFormattedText(bean.getDescription()));
         if (bean.getRatings() != null) {
             bean.getRatings().forEach(this::sanitizeRatingBean);
@@ -1076,6 +1078,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeRatingBean(RatingTransferBean bean) {
 
+        bean.setTitle(formattedText.stripUnsupportedCharacters(bean.getTitle()));
         bean.setDescription(sanitizeFormattedText(bean.getDescription()));
     }
 

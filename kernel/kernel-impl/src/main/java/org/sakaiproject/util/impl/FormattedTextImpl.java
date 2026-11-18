@@ -266,6 +266,21 @@ public class FormattedTextImpl implements FormattedText
         return Policy.getInstance();
     }
 
+    @Override
+    public String stripUnsupportedCharacters(String value) {
+        if (!cleanUTF8 || value == null) {
+            return value;
+        }
+        StringBuilder result = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!Character.isSurrogate(c)) {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
+
     /*
         Removes surrogates from a string http://stackoverflow.com/a/12867139/3708872
         @param str Value to process
