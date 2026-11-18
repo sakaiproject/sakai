@@ -134,14 +134,6 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("sakai-rubric .rubric-name")
                 .filter(new Locator.FilterOptions().setHasText(rubricTitle))).hasText(rubricTitle);
 
-        String rubricsUrl = page.url();
-        String replacementTitle = "Replacement rubric " + System.currentTimeMillis();
-        page.locator(".add-rubric").first().click();
-        Locator editor = page.locator("sakai-rubric-edit .modal.show");
-        editor.locator("input[title=\"Rubric Title\"]").fill(replacementTitle);
-        editor.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Save").setExact(true)).click();
-        assertThat(editor).isHidden();
-
         sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         goToAssignmentsList();
@@ -181,30 +173,8 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(rubricSelector).hasValue(rubricId);
         assertThat(associateRubric).isChecked();
 
-        String replacementId = rubricSelector.locator("option")
-            .filter(new Locator.FilterOptions().setHasText(replacementTitle)).getAttribute("value");
-        rubricSelector.selectOption(replacementId);
-        Page rubricsTab = context.newPage();
-        try {
-            rubricsTab.navigate(rubricsUrl);
-            Locator replacement = rubricsTab.locator("#site_rubrics sakai-rubric")
-                .filter(new Locator.FilterOptions().setHasText(replacementTitle));
-            Locator remove = replacement.locator("sakai-item-delete.sakai-rubric");
-            remove.locator("button[data-bs-toggle='modal']").click();
-            Response replacementDelete = rubricsTab.waitForResponse(
-                response -> response.request().method().equals("DELETE") && response.url().endsWith("/rubrics/" + replacementId),
-                () -> remove.getByRole(AriaRole.DIALOG).getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
-                    .setName("Move to Trash").setExact(true)).click());
-            assertTrue(replacementDelete.ok(), () -> "Moving the replacement rubric to Trash returned HTTP " + replacementDelete.status());
-        } finally {
-            rubricsTab.close();
-        }
-        submitAssignmentForm();
-        assertThat(page.getByText("The selected rubric is no longer available.")).isVisible();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
-        editAssignment(rubricAssignmentTitle);
-        assertThat(rubricSelector).hasValue(rubricId);
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+        assertThat(page.locator("#assignments-list")).isVisible();
 
         Locator assignment = page.locator("#assignments-list tr").filter(new Locator.FilterOptions().setHasText(rubricAssignmentTitle));
         assignment.locator("td[headers=remove] input[type=checkbox]").check();

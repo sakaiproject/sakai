@@ -79,10 +79,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.grading.api.AssessmentNotFoundException;
-import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.rubrics.api.RubricInTrashException;
 import org.sakaiproject.rubrics.api.RubricInUseException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -463,8 +460,8 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void requireRubricUnused(Rubric rubric) {
         List<ToolItemRubricAssociation> dependencies = associationRepository.findByRubricId(rubric.getId()).stream()
-            .filter(association -> Integer.valueOf(1).equals(association.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED))
-                || (Boolean.TRUE.equals(association.getActive()) && !isRemovedGradebookItem(association, rubric.getOwnerId()))
+            .filter(association -> Boolean.TRUE.equals(association.getActive())
+                || Integer.valueOf(1).equals(association.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED))
                 || !evaluationRepository.findByAssociationId(association.getId()).isEmpty())
             .toList();
 
@@ -475,21 +472,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 .distinct()
                 .toList();
             throw new RubricInUseException(blockingItems);
-        }
-    }
-
-    private boolean isRemovedGradebookItem(ToolItemRubricAssociation association, String siteId) {
-        if (!RubricsConstants.RBCS_TOOL_GRADEBOOKNG.equals(association.getToolId())) {
-            return false;
-        }
-
-        try {
-            GradebookAssignment item = gradingService.getGradebookAssigment(siteId, Long.valueOf(association.getItemId()));
-            return item != null && Boolean.TRUE.equals(item.getRemoved());
-        } catch (AssessmentNotFoundException e) {
-            return true;
-        } catch (GradingSecurityException | NumberFormatException e) {
-            return false;
         }
     }
 
@@ -1467,16 +1449,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return getRubricAssociation(tool, id).isPresent();
     }
 
-    @Override
-    public boolean applyRubricSelection(String toolId, String toolItemId, Map<String, String> params) {
-        boolean linksRubric = StringUtils.equalsAny(params.get(RubricsConstants.RBCS_ASSOCIATE), "1", "2");
-        try {
-            return saveRubricAssociation(toolId, toolItemId, params).isPresent() || !linksRubric;
-        } catch (RubricInTrashException | RubricsConflictException e) {
-            return false;
-        }
-    }
-
     public Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, final Map<String, String> params) {
         return saveRubricAssociation(toolId, toolItemId, params, null);
     }
@@ -1675,19 +1647,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
      */
     public void deleteRubricAssociationsByItemIdPrefix(String itemId, String toolId) {
 
-        deleteRubricAssociations(associationRepository.findByItemIdPrefix(toolId, itemId));
-    }
+        associationRepository.findByItemIdPrefix(toolId, itemId).forEach(assoc -> {
 
-    @Override
-    public void deleteRubricAssociationsForItem(String toolId, String itemId) {
-        deleteRubricAssociations(associationRepository.findAllByToolIdAndItemId(toolId, itemId));
-    }
-
-    private void deleteRubricAssociations(List<ToolItemRubricAssociation> associations) {
-        associations.forEach(association -> {
-            if (isCurrentUserEditor(association.getRubric().getOwnerId())) {
-                deleteRubricEvaluationsForAssociation(association.getId());
-                associationRepository.delete(association);
+            if (securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteService.siteReference(assoc.getRubric().getOwnerId()))) {
+                deleteRubricEvaluationsForAssociation(assoc.getId());
+                associationRepository.delete(assoc);
             }
         });
     }

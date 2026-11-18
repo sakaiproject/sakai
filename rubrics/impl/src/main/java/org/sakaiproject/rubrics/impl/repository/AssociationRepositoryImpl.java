@@ -59,17 +59,6 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         return session.createQuery(query).uniqueResultOptional();
     }
 
-    @Override
-    public List<ToolItemRubricAssociation> findAllByToolIdAndItemId(String toolId, String itemId) {
-
-        Session session = sessionFactory.getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<ToolItemRubricAssociation> query = cb.createQuery(ToolItemRubricAssociation.class);
-        Root<ToolItemRubricAssociation> association = query.from(ToolItemRubricAssociation.class);
-        query.where(cb.equal(association.get("toolId"), toolId), cb.equal(association.get("itemId"), itemId));
-        return session.createQuery(query).list();
-    }
-
     public Optional<ToolItemRubricAssociation> findByItemIdAndRubricId(String itemId, Long rubricId) {
 
         Session session = sessionFactory.getCurrentSession();

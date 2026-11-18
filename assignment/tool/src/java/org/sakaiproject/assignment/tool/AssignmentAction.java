@@ -8898,18 +8898,6 @@ public class AssignmentAction extends PagedResourceActionII {
             return;
         }
 
-        Assignment.GradeType gradeType = Assignment.GradeType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)];
-        Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
-        boolean usesRubric = gradeType == Assignment.GradeType.SCORE_GRADE_TYPE
-                && StringUtils.equalsAny(rubricParams.get(RubricsConstants.RBCS_ASSOCIATE), "1", "2");
-        if (usesRubric) {
-            long rubricId = NumberUtils.toLong(rubricParams.get(RubricsConstants.RBCS_LIST));
-            if (rubricsService.getRubric(rubricId).filter(rubric -> rubric.getSoftRemovedDate() == null).isEmpty()) {
-                addAlert(state, rb.getString("rubric.selection.unavailable"));
-                return;
-            }
-        }
-
         Assignment a;
         boolean newAssignment = false;
         // if there is no assignmentId
@@ -8970,6 +8958,8 @@ public class AssignmentAction extends PagedResourceActionII {
             String section = (String) state.getAttribute(NEW_ASSIGNMENT_SECTION);
 
             Assignment.SubmissionType submissionType = Assignment.SubmissionType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)];
+
+            Assignment.GradeType gradeType = Assignment.GradeType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)];
 
             String gradePoints = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
 
@@ -9254,11 +9244,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 //RUBRICS, Save the binding between the assignment and the rubric
-                if (!rubricParams.isEmpty() && !rubricsService.applyRubricSelection(AssignmentConstants.TOOL_ID, a.getId(), rubricParams)) {
-                    state.setAttribute(EDIT_ASSIGNMENT_ID, a.getId());
-                    state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT);
-                    addAlert(state, rb.getString("rubric.selection.not.applied"));
-                    return;
+                Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
+                if (!rubricParams.isEmpty()) {
+                    rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, a.getId(), rubricParams);
                 }
 
                 if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(siteId)) {                

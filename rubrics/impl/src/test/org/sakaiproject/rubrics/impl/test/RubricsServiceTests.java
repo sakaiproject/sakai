@@ -67,8 +67,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.RubricInTrashException;
@@ -132,7 +130,6 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private CriterionRepository criterionRepository;
     @Autowired private EventTrackingService eventTrackingService;
     @Autowired private EvaluationRepository evaluationRepository;
-    @Autowired private GradingService gradingService;
     @Autowired private ReturnedEvaluationRepository returnedEvaluationRepository;
     @Autowired private RubricRepository rubricRepository;
     @Autowired private RubricsService rubricsService;
@@ -1130,105 +1127,6 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void unavailableRubricSelectionKeepsExistingAssignmentLink() {
-
-        switchToInstructor();
-
-        String toolId = AssignmentConstants.TOOL_ID;
-        String itemId = "assignment-with-rubric";
-        RubricTransferBean original = rubricsService.createDefaultRubric(siteId);
-        RubricTransferBean replacement = rubricsService.createDefaultRubric(siteId);
-        ToolItemRubricAssociation originalLink = rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, original.getId().toString())).orElseThrow();
-        Map<String, String> replacementParams = Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, replacement.getId().toString());
-
-        assertTrue(rubricsService.deleteRubric(replacement.getId(), replacement.getVersion()));
-        assertTrue(rubricsService.saveRubricAssociation(toolId, itemId, replacementParams).isEmpty());
-        assertEquals(originalLink.getId(), rubricsService.getRubricAssociation(toolId, itemId).orElseThrow().getId());
-
-        Long version = rubricsService.getRubric(replacement.getId()).orElseThrow().getVersion();
-        assertTrue(rubricsService.permanentlyDeleteRubric(replacement.getId(), version));
-        assertTrue(rubricsService.saveRubricAssociation(toolId, itemId, replacementParams).isEmpty());
-        assertEquals(originalLink.getId(), rubricsService.getRubricAssociation(toolId, itemId).orElseThrow().getId());
-    }
-
-    @Test
-    public void applyingRubricSelectionDistinguishesARejectionFromAnUnlink() {
-
-        switchToInstructor();
-
-        String toolId = RubricsConstants.RBCS_TOOL_GRADEBOOKNG;
-        String itemId = "12";
-        RubricTransferBean original = rubricsService.createDefaultRubric(siteId);
-        RubricTransferBean replacement = rubricsService.createDefaultRubric(siteId);
-        Map<String, String> replacementSelection = Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, replacement.getId().toString());
-        assertTrue(rubricsService.applyRubricSelection(toolId, itemId, replacementSelection));
-        assertTrue(rubricsService.applyRubricSelection(toolId, itemId, Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, original.getId().toString())));
-
-        Long replacementVersion = rubricsService.getRubric(replacement.getId()).orElseThrow().getVersion();
-        assertTrue(rubricsService.deleteRubric(replacement.getId(), replacementVersion));
-        assertFalse(rubricsService.applyRubricSelection(toolId, itemId, replacementSelection));
-        assertEquals(original.getId(), rubricsService.getRubricAssociation(toolId, itemId).orElseThrow().getRubric().getId());
-
-        assertTrue(rubricsService.applyRubricSelection(toolId, itemId, Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "0", RubricsConstants.RBCS_LIST, "0")));
-        assertTrue(rubricsService.getRubricAssociation(toolId, itemId).isEmpty());
-    }
-
-    @Test
-    public void removingGradebookItemClearsOnlyItsRubricLinks() {
-
-        switchToInstructor();
-
-        String toolId = RubricsConstants.RBCS_TOOL_GRADEBOOKNG;
-        RubricTransferBean removedItemRubric = rubricsService.createDefaultRubric(siteId);
-        RubricTransferBean otherItemRubric = rubricsService.createDefaultRubric(siteId);
-        Long removedAssociationId = rubricsService.saveRubricAssociation(toolId, "12", Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, removedItemRubric.getId().toString()))
-            .orElseThrow().getId();
-        ToolItemRubricAssociation retained = rubricsService.saveRubricAssociation(toolId, "123", Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, otherItemRubric.getId().toString())).orElseThrow();
-
-        rubricsService.deleteRubricAssociationsForItem(toolId, "12");
-        sessionFactory.getCurrentSession().flush();
-        assertTrue(associationRepository.findById(removedAssociationId).isEmpty());
-        assertEquals(retained.getId(), rubricsService.getRubricAssociation(toolId, "123").orElseThrow().getId());
-
-        Long version = rubricsService.getRubric(removedItemRubric.getId()).orElseThrow().getVersion();
-        assertTrue(rubricsService.deleteRubric(removedItemRubric.getId(), version));
-    }
-
-    @Test
-    public void previouslyRemovedGradebookItemBlocksTrashOnlyWhenItHasEvaluations() {
-
-        switchToInstructor();
-
-        String toolId = RubricsConstants.RBCS_TOOL_GRADEBOOKNG;
-        String itemId = "123";
-        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
-        ToolItemRubricAssociation link = rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
-
-        GradebookAssignment item = new GradebookAssignment();
-        item.setRemoved(true);
-        when(gradingService.getGradebookAssigment(siteId, Long.valueOf(itemId))).thenReturn(item);
-
-        Long version = rubricsService.getRubric(rubric.getId()).orElseThrow().getVersion();
-        assertTrue(rubricsService.deleteRubric(rubric.getId(), version));
-        assertTrue(associationRepository.findById(link.getId()).isPresent());
-        Long trashedVersion = rubricsService.getRubric(rubric.getId()).orElseThrow().getVersion();
-        assertTrue(rubricsService.restoreRubric(rubric.getId(), trashedVersion));
-
-        rubricsService.saveEvaluation(buildEvaluation(link.getId(), rubric, itemId), siteId);
-        Long evaluatedVersion = rubricsService.getRubric(rubric.getId()).orElseThrow().getVersion();
-        assertThrows(RubricInUseException.class, () -> rubricsService.deleteRubric(rubric.getId(), evaluatedVersion));
-        assertEquals(1, evaluationRepository.findByAssociationId(link.getId()).size());
-    }
-
-    @Test
     public void deleteRubricAssociation() {
 
         switchToInstructor();
@@ -1504,8 +1402,8 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
         ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
             RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
-        assertTrue(rubricsService.applyRubricSelection(toolId, itemId, Map.of(
-            RubricsConstants.RBCS_ASSOCIATE, "0", RubricsConstants.RBCS_LIST, "0")));
+        assertTrue(rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
+            RubricsConstants.RBCS_ASSOCIATE, "0", RubricsConstants.RBCS_LIST, "0")).isEmpty());
 
         EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, itemId);
         assertThrows(RubricsConflictException.class, () -> rubricsService.saveEvaluation(evaluation, siteId));

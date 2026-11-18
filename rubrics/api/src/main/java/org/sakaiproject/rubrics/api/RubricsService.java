@@ -166,12 +166,6 @@ public interface RubricsService extends EntityProducer {
      * @param toolItemId the id of the tool's item that is being associated with the rubric
      * @param params A hashmap with all the rbcs params comming from the component. The tool should generate it.
      */
-    /**
-     * Applies the grading form's rubric choice, including an intentional unlink.
-     * @return false when a requested rubric could not be linked
-     */
-    boolean applyRubricSelection(String toolId, String toolItemId, Map<String, String> params);
-
     Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params);
     Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params, String siteId);
 
@@ -186,7 +180,6 @@ public interface RubricsService extends EntityProducer {
     void softDeleteRubricAssociation(String toolId, String itemId);
     void restoreRubricAssociation(String toolId, String itemId);
 
-    void deleteRubricAssociationsForItem(String toolId, String itemId);
     void deleteRubricAssociationsByItemIdPrefix(String itemId, String toolId);
     void softDeleteRubricAssociationsByItemIdPrefix(String itemId, String toolId);
     void restoreRubricAssociationsByItemIdPrefix(String itemId, String toolId);
