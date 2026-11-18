@@ -366,10 +366,13 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setQuestionIndex(0);
     delivery.setBeginTime(null);
     delivery.setFeedbackOnDate(false);
-		ExtendedTimeDeliveryService extTimeService = new ExtendedTimeDeliveryService(delivery.getPublishedAssessment());
+		ExtendedTimeDeliveryService extTimeService = null;
+		if (delivery.getActionMode() != DeliveryBean.PREVIEW_ASSESSMENT) {
+			extTimeService = new ExtendedTimeDeliveryService(delivery.getPublishedAssessment());
+		}
 		PublishedAssessmentFacade paFacade = delivery.getPublishedAssessment();
 
-		if (extTimeService.hasExtendedTime()) {
+		if (extTimeService != null && extTimeService.hasExtendedTime()) {
 			delivery.setDueDate(extTimeService.getDueDate());
 			delivery.setRetractDate(extTimeService.getRetractDate());
 			if (extTimeService.getTimeLimit() > 0)
@@ -430,7 +433,7 @@ public class BeginDeliveryActionListener implements ActionListener
     String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
 
     //Override time limit settings if there's values in extended time
-    if (extTimeService.hasExtendedTime()) {
+    if (extTimeService != null && extTimeService.hasExtendedTime()) {
     	if (extTimeService.getTimeLimit() > 0) {
     		control.setTimeLimit(extTimeService.getTimeLimit());
     		hasTimeLimit = "true";
@@ -506,7 +509,7 @@ public class BeginDeliveryActionListener implements ActionListener
     		}
     	}
     	else {
-    		if (extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0) {
+        if (extTimeService != null && extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0) {
     			control.setTimeLimit(extTimeService.getTimeLimit());
     		}
     		Date attemptDate = unSubmittedAssessmentGrading.getAttemptDate();
