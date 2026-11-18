@@ -646,15 +646,21 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             throw new SecurityException("You must be a rubrics editor to create/edit rubrics");
         }
 
-        if (StringUtils.isBlank(bean.getTitle())) {
-            throw new IllegalArgumentException("Rubric title must not be blank");
+        Rubric rubric = bean.getId() == null ? new Rubric() : rubricRepository.getById(bean.getId());
+        if (bean.getId() != null) {
+            checkOwnerUnchanged(bean, rubric);
+            checkVersion(bean.getVersion(), rubric.getVersion());
+            checkDraftTransition(bean, rubric);
+            checkCriteriaVersions(bean, rubric);
         }
 
         sanitizeRubricBean(bean);
 
-        Rubric rubric;
+        if (StringUtils.isBlank(bean.getTitle())) {
+            throw new IllegalArgumentException("Rubric title must not be blank");
+        }
+
         if (bean.getId() == null) {
-            rubric = new Rubric();
             rubric.setCreatorId(currentUserId);
             rubric.setCriteria(bean.getCriteria().stream().map(c -> {
                 Criterion criterion = new Criterion();
@@ -668,11 +674,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 return criterion;
             }).collect(Collectors.toList()));
         } else if (bean.getAdhoc()) {
-            rubric = rubricRepository.getById(bean.getId());
-            checkOwnerUnchanged(bean, rubric);
-            checkVersion(bean.getVersion(), rubric.getVersion());
-            checkDraftTransition(bean, rubric);
-            checkCriteriaVersions(bean, rubric);
             List<Criterion> oldCriterion = new ArrayList<>();
 
             // update existing criteria
@@ -715,11 +716,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                     }).collect(Collectors.toList());
             rubric.getCriteria().addAll(newCriterion);
         } else {
-            rubric = rubricRepository.getById(bean.getId());
-            checkOwnerUnchanged(bean, rubric);
-            checkVersion(bean.getVersion(), rubric.getVersion());
-            checkDraftTransition(bean, rubric);
-            checkCriteriaVersions(bean, rubric);
             rubric.getCriteria().forEach(c -> bean.getCriteria().stream()
                     .filter(bc -> bc.getId().equals(c.getId()))
                     .findAny()
@@ -780,24 +776,27 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
 
         if (bean.getId() != null) {
-            sanitizeCriterionBean(bean);
             // we can use getById since a bean with an id should exist
             Criterion criterion = criterionRepository.getById(bean.getId());
             requireRubricSite(criterion.getRubric(), siteId);
             checkVersion(bean.getRubricVersion(), criterion.getRubric().getVersion());
             checkVersion(bean.getVersion(), criterion.getVersion());
+            List<Rating> ratings = criterion.getRatings();
+            bean.getRatings().forEach(rb -> ratings.stream()
+                    .filter(r -> r.getId().equals(rb.getId()))
+                    .findAny()
+                    .ifPresent(r -> checkVersion(rb.getVersion(), r.getVersion())));
+            sanitizeCriterionBean(bean);
             criterion.setTitle(bean.getTitle());
             criterion.setDescription(bean.getDescription());
             criterion.setWeight(bean.getWeight());
 
             // update ratings from the bean
-            List<Rating> ratings = criterion.getRatings();
             bean.getRatings()
                     .forEach(rb -> ratings.stream()
                             .filter(r -> r.getId().equals(rb.getId()))
                             .findAny()
                             .ifPresent(r -> {
-                                checkVersion(rb.getVersion(), r.getVersion());
                                 r.setTitle(rb.getTitle());
                                 r.setPoints(rb.getPoints());
                                 r.setDescription(rb.getDescription());
@@ -838,7 +837,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
 
         if (bean.getId() != null) {
-            sanitizeRatingBean(bean);
             Rating rating = ratingRepository.getById(bean.getId());
             if (!Objects.equals(rating.getCriterion().getId(), bean.getCriterionId())) {
                 throw new SecurityException("Rating does not belong to this criterion");
@@ -846,6 +844,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             requireRubricSite(rating.getCriterion().getRubric(), siteId);
             checkVersion(bean.getRubricVersion(), rating.getCriterion().getRubric().getVersion());
             checkVersion(bean.getVersion(), rating.getVersion());
+            sanitizeRatingBean(bean);
             rating.setTitle(bean.getTitle());
             rating.setDescription(bean.getDescription());
             rating.setPoints(bean.getPoints());
@@ -927,6 +926,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     // Rich text is cleaned before persistence; read paths return stored values unchanged.
     private void sanitizeRubric(Rubric rubric) {
 
+        rubric.setTitle(formattedText.stripUnsupportedCharacters(rubric.getTitle()));
         if (rubric.getCriteria() != null) {
             rubric.getCriteria().forEach(this::sanitizeCriterion);
         }
@@ -934,6 +934,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeCriterion(Criterion criterion) {
 
+        criterion.setTitle(formattedText.stripUnsupportedCharacters(criterion.getTitle()));
         criterion.setDescription(sanitizeFormattedText(criterion.getDescription()));
         if (criterion.getRatings() != null) {
             criterion.getRatings().forEach(this::sanitizeRating);
@@ -942,6 +943,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeRating(Rating rating) {
 
+        rating.setTitle(formattedText.stripUnsupportedCharacters(rating.getTitle()));
         rating.setDescription(sanitizeFormattedText(rating.getDescription()));
     }
 
@@ -1061,6 +1063,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeRubricBean(RubricTransferBean bean) {
 
+        bean.setTitle(formattedText.stripUnsupportedCharacters(bean.getTitle()));
         if (bean.getCriteria() != null) {
             bean.getCriteria().forEach(this::sanitizeCriterionBean);
         }
@@ -1068,6 +1071,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeCriterionBean(CriterionTransferBean bean) {
 
+        bean.setTitle(formattedText.stripUnsupportedCharacters(bean.getTitle()));
+        if (StringUtils.isBlank(bean.getTitle())) {
+            throw new IllegalArgumentException("Criterion title must not be blank");
+        }
         bean.setDescription(sanitizeFormattedText(bean.getDescription()));
         if (bean.getRatings() != null) {
             bean.getRatings().forEach(this::sanitizeRatingBean);
@@ -1076,6 +1083,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeRatingBean(RatingTransferBean bean) {
 
+        bean.setTitle(formattedText.stripUnsupportedCharacters(bean.getTitle()));
+        if (StringUtils.isBlank(bean.getTitle())) {
+            throw new IllegalArgumentException("Rating title must not be blank");
+        }
         bean.setDescription(sanitizeFormattedText(bean.getDescription()));
     }
 
@@ -2010,6 +2021,12 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 return;
             }
 
+            rubric.setTitle(formattedText.stripUnsupportedCharacters(rubric.getTitle()));
+            if (StringUtils.isBlank(rubric.getTitle())) {
+                log.warn("Skipping rubric with a blank title after cleaning from site {} archive to site {}", fromSiteId, toSiteId);
+                return;
+            }
+
             if (currentTitles.contains(rubric.getTitle())) {
                 log.debug("Rubric \"{}\" already exists in site {}. Skipping merge ...", rubric.getTitle(), toSiteId);
                 return;
@@ -2023,11 +2040,20 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
             for (Criterion criterion : rubric.getCriteria()) {
                 criterion.setRubric(rubric);
-                criterion.getRatings().forEach(r -> r.setCriterion(criterion));
+                sanitizeCriterion(criterion);
+                if (StringUtils.isBlank(criterion.getTitle())) {
+                    criterion.setTitle(resourceLoader.getString("default_criterion_title"));
+                }
+                criterion.getRatings().forEach(r -> {
+                    r.setCriterion(criterion);
+                    if (StringUtils.isBlank(r.getTitle())) {
+                        r.setTitle(resourceLoader.getString("default_rating_title"));
+                    }
+                });
             }
 
-            sanitizeRubric(rubric);
             saveAndPostEvent(rubric, EVENT_RUBRIC_CREATED);
+            currentTitles.add(rubric.getTitle());
         });
 
         results.append("completed merging ").append(getLabel()).append(" for site ").append(toSiteId).append(LINE_SEPARATOR);

@@ -113,6 +113,11 @@ public class MockFormattedText implements FormattedText {
         return value;
     }
 
+    public String stripUnsupportedCharacters(String value) {
+        log.warn(WARNING);
+        return value;
+    }
+
     public String encodeUrlsAsHtml(String text) {
         log.warn(WARNING);
         return text;
