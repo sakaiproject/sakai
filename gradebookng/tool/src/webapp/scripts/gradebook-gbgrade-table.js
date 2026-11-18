@@ -759,6 +759,14 @@ GbGradeTable.selectCellBelow = function(cell) {
   }
 };
 
+// Tabulator's editable callback gets no event, so note clicks on a cell's menu, flags or links,
+// and range-extending clicks, which must not start an edit (see the grade columns' editable)
+GbGradeTable.noteCellControlClick = function(event) {
+  GbGradeTable.clickOnCellControl = !!event.target.closest?.(".dropdown-menu, .gb-notification, .gb-comment-notification, a, button")
+    || event.shiftKey || event.ctrlKey || event.metaKey;
+  setTimeout(() => GbGradeTable.clickOnCellControl = false, 0);
+};
+
 GbGradeTable.cellSelector = function (rowIndex, colIndex) {
   GbGradeTable.instance.getRanges().forEach(range => range.remove());
   const cell = GbGradeTable.instance.getRows()[rowIndex]?.getCells()[colIndex];
@@ -915,6 +923,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   });
 
+  document.addEventListener("click", GbGradeTable.noteCellControlClick, true);
+
   GbGradeTable.container = document.getElementById("gradebookSpreadsheet");
 
   GbGradeTable.columnDOMNodeCache = {};
@@ -933,7 +943,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
-    editTriggerEvent:"dblclick",
+    editTriggerEvent:"click",
     selectableRange:1,
     selectableRangeColumns:true,
     selectableRangeClearCells:true,
@@ -945,6 +955,27 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       rowElement.classList.add("border-bottom");
     }
   });
+
+  // Tabulator blocks redraws while an editor is open, and on close always rebuilds the
+  // virtual columns, even with no redraw pending. That replaces the cell under a click
+  // that moves to another cell, so the click is lost. Only rebuild when one was requested.
+  const columnManager = GbGradeTable.instance.columnManager;
+  const rerenderColumns = columnManager.rerenderColumns.bind(columnManager);
+  const restoreRedraw = columnManager.restoreRedraw.bind(columnManager);
+  let columnRerenderPending = false;
+  columnManager.rerenderColumns = (update, silent) => {
+    columnRerenderPending ||= columnManager.redrawBlock;
+    rerenderColumns(update, silent);
+  };
+  columnManager.restoreRedraw = () => {
+    if (columnRerenderPending) {
+      columnRerenderPending = false;
+      restoreRedraw();
+    } else {
+      columnManager.redrawBlock = false;
+      columnManager.verticalAlignHeaders();
+    }
+  };
 
   GbGradeTable.instance.on("headerClick", (e, column) => {
     if (e.target.classList.contains('gb-title')) {
@@ -1127,7 +1158,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       }
     }
 
-    cellElement.focus();
+    // Don't take focus from an editor that was just opened in this cell
+    if (!cellElement.contains(document.activeElement)) {
+      cellElement.focus();
+    }
   });
   
 
@@ -1915,6 +1949,7 @@ GbGradeTable.getFilteredColumns = function() {
         width: 180,
         sorter: (a, b) => GbGradeTable.parseGradeValue(a) - GbGradeTable.parseGradeValue(b),
         editor: column.type === 'category' || column.externallyMaintained ? false : "GbGradeTableEditor",
+        editable: () => !GbGradeTable.clickOnCellControl,
       }))
   );
 };
