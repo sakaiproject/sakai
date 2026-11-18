@@ -1073,6 +1073,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     private void sanitizeCriterionBean(CriterionTransferBean bean) {
 
         bean.setTitle(formattedText.stripUnsupportedCharacters(bean.getTitle()));
+        if (StringUtils.isBlank(bean.getTitle())) {
+            throw new IllegalArgumentException("Criterion title must not be blank");
+        }
         bean.setDescription(sanitizeFormattedText(bean.getDescription()));
         if (bean.getRatings() != null) {
             bean.getRatings().forEach(this::sanitizeRatingBean);
@@ -1082,6 +1085,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     private void sanitizeRatingBean(RatingTransferBean bean) {
 
         bean.setTitle(formattedText.stripUnsupportedCharacters(bean.getTitle()));
+        if (StringUtils.isBlank(bean.getTitle())) {
+            throw new IllegalArgumentException("Rating title must not be blank");
+        }
         bean.setDescription(sanitizeFormattedText(bean.getDescription()));
     }
 
@@ -2016,6 +2022,12 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 return;
             }
 
+            sanitizeRubric(rubric);
+            if (StringUtils.isBlank(rubric.getTitle())) {
+                log.warn("Skipping rubric with a blank title after cleaning from site {} archive to site {}", fromSiteId, toSiteId);
+                return;
+            }
+
             if (currentTitles.contains(rubric.getTitle())) {
                 log.debug("Rubric \"{}\" already exists in site {}. Skipping merge ...", rubric.getTitle(), toSiteId);
                 return;
@@ -2032,11 +2044,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 criterion.getRatings().forEach(r -> r.setCriterion(criterion));
             }
 
-            sanitizeRubric(rubric);
-            if (StringUtils.isBlank(rubric.getTitle())) {
-                log.warn("Skipping rubric with a blank title after cleaning from site {} archive to site {}", fromSiteId, toSiteId);
-                return;
-            }
             saveAndPostEvent(rubric, EVENT_RUBRIC_CREATED);
         });
 

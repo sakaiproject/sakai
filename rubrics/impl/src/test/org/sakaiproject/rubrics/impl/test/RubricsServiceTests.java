@@ -459,6 +459,33 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void updatesRejectBlankCleanedCriterionAndRatingTitles() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        CriterionTransferBean criterion = rubric.getCriteria().get(0);
+        RatingTransferBean rating = criterion.getRatings().get(0);
+        String criterionTitle = criterion.getTitle();
+        String ratingTitle = rating.getTitle();
+        when(formattedText.stripUnsupportedCharacters("😀")).thenReturn("");
+        when(formattedText.stripUnsupportedCharacters("🧪")).thenReturn(" \t ");
+
+        criterion.setTitle("😀");
+        assertThrows(IllegalArgumentException.class, () -> rubricsService.updateCriterion(criterion, siteId));
+        assertThrows(IllegalArgumentException.class, () -> rubricsService.saveRubric(rubric));
+        criterion.setTitle(criterionTitle);
+        rating.setTitle("🧪");
+        assertThrows(IllegalArgumentException.class, () -> rubricsService.updateRating(rating, siteId));
+        assertThrows(IllegalArgumentException.class, () -> rubricsService.updateCriterion(criterion, siteId));
+        assertThrows(IllegalArgumentException.class, () -> rubricsService.saveRubric(rubric));
+
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        RubricTransferBean stored = rubricsService.getRubric(rubric.getId()).orElseThrow();
+        assertEquals(criterionTitle, stored.getCriteria().get(0).getTitle());
+        assertEquals(ratingTitle, stored.getCriteria().get(0).getRatings().get(0).getTitle());
+    }
+
+    @Test
     public void saveRubricSanitizesRichTextFields() {
 
         switchToInstructor();
@@ -1591,6 +1618,31 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         List<Rubric> imported = rubricRepository.findByOwnerId(toSite);
         assertEquals(1, imported.size());
         assertEquals("Sports", imported.get(0).getTitle());
+    }
+
+    @Test
+    public void mergeChecksDuplicatesUsingCleanedTitles() {
+        String toSite = siteId;
+        switchToInstructor();
+        RubricTransferBean existing = rubricsService.createDefaultRubric(toSite);
+        existing.setTitle("Imported");
+        rubricsService.saveRubric(existing);
+        Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics.xml"));
+        Element root = doc.getDocumentElement();
+        Element rubricsElement = (Element) root.getElementsByTagName(rubricsService.getLabel()).item(0);
+        NodeList rubricElements = rubricsElement.getElementsByTagName("rubric");
+        ((Element) rubricElements.item(0)).setAttribute("title", "Imported 😀");
+        ((Element) rubricElements.item(1)).setAttribute("title", "Sports 🚀");
+        when(formattedText.stripUnsupportedCharacters("Imported 😀")).thenReturn("Imported");
+        when(formattedText.stripUnsupportedCharacters("Sports 🚀")).thenReturn("Sports");
+
+        rubricsService.merge(toSite, rubricsElement, "", root.getAttribute("source"), null, null, null);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        List<Rubric> imported = rubricRepository.findByOwnerId(toSite);
+        assertEquals(2, imported.size());
+        assertEquals(Set.of("Imported", "Sports"), imported.stream().map(Rubric::getTitle).collect(Collectors.toSet()));
+        assertTrue(imported.stream().anyMatch(rubric -> existing.getId().equals(rubric.getId())));
     }
 
     @Test
