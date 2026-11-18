@@ -255,14 +255,17 @@ public class SiteManageServiceImpl implements SiteManageService {
                             } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
                                 // handle Home tool specially, need to update the site infomration display url if needed
                                 String newSiteInfoUrl = resolveImportedSiteInfoUrl(oSiteId, nSiteId, sourceSiteInfoUrl);
-                                site.setInfoUrl(newSiteInfoUrl);
+                                // Lessons and other importers can change the site structure during this loop.
+                                // Save the current site so those changes are not overwritten by the original copy.
+                                Site currentSite = siteService.getSite(nSiteId);
+                                currentSite.setInfoUrl(newSiteInfoUrl);
 
-                                String description = site.getDescription();
+                                String description = currentSite.getDescription();
                                 if (StringUtils.isNotBlank(description) && description.contains(oSiteId)) {
-                                    site.setDescription(rewriteSiteIdInDescription(description, oSiteId, nSiteId));
+                                    currentSite.setDescription(rewriteSiteIdInDescription(description, oSiteId, nSiteId));
                                 }
 
-                                saveSite(site);
+                                saveSite(currentSite);
                                 toolsCopied.add(toolId);
                             } else if (StringUtils.isNotBlank(toolId)) {
                                 // all other tools
