@@ -35,15 +35,17 @@ class RubricWeightsTest extends SakaiUiTestBase {
         String title = "Partial weights " + System.currentTimeMillis();
         Locator modal = page.locator("sakai-rubric-edit .modal.show");
         modal.locator("input").fill(title);
-        page.waitForResponse(response -> response.url().contains("/rubrics/")
+        Response renamed = page.waitForResponse(response -> response.url().contains("/rubrics/")
                 && response.request().method().equals("PATCH") && response.status() == 200,
                 () -> modal.locator("button.btn-primary").click());
 
         Locator rubric = page.locator("sakai-rubric").filter(new Locator.FilterOptions()
                 .setHas(page.locator(".rubric-name").filter(new Locator.FilterOptions().setHasText(title))));
         assertThat(rubric.locator("button.draft")).hasAttribute("aria-label", "Save as Draft");
-        page.waitForResponse(response -> response.url().contains("/rubrics/")
-                && response.request().method().equals("PATCH") && response.status() == 200,
+        String criterionId = rubric.locator(".criterion-row[data-criterion-id]").first().getAttribute("data-criterion-id");
+        String rubricUrl = renamed.url();
+        String criterionUrl = rubricUrl + "/criteria/" + criterionId;
+        waitForRubricAndCriterionSave(rubricUrl, criterionUrl,
                 () -> rubric.locator("button.weighted").click());
         Locator weight = rubric.locator("input[data-criterion-id]").first();
         Locator save = rubric.locator("button.save-weights");
@@ -79,8 +81,7 @@ class RubricWeightsTest extends SakaiUiTestBase {
         assertThat(rubric.locator("button.draft")).hasAttribute("aria-label", "In order to publish the rubric: Weighting for the criterions must equal 100%");
         weight.fill("100");
         assertThat(rubric.locator(".card").filter(new Locator.FilterOptions().setHasText("Total Weight"))).containsText("100%");
-        page.waitForResponse(response -> response.url().contains("/rubrics/")
-                && response.request().method().equals("PATCH") && response.status() == 200,
+        waitForRubricAndCriterionSave(rubricUrl, criterionUrl,
                 () -> rubric.locator("button.draft").click());
         assertThat(save).isEnabled();
         assertThat(rubric.locator(".weight-save-help")).hasText("");
@@ -89,5 +90,18 @@ class RubricWeightsTest extends SakaiUiTestBase {
         rubric.locator(".rubric-toggle").click();
         assertThat(weight).hasValue("100");
         assertThat(rubric.locator("button.draft")).hasAttribute("aria-label", "Save as Draft - Weights will be saved.");
+    }
+
+    private void waitForRubricAndCriterionSave(String rubricUrl, String criterionUrl, Runnable action) {
+        // On 25.x, the rubric and its criterion weight are saved in separate requests.
+        Response criterion = page.waitForResponse(
+                response -> response.url().equals(criterionUrl) && response.request().method().equals("PATCH"),
+                () -> {
+                    Response rubric = page.waitForResponse(
+                            response -> response.url().equals(rubricUrl) && response.request().method().equals("PATCH"),
+                            action);
+                    assertEquals(200, rubric.status());
+                });
+        assertEquals(200, criterion.status());
     }
 }
