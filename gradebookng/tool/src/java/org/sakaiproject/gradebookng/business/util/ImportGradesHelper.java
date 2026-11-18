@@ -897,6 +897,7 @@ public class ImportGradesHelper {
 		final String[] s = new String[numCells];
 		
 		DataFormatter formatter = new DataFormatter();
+		formatter.setUseCachedValuesForFormulaCells(false);
 		Cell cell;
 		for(int i = 0; i < numCells; i++) {
 			cell = row.getCell(i);
