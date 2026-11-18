@@ -6608,6 +6608,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		toolGroup.put(defaultGroupName, combinedList);
 	}
 	
+	// Show Dashboard first while preserving the order of the remaining tools.
+	for (List<MyTool> tools : toolGroup.values()) {
+		tools.sort(Comparator.comparing(tool -> !"sakai.dashboard".equals(tool.getId())));
+	}
+
 	if (checkHome) {
 		// Home page should be auto-selected
 		state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.TRUE);
