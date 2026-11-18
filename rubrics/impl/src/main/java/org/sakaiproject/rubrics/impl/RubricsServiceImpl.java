@@ -927,6 +927,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     // Rich text is cleaned before persistence; read paths return stored values unchanged.
     private void sanitizeRubric(Rubric rubric) {
 
+        rubric.setTitle(formattedText.stripUnsupportedCharacters(rubric.getTitle()));
         if (rubric.getCriteria() != null) {
             rubric.getCriteria().forEach(this::sanitizeCriterion);
         }
@@ -934,6 +935,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeCriterion(Criterion criterion) {
 
+        criterion.setTitle(formattedText.stripUnsupportedCharacters(criterion.getTitle()));
         criterion.setDescription(sanitizeFormattedText(criterion.getDescription()));
         if (criterion.getRatings() != null) {
             criterion.getRatings().forEach(this::sanitizeRating);
@@ -942,6 +944,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private void sanitizeRating(Rating rating) {
 
+        rating.setTitle(formattedText.stripUnsupportedCharacters(rating.getTitle()));
         rating.setDescription(sanitizeFormattedText(rating.getDescription()));
     }
 

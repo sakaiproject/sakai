@@ -1542,6 +1542,37 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void mergeFiltersUnsupportedTitleCharacters() {
+        String toSite = "filtered-title-import";
+        switchToInstructor(toSite);
+        Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics.xml"));
+        Element root = doc.getDocumentElement();
+        Element rubricsElement = (Element) root.getElementsByTagName(rubricsService.getLabel()).item(0);
+        Element rubricElement = (Element) rubricsElement.getElementsByTagName("rubric").item(0);
+        Element criterionElement = (Element) rubricElement.getElementsByTagName("criterion").item(0);
+        Element ratingElement = (Element) criterionElement.getElementsByTagName("rating").item(0);
+        rubricElement.setAttribute("title", "Imported 😀");
+        criterionElement.setAttribute("title", "Criterion 🧪");
+        ratingElement.setAttribute("title", "Rating 🚀");
+        ratingElement.appendChild(doc.createElement("description")).setTextContent("Rating description");
+        when(formattedText.stripUnsupportedCharacters("Imported 😀")).thenReturn("Imported");
+        when(formattedText.stripUnsupportedCharacters("Criterion 🧪")).thenReturn("Criterion");
+        when(formattedText.stripUnsupportedCharacters("Rating 🚀")).thenReturn("Rating");
+
+        rubricsService.merge(toSite, rubricsElement, "", root.getAttribute("source"), null, null, null);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Rubric imported = rubricRepository.findByOwnerId(toSite).stream()
+                .filter(rubric -> "Imported".equals(rubric.getTitle())).findFirst().orElseThrow();
+        Criterion criterion = imported.getCriteria().get(0);
+        Rating rating = criterion.getRatings().get(0);
+        assertEquals("Criterion", criterion.getTitle());
+        assertEquals("Rating", rating.getTitle());
+        assertEquals(criterionElement.getElementsByTagName("description").item(0).getTextContent(), criterion.getDescription());
+        assertEquals("Rating description", rating.getDescription());
+    }
+
+    @Test
     public void merge() {
 
         Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics.xml"));
