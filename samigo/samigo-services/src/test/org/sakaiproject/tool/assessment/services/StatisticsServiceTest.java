@@ -645,8 +645,8 @@ public class StatisticsServiceTest {
 
     @Test
     public void testClassifyMutuallyExclusiveFillInBlankSubmission() {
-        StatisticsService service = new StatisticsService(new GradingService(), cacheManager,
-                new QuestionPoolService(), new StatisticsFacadeQueries());
+        StatisticsService service = new StatisticsService(new GradingService(), memoryService,
+                questionPoolService, statisticsFacadeQueries);
         PublishedItemData item = item(1L, TypeIfc.FILL_IN_BLANK);
         item.addItemMetaData(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB, "true");
         Map<Long, PublishedAnswer> answers = Map.of(
