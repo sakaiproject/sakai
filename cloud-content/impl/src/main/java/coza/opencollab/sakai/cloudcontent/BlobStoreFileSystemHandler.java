@@ -133,7 +133,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                 .credentials(identity, credential);
 
         // Optional override: only set when explicitly configured, otherwise let the SDK detect the region
-        String region = serverConfigurationService.getString("cloud.content.region", "");
+        String region = serverConfigurationService.getString("cloud.content.region", null);
         if (region != null && !region.trim().isEmpty()) {
             clientBuilder.region(region.trim());
         }
