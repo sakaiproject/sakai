@@ -35,6 +35,7 @@ import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.elasticsearch.Messages;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
+import org.sakaiproject.site.api.SiteService;
 
 /**
  * @author ieb
@@ -46,6 +47,8 @@ public class SearchSecurityFilter implements SearchItemFilter
 	private SearchIndexBuilder searchIndexBuilder = null;
 
 	private EntityManager entityManager = null;
+
+	private SiteService siteService;
 
 	private SearchItemFilter nextFilter = null;
 
@@ -105,7 +108,8 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 		if (ecp == null || !ecp.canRead(reference))
 		{
-			result = new CensoredSearchResult();
+			String siteId = result.getSiteId();
+			result = new CensoredSearchResult(siteService.allowAccessSite(siteId) ? siteId : "");
 		}
 		if (nextFilter == null)
 		{
@@ -116,6 +120,11 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 	public class CensoredSearchResult implements SearchResult
 	{
+		private final String siteId;
+
+		public CensoredSearchResult(String siteId) {
+			this.siteId = siteId;
+		}
 
 		public float getScore()
 		{
@@ -206,7 +215,7 @@ public class SearchSecurityFilter implements SearchItemFilter
 		}
 
 		public String getSiteId() {
-			return ""; //$NON-NLS-1$
+			return siteId;
 		}
 
 		public String getCreatorDisplayName() {
@@ -251,6 +260,10 @@ public class SearchSecurityFilter implements SearchItemFilter
 	public void setEntityManager(EntityManager entityManager)
 	{
 		this.entityManager = entityManager;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
 	}
 
 }
