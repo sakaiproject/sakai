@@ -11,6 +11,7 @@
  */
 package org.sakaiproject.feedback.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,6 +40,21 @@ public class SakaiProxyTest {
     @Test
     public void rejectsCombinedAttachmentsOverFeedbackLimit() throws Exception {
         assertAttachmentsRejected(2, 1, 3 * 1024 * 1024, 600_000);
+    }
+
+    @Test
+    public void displayedLimitFollowsOutgoingMailLimit() {
+        ServerConfigurationService config = mock(ServerConfigurationService.class);
+        when(config.getInt("content.upload.max", SakaiProxy.ATTACH_MAX_DEFAULT)).thenReturn(20);
+        when(config.getInt("feedback.attach.max", SakaiProxy.ATTACH_MAX_DEFAULT)).thenReturn(20);
+        when(config.getInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE)).thenReturn(10_000_000);
+
+        SakaiProxy feedback = new SakaiProxy();
+        feedback.setServerConfigurationService(config);
+
+        assertEquals(9_999_999L, feedback.getAttachmentLimitBytes());
+        // 10,000,000 bytes is about 9.5 MB, so the form must not advertise 10 MB.
+        assertEquals(9, feedback.getAttachmentLimit());
     }
 
     private void assertAttachmentsRejected(int contentUploadMax, int feedbackAttachMax, int mailMax, int attachmentBytes)
