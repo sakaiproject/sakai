@@ -78,6 +78,8 @@ public class ItemBean
   private double itemScore= 0.0d;
   private String itemScoreDisplayFlag= "true";
   private Double itemMinScore;
+  private Integer itemMinScoreWordCount;
+  private String itemMinScoreKeywords;
   private double itemDiscount = 0.0d;
   private String partialCreditFlag = "Default";
   private String[] answers;
@@ -1973,6 +1975,22 @@ public class ItemBean
 
 	public void setItemMinScore(Double itemMinScore) {
 		this.itemMinScore = itemMinScore;
+	}
+
+	public Integer getItemMinScoreWordCount() {
+		return itemMinScoreWordCount;
+	}
+
+	public void setItemMinScoreWordCount(Integer itemMinScoreWordCount) {
+		this.itemMinScoreWordCount = itemMinScoreWordCount;
+	}
+
+	public String getItemMinScoreKeywords() {
+		return itemMinScoreKeywords;
+	}
+
+	public void setItemMinScoreKeywords(String itemMinScoreKeywords) {
+		this.itemMinScoreKeywords = itemMinScoreKeywords;
 	}
 
 	public String getItemScoreDisplayFlag() {

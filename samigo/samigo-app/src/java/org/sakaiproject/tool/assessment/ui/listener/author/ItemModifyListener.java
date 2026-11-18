@@ -1007,6 +1007,13 @@ public class ItemModifyListener implements ActionListener
        if (meta.getLabel().equals(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT)){
     	   bean.setMcmsPartialCredit(meta.getEntry());
        }
+       if (ItemMetaDataIfc.MIN_SCORE_WORD_COUNT.equals(meta.getLabel())) {
+           int wordCount = NumberUtils.toInt(meta.getEntry());
+           bean.setItemMinScoreWordCount(wordCount > 0 ? wordCount : null);
+       }
+       if (ItemMetaDataIfc.MIN_SCORE_KEYWORDS.equals(meta.getLabel())) {
+           bean.setItemMinScoreKeywords(meta.getEntry());
+       }
 
        // for Multiple Choice Survey get survey type 
        // use PREDEFINED_SCALE
