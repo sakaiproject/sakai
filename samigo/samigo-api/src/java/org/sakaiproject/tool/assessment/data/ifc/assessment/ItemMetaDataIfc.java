@@ -32,6 +32,9 @@ public interface ItemMetaDataIfc
   public static final String RUBRIC= "RUBRIC";
   public static final String RANDOMIZE= "RANDOMIZE";
   public static final String MCMS_PARTIAL_CREDIT = "MCMS_PARTIAL_CREDIT";
+  // Essay criteria an answer must meet to get the item's minimum score
+  public static final String MIN_SCORE_WORD_COUNT = "MIN_SCORE_WORD_COUNT";
+  public static final String MIN_SCORE_KEYWORDS = "MIN_SCORE_KEYWORDS";
   public static final String SCALENAME= "SCALENAME";
   public static final String PARTID= "PARTID";
   public static final String POOLID= "POOLID";

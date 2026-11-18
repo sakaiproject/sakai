@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -222,6 +223,18 @@ public class Item extends ASIBaseClass
       if (item.getMinScore() != null)
       {
         setOrCreateFieldentry("MIN_SCORE", item.getMinScore().toString());
+      }
+      // Imported back as item metadata of the same name
+      if (TypeIfc.ESSAY_QUESTION.equals(item.getTypeId()))
+      {
+        for (String label : new String[] {ItemMetaDataIfc.MIN_SCORE_WORD_COUNT, ItemMetaDataIfc.MIN_SCORE_KEYWORDS})
+        {
+          String entry = item.getItemMetaDataByLabel(label);
+          if (StringUtils.isNotEmpty(entry))
+          {
+            setOrCreateFieldentry(label, entry);
+          }
+        }
       }
     }
 
