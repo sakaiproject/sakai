@@ -131,6 +131,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         this.client = MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials(identity, credential)
+                .region(serverConfigurationService.getString("cloud.content.region", "us-east-1"))
                 .build();
     }
 
