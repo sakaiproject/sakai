@@ -324,6 +324,7 @@ public class ElasticSearchTest {
                 "}\n");
 
         filter.setSearchIndexBuilder(elasticSearchIndexBuilder);
+        filter.setSiteService(siteService);
 
         elasticSearchService = new ElasticSearchService();
         elasticSearchService.setTriggerFunctions(new ArrayList<String>());

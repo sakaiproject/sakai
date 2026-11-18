@@ -59,6 +59,7 @@
       class="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"
       init-method="init">
       <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
+      <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
       <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
     </bean>
 

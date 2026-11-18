@@ -107,33 +107,15 @@ export class SakaiSearch extends SakaiElement {
         this._results.forEach(r => { if (r.title.length === 0) r.title = r.tool; });
         this.updateComplete.then(() => {
 
-          if (!this.noResults) {
-            const resultItem = this.querySelector(".search-result-link");
-            resultItem.focus();
-          }
-          document.querySelectorAll(".search-result-link").forEach(el => {
-
+          const links = this.querySelectorAll(".search-result-link");
+          links[0]?.focus();
+          links.forEach((el, index) => {
             el.addEventListener("keydown", ke => {
               ke.stopPropagation();
-
-              switch (ke.code) {
-                case "ArrowDown":
-                  if (el.nextElementSibling.classList.contains("search-result-link")) {
-                    el.nextElementSibling.focus();
-                    ke.preventDefault();
-                  }
-
-                  break;
-
-                case "ArrowUp":
-                  if (el.previousElementSibling.classList.contains("search-result-link")) {
-                    el.previousElementSibling.focus();
-                    ke.preventDefault();
-                  }
-
-                  break;
-
-                default:
+              const offset = ke.code === "ArrowDown" ? 1 : ke.code === "ArrowUp" ? -1 : 0;
+              if (offset && links[index + offset]) {
+                links[index + offset].focus();
+                ke.preventDefault();
               }
             });
           });
@@ -179,7 +161,17 @@ export class SakaiSearch extends SakaiElement {
           </button>
         </div>
         <div>
-          ${this._results && this._results.map(r => html`
+          ${this._results && this._results.map(r => r.censored ? html`
+            <div class="search-result-unavailable card mb-2">
+              <div class="card-body">
+                <div class="mb-2">
+                  <span>${this._i18n.from_site}</span>
+                  <span class="search-result-site-title">${r.siteTitle}</span>
+                </div>
+                <div>${this._i18n.result_unavailable}</div>
+              </div>
+            </div>
+          ` : html`
             <a class="search-result-link" href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
               <div class="card mb-2">
                 <div class="card-body">
