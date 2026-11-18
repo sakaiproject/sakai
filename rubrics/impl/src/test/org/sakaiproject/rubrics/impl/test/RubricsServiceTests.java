@@ -1573,6 +1573,27 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void mergeSkipsRubricsWhoseCleanedTitleIsBlank() {
+        String toSite = "blank-title-import";
+        switchToInstructor(toSite);
+        Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics.xml"));
+        Element root = doc.getDocumentElement();
+        Element rubricsElement = (Element) root.getElementsByTagName(rubricsService.getLabel()).item(0);
+        NodeList rubricElements = rubricsElement.getElementsByTagName("rubric");
+        ((Element) rubricElements.item(0)).setAttribute("title", "😀");
+        ((Element) rubricElements.item(1)).setAttribute("title", "Sports 🚀");
+        when(formattedText.stripUnsupportedCharacters("😀")).thenReturn("");
+        when(formattedText.stripUnsupportedCharacters("Sports 🚀")).thenReturn("Sports");
+
+        rubricsService.merge(toSite, rubricsElement, "", root.getAttribute("source"), null, null, null);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        List<Rubric> imported = rubricRepository.findByOwnerId(toSite);
+        assertEquals(1, imported.size());
+        assertEquals("Sports", imported.get(0).getTitle());
+    }
+
+    @Test
     public void merge() {
 
         Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics.xml"));

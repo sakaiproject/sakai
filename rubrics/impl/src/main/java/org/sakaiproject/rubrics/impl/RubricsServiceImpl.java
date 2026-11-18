@@ -2033,6 +2033,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             }
 
             sanitizeRubric(rubric);
+            if (StringUtils.isBlank(rubric.getTitle())) {
+                log.warn("Skipping rubric with a blank title after cleaning from site {} archive to site {}", fromSiteId, toSiteId);
+                return;
+            }
             saveAndPostEvent(rubric, EVENT_RUBRIC_CREATED);
         });
 
