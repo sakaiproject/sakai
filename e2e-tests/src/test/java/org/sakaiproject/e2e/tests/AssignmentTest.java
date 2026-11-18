@@ -183,6 +183,17 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(draftButton).hasAttribute("aria-disabled", "true");
         assertThat(draftButton).hasAttribute("title", "Unlink this rubric from all items before saving it as a draft.");
 
+        Locator deleteControl = rubric.locator("sakai-item-delete.sakai-rubric");
+        deleteControl.locator("button[data-bs-toggle='modal']").click();
+        Locator deleteDialog = deleteControl.getByRole(AriaRole.DIALOG);
+        Response trashResponse = page.waitForResponse(response -> response.url().endsWith("/rubrics/" + rubricId)
+                && response.request().method().equals("DELETE"),
+            () -> deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+                .setName("Move to Trash").setExact(true)).click());
+        assertEquals(422, trashResponse.status());
+        assertThat(deleteDialog.getByRole(AriaRole.ALERT)).containsText(rubricAssignmentTitle);
+        deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+
         sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         assertThat(page.locator("#assignments-list")).isVisible();

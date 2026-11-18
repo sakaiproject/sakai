@@ -75,13 +75,18 @@ public interface RubricsService extends EntityProducer {
     RubricTransferBean saveRubric(RubricTransferBean rubricBean);
 
     /**
-     * Soft-delete a rubric into the site trash. Requires editor permission and no evaluations.
+     * Soft-delete a rubric into the site trash. Requires editor permission.
      * Soft-deleted rubrics cannot be used until restored.
+     * @throws RubricInUseException if a grading item still uses the rubric or has evaluations for it
      */
     boolean deleteRubric(Long rubricId, Long version);
 
     boolean restoreRubric(Long rubricId, Long version);
 
+    /**
+     * Permanently delete a rubric from the site trash.
+     * @throws RubricInUseException if a grading item still uses the rubric or has evaluations for it
+     */
     boolean permanentlyDeleteRubric(Long rubricId, Long version);
 
     Optional<CriterionTransferBean> createDefaultCriterion(String siteId, Long rubricId, Long version);

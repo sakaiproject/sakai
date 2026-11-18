@@ -165,7 +165,7 @@ class RubricsTest extends SakaiUiTestBase {
         Locator deleteControl = siteRubric.locator("sakai-item-delete.sakai-rubric");
         deleteControl.locator("button[data-bs-toggle='modal']").click();
         Locator confirmRemove = deleteControl.locator(".modal.show").getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName("Remove").setExact(true));
+            new Locator.GetByRoleOptions().setName("Move to Trash").setExact(true));
         page.waitForResponse(
             response -> response.url().matches(".*/rubrics/\\d+$")
                 && "DELETE".equals(response.request().method())

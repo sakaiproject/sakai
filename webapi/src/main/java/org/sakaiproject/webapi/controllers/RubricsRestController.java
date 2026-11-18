@@ -27,6 +27,7 @@ import jakarta.persistence.OptimisticLockException;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StaleStateException;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.RubricInUseException;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionOutcomeTransferBean;
@@ -384,9 +385,11 @@ public class RubricsRestController extends AbstractSakaiApiController {
     }
 
     @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/permanent")
-    public ResponseEntity permanentlyDeleteRubric(@PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
+    public ResponseEntity permanentlyDeleteRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
 
         checkSakaiSession();
+
+        requireRubricPath(siteId, rubricId, null);
 
         if (rubricsService.permanentlyDeleteRubric(rubricId, parseRevision(revision))) {
             return ResponseEntity.ok().build();
@@ -648,6 +651,12 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))
                 .body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
+    }
+
+    @ExceptionHandler(RubricInUseException.class)
+    public ResponseEntity<Map<String, List<String>>> rubricInUse(RubricInUseException exception) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+            .body(Map.of("blockingItems", exception.getBlockingItems()));
     }
 
     @ExceptionHandler({ RubricsConflictException.class, OptimisticLockException.class,

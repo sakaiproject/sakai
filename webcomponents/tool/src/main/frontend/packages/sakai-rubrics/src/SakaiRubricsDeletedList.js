@@ -86,6 +86,7 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this.tr("close_dialog")}"></button>
             </div>
             <div class="modal-body">
+              ${this.renderDeleteError()}
               <p>${this.tr("confirm_permanent_remove", [ this._rubricTitleToDelete || "" ])}</p>
             </div>
             <div class="modal-footer">
@@ -189,6 +190,8 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
   _showPermanentDeleteModal(e) {
 
     e.stopPropagation();
+    this._saveError = null;
+    this._deleteBlockedBy = null;
     this._rubricIdToDelete = e.currentTarget.dataset.rubricId;
     this._rubricVersionToDelete = e.currentTarget.dataset.rubricVersion;
     this._rubricTitleToDelete = e.currentTarget.dataset.rubricTitle;
@@ -200,6 +203,8 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
   _confirmPermanentDelete(e) {
 
     e.stopPropagation();
+    this._saveError = null;
+    this._deleteBlockedBy = null;
     const url = `/api/sites/${this.siteId}/rubrics/${this._rubricIdToDelete}/permanent`;
 
     fetch(url, {
@@ -207,12 +212,11 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
       credentials: "include",
       headers: { "If-Match": `"${this._rubricVersionToDelete}"` },
     })
-    .then(r => {
+    .then(async r => {
 
       if (!r.ok) {
-        const error = new Error(`Failed to permanently delete rubric ${this._rubricIdToDelete}`);
-        error.status = r.status;
-        throw error;
+        await this.readDeleteError(r);
+        return;
       }
 
       this._removeRubricFromList(this._rubricIdToDelete);

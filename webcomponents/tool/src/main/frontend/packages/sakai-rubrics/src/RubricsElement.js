@@ -4,7 +4,10 @@ import { getUserLocale } from "@sakai-ui/sakai-portal-utils";
 
 export class RubricsElement extends SakaiElement {
 
-  static properties = { _saveError: { state: true } };
+  static properties = {
+    _saveError: { state: true },
+    _deleteBlockedBy: { state: true },
+  };
 
   constructor() {
 
@@ -63,6 +66,29 @@ export class RubricsElement extends SakaiElement {
   reportSaveError(error) {
     this._saveError = error.status === 409 ? "save_conflict" : "operation_failed";
     console.error(error);
+  }
+
+  async readDeleteError(response) {
+    if (response.status === 422) {
+      const { blockingItems } = await response.json();
+      this._deleteBlockedBy = blockingItems;
+      return;
+    }
+
+    const error = new Error(`Rubric deletion failed (${response.status})`);
+    error.status = response.status;
+    throw error;
+  }
+
+  renderDeleteError() {
+    return this._deleteBlockedBy ? html`
+      <div class="sak-banner-error" role="alert">
+        ${this.tr("delete_rubric_in_use")}
+        ${this._deleteBlockedBy.length ? html`
+          <ul class="mb-0 mt-2">${this._deleteBlockedBy.map(item => html`<li>${item}</li>`)}</ul>
+        ` : nothing}
+      </div>
+    ` : this.renderSaveError();
   }
 
   renderSaveError() {
