@@ -42,6 +42,7 @@ import org.sakaiproject.email.api.EmailAddress;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.feedback.exception.AttachmentsTooBigException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -176,7 +177,19 @@ public class SakaiProxy {
 			, String userTitle, String userContent
 			, List<FileItem> fileItems, boolean siteExists,
 			   String browserNameAndVersion, String osNameAndVersion, String browserSize, String screenSize, String plugins, String ip,
-			   String currentTime) {
+			   String currentTime) throws AttachmentsTooBigException {
+
+        long totalBytes = 0L;
+        for (FileItem fileItem : fileItems) {
+            totalBytes += fileItem.getSize();
+        }
+
+        long uploadLimitBytes = getAttachmentLimit() * 1024L * 1024L;
+        int mailLimitBytes = getConfigInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE);
+        // BasicEmailService treats the mail limit as exclusive.
+        if (totalBytes > 0 && (totalBytes > uploadLimitBytes || totalBytes >= mailLimitBytes)) {
+            throw new AttachmentsTooBigException();
+        }
 
 		final List<Attachment> attachments = new ArrayList<Attachment>();
 

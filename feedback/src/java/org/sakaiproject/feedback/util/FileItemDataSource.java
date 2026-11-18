@@ -19,39 +19,24 @@ import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.FilenameUtils;
 
 import jakarta.activation.DataSource;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 
 /**
- * Allows FileItems to be used as DataSources for attachments.
- * <p>
- * The content is copied when this is constructed. EmailService sends asynchronously, so the
- * message is usually written after the request has finished and RequestFilter has deleted the
- * upload's temp file. Streaming from the FileItem at that point fails with NoSuchFileException.
+ * Proxy to allow FileItems to be used as DataSources for attachments.
  */
 public class FileItemDataSource implements DataSource {
 
-    private final byte[] content;
-    private final String contentType;
-    private final String name;
+    private FileItem<?> fileItem;
 
     public FileItemDataSource(FileItem<?> fileItem) {
-        try (InputStream in = fileItem.getInputStream()) {
-            this.content = in.readAllBytes();
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to read uploaded file " + fileItem.getName(), e);
-        }
-        this.contentType = fileItem.getContentType();
-        String fileName = fileItem.getName();
-        this.name = fileName != null ? FilenameUtils.getName(fileName) : null;
+        this.fileItem = fileItem;
     }
 
     @Override
-    public InputStream getInputStream() {
-        return new ByteArrayInputStream(content);
+    public InputStream getInputStream() throws IOException {
+        return fileItem.getInputStream();
     }
 
     @Override
@@ -61,11 +46,15 @@ public class FileItemDataSource implements DataSource {
 
     @Override
     public String getContentType() {
-        return contentType;
+        return fileItem.getContentType();
     }
 
     @Override
     public String getName() {
-        return name;
+        String fileName = fileItem.getName();
+        if (fileName != null) {
+            fileName = FilenameUtils.getName(fileName);
+        }
+        return fileName;
     }
 }
