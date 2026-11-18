@@ -145,6 +145,10 @@ export class SakaiSearch extends SakaiElement {
           ${this._i18n.search}
         </button>
       </form>
+      <div role="status" aria-atomic="true" class="visually-hidden">
+        ${this._results?.length > 0 && this._results.every(r => r.censored)
+          ? this._i18n.results_unavailable : nothing}
+      </div>
       ${this.noResults ? html`
         <div class="list-group-item d-flex justify-content-between align-items-start mt-2 fw-bold">
           ${this._i18n.no_results}
