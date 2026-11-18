@@ -52,12 +52,21 @@ class LessonsChangeLinkedItemTest extends SakaiUiTestBase {
 
         Locator dialog = awaitVisible(page.locator("#edit-item-dialog"));
         dialog.locator("#description").fill(description);
+        dialog.locator("[data-bs-target='#prereqstuffbody']").click();
+        awaitVisible(dialog.locator("#item-required")).check();
+        awaitVisible(dialog.locator("#item-required2")).check();
+        dialog.locator("#assignment-points").fill("1");
         dialog.locator("#change-assignment").click();
         pickAssignment(replacement);
 
         awaitVisible(dialog);
         assertThat(dialog.locator("#name")).hasValue(replacement);
         assertThat(dialog.locator("#description")).hasValue(description);
+        assertThat(dialog.locator("#item-required")).isChecked();
+        assertThat(dialog.locator("#item-required2")).isChecked();
+        assertThat(dialog.locator("#item-required2")).isEnabled();
+        assertThat(dialog.locator("#assignment-points")).isEnabled();
+        assertThat(dialog.locator("#assignment-points")).hasValue("1");
 
         dialog.locator("#edit-item").click();
         assertThat(page.locator(".rowdescription").filter(new Locator.FilterOptions().setHasText(description)))

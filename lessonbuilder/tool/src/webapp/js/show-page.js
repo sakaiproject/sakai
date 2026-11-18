@@ -2056,6 +2056,9 @@ $(document).ready(function () {
           isToggle(el[0]) ? el.prop("checked", value) : el.val(value);
           el.trigger("change");
         });
+        // Their own handlers are click-only or registered later in this file
+        setUpRequirements();
+        fixitemshows();
         bootstrap.Modal.getOrCreateInstance(document.getElementById("edit-item-dialog")).show();
       }
     }
