@@ -2020,6 +2020,46 @@ $(document).ready(function () {
       return false;
     });
 
+    // The Change pickers are separate pages; carry unsaved Edit Item changes across the round trip
+    const EDIT_RETURN_KEY = "lessons-edit-item-return";
+    const isToggle = el => el.type === "checkbox" || el.type === "radio";
+    const readEditFields = () => Object.fromEntries($("#edit-item-dialog")
+      .find("input[id], textarea[id], select[id]").not("[type=hidden], [type=button], [type=submit]").get()
+      .map(el => [el.id, isToggle(el) ? el.checked : $(el).val()]));
+    let editInitialValues = {};
+
+    // Must stay after the .edit-link handler above so it captures the populated values
+    $(".edit-link").click(() => { editInitialValues = readEditFields(); });
+
+    $("#change-assignment, #change-quiz, #change-forum, #change-blti, #change-scorm").click(() => {
+      const changed = Object.fromEntries(Object.entries(readEditFields())
+        .filter(([id, value]) => JSON.stringify(value) !== JSON.stringify(editInitialValues[id])));
+      try {
+        sessionStorage.setItem(EDIT_RETURN_KEY, JSON.stringify({ itemId: $("#item-id").val(), time: Date.now(), changed }));
+      } catch {}
+    });
+
+    let editReturn = null;
+    try {
+      editReturn = JSON.parse(sessionStorage.getItem(EDIT_RETURN_KEY));
+      sessionStorage.removeItem(EDIT_RETURN_KEY);
+    } catch {}
+    if (editReturn && Date.now() - editReturn.time < 30 * 60 * 1000) {
+      const editLink = $(".edit-link").filter(function () {
+        return $(this).parent().parent().parent().find(".current-item-id2").text() === editReturn.itemId;
+      }).first();
+      if (editLink.length) {
+        editLink.click();
+        Object.entries(editReturn.changed || {}).forEach(([id, value]) => {
+          const el = $("#edit-item-dialog").find(`#${CSS.escape(id)}`);
+          if (!el.length) return;
+          isToggle(el[0]) ? el.prop("checked", value) : el.val(value);
+          el.trigger("change");
+        });
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("edit-item-dialog")).show();
+      }
+    }
+
     document.getElementById("add-twitter-dialog")?.addEventListener("shown.bs.modal", () => {
 
       $('#twitter-error-container').hide();
