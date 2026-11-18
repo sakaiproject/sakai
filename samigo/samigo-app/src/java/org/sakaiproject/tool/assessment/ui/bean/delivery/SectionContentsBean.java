@@ -560,7 +560,9 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
    * @return 
    */
   public int getEnabled() {
-    if(!isTimedSection()) {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    // Preview has no grading attempt and cannot start a part timer.
+    if (delivery.getActionMode() == DeliveryBean.PREVIEW_ASSESSMENT || !isTimedSection()) {
         return 1;
     }
     
