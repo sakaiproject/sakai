@@ -19,7 +19,6 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.assertions.LocatorAssertions;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -58,9 +57,11 @@ class SectionsRosterSearchTest extends SakaiUiTestBase {
         assertThat(students).hasCount(1);
         assertThat(search).hasValue("student0011");
 
+        // The returned form must install its input handler before we clear the field.
+        assertThat(search).hasAttribute("type", "search");
         // deleting the text, as the native clear button does, drops the search and keeps the section
-        search.fill("");
-        assertThat(students).hasCount(listed, new LocatorAssertions.HasCountOptions().setTimeout(15_000));
+        sakai.submitForm(() -> search.fill(""));
+        assertThat(students).hasCount(listed);
         assertThat(search).hasValue("");
         assertThat(filter).hasValue(section);
     }
