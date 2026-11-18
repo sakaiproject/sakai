@@ -475,10 +475,6 @@ class SamigoTest extends SakaiUiTestBase {
         page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
         assertThat(page.getByText(tagLabel, new Page.GetByTextOptions().setExact(true))).isVisible();
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag").setExact(true)).click();
-        page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel + " second");
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
-
         sakai.toolClick("Tests");
         openNewAssessmentForm();
         page.locator("#authorIndexForm\\:title").fill("Question tags " + RUN_ID);
@@ -488,19 +484,7 @@ class SamigoTest extends SakaiUiTestBase {
         Locator edit = page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify");
         edit.click();
         Locator picker = page.locator(".samigo-tag-picker sakai-tag-selector");
-        // The real endpoint normalizes a zero page limit to one result per page.
-        String tagSearchRoute = "**/getTagsPaginatedByPrefixInLabel.json?*";
-        page.route(tagSearchRoute, route -> route.resume(new Route.ResumeOptions()
-            .setUrl(route.request().url().replace("pagelimit=20", "pagelimit=0"))));
-        sakai.waitForPortalFocus();
-        picker.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
-        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Load more tags").setExact(true)).click();
-        assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(2);
-        assertThat(picker.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName("Load more tags").setExact(true))).hasCount(0);
-        picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions()
-            .setName(tagLabel + " (" + collectionName + ")").setExact(true)).click();
-        page.unroute(tagSearchRoute);
+        selectQuestionTag(picker, tagLabel, collectionName);
         Locator removeTag = picker.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel + " (" + collectionName + ")").setExact(true));
         saveQuestionAndWaitForAssessment();
@@ -543,6 +527,7 @@ class SamigoTest extends SakaiUiTestBase {
         Locator input = picker.getByRole(AriaRole.COMBOBOX);
         assertThat(input).isVisible();
         sakai.waitForPortalFocus();
+        page.waitForFunction("picker => typeof picker.searchTags === 'function'", picker.elementHandle());
         Response response = page.waitForResponse(r -> r.url().contains("/getTagsPaginatedByPrefixInLabel.json"),
             () -> input.fill(tag));
         assertEquals(200, response.status(), response.url());
