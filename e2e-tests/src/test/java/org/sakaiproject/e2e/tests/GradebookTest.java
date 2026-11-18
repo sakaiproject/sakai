@@ -26,6 +26,8 @@ import com.deque.html.axecore.results.Rule;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
+import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
 import java.util.ArrayList;
 import java.util.List;
@@ -212,16 +214,7 @@ class GradebookTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(rubricTitle))).hasText(rubricTitle);
 
         sakai.toolClick("Gradebook");
-        page.locator("button.gb-add-gradebook-item-button").click();
-        Locator dialog = page.locator(".gb-modal-dialog:visible");
-        dialog.locator("input[name$=\"title\"]").fill(itemTitle);
-        dialog.locator("input[name$=\"points\"]").fill("100");
-        dialog.locator("input[name=rbcs-associate][value=\"1\"]").check();
-        Locator rubricSelector = dialog.locator("select[name=rbcs-rubricslist]");
-        rubricSelector.selectOption(rubricSelector.locator("option")
-            .filter(new Locator.FilterOptions().setHasText(rubricTitle)).getAttribute("value"));
-        dialog.locator("button.gb-create-or-save").click();
-        assertThat(dialog).isHidden();
+        addGradebookItem(itemTitle, rubricTitle);
 
         // Reproduce Enter on a summary link while the newly created score cell is selected.
         Locator newColumn = page.locator(".tabulator-col[data-assignment-id]")
@@ -355,6 +348,92 @@ class GradebookTest extends SakaiUiTestBase {
         page.keyboard().press("Space");
         assertThat(scoreCell.locator(".dropdown-toggle")).hasAttribute("aria-expanded", "true");
         assertTrue(errors.isEmpty(), "Score-cell menus must still work: " + errors);
+    }
+
+    @Test
+    void replacingGradebookItemsReleasesTheirRubrics() {
+        sakai.login("instructor1");
+        String source = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng"));
+        String destination = sakai.createSiteThroughUi("instructor1",
+            List.of("sakai\\.gradebookng", "sakai\\.rubrics"), "course");
+        String rubricTitle = "Replace import rubric " + System.currentTimeMillis();
+        String removedItem = "Old Gradebook item " + System.currentTimeMillis();
+        String importedItem = "Imported Gradebook item " + System.currentTimeMillis();
+
+        page.navigate(source);
+        sakai.toolClick("Gradebook");
+        addGradebookItem(importedItem, null);
+
+        sakai.createRubric("instructor1", destination);
+        page.locator("input[title=\"Rubric Title\"]:visible").fill(rubricTitle);
+        page.locator("sakai-rubric-edit .modal.show .modal-footer .btn-primary").click();
+        assertThat(page.locator("sakai-rubric .rubric-name")
+            .filter(new Locator.FilterOptions().setHasText(rubricTitle))).hasText(rubricTitle);
+        sakai.toolClick("Gradebook");
+        addGradebookItem(removedItem, rubricTitle);
+
+        sakai.toolClick("Rubrics");
+        Locator rubric = page.locator("#site_rubrics sakai-rubric").filter(new Locator.FilterOptions().setHasText(rubricTitle));
+        Locator draftButton = rubric.locator("button.draft");
+        assertThat(draftButton).hasAttribute("aria-disabled", "true");
+        Locator remove = rubric.locator("sakai-item-delete.sakai-rubric");
+        remove.locator("button[data-bs-toggle='modal']").click();
+        Locator trashDialog = remove.getByRole(AriaRole.DIALOG);
+        Locator confirmTrash = trashDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName("Move to Trash").setExact(true));
+        Response blocked = page.waitForResponse(response -> response.request().method().equals("DELETE"), confirmTrash::click);
+        assertEquals(422, blocked.status());
+        trashDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+
+        sakai.toolClick("Site Info");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Import from Site").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+            .setName(Pattern.compile("replace my data", Pattern.CASE_INSENSITIVE))).click();
+        String sourceSiteId = sakai.siteIdFromUrl(source);
+        page.locator("input[name=importSites][value='" + sourceSiteId + "']").check();
+        clickImportContinueOrFinish();
+        page.locator("#toolSite-sakai\\.gradebookng-" + sourceSiteId).check();
+        page.onceDialog(dialog -> dialog.accept());
+        clickImportContinueOrFinish();
+
+        page.navigate(destination);
+        sakai.toolClick("Gradebook");
+        page.waitForCondition(() -> {
+            if (page.getByText(importedItem, new Page.GetByTextOptions().setExact(true)).count() > 0) {
+                return true;
+            }
+            page.reload();
+            return false;
+        });
+        assertThat(page.getByText(removedItem, new Page.GetByTextOptions().setExact(true))).hasCount(0);
+        sakai.toolClick("Rubrics");
+        assertThat(draftButton).hasAttribute("aria-disabled", "false");
+        remove.locator("button[data-bs-toggle='modal']").click();
+        page.waitForResponse(response -> response.request().method().equals("DELETE") && response.ok(), confirmTrash::click);
+        page.locator("#deleted-rubrics-toggle").click();
+        assertThat(page.locator("#deleted_rubrics").getByText(rubricTitle, new Locator.GetByTextOptions().setExact(true))).isVisible();
+    }
+
+    private void addGradebookItem(String itemTitle, String rubricTitle) {
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$='title']").fill(itemTitle);
+        dialog.locator("input[name$='points']").fill("100");
+        if (rubricTitle != null) {
+            dialog.locator("input[name=rbcs-associate][value='1']").check();
+            Locator rubricSelector = dialog.locator("select[name=rbcs-rubricslist]");
+            rubricSelector.selectOption(rubricSelector.locator("option").filter(new Locator.FilterOptions().setHasText(rubricTitle))
+                .getAttribute("value"));
+        }
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+        assertThat(page.getByText(itemTitle, new Page.GetByTextOptions().setExact(true))).isVisible();
+    }
+
+    private void clickImportContinueOrFinish() {
+        page.locator("input[type=submit][value*=Continue], input[type=submit][value*=Finish], "
+            + "button:has-text('Continue'), button:has-text('Finish'), #siteimport-finish-button").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
     private void assertNoAxeContrastViolations(String theme) {

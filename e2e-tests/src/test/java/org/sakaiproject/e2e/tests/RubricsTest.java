@@ -124,8 +124,18 @@ class RubricsTest extends SakaiUiTestBase {
 
         Locator siteRubric = siteRubricByTitle(trashTitle);
         assertThat(siteRubric).hasCount(1);
+        page.waitForResponse(response -> response.url().contains("/rubrics/")
+                && response.request().method().equals("PATCH") && response.ok(),
+            () -> siteRubric.locator("button.share").click());
+        page.locator("#rubrics-search-bar").fill(trashTitle);
+        page.locator("#shared-rubrics-toggle").click();
+        Locator publicRubric = page.locator("#shared_rubrics sakai-rubric-readonly")
+            .filter(new Locator.FilterOptions().setHasText(trashTitle));
+        assertThat(publicRubric).isVisible();
+
         softDeleteSiteRubric(siteRubric);
         assertThat(siteRubric).hasCount(0);
+        assertThat(publicRubric).hasCount(0);
 
         openDeletedRubrics();
         Locator deletedRubric = deletedRubricByTitle(trashTitle);
@@ -137,6 +147,7 @@ class RubricsTest extends SakaiUiTestBase {
                 .setName(Pattern.compile("^Restore\\b"))).click());
         assertThat(siteRubricByTitle(trashTitle)).hasCount(1);
         assertThat(deletedRubricByTitle(trashTitle)).hasCount(0);
+        assertThat(publicRubric).isVisible();
 
         softDeleteSiteRubric(siteRubricByTitle(trashTitle));
         openDeletedRubrics();

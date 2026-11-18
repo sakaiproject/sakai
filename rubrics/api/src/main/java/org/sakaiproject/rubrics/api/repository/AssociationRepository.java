@@ -31,6 +31,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface AssociationRepository extends SpringCrudRepository<ToolItemRubricAssociation, Long> {
 
     Optional<ToolItemRubricAssociation> findByToolIdAndItemId(String toolId, String itemId);
+    List<ToolItemRubricAssociation> findAllByToolIdAndItemId(String toolId, String itemId);
     Optional<ToolItemRubricAssociation> findByItemIdAndRubricId(String itemId, Long rubricId);
     List<ToolItemRubricAssociation> findByRubricId(Long rubricId);
     List<ToolItemRubricAssociation> findByItemIdPrefix(String toolId, String itemId);

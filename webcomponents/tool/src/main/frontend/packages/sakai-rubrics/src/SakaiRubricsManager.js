@@ -195,7 +195,7 @@ export class SakaiRubricsManager extends RubricsElement {
             <div class="actions">${this.tr("actions")}</div>
           </div>
           <sakai-rubrics-deleted-list site-id="${this.siteId}"
-              @rubric-restored=${this.refreshSiteAndDeletedLists}>
+              @rubric-restored=${this.handleRubricRestored}>
           </sakai-rubrics-deleted-list>
         </div>
 
@@ -280,6 +280,12 @@ export class SakaiRubricsManager extends RubricsElement {
   handleDeletedList() {
 
     this.querySelector("sakai-rubrics-deleted-list")?.refresh();
+  }
+
+  handleRubricRestored() {
+
+    this.refreshSiteAndDeletedLists();
+    this.handleSharingChange();
   }
 
   refreshSiteAndDeletedLists() {

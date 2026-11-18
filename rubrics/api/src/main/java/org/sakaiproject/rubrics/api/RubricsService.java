@@ -180,6 +180,7 @@ public interface RubricsService extends EntityProducer {
     void softDeleteRubricAssociation(String toolId, String itemId);
     void restoreRubricAssociation(String toolId, String itemId);
 
+    void deleteRubricAssociationsForItem(String toolId, String itemId);
     void deleteRubricAssociationsByItemIdPrefix(String itemId, String toolId);
     void softDeleteRubricAssociationsByItemIdPrefix(String itemId, String toolId);
     void restoreRubricAssociationsByItemIdPrefix(String itemId, String toolId);
