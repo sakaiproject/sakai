@@ -753,4 +753,84 @@ class AssignmentTest extends SakaiUiTestBase {
             return false;
         }
     }
+    @Test
+    void conflictingGradebookItemKeepsAssignmentDraftUntilCorrected() {
+        sakai.login("instructor1");
+        String course = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.gradebookng"));
+        String title = "Gradebook association " + sakai.randomId();
+        sakai.gotoPath(course);
+        sakai.toolClick("Gradebook");
+        page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Settings")).first().click();
+        page.locator(".accordion button").filter(new Locator.FilterOptions().setHasText("Categories")).first().click();
+        page.getByLabel("Categories only", new Page.GetByLabelOptions().setExact(true)).check();
+        page.locator(".gb-category-row input[name$=name]").first().fill("Selected category");
+        page.locator(".act button.active").first().click();
+        assertThat(page.getByText("The settings were successfully updated", new Page.GetByTextOptions().setExact(true))).isVisible();
+        sakai.gotoPath(course);
+        sakai.toolClick("Gradebook");
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=title]").fill(title);
+        dialog.locator("input[name$=points]").fill("100");
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+
+        sakai.toolClick("Assignments");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
+        page.locator("#new_assignment_title").fill(title);
+        page.locator("#gradeAssignment").check();
+        page.locator("#new_assignment_grade_points").fill("100");
+        sakai.typeCkEditor("new_assignment_instructions", "<p>Gradebook association regression.</p>");
+        page.locator("#new_assignment_send_to_gradebook").check();
+        page.locator("#create-gradebook-item").check();
+        page.locator("#category").selectOption(new SelectOption().setLabel("Selected category"));
+        String categoryId = page.locator("#category").inputValue();
+        page.locator("input[name=post]").click();
+        assertThat(page.locator("body")).containsText("an existing item of the same name");
+        assertThat(page.locator("#new_assignment_title")).hasValue(title);
+        com.microsoft.playwright.APIResponse response = page.request().get(
+                "/direct/assignment/site/" + sakai.siteIdFromUrl(course) + ".json");
+        assertTrue(response.ok());
+        com.google.gson.JsonArray assignments = com.google.gson.JsonParser.parseString(response.text())
+                .getAsJsonObject().getAsJsonArray("assignment_collection");
+        assertEquals(1, assignments.size());
+        assertTrue(assignments.get(0).getAsJsonObject().get("draft").getAsBoolean());
+        assertTrue(assignments.get(0).getAsJsonObject().get("gradebookItemId").isJsonNull());
+        String draftId = assignments.get(0).getAsJsonObject().get("id").getAsString();
+        assertThat(page.locator("input[name=assignmentId]")).hasValue(draftId);
+        sakai.gotoPath(course);
+        sakai.toolClick("Assignments");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Edit " + title).setExact(true)).click();
+        assertThat(page.locator("#new_assignment_send_to_gradebook")).isChecked();
+        assertThat(page.locator("#create-gradebook-item")).isChecked();
+        assertThat(page.locator("#category")).hasValue(categoryId);
+
+        String corrected = title + " corrected";
+        page.locator("#new_assignment_title").fill(corrected);
+        page.locator("input[name=post]").click();
+        assertThat(page.locator("#assignments-list")).containsText(corrected);
+        assignments = com.google.gson.JsonParser.parseString(page.request().get(
+                "/direct/assignment/site/" + sakai.siteIdFromUrl(course) + ".json").text())
+                .getAsJsonObject().getAsJsonArray("assignment_collection");
+        assertEquals(1, assignments.size(), "Retry must not leave an orphaned draft");
+        assertEquals(draftId, assignments.get(0).getAsJsonObject().get("id").getAsString());
+        String reference = "/assignment/a/" + sakai.siteIdFromUrl(course) + "/" + draftId;
+        page.locator("input[name=selectedAssignments][value='" + reference + "']").check();
+        page.locator("#btnRemove").click();
+        page.locator("input[name=eventSubmit_doDelete_assignment]").click();
+        sakai.toolClick("Gradebook");
+        assertThat(page.locator(".tabulator-col[data-assignment-id]")
+                .filter(new Locator.FilterOptions().setHasText(corrected))).hasCount(0);
+        sakai.toolClick("Assignments");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Trash").setExact(true)).click();
+        page.locator("tr").filter(new Locator.FilterOptions().setHasText(corrected))
+                .locator("input[name=selectedAssignments]").check();
+        page.onceDialog(com.microsoft.playwright.Dialog::accept);
+        page.locator("#btnRestore").click();
+        assertThat(page.locator("#assignments-list")).containsText(corrected);
+        sakai.toolClick("Gradebook");
+        assertThat(page.locator(".tabulator-col[data-assignment-id]")
+                .filter(new Locator.FilterOptions().setHasText(corrected))).isVisible();
+    }
+
 }

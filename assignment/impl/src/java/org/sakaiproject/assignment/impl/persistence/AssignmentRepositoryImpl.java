@@ -17,6 +17,7 @@ package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -396,11 +397,16 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                     cb.equal(root.get("context"), context),
                     cb.equal(properties.key(),
                         AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT),
-                    cb.equal(properties.value(), linkId)
+                    cb.isFalse(root.get("deleted"))
                 )
             );
 
-        return geCurrentSession().createQuery(cq).getResultList();
+        return geCurrentSession().createQuery(cq).getResultList().stream()
+                .filter(assignment -> {
+                    String links = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                    return linkId.equals(links) || Arrays.asList(StringUtils.defaultString(links).split(",")).contains(linkId);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

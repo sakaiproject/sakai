@@ -49,6 +49,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.CategoryDefinition;
@@ -852,16 +853,13 @@ public class AssignmentToolUtils {
     public void removeNonAssociatedExternalGradebookEntry(String context, String assignmentReference, String associateGradebookAssignment, String gradebookUid) {
         boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
         if (isExternalAssignmentDefined) {
-            boolean found = false;
-            // iterate through all assignments currently in the site, see if any is associated with this GB entry
-            for (Assignment assignment : assignmentService.getAssignmentsForContext(context)) {
-                String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-
-                if (StringUtils.equals(assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), associateGradebookAssignment)
-                        && !StringUtils.equals(reference, assignmentReference)) {
-                    found = true;
-                    break;
-                }
+            boolean found;
+            try {
+                found = assignmentService.getAssignmentsForGradebookLink(context, associateGradebookAssignment).stream()
+                        .anyMatch(assignment -> !AssignmentReferenceReckoner.reckoner().assignment(assignment)
+                                .reckon().getReference().equals(assignmentReference));
+            } catch (IdUnusedException | PermissionException e) {
+                throw new IllegalStateException("Cannot check shared Gradebook item " + associateGradebookAssignment, e);
             }
             // so if none of the assignment in this site is associated with the entry, remove the entry
             if (!found) {

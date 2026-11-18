@@ -178,7 +178,9 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.CategoryPointsMismatchException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
@@ -9171,11 +9173,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce,
                     resolvedAddtoGradebook, gradebookItemKeys, allowResubmitNumber,
-                    aProperties, post, resubmitCloseTime, checkAnonymousGrading);
+                    aProperties, post && !newAssignment, resubmitCloseTime, checkAnonymousGrading);
 
                 // Store category information in assignment properties for drafts
                 // so it can be restored when editing the assignment later
-                if (!post) {
+                if (!post || newAssignment) {
                     // On draft saves, only persist category when adding to gradebook; otherwise remove to prevent stale state
                     if (GRADEBOOK_INTEGRATION_ADD.equals(addtoGradebook)) {
                         if (isGradebookGroupEnabled) {
@@ -9229,14 +9231,17 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // persist the Assignment changes
-                commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,
+                if (!commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,
                         gradeType, gradePoints, description, checkAddHonorPledge, attachments, section, rangeAndGroupSettings.range,
                         visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, emailReminder, rangeAndGroupSettings.isGroupSubmit, rangeAndGroupSettings.groups,
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted,
                         excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow,
                         BooleanUtils.toBoolean(allowUnrestrictedExternalToolLaunch), BooleanUtils.toBoolean(ltiAutoReleaseGrades),
-                        checkIsEstimate, checkEstimateRequired, timeEstimate);
+                        checkIsEstimate, checkEstimateRequired, timeEstimate, resolvedAddtoGradebook,
+                        gradebookCategoriesMap, gradebookItemMap, newAssignment)) {
+                    return;
+                }
 
                 //RUBRICS, Save the binding between the assignment and the rubric
                 Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
@@ -9660,6 +9665,27 @@ public class AssignmentAction extends PagedResourceActionII {
                 || GRADEBOOK_INTEGRATION_ASSOCIATE.equals(addtoGradebook) && !gradebookItemMap.isEmpty();
     }
 
+    private boolean updateAssignmentWithGradebook(SessionState state, Assignment assignment, String integration,
+            Map<String, Long> categories, Map<String, String> items) throws PermissionException {
+        try {
+            assignmentService.updateAssignmentWithGradebook(assignment, integration, categories, items);
+            return true;
+        } catch (org.sakaiproject.grading.api.ConflictingAssignmentNameException e) {
+            addAlert(state, rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + assignment.getTitle() + "\""));
+        } catch (org.sakaiproject.grading.api.InvalidGradeItemNameException e) {
+            addAlert(state, rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + assignment.getTitle() + "\""));
+        } catch (org.sakaiproject.grading.api.AssignmentHasIllegalPointsException e) {
+            addAlert(state, rb.getString("addtogradebook.illegalPoints"));
+        } catch (CategoryPointsMismatchException e) {
+            addAlert(state, rb.getFormattedMessage("pleasee6", e.getRequiredPoints()));
+        } catch (InvalidCategoryException e) {
+            addAlert(state, rb.getString("addtogradebook.invalidCategory"));
+        } catch (AssessmentNotFoundException e) {
+            addAlert(state, rb.getString("grading.associate.alert"));
+        }
+        return false;
+    }
+
     private void initIntegrateWithGradebook(SessionState state, String gradebookUid, String aOldTitle, String oAssociateGradebookAssignment, Assignment assignment, String title, Instant dueTime, Assignment.GradeType gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, long category) {
 
         String context = (String) state.getAttribute(STATE_CONTEXT_STRING);
@@ -9668,7 +9694,12 @@ public class AssignmentAction extends PagedResourceActionII {
         if (!addtoGradebook.equals(GRADEBOOK_INTEGRATION_NO)) {
             // if integrate with Gradebook
             if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ADD)) {
-                addUpdateRemoveAssignment = GRADEBOOK_INTEGRATION_ADD;
+                if (gradingService.isExternalAssignmentDefined(gradebookUid, assignmentReference)) {
+                    addUpdateRemoveAssignment = "update";
+                    associateGradebookAssignment = assignmentReference;
+                } else {
+                    addUpdateRemoveAssignment = GRADEBOOK_INTEGRATION_ADD;
+                }
             } else if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ASSOCIATE)) {
                 addUpdateRemoveAssignment = "update";
             }
@@ -9745,7 +9776,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         properties.put(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, Boolean.toString(checkAnonymousGrading));
 
-        updateGradebookIntegrationProperties(assignment, addtoGradebook, associateGradebookAssignment, properties, post);
+        if (!post) {
+            updateGradebookIntegrationProperties(assignment, addtoGradebook, associateGradebookAssignment, properties, false);
+        }
 
         // allow resubmit number and default assignment resubmit closeTime (dueTime)
         if (allowResubmitNumber != null && closeTime != null) {
@@ -9783,7 +9816,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void commitAssignment(SessionState state,
+    private boolean commitAssignment(SessionState state,
                                   boolean post,
                                   // Assignment options
                                   Assignment a,
@@ -9835,7 +9868,8 @@ public class AssignmentAction extends PagedResourceActionII {
                                   boolean ltiAutoReleaseGrades,
                                   boolean checkIsEstimate,
                                   boolean checkEstimateRequired,
-                                  String timeEstimate) {
+                                  String timeEstimate, String gradebookIntegration,
+                                  Map<String, Long> gradebookCategoriesMap, Map<String, String> gradebookItemMap, boolean newAssignment) {
         a.setTitle(processFormattedTextFromBrowser(state, title, true));
         a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
         a.setSection(section);
@@ -9928,6 +9962,7 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setPeerAssessmentNumberReviews(peerAssessmentNumReviews);
         a.setPeerAssessmentInstructions(peerAssessmentInstructions);
 
+        List<AssignmentSubmission> submissionsToRemove = Collections.emptyList();
         try {
             if (Assignment.Access.SITE.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.SITE);
@@ -9957,7 +9992,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         }).filter(Objects::nonNull).flatMap(ag -> ag.getMembers().stream()).map(Member::getUserId).collect(Collectors.toSet());
                     }
 
-                    List<AssignmentSubmission> submissionsToRemove = submitterIds.stream().map(id -> {
+                    submissionsToRemove = submitterIds.stream().map(id -> {
                         try {
                             return assignmentService.getSubmission(a.getId(), id);
                         } catch (PermissionException pe) {
@@ -9965,21 +10000,37 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }).filter(Objects::nonNull).collect(Collectors.toList());
 
-                    submissionsToRemove.stream()
-                            .filter(s -> a.getIsGroup() ? !assignmentService.hasSubmissionWork(s) : !s.getUserSubmission())
-                            .forEach(s -> {
-                                try {
-                                    assignmentService.removeSubmission(s);
-                                } catch (PermissionException pe) {
-                                    log.warn("Group update detected on assignment {}, could not remove submission {}", a.getId(), s);
-                                }
-                            });
                     a.setGroups(currentGroupRefs);
                 }
             }
 
-            // commit the changes
-            assignmentService.updateAssignment(a);
+            // A failed first publish must leave a complete draft, not the initial empty row.
+            if (post && newAssignment) {
+                a.setDraft(true);
+                assignmentService.updateAssignment(a);
+                state.setAttribute(EDIT_ASSIGNMENT_ID, a.getId());
+                a.setDraft(false);
+            }
+            // Establish the Gradebook destination before persisting its association.
+            if (post) {
+                a.getProperties().remove(NEW_ASSIGNMENT_CATEGORY);
+                if (!updateAssignmentWithGradebook(state, a, gradebookIntegration, gradebookCategoriesMap, gradebookItemMap)) {
+                    return false;
+                }
+            } else {
+                assignmentService.updateAssignment(a);
+            }
+
+            // Only remove old-group placeholders after the Assignment save succeeds.
+            submissionsToRemove.stream()
+                    .filter(s -> a.getIsGroup() ? !assignmentService.hasSubmissionWork(s) : !s.getUserSubmission())
+                    .forEach(s -> {
+                        try {
+                            assignmentService.removeSubmission(s);
+                        } catch (PermissionException pe) {
+                            log.warn("Group update detected on assignment {}, could not remove submission {}", a.getId(), s);
+                        }
+                    });
 
             // content review (after changes are stored)
             if (a.getContentReview()) {
@@ -9995,6 +10046,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } catch (PermissionException e) {
             log.warn("Can't update Assignment, {}", e.getMessage());
             addAlert(state, rb.getString("youarenot_addAssignmentContent"));
+            return false;
         }
 
         if (a.getIsGroup() || gradingService.isGradebookGroupEnabled(a.getContext())) {
@@ -10012,7 +10064,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             assignmentDueReminderService.removeScheduledReminder(a.getId());
         }
-
+        return true;
     }
 
     /**
@@ -10888,7 +10940,9 @@ public class AssignmentAction extends PagedResourceActionII {
         boolean addToResolvedGradebookOnPublish = addToGradebookOnPublish && !gradebookCategoriesMap.isEmpty();
 
         if (addToResolvedGradebookOnPublish) {
-            updateGradebookIntegrationProperties(assignment, addtoGradebook, oAssociateGradebookAssignment, properties, true);
+            if (!updateAssignmentWithGradebook(state, assignment, addtoGradebook, gradebookCategoriesMap, Collections.emptyMap())) {
+                return;
+            }
             properties.remove(NEW_ASSIGNMENT_CATEGORY);
         } else if (addToGradebookOnPublish && gradebookCategoriesMap.isEmpty()) {
             updateGradebookIntegrationProperties(assignment, GRADEBOOK_INTEGRATION_NO, oAssociateGradebookAssignment, properties, true);

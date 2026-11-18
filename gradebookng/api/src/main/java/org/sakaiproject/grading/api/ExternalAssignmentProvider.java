@@ -35,6 +35,12 @@ public interface ExternalAssignmentProvider {
      */
     String getAppKey();
 
+    /** Whether a Gradebook item is referenced by this tool and must be retained. */
+    default boolean isGradebookItemInUse(String gradebookUid, Assignment item) {
+        return false;
+    }
+
+
     /**
      * Check if an assignment/assessment exists with the given identifier.
      * If the externalAppName is not the tool's responsibility or if the

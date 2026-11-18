@@ -22,6 +22,7 @@ import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
@@ -72,6 +73,34 @@ class AssignmentKeepDropCategoryTest extends SakaiUiTestBase {
                     .setHas(page.locator("a.gb-title").filter(new Locator.FilterOptions().setHasText(title))));
             assertThat(header.locator(".gb-total-points")).hasText(Pattern.compile("\\s*10(?:\\.0+)?\\s*"));
         }
+    }
+
+    @Test
+    void bulkPublishReportsCategoryPointsAndKeepsDraft() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.gradebookng"));
+        page.navigate(siteUrl);
+        sakai.toolClick("Gradebook");
+        configureCategory("Categories only", "keepHighest", "keephighest");
+
+        openAssignments(siteUrl);
+        newAssignment(SECOND, "20");
+        page.locator(".act input[name='save']").click();
+        assertThat(page.locator("#assignments-list")).containsText(SECOND);
+        newAssignment(FIRST, "10");
+        releaseAssignment();
+        assertThat(page.locator("#assignments-list")).containsText(FIRST);
+
+        page.locator("#assignments-list tr").filter(new Locator.FilterOptions().setHasText(SECOND))
+                .locator("input[name=selectedAssignments]").check();
+        page.locator("#btnPublish").click();
+        page.locator("input[name=eventSubmit_doPublish_assignment]").click();
+        assertThat(page.locator("body")).containsText("Points must match assignments in the selected Gradebook category (10)");
+
+        openAssignments(siteUrl);
+        editAssignment(SECOND);
+        assertThat(page.locator("#new_assignment_grade_points")).hasValue(Pattern.compile("20(?:\\.0+)?"));
+        assertThat(page.locator(".act input[name='save']")).isVisible();
     }
 
     private void configureCategory(String categoryMode, String rule, String column) {

@@ -736,6 +736,89 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void gradebookLinksMatchIndividualItemsAndIgnoreDeletedAssignments() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(List.of());
+        when(siteService.getSite(context)).thenReturn(site);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        Assignment shared = createNewAssignment(context);
+        shared.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "12,123,raw%_\\literal");
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(shared).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, reference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        assignmentService.updateAssignment(shared);
+        Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "12"));
+        Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "123"));
+        Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "2").isEmpty());
+        Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "raw%_\\literal"));
+        Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "rawXX\\literal").isEmpty());
+        AssignmentGradeInfoProvider provider = new AssignmentGradeInfoProvider();
+        provider.setAssignmentService(assignmentService);
+        provider.setSiteService(siteService);
+        org.sakaiproject.grading.api.Assignment item = new org.sakaiproject.grading.api.Assignment();
+        item.setId(456L);
+        item.setName("12");
+        Assert.assertFalse("A numeric title is not another item's ID", provider.isGradebookItemInUse(context, item));
+        item.setName("raw%_\\literal");
+        Assert.assertTrue("Legacy nonnumeric names still match", provider.isGradebookItemInUse(context, item));
+        item.setId(12L);
+        Assert.assertTrue(provider.isGradebookItemInUse(context, item));
+        assignmentService.softDeleteAssignment(shared);
+        Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "12").isEmpty());
+    }
+
+    @Test
+    public void failedGradebookCreationPreservesTheExistingAssociation() throws Exception {
+        Assignment assignment = createPublishableAssignment(false);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setMaxGradePoint(10000);
+        assignment.setScaleFactor(100);
+        assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "existing-item");
+        assignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
+        assignmentService.updateAssignment(assignment);
+        Mockito.doThrow(new org.sakaiproject.grading.api.ConflictingAssignmentNameException("Duplicate title"))
+                .when(gradingService).addExternalAssessment(eq(assignment.getContext()), eq(assignment.getContext()),
+                        anyString(), Mockito.isNull(), eq(assignment.getTitle()), Mockito.any(), Mockito.any(),
+                        anyString(), Mockito.isNull(), eq(false), Mockito.isNull(), anyString());
+        Assert.assertThrows(org.sakaiproject.grading.api.ConflictingAssignmentNameException.class,
+                () -> assignmentService.updateAssignmentWithGradebook(assignment, AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+                        Map.of(assignment.getContext(), -1L), Map.of()));
+        Assert.assertEquals("existing-item", assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+    }
+
+    @Test
+    public void deletingAnAssignmentRetainsItsSharedGradebookItem() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(List.of());
+        when(siteService.getSite(context)).thenReturn(site);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        Assignment original = createNewAssignment(context);
+        Assignment copy = createNewAssignment(context);
+        String originalRef = AssignmentReferenceReckoner.reckoner().assignment(original).reckon().getReference();
+        for (Assignment assignment : List.of(original, copy)) {
+            String ref = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, ref)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, ref)).thenReturn(true);
+            FakeReference entityRef = new FakeReference(assignmentService, ref);
+            assignmentService.parseEntityReference(ref, entityRef);
+            when(entityManager.newReference(ref)).thenReturn(entityRef);
+            assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, originalRef);
+            assignmentService.updateAssignment(assignment);
+        }
+        assignmentService.deleteAssignmentAndAllReferences(original);
+        verify(gradingService, Mockito.never()).removeExternalAssignment(Mockito.any(), eq(originalRef), Mockito.any());
+        AssignmentGradeInfoProvider provider = new AssignmentGradeInfoProvider();
+        provider.setAssignmentService(assignmentService);
+        Assert.assertTrue(provider.getAllExternalAssignments(context).contains(originalRef));
+        assignmentService.deleteAssignmentAndAllReferences(copy);
+        verify(gradingService).removeExternalAssignment(Mockito.isNull(), eq(originalRef), anyString());
+    }
+
+    @Test
     public void softDeleteAssignment() {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);

@@ -180,6 +180,50 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         }
     }
 
+    @Test
+    void rejectedGradebookChangeRetainsGroupSubmissionPlaceholders() {
+        String suffix = Long.toString(System.nanoTime());
+        String title = "Rejected group edit " + suffix;
+        String groupA = "Old group " + suffix;
+        String groupB = "Remaining group " + suffix;
+        sakai.login("instructor1");
+        String course = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.gradebookng"));
+        sakai.addMember(course, "student0011", "Student");
+        sakai.addMember(course, "student0012", "Student");
+        createGroupThroughUi(course, groupA, "student0011");
+        createGroupThroughUi(course, groupB, "student0012");
+        createGradedGroupAssignment(course, title, List.of(groupA, groupB));
+        editAssignment(course, title);
+        page.locator("#new_assignment_send_to_gradebook").uncheck();
+        saveAssignment(title);
+        String reference = assignmentRow(title).locator("input[name=selectedAssignments]").getAttribute("value");
+        String id = reference.substring(reference.lastIndexOf('/') + 1);
+        assignmentRow(title).getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Grade " + title).setExact(true)).click();
+        assertThat(page.locator("#submissionList")).containsText(groupA);
+        String submissionsUrl = "/direct/assignment/itemSubmission/" + id + ".json";
+        assertEquals(2, JsonParser.parseString(page.request().get(submissionsUrl).text())
+                .getAsJsonObject().getAsJsonArray("assignment_collection").size());
+
+        sakai.toolClick("Gradebook");
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=title]").fill(title);
+        dialog.locator("input[name$=points]").fill("10");
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+        editAssignment(course, title);
+        page.locator("#new_assignment_send_to_gradebook").check();
+        page.locator("#create-gradebook-item").check();
+        openGroupChoices();
+        groupCheckbox(groupA).uncheck();
+        openGroupChoices();
+        page.locator("input[name=post]").click();
+        assertThat(page.locator("body")).containsText("an existing item of the same name");
+        assertEquals(2, JsonParser.parseString(page.request().get(submissionsUrl).text())
+                .getAsJsonObject().getAsJsonArray("assignment_collection").size(),
+                "A rejected save must retain the original group's submission");
+    }
+
     private void addStudent(String courseUrl, String eid) {
         APIResponse user = page.request().get("/direct/user/" + eid + ".json");
         assertTrue(user.ok(), user.text());
@@ -222,6 +266,9 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         sakai.selectDate("#closedate", openDate.plusDays(7).toString());
         page.locator("#groupAssignment").check();
         openGroupChoices();
+        for (Locator checked : page.locator("#groupTableContainer .multiselect-container input[type=checkbox]").all()) {
+            checked.uncheck();
+        }
         for (String group : groups) {
             groupCheckbox(group).check();
         }
