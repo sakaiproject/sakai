@@ -9254,10 +9254,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 //RUBRICS, Save the binding between the assignment and the rubric
-                if (!rubricParams.isEmpty()
-                        && rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, a.getId(), rubricParams).isEmpty()
-                        && usesRubric) {
-                    addAlert(state, rb.getString("rubric.selection.unavailable"));
+                if (!rubricParams.isEmpty() && !rubricsService.applyRubricSelection(AssignmentConstants.TOOL_ID, a.getId(), rubricParams)) {
+                    state.setAttribute(EDIT_ASSIGNMENT_ID, a.getId());
+                    state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT);
+                    addAlert(state, rb.getString("rubric.selection.not.applied"));
+                    return;
                 }
 
                 if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(siteId)) {                

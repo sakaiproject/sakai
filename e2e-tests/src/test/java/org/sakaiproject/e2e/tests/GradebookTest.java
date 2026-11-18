@@ -414,6 +414,49 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(page.locator("#deleted_rubrics").getByText(rubricTitle, new Locator.GetByTextOptions().setExact(true))).isVisible();
     }
 
+    @Test
+    void gradebookRejectsASelectionMovedToTrashBeforeSave() {
+        String rubricTitle = "Stale Gradebook rubric " + System.currentTimeMillis();
+        String itemTitle = "Stale rubric item " + System.currentTimeMillis();
+        sakai.createRubric("instructor1", sakaiUrl);
+        page.locator("input[title=\"Rubric Title\"]:visible").fill(rubricTitle);
+        page.locator("sakai-rubric-edit .modal.show .modal-footer .btn-primary").click();
+        assertThat(page.locator("sakai-rubric .rubric-name")
+            .filter(new Locator.FilterOptions().setHasText(rubricTitle))).hasText(rubricTitle);
+        String rubricsUrl = page.url();
+
+        sakai.toolClick("Gradebook");
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$='title']").fill(itemTitle);
+        dialog.locator("input[name$='points']").fill("100");
+        dialog.locator("input[name=rbcs-associate][value='1']").check();
+        Locator rubricSelector = dialog.locator("select[name=rbcs-rubricslist]");
+        String rubricId = rubricSelector.locator("option").filter(new Locator.FilterOptions().setHasText(rubricTitle))
+            .getAttribute("value");
+        rubricSelector.selectOption(rubricId);
+
+        Page rubricsTab = context.newPage();
+        try {
+            rubricsTab.navigate(rubricsUrl);
+            Locator rubric = rubricsTab.locator("#site_rubrics sakai-rubric")
+                .filter(new Locator.FilterOptions().setHasText(rubricTitle));
+            Locator remove = rubric.locator("sakai-item-delete.sakai-rubric");
+            remove.locator("button[data-bs-toggle='modal']").click();
+            Response deletion = rubricsTab.waitForResponse(
+                response -> response.request().method().equals("DELETE") && response.url().endsWith("/rubrics/" + rubricId),
+                () -> remove.getByRole(AriaRole.DIALOG).getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+                    .setName("Move to Trash").setExact(true)).click());
+            assertTrue(deletion.ok(), () -> "Moving the selected rubric to Trash returned HTTP " + deletion.status());
+        } finally {
+            rubricsTab.close();
+        }
+
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog.getByText("The selected rubric is no longer available.")).isVisible();
+        assertThat(page.locator(".tabulator-col a.gb-title").filter(new Locator.FilterOptions().setHasText(itemTitle))).hasCount(0);
+    }
+
     private void addGradebookItem(String itemTitle, String rubricTitle) {
         page.locator("button.gb-add-gradebook-item-button").click();
         Locator dialog = page.locator(".gb-modal-dialog:visible");
@@ -427,7 +470,8 @@ class GradebookTest extends SakaiUiTestBase {
         }
         dialog.locator("button.gb-create-or-save").click();
         assertThat(dialog).isHidden();
-        assertThat(page.getByText(itemTitle, new Page.GetByTextOptions().setExact(true))).isVisible();
+        assertThat(page.locator(".tabulator-col a.gb-title")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(itemTitle) + "$")))).isVisible();
     }
 
     private void clickImportContinueOrFinish() {

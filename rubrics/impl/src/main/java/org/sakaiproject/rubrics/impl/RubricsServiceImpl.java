@@ -1250,18 +1250,12 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     public EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId) {
 
-        if (evaluationBean.getAssociationId() == null) {
-            throw new SecurityException("You must be an evaluator to evaluate rubrics");
-        }
-
-        ToolItemRubricAssociation checkedAssociation = associationRepository.findById(evaluationBean.getAssociationId())
-            .orElseThrow(() -> new IllegalArgumentException("No rubric association"));
-        requireRubricSite(checkedAssociation.getRubric(), siteId);
+        ToolItemRubricAssociation checkedAssociation = Optional.ofNullable(evaluationBean.getAssociationId())
+            .flatMap(associationRepository::findById)
+            .filter(association -> Objects.equals(association.getRubric().getOwnerId(), siteId))
+            .filter(association -> canGrade(evaluationBean, siteId, association))
+            .orElseThrow(() -> new SecurityException("You must be an evaluator to evaluate rubrics"));
         requireActiveAssociation(checkedAssociation);
-
-        if (!canGrade(evaluationBean, siteId, checkedAssociation)) {
-            throw new SecurityException("You must be an evaluator to evaluate rubrics");
-        }
 
         Set<Long> criterionIds = checkedAssociation.getRubric().getCriteria().stream()
             .map(Criterion::getId).collect(Collectors.toSet());
@@ -1471,6 +1465,16 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         // S2U-34 This is bypassing the permission check as it's needed for peer review
         return getRubricAssociation(tool, id).isPresent();
+    }
+
+    @Override
+    public boolean applyRubricSelection(String toolId, String toolItemId, Map<String, String> params) {
+        boolean linksRubric = StringUtils.equalsAny(params.get(RubricsConstants.RBCS_ASSOCIATE), "1", "2");
+        try {
+            return saveRubricAssociation(toolId, toolItemId, params).isPresent() || !linksRubric;
+        } catch (RubricInTrashException | RubricsConflictException e) {
+            return false;
+        }
     }
 
     public Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, final Map<String, String> params) {
@@ -2448,7 +2452,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     private void requireActiveAssociation(ToolItemRubricAssociation association) {
         requireActiveRubric(association.getRubric());
         if (!Boolean.TRUE.equals(association.getActive())) {
-            throw new IllegalStateException("Cannot evaluate inactive rubric association " + association.getId());
+            throw new RubricsConflictException("Cannot evaluate inactive rubric association " + association.getId());
         }
     }
 

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
@@ -238,6 +240,16 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 		// OK
 		if (validated) {
+			Map<String, String> rubricParams = getRubricParameters("");
+			if (StringUtils.equalsAny(rubricParams.get(RubricsConstants.RBCS_ASSOCIATE), "1", "2")) {
+				long rubricId = NumberUtils.toLong(rubricParams.get(RubricsConstants.RBCS_LIST));
+				if (rubricsService.getRubric(rubricId)
+						.filter(rubric -> rubric.getSoftRemovedDate() == null && !Boolean.TRUE.equals(rubric.getDraft())).isEmpty()) {
+					error(getString("rubric.selection.unavailable"));
+					target.addChildren(form, FeedbackPanel.class);
+					return;
+				}
+			}
 
 			Long assignmentId = null;
 			boolean success = true;
@@ -250,9 +262,12 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				else {
 					assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(currentGradebookUid, currentSiteId, assignment);
 				}
-				Map<String, String> rubricParams = getRubricParameters("");
-				if (!rubricParams.isEmpty()) {
-					rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), rubricParams);
+				if (!rubricParams.isEmpty()
+						&& !rubricsService.applyRubricSelection(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), rubricParams)) {
+					getSession().error(getString("rubric.selection.not.applied"));
+					setResponsePage(getPage().getPageClass(),
+							new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignmentId));
+					return;
 				}
 			}
 			catch (final AssignmentHasIllegalPointsException e) {

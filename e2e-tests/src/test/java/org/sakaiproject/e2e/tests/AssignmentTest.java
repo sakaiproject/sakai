@@ -181,8 +181,9 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(rubricSelector).hasValue(rubricId);
         assertThat(associateRubric).isChecked();
 
-        rubricSelector.selectOption(rubricSelector.locator("option")
-            .filter(new Locator.FilterOptions().setHasText(replacementTitle)).getAttribute("value"));
+        String replacementId = rubricSelector.locator("option")
+            .filter(new Locator.FilterOptions().setHasText(replacementTitle)).getAttribute("value");
+        rubricSelector.selectOption(replacementId);
         Page rubricsTab = context.newPage();
         try {
             rubricsTab.navigate(rubricsUrl);
@@ -190,9 +191,11 @@ class AssignmentTest extends SakaiUiTestBase {
                 .filter(new Locator.FilterOptions().setHasText(replacementTitle));
             Locator remove = replacement.locator("sakai-item-delete.sakai-rubric");
             remove.locator("button[data-bs-toggle='modal']").click();
-            rubricsTab.waitForResponse(response -> response.request().method().equals("DELETE") && response.ok(),
+            Response replacementDelete = rubricsTab.waitForResponse(
+                response -> response.request().method().equals("DELETE") && response.url().endsWith("/rubrics/" + replacementId),
                 () -> remove.getByRole(AriaRole.DIALOG).getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
                     .setName("Move to Trash").setExact(true)).click());
+            assertTrue(replacementDelete.ok(), () -> "Moving the replacement rubric to Trash returned HTTP " + replacementDelete.status());
         } finally {
             rubricsTab.close();
         }
