@@ -44,6 +44,10 @@ describe("sakai-search tests", () => {
       ]);
       const el = await fixture(html`<sakai-search site-id="${data.siteId}" tool="${data.tool}"></sakai-search>`);
       await waitUntil(() => el._i18n);
+      const status = el.querySelector('[role="status"]');
+      expect(status).to.exist;
+      expect(status.getAttribute("aria-atomic")).to.equal("true");
+      expect(status.textContent.trim()).to.equal("");
       el.querySelector("input").value = data.terms;
       el.querySelector("form").requestSubmit();
       await waitUntil(() => el.querySelector(".search-result-unavailable"));
@@ -53,6 +57,8 @@ describe("sakai-search tests", () => {
       expect(notice.closest("a")).to.be.null;
       expect(el.querySelectorAll(".search-result-link").length).to.equal(mixed ? 2 : 0);
       await el.updateComplete;
+      expect(el.querySelector('[role="status"]')).to.equal(status);
+      expect(status.textContent.trim()).to.equal(mixed ? "" : "Matching items are not available.");
       const links = el.querySelectorAll(".search-result-link");
       if (mixed) {
         expect(document.activeElement).to.equal(links[0]);
@@ -62,6 +68,9 @@ describe("sakai-search tests", () => {
         expect(document.activeElement).to.equal(el.querySelector("input"));
       }
       await expect(el).to.be.accessible();
+      el.querySelector('button[title="Close the search results"]').click();
+      await el.updateComplete;
+      expect(status.textContent.trim()).to.equal("");
     });
   }
 });
