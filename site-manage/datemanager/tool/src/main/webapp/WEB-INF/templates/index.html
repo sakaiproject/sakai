@@ -40,12 +40,12 @@
     </div>
 
     <form id="date-manager-form" method="POST">
-      <div class="sak-banner-error d-none" id="form-errors" tabindex="-1">
+      <div class="sak-banner-error d-none" id="form-errors">
         <span th:text="#{errors.instruction}">Your update could not be saved due to the following errors:</span>
         <ul></ul>
       </div>
 
-      <div class="sak-banner-success d-none" id="form-success" tabindex="-1">
+      <div class="sak-banner-success d-none" id="form-success">
         <span th:text="#{success.message}">The dates were updated successfully.</span>
       </div>
 
@@ -624,7 +624,6 @@
                 $('#form-errors').find('ul').append('<li>' + elt + '</li>');
               }
             });
-            $('#form-errors').trigger('focus');
             $('html, body').animate({ scrollTop: 0 }, 'slow');
           }
 
@@ -638,7 +637,6 @@
             $('.errors').each(function(idx, elt) {
               $(elt).text('');
             });
-            $('#form-success').trigger('focus');
             $('html, body').animate({ scrollTop: 0 }, 'slow');
 
             setTimeout(function() {
@@ -659,22 +657,9 @@
 
           var modalConfirm = function(callback){
             const modalConfirmEl = document.getElementById("modal-confirm");
-
-            // Bootstrap marks the modal aria-hidden as it closes; drop focus first so it is never
-            // left on a control inside a subtree hidden from assistive technology.
-            modalConfirmEl.addEventListener('hide.bs.modal', function () {
-              if (modalConfirmEl.contains(document.activeElement)) {
-                document.activeElement.blur();
-              }
-            });
-
-            // The modal is opened from the form submit handler, so Bootstrap has no trigger to return
-            // focus to. Hand it back to the Save button unless a save result banner already took it.
-            modalConfirmEl.addEventListener('hidden.bs.modal', function () {
-              if (!document.activeElement || document.activeElement === document.body) {
-                document.getElementById('submit-form-button').focus();
-              }
-            });
+            // Focus must leave the modal before Bootstrap sets aria-hidden on it
+            modalConfirmEl.addEventListener('hide.bs.modal', () => document.activeElement.blur());
+            modalConfirmEl.addEventListener('hidden.bs.modal', () => $('#submit-form-button').trigger('focus'));
 
             $('#date-manager-form').on('submit', function(e){
               e.preventDefault();
