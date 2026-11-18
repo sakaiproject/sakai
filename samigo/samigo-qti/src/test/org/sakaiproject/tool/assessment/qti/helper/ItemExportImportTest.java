@@ -29,12 +29,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Answers;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import org.sakaiproject.component.cover.ComponentManager;
 
@@ -51,6 +48,7 @@ import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.MockFormattedText;
 
 /**
  * Exports items through the QTI 1.2 templates and imports them back, checking
@@ -58,21 +56,16 @@ import org.sakaiproject.util.api.FormattedText;
  */
 public class ItemExportImportTest {
 
-  private MockedStatic<ComponentManager> componentManagerMock;
-
-  @Before
-  public void setUp() {
-    FormattedText formattedText = Mockito.mock(FormattedText.class, invocation ->
-        invocation.getMethod().getReturnType() == String.class && invocation.getArguments().length > 0
-            ? invocation.getArgument(0)
-            : Answers.RETURNS_DEFAULTS.answer(invocation));
-    componentManagerMock = Mockito.mockStatic(ComponentManager.class);
-    componentManagerMock.when(() -> ComponentManager.get(FormattedText.class)).thenReturn(formattedText);
+  @BeforeClass
+  public static void setUp() {
+    ComponentManager.testingMode = true;
+    ComponentManager.loadComponent(FormattedText.class, new MockFormattedText());
   }
 
-  @After
-  public void tearDown() {
-    componentManagerMock.close();
+  @AfterClass
+  public static void tearDown() {
+    ComponentManager.shutdown();
+    ComponentManager.testingMode = false;
   }
 
   @Test
