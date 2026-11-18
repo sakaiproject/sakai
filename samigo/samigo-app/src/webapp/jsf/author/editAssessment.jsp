@@ -451,7 +451,8 @@ $(window).load( function() {
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
             </h:commandLink>
             <h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}"/>
-            <h:commandLink title="#{authorMessages.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true">
+            <h:commandLink title="#{authorMessages.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true"
+                onclick="if (#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1')}) { try { sessionStorage.setItem('pendingFocusId', this.id); } catch(e) { console.warn('Could not save to sessionStorage:', e); }}">
               <h:outputText value="#{commonMessages.edit_action}" />
               <f:actionListener
                   type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
