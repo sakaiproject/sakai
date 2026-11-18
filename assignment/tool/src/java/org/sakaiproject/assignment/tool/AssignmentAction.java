@@ -178,7 +178,9 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.CategoryPointsMismatchException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
@@ -9673,6 +9675,10 @@ public class AssignmentAction extends PagedResourceActionII {
             addAlert(state, rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + assignment.getTitle() + "\""));
         } catch (org.sakaiproject.grading.api.AssignmentHasIllegalPointsException e) {
             addAlert(state, rb.getString("addtogradebook.illegalPoints"));
+        } catch (CategoryPointsMismatchException e) {
+            addAlert(state, rb.getFormattedMessage("pleasee6", e.getRequiredPoints()));
+        } catch (InvalidCategoryException e) {
+            addAlert(state, rb.getString("addtogradebook.invalidCategory"));
         } catch (AssessmentNotFoundException e) {
             addAlert(state, rb.getString("grading.associate.alert"));
         }
