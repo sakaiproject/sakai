@@ -21,7 +21,6 @@ jobs:
     timeout-minutes: 90
     env:
       NIGHTLY_CONFIG_REF: 8f13ad428a22e1af3a2ecefc40d65e7954bd9749
-      MAVEN_VERSION: 3.9.16
       MAVEN_ARGS: >-
         -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
         -Dmaven.compiler.showWarnings=false
@@ -42,10 +41,8 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Set up Maven
-        uses: stCarolas/setup-maven@v5.1
-        with:
-          maven-version: ${{ env.MAVEN_VERSION }}
+      - name: Check runner Maven
+        run: mvn --version
 
       - name: Restore 25.x Maven repository cache
         id: cache-maven-restore
@@ -54,10 +51,10 @@ jobs:
           # Relative paths and cross-OS archives let all runners share this repository.
           path: .m2/repository
           enableCrossOsArchive: true
-          key: sakai-m2-25x-shared-maven-${{ env.MAVEN_VERSION }}
+          key: sakai-m2-25x-shared-maven
           restore-keys: |
-            sakai-m2-25x-shared-maven-${{ env.MAVEN_VERSION }}-
-            sakai-m2-25x-maven-${{ env.MAVEN_VERSION }}
+            sakai-m2-25x-shared-maven-
+            sakai-m2-25x-maven-3.9.16
 
       - name: Maven cache status
         run: echo "Restored Maven cache = ${{ steps.cache-maven-restore.outputs.cache-matched-key }}"
