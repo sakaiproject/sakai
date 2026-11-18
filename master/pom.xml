@@ -15,6 +15,8 @@
 
   <properties>
     <sakai.version>25-SNAPSHOT</sakai.version>
+    <sakai.test.forks>1</sakai.test.forks>
+    <sakai.skip.webcomponents.tests>false</sakai.skip.webcomponents.tests>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.19.0</sakai.commons-io.version>
@@ -2905,7 +2907,7 @@
             </property>
           </properties>
           <testFailureIgnore>false</testFailureIgnore>
-          <forkCount>1</forkCount>
+          <forkCount>${sakai.test.forks}</forkCount>
           <reuseForks>false</reuseForks>
           <systemPropertyVariables>
             <!-- disable lombok during tests -->
