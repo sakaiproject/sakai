@@ -46,12 +46,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -4293,37 +4291,33 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(siteService.getSite(context)).thenReturn(site);
 
         // blank selection
-        Assert.assertTrue(assignmentService.getSelectedGroupUsers(null, context, assignment, allowed).isEmpty());
-        Assert.assertTrue(assignmentService.getSelectedGroupUsers(" ", context, assignment, allowed).isEmpty());
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers(null, assignment, allowed).isEmpty());
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers(" ", assignment, allowed).isEmpty());
 
         // all, without asn.all.groups: union of gradeable groups, u2 (in both) appears once
         when(authzGroupService.getAuthzGroupsIsAllowed(eq(graderId), eq(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION), anyCollection())).thenReturn(Set.of(groupRefA, groupRefB));
-        List<User> users = assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, context, assignment, allowed);
+        List<User> users = assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, assignment, allowed);
         Assert.assertEquals(3, users.size());
         Assert.assertEquals(Set.of(u1, u2, u3), new HashSet<>(users));
 
         // undefined users and deleted groups are skipped
         when(authzGroupService.getAuthzGroupsIsAllowed(eq(graderId), eq(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION), anyCollection())).thenReturn(Set.of(groupRefGhosts, groupRefDeleted));
-        Assert.assertEquals(List.of(u1), assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, context, assignment, allowed));
+        Assert.assertEquals(List.of(u1), assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, assignment, allowed));
 
         // single group by reference or id: only that group, and only if gradeable
         when(authzGroupService.getAuthzGroupsIsAllowed(eq(graderId), eq(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION), anyCollection())).thenReturn(Set.of(groupRefA));
-        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers(groupRefA, context, assignment, allowed));
-        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers("a", context, assignment, allowed));
+        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers(groupRefA, assignment, allowed));
+        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers("a", assignment, allowed));
         // group B is in the site but not gradeable; unknown reference matches nothing
-        Assert.assertTrue(assignmentService.getSelectedGroupUsers(groupRefB, context, assignment, allowed).isEmpty());
-        Assert.assertTrue(assignmentService.getSelectedGroupUsers("b", context, assignment, allowed).isEmpty());
-        Assert.assertTrue(assignmentService.getSelectedGroupUsers(siteRef + "/group/none", context, assignment, allowed).isEmpty());
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers(groupRefB, assignment, allowed).isEmpty());
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers("b", assignment, allowed).isEmpty());
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers(siteRef + "/group/none", assignment, allowed).isEmpty());
 
         // with asn.all.groups: all uses site members, a single group is still just that group
         when(authzGroupService.getAuthzGroupsIsAllowed(eq(graderId), eq(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION), anyCollection())).thenReturn(Set.of(groupRefA));
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, siteRef)).thenReturn(true);
-        Assert.assertEquals(List.of(u1, u2, u3), assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, context, assignment, allowed));
-        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers(groupRefA, context, assignment, allowed));
-
-        // with asn.all.groups and a missing site
-        when(siteService.getSite(context)).thenThrow(new IdUnusedException(context));
-        Assert.assertTrue(assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, context, assignment, allowed).isEmpty());
+        Assert.assertEquals(List.of(u1, u2, u3), assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, assignment, allowed));
+        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers(groupRefA, assignment, allowed));
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {
