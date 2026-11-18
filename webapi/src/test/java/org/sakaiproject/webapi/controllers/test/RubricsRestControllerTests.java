@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,6 +137,32 @@ public class RubricsRestControllerTests {
                 .content("[]"))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.error").value("rubric_in_trash"));
+    }
+
+    @Test
+    public void staleEditsToATrashedRubricReturnTheTrashConflict() throws Exception {
+        CriterionTransferBean criterion = new CriterionTransferBean();
+        criterion.setId(1L);
+        criterion.setRubricVersion(2L);
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(2L);
+        rubric.setOwnerId("site1");
+        rubric.setVersion(2L);
+        rubric.setSoftRemovedDate(Instant.parse("2026-11-18T00:00:00Z"));
+        rubric.setCriteria(List.of(criterion));
+        when(rubricsService.getRubric(2L)).thenReturn(Optional.of(rubric));
+
+        for (String path : List.of("/sites/site1/rubrics/2", "/sites/site1/rubrics/2/criteria/1")) {
+            mockMvc.perform(patch(path)
+                    .header("If-Match", "\"1\"")
+                    .contentType("application/json-patch+json")
+                    .content("[]"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("rubric_in_trash"));
+        }
+
+        verify(rubricsService, never()).saveRubric(any());
+        verify(rubricsService, never()).updateCriterion(any(), eq("site1"));
     }
 
     @Test

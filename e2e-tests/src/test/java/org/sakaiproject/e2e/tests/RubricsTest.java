@@ -18,12 +18,15 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.Route;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.Cookie;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
@@ -154,10 +157,28 @@ class RubricsTest extends SakaiUiTestBase {
         assertThat(deletedRubric).hasCount(1);
         deletedRubric.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
             .setName(Pattern.compile("^Permanently delete\\b"))).click();
-        page.waitForResponse(
-            response -> response.url().contains("/permanent") && "DELETE".equals(response.request().method()) && response.ok(),
-            () -> page.locator("#permanent-delete-modal.show").getByRole(AriaRole.BUTTON,
-                new Locator.GetByRoleOptions().setName("Delete permanently").setExact(true)).click());
+        Locator permanentDeleteDialog = page.locator("#permanent-delete-modal");
+        Pattern permanentDeleteUrl = Pattern.compile(".*/rubrics/\\d+/permanent$");
+        List<Route> pendingDeletes = new ArrayList<>();
+        page.route(permanentDeleteUrl, pendingDeletes::add);
+        try {
+            permanentDeleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+                .setName("Delete permanently").setExact(true)).click();
+            page.waitForCondition(() -> !pendingDeletes.isEmpty());
+            assertThat(permanentDeleteDialog.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Cancel").setExact(true))).isDisabled();
+            page.keyboard().press("Escape");
+            assertThat(permanentDeleteDialog).isVisible();
+
+            Response deletion = page.waitForResponse(
+                response -> permanentDeleteUrl.matcher(response.url()).matches() && "DELETE".equals(response.request().method()),
+                () -> pendingDeletes.removeFirst().resume());
+            assertTrue(deletion.ok(), () -> "Permanent delete returned HTTP " + deletion.status());
+            assertThat(permanentDeleteDialog).isHidden();
+        } finally {
+            pendingDeletes.forEach(Route::abort);
+            page.unroute(permanentDeleteUrl);
+        }
         assertThat(deletedRubricByTitle(trashTitle)).hasCount(0);
         assertThat(siteRubricByTitle(trashTitle)).hasCount(0);
     }

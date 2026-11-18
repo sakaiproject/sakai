@@ -119,4 +119,26 @@ describe("sakai-rubrics-deleted-list", () => {
       { method: "DELETE" }
     )).to.have.length(1);
   });
+
+  it("keeps a permanent-delete failure visible when dismissal was requested", async () => {
+
+    const pending = Promise.withResolvers();
+    permanentDeleteResponse = pending.promise;
+    const el = await fixture(html`
+      <sakai-rubrics-deleted-list site-id="${data.siteId}"></sakai-rubrics-deleted-list>
+    `);
+    await waitUntil(() => el.querySelector("button.permanently-delete-rubric"));
+
+    el.querySelector("button.permanently-delete-rubric").click();
+    await el.updateComplete;
+    const modal = el.querySelector("#permanent-delete-modal");
+    modal.querySelector("button.btn-danger").click();
+    const dismiss = new Event("hide.bs.modal", { cancelable: true });
+    modal.dispatchEvent(dismiss);
+    expect(dismiss.defaultPrevented).to.be.true;
+
+    pending.resolve({ status: 422, body: { blockingItems: [ "Final project" ] } });
+    await waitUntil(() => modal.querySelector("[role=alert]")?.textContent.includes("Final project"));
+    expect(modal.dispatchEvent(new Event("hide.bs.modal", { cancelable: true }))).to.be.true;
+  });
 });

@@ -79,12 +79,13 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
         @page-selected=${this._onPageSelected}
         ?hidden=${this._totalPages <= 1}>
       </sakai-pager>
-      <div class="modal fade" id="permanent-delete-modal" tabindex="-1" aria-labelledby="permanent-delete-modal-label" aria-hidden="true">
+      <div class="modal" id="permanent-delete-modal" tabindex="-1" aria-labelledby="permanent-delete-modal-label" aria-hidden="true"
+          @hide.bs.modal=${this._guardPermanentDeleteDismissal}>
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="permanent-delete-modal-label">${this.tr("delete_item_title", [ this._i18n.rubric ])}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this.tr("close_dialog")}"></button>
+              <button type="button" class="btn-close" ?disabled=${this._deleting} data-bs-dismiss="modal" aria-label="${this.tr("close_dialog")}"></button>
             </div>
             <div class="modal-body">
               ${this.renderDeleteError()}
@@ -92,7 +93,7 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" ?disabled=${this._deleting} @click=${this._confirmPermanentDelete}>${this._i18n.permanently_delete_label}</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this._i18n.cancel}</button>
+              <button type="button" class="btn btn-secondary" ?disabled=${this._deleting} data-bs-dismiss="modal">${this._i18n.cancel}</button>
             </div>
           </div>
         </div>
@@ -203,6 +204,10 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
     });
   }
 
+  _guardPermanentDeleteDismissal(e) {
+    if (this._deleting) { e.preventDefault(); }
+  }
+
   _confirmPermanentDelete(e) {
 
     e.stopPropagation();
@@ -226,8 +231,9 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
         return;
       }
 
-      this._removeRubricFromList(rubricId);
+      this._deleting = false;
       bootstrap.Modal.getOrCreateInstance(this.renderRoot.querySelector("#permanent-delete-modal")).hide();
+      this._removeRubricFromList(rubricId);
     })
     .catch(error => this.reportSaveError(error))
     .finally(() => { this._deleting = false; });

@@ -870,6 +870,22 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void rubricOwnerIsCheckedBeforeTrashStateWhenSaving() {
+
+        String otherSiteId = "othersite";
+        switchToInstructor(otherSiteId);
+        switchToInstructor();
+
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        assertTrue(rubricsService.deleteRubric(rubric.getId(), rubric.getVersion()));
+
+        RubricTransferBean trashed = rubricsService.getRubric(rubric.getId()).orElseThrow();
+        assertThrows(RubricInTrashException.class, () -> rubricsService.saveRubric(trashed));
+        trashed.setOwnerId(otherSiteId);
+        assertThrows(SecurityException.class, () -> rubricsService.saveRubric(trashed));
+    }
+
+    @Test
     public void rubricEventsArePostedOnlyAfterCommit() {
 
         switchToInstructor();
