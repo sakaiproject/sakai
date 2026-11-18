@@ -190,7 +190,7 @@
 					<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}"/>
 					<h:outputText id="draft_space" value="  - " rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}" styleClass="title"/>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}">
-						<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
+						<span class="bi bi-calendar-week" aria-hidden="true" style="margin-right:.5em"></span>
 						<h:outputText value="#{msgs.topic_restricted_message}" />
 					</h:panelGroup>
 					<h:panelGroup rendered="#{ForumTool.selectedForum.locked == 'true' || ForumTool.selectedTopic.locked == 'true'}">
