@@ -7,6 +7,7 @@ export class RubricsElement extends SakaiElement {
   static properties = {
     _saveError: { state: true },
     _deleteBlockedBy: { state: true },
+    _deleting: { state: true },
   };
 
   constructor() {

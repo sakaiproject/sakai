@@ -64,6 +64,7 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
                     data-rubric-title="${r.title}"
                     title="${this.tr("permanently_delete", [ r.title ])}"
                     aria-label="${this.tr("permanently_delete", [ r.title ])}"
+                    ?disabled=${this._deleting}
                     @click=${this._showPermanentDeleteModal}>
                   <span class="fa fa-times" aria-hidden="true"></span>
                 </button>
@@ -90,7 +91,7 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
               <p>${this.tr("confirm_permanent_remove", [ this._rubricTitleToDelete || "" ])}</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-danger" @click=${this._confirmPermanentDelete}>${this._i18n.permanently_delete_label}</button>
+              <button type="button" class="btn btn-danger" ?disabled=${this._deleting} @click=${this._confirmPermanentDelete}>${this._i18n.permanently_delete_label}</button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this._i18n.cancel}</button>
             </div>
           </div>
@@ -190,22 +191,28 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
   _showPermanentDeleteModal(e) {
 
     e.stopPropagation();
+    if (this._deleting) { return; }
+
     this._saveError = null;
     this._deleteBlockedBy = null;
     this._rubricIdToDelete = e.currentTarget.dataset.rubricId;
     this._rubricVersionToDelete = e.currentTarget.dataset.rubricVersion;
     this._rubricTitleToDelete = e.currentTarget.dataset.rubricTitle;
     this.updateComplete.then(() => {
-      bootstrap.Modal.getOrCreateInstance(this.querySelector("#permanent-delete-modal")).show();
+      bootstrap.Modal.getOrCreateInstance(this.renderRoot.querySelector("#permanent-delete-modal")).show();
     });
   }
 
   _confirmPermanentDelete(e) {
 
     e.stopPropagation();
+    if (this._deleting) { return; }
+
+    this._deleting = true;
     this._saveError = null;
     this._deleteBlockedBy = null;
-    const url = `/api/sites/${this.siteId}/rubrics/${this._rubricIdToDelete}/permanent`;
+    const rubricId = this._rubricIdToDelete;
+    const url = `/api/sites/${this.siteId}/rubrics/${rubricId}/permanent`;
 
     fetch(url, {
       method: "DELETE",
@@ -219,9 +226,10 @@ export class SakaiRubricsDeletedList extends SakaiRubricsList {
         return;
       }
 
-      this._removeRubricFromList(this._rubricIdToDelete);
-      bootstrap.Modal.getOrCreateInstance(this.querySelector("#permanent-delete-modal")).hide();
+      this._removeRubricFromList(rubricId);
+      bootstrap.Modal.getOrCreateInstance(this.renderRoot.querySelector("#permanent-delete-modal")).hide();
     })
-    .catch(error => this.reportSaveError(error));
+    .catch(error => this.reportSaveError(error))
+    .finally(() => { this._deleting = false; });
   }
 }

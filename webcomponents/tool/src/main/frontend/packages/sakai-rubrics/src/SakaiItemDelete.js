@@ -84,6 +84,7 @@ export class SakaiItemDelete extends RubricsElement {
                 <button type="button"
                     class="btn btn-primary"
                     title="${this.tr(confirmation, [ this.item.title ])}"
+                    ?disabled=${this._deleting}
                     @click=${this.saveDelete}>
                   ${isRubric ? this._i18n.move_to_trash_label : this._i18n.remove_label}
                 </button>
@@ -108,7 +109,7 @@ export class SakaiItemDelete extends RubricsElement {
   }
 
   hideToolTip() {
-    bootstrap.Modal.getOrCreateInstance(this.querySelector(".modal")).hide();
+    bootstrap.Modal.getOrCreateInstance(this.renderRoot.querySelector(".modal")).hide();
   }
 
   cancelDelete(e) {
@@ -120,8 +121,12 @@ export class SakaiItemDelete extends RubricsElement {
   saveDelete(e) {
 
     e.stopPropagation();
+    if (this._deleting) { return; }
+
+    this._deleting = true;
     this._saveError = null;
     this._deleteBlockedBy = null;
+    const item = this.item;
     let url = `/api/sites/${this.siteId}/rubrics/`;
 
     if (this.type === "criterion") {
@@ -140,12 +145,13 @@ export class SakaiItemDelete extends RubricsElement {
       if (r.ok) {
         if (this.type === "criterion") { await this.readSaveResponse(r); }
 
-        this.hideToolTip();
-        this.dispatchEvent(new CustomEvent("delete-item", { detail: this.item, bubbles: true, composed: true }));
+        if (this.item.id === item.id) { this.hideToolTip(); }
+        this.dispatchEvent(new CustomEvent("delete-item", { detail: item, bubbles: true, composed: true }));
       } else {
         await this.readDeleteError(r);
       }
     }))
-    .catch(error => this.reportSaveError(error));
+    .catch(error => this.reportSaveError(error))
+    .finally(() => { this._deleting = false; });
   }
 }

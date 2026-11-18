@@ -23,6 +23,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sakaiproject.rubrics.api.RubricInTrashException;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
@@ -96,6 +98,44 @@ public class RubricsRestControllerTests {
         when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
         mockMvc.perform(get("/sites/site1/rubrics/1"))
             .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void restoreRequiresTheRubricsOwnSite() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("other-site");
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+        when(rubricsService.restoreRubric(1L, 0L)).thenReturn(true);
+
+        mockMvc.perform(post("/sites/site1/rubrics/1/restore").header("If-Match", "\"0\""))
+            .andExpect(status().isForbidden());
+        verify(rubricsService, never()).restoreRubric(1L, 0L);
+
+        mockMvc.perform(post("/sites/other-site/rubrics/1/restore").header("If-Match", "\"0\""))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void criterionEditInTrashReturnsAnExplicitConflict() throws Exception {
+        CriterionTransferBean criterion = new CriterionTransferBean();
+        criterion.setId(1L);
+        criterion.setVersion(1L);
+        criterion.setRubricVersion(1L);
+        when(rubricsService.getCriterion(1L, "site1")).thenReturn(Optional.of(criterion));
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(2L);
+        rubric.setOwnerId("site1");
+        rubric.setCriteria(List.of(criterion));
+        when(rubricsService.getRubric(2L)).thenReturn(Optional.of(rubric));
+        when(rubricsService.updateCriterion(any(), eq("site1"))).thenThrow(new RubricInTrashException(2L));
+
+        mockMvc.perform(patch("/sites/site1/rubrics/2/criteria/1")
+                .header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json")
+                .content("[]"))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.error").value("rubric_in_trash"));
     }
 
     @Test

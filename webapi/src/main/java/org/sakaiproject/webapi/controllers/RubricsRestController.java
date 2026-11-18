@@ -27,6 +27,7 @@ import jakarta.persistence.OptimisticLockException;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StaleStateException;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.RubricInTrashException;
 import org.sakaiproject.rubrics.api.RubricInUseException;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
@@ -373,9 +374,11 @@ public class RubricsRestController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/restore")
-    public ResponseEntity restoreRubric(@PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
+    public ResponseEntity restoreRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
 
         checkSakaiSession();
+
+        requireRubricPath(siteId, rubricId, null);
 
         if (rubricsService.restoreRubric(rubricId, parseRevision(revision))) {
             return ResponseEntity.ok().build();
@@ -651,6 +654,11 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))
                 .body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
+    }
+
+    @ExceptionHandler(RubricInTrashException.class)
+    public ResponseEntity<Map<String, String>> rubricInTrash() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "rubric_in_trash"));
     }
 
     @ExceptionHandler(RubricInUseException.class)

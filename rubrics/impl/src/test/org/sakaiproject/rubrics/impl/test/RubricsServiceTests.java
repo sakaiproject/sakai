@@ -664,7 +664,40 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
             .getParameters().get(RubricsConstants.RBCS_SOFT_DELETED));
 
         rubricsService.restoreRubricAssociation(toolId, itemId);
-        assertEquals(association.getId(), rubricsService.getRubricAssociation(toolId, itemId).orElseThrow().getId());
+        ToolItemRubricAssociation restored = rubricsService.getRubricAssociation(toolId, itemId).orElseThrow();
+        assertEquals(association.getId(), restored.getId());
+        assertEquals(Integer.valueOf(0), restored.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED));
+    }
+
+    @Test
+    public void toolTrashFlagBlocksDeletionEvenForAnInactiveAssociation() {
+
+        switchToInstructor();
+
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = AssignmentConstants.TOOL_ID;
+        String itemId = "inactive-trashed-assignment";
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
+            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
+        rubricsService.softDeleteRubricAssociation(toolId, itemId);
+        association.setActive(false);
+        associationRepository.save(association);
+
+        Long version = rubricsService.getRubric(rubric.getId()).orElseThrow().getVersion();
+        assertThrows(RubricInUseException.class, () -> rubricsService.deleteRubric(rubric.getId(), version));
+    }
+
+    @Test
+    public void adHocRubricCannotBeMovedToTrash() {
+
+        switchToInstructor();
+
+        Rubric rubric = rubricRepository.findById(rubricsService.createDefaultRubric(siteId).getId()).orElseThrow();
+        rubric.setAdhoc(true);
+        rubricRepository.save(rubric);
+
+        assertFalse(rubricsService.deleteRubric(rubric.getId(), rubric.getVersion()));
+        assertFalse(rubric.isSoftDeleted());
     }
 
     @Test
@@ -1509,6 +1542,12 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         optEtb2.get().setOverallComment(updatedComment);
         etb = rubricsService.saveEvaluation(optEtb2.get(), siteId);
 
+        RubricTransferBean replacement = rubricsService.createDefaultRubric(siteId);
+        rubricsService.saveRubricAssociation(toolId, toolItemId, Map.of(
+            RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, replacement.getId().toString())).orElseThrow();
+        assertEquals(replacement.getId(),
+            rubricsService.getRubricAssociation(toolId, toolItemId).orElseThrow().getRubric().getId());
+
         etb = rubricsService.cancelDraftEvaluation(etb.getId(), etb.getVersion());
         assertEquals(originalComment, etb.getOverallComment());
     }
@@ -1937,6 +1976,26 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(Double.valueOf(0), stored.getRatings().get(0).getPoints());
         assertEquals("Meets expectations", stored.getRatings().get(1).getTitle());
         assertEquals("Keep", imported.get(0).getCriteria().get(1).getTitle());
+    }
+
+    @Test
+    public void archiveImportIgnoresTitlesInTrash() {
+
+        switchToInstructor();
+
+        Document document = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics.xml"));
+        Element rubrics = (Element) document.getElementsByTagName(rubricsService.getLabel()).item(0);
+        String title = ((Element) rubrics.getElementsByTagName("rubric").item(0)).getAttribute("title");
+        RubricTransferBean existing = rubricsService.createDefaultRubric(siteId);
+        existing.setTitle(title);
+        Long version = rubricsService.saveRubric(existing).getVersion();
+        assertTrue(rubricsService.deleteRubric(existing.getId(), version));
+
+        rubricsService.merge(siteId, rubrics, "", "source-site", null, null, null);
+        rubricsService.merge(siteId, rubrics, "", "source-site", null, null, null);
+
+        assertEquals(1, rubricsService.getRubricsForSite(siteId).stream().filter(r -> title.equals(r.getTitle())).count());
+        assertEquals(existing.getId(), rubricsService.getDeletedRubricsForSite(siteId).getFirst().getId());
     }
 
     @Test
