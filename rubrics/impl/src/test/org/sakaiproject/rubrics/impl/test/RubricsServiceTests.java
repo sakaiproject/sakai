@@ -471,18 +471,72 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         criterion.setTitle("😀");
         assertThrows(IllegalArgumentException.class, () -> rubricsService.updateCriterion(criterion, siteId));
+        assertEquals("", criterion.getTitle());
+        criterion.setTitle("😀");
         assertThrows(IllegalArgumentException.class, () -> rubricsService.saveRubric(rubric));
+        assertEquals("", criterion.getTitle());
         criterion.setTitle(criterionTitle);
         rating.setTitle("🧪");
         assertThrows(IllegalArgumentException.class, () -> rubricsService.updateRating(rating, siteId));
+        assertEquals(" \t ", rating.getTitle());
+        rating.setTitle("🧪");
         assertThrows(IllegalArgumentException.class, () -> rubricsService.updateCriterion(criterion, siteId));
+        assertEquals(" \t ", rating.getTitle());
+        rating.setTitle("🧪");
         assertThrows(IllegalArgumentException.class, () -> rubricsService.saveRubric(rubric));
+        assertEquals(" \t ", rating.getTitle());
 
         sessionFactory.getCurrentSession().flush();
         sessionFactory.getCurrentSession().clear();
         RubricTransferBean stored = rubricsService.getRubric(rubric.getId()).orElseThrow();
         assertEquals(criterionTitle, stored.getCriteria().get(0).getTitle());
         assertEquals(ratingTitle, stored.getCriteria().get(0).getRatings().get(0).getTitle());
+    }
+
+    @Test
+    public void staleEditsConflictBeforeCleaningTitles() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        when(formattedText.stripUnsupportedCharacters("😀")).thenReturn("");
+        for (int staleField = 0; staleField < 3; staleField++) {
+            RubricTransferBean edit = rubricsService.getRubric(rubric.getId()).orElseThrow();
+            CriterionTransferBean criterion = edit.getCriteria().get(0);
+            edit.setTitle("😀");
+            criterion.setTitle("😀");
+            if (staleField == 0) {
+                edit.setVersion(-1L);
+            } else if (staleField == 1) {
+                criterion.setVersion(-1L);
+            } else {
+                criterion.getRatings().get(0).setVersion(-1L);
+            }
+            assertThrows(RubricsConflictException.class, () -> rubricsService.saveRubric(edit));
+            assertEquals("😀", edit.getTitle());
+        }
+        for (int staleField = 0; staleField < 3; staleField++) {
+            CriterionTransferBean edit = rubricsService.getRubric(rubric.getId()).orElseThrow().getCriteria().get(0);
+            edit.setTitle("😀");
+            if (staleField == 0) {
+                edit.setRubricVersion(-1L);
+            } else if (staleField == 1) {
+                edit.setVersion(-1L);
+            } else {
+                edit.getRatings().get(0).setVersion(-1L);
+            }
+            assertThrows(RubricsConflictException.class, () -> rubricsService.updateCriterion(edit, siteId));
+            assertEquals("😀", edit.getTitle());
+        }
+        for (int staleField = 0; staleField < 2; staleField++) {
+            RatingTransferBean edit = rubricsService.getRubric(rubric.getId()).orElseThrow().getCriteria().get(0).getRatings().get(0);
+            edit.setTitle("😀");
+            if (staleField == 0) {
+                edit.setRubricVersion(-1L);
+            } else {
+                edit.setVersion(-1L);
+            }
+            assertThrows(RubricsConflictException.class, () -> rubricsService.updateRating(edit, siteId));
+            assertEquals("😀", edit.getTitle());
+        }
     }
 
     @Test
@@ -1608,6 +1662,9 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         Element rubricsElement = (Element) root.getElementsByTagName(rubricsService.getLabel()).item(0);
         NodeList rubricElements = rubricsElement.getElementsByTagName("rubric");
         ((Element) rubricElements.item(0)).setAttribute("title", "😀");
+        ((Element) rubricElements.item(0)).getElementsByTagName("description").item(0).setTextContent("Skipped blank description");
+        when(formattedText.processFormattedText(eq("Skipped blank description"), isNull(), eq(FormattedText.Level.HIGH)))
+                .thenThrow(new IllegalStateException("Skipped descriptions must not be sanitized"));
         ((Element) rubricElements.item(1)).setAttribute("title", "Sports 🚀");
         when(formattedText.stripUnsupportedCharacters("😀")).thenReturn("");
         when(formattedText.stripUnsupportedCharacters("Sports 🚀")).thenReturn("Sports");
@@ -1643,6 +1700,49 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(2, imported.size());
         assertEquals(Set.of("Imported", "Sports"), imported.stream().map(Rubric::getTitle).collect(Collectors.toSet()));
         assertTrue(imported.stream().anyMatch(rubric -> existing.getId().equals(rubric.getId())));
+    }
+
+    @Test
+    public void mergeDefaultsBlankChildTitlesAndSkipsLaterCleanedDuplicates() {
+        String toSite = "same-merge-duplicates";
+        switchToInstructor(toSite);
+        Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics.xml"));
+        Element root = doc.getDocumentElement();
+        Element rubricsElement = (Element) root.getElementsByTagName(rubricsService.getLabel()).item(0);
+        NodeList rubricElements = rubricsElement.getElementsByTagName("rubric");
+        Element first = (Element) rubricElements.item(0);
+        Element second = (Element) rubricElements.item(1);
+        first.setAttribute("title", "First 😀");
+        second.setAttribute("title", "First 🚀");
+        Element criterion = (Element) first.getElementsByTagName("criterion").item(0);
+        criterion.setAttribute("title", "🧪");
+        String description = criterion.getElementsByTagName("description").item(0).getTextContent();
+        Element rating = (Element) criterion.getElementsByTagName("rating").item(0);
+        rating.setAttribute("title", "🧪");
+        rating.appendChild(doc.createElement("description")).setTextContent("Rating description");
+        ((Element) first.getElementsByTagName("criterion").item(1)).setAttribute("title", "Keep 😀");
+        second.getElementsByTagName("description").item(0).setTextContent("Skipped duplicate description");
+        when(formattedText.stripUnsupportedCharacters("First 😀")).thenReturn("First");
+        when(formattedText.stripUnsupportedCharacters("First 🚀")).thenReturn("First");
+        when(formattedText.stripUnsupportedCharacters("🧪")).thenReturn("");
+        when(formattedText.stripUnsupportedCharacters("Keep 😀")).thenReturn("Keep");
+        when(formattedText.processFormattedText(eq("Skipped duplicate description"), isNull(), eq(FormattedText.Level.HIGH)))
+                .thenThrow(new IllegalStateException("Skipped descriptions must not be sanitized"));
+
+        rubricsService.merge(toSite, rubricsElement, "", root.getAttribute("source"), null, null, null);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        List<Rubric> imported = rubricRepository.findByOwnerId(toSite);
+        assertEquals(1, imported.size());
+        assertEquals("First", imported.get(0).getTitle());
+        Criterion stored = imported.get(0).getCriteria().get(0);
+        assertEquals(defaultCriterionTitle, stored.getTitle());
+        assertEquals(description, stored.getDescription());
+        assertEquals(defaultRatingTitle, stored.getRatings().get(0).getTitle());
+        assertEquals("Rating description", stored.getRatings().get(0).getDescription());
+        assertEquals(Double.valueOf(0), stored.getRatings().get(0).getPoints());
+        assertEquals("Meets expectations", stored.getRatings().get(1).getTitle());
+        assertEquals("Keep", imported.get(0).getCriteria().get(1).getTitle());
     }
 
     @Test
