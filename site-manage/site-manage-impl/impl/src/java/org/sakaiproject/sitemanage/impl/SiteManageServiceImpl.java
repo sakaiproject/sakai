@@ -1127,22 +1127,21 @@ public class SiteManageServiceImpl implements SiteManageService {
         if (transversalMap != null && !transversalMap.isEmpty() && site != null) {
             Set<Map.Entry<String, String>> entrySet = transversalMap.entrySet();
 
-            String msgBody = site.getDescription();
-            if (StringUtils.isNotBlank(msgBody)) {
-                String msgBodyPreMigrate = msgBody;
-                msgBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
+            try {
+                // Earlier tool imports may have updated both the description and navigation.
+                Site currentSite = siteService.getSite(site.getId());
+                String msgBody = currentSite.getDescription();
+                if (StringUtils.isNotBlank(msgBody)) {
+                    String msgBodyPreMigrate = msgBody;
+                    msgBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 
-                if (!msgBody.equals(msgBodyPreMigrate)) {
-                    //update the site b/c some tools (Lessonbuilder) updates the site structure (add/remove pages) and we don't want to
-                    //over write this
-                    try {
-                        site = siteService.getSite(site.getId());
-                        site.setDescription(msgBody);
-                        saveSite(site);
-                    } catch (IdUnusedException iue) {
-                        log.warn("A site with id {} doesn't exist, {}", site.getId(), iue.getMessage());
+                    if (!msgBody.equals(msgBodyPreMigrate)) {
+                        currentSite.setDescription(msgBody);
+                        saveSite(currentSite);
                     }
                 }
+            } catch (IdUnusedException iue) {
+                log.warn("A site with id {} doesn't exist, {}", site.getId(), iue.getMessage());
             }
         }
     }

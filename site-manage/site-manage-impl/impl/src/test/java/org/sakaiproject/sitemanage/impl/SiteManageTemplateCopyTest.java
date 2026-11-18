@@ -15,7 +15,12 @@
  */
 package org.sakaiproject.sitemanage.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +28,10 @@ import static org.mockito.Mockito.withSettings;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -40,6 +48,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.sitemanage.api.SiteManageService;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,16 +65,30 @@ public class SiteManageTemplateCopyTest {
     @Autowired private SiteService siteService;
     @Autowired private EntityManager entityManager;
     @Autowired private AuthzGroupService authzGroupService;
+    @Autowired private LinkMigrationHelper linkMigrationHelper;
 
-    @Test
-    public void overviewAfterLessonsSavesTheSiteWithImportedNavigation() throws Exception {
+    private EntityTransferrer transfer;
+    private Site originalDestination;
+    private Site importedDestination;
+    private AtomicReference<String> importedDescription;
+    private Map<String, String> transferredEntities;
+
+    @Before
+    public void setUp() throws Exception {
+        reset(siteService, entityManager, authzGroupService, linkMigrationHelper);
+        transferredEntities = Collections.emptyMap();
+        importedDescription = new AtomicReference<>("/portal/site/source");
         Site source = mock(Site.class);
-        Site originalDestination = mock(Site.class);
-        Site importedDestination = mock(Site.class);
+        originalDestination = mock(Site.class);
+        importedDestination = mock(Site.class);
         when(source.getRoles()).thenReturn(Collections.emptySet());
         when(originalDestination.getId()).thenReturn("destination");
         when(importedDestination.getId()).thenReturn("destination");
-        when(importedDestination.getDescription()).thenReturn("/portal/site/source");
+        when(importedDestination.getDescription()).thenAnswer(invocation -> importedDescription.get());
+        doAnswer(invocation -> {
+            importedDescription.set(invocation.getArgument(0));
+            return null;
+        }).when(importedDestination).setDescription(anyString());
         when(siteService.getSite("source")).thenReturn(source);
         when(siteService.getSite("destination")).thenReturn(originalDestination);
         when(siteService.siteReference("destination")).thenReturn("/site/destination");
@@ -76,21 +99,45 @@ public class SiteManageTemplateCopyTest {
 
         // Lessons is a separate tool: its transfer saves a new site edit containing its placements.
         EntityProducer lessons = mock(EntityProducer.class, withSettings().extraInterfaces(EntityTransferrer.class));
-        EntityTransferrer transfer = (EntityTransferrer) lessons;
+        transfer = (EntityTransferrer) lessons;
         when(transfer.myToolIds()).thenReturn(new String[] { "sakai.lessonbuildertool" });
         when(entityManager.getEntityProducers()).thenReturn(List.of(lessons));
         when(transfer.transferCopyEntities("source", "destination", List.of(), List.of(), false))
                 .thenAnswer(invocation -> {
                     when(siteService.getSite("destination")).thenReturn(importedDestination);
-                    return Collections.emptyMap();
+                    return transferredEntities;
                 });
+    }
 
+    @Test
+    public void overviewAfterLessonsSavesTheSiteWithImportedNavigation() throws Exception {
         service.importToolContent("source", originalDestination, false);
 
         verify(transfer).transferCopyEntities("source", "destination", List.of(), List.of(), false);
         verify(siteService).save(importedDestination);
         verify(siteService, never()).save(originalDestination);
         verify(importedDestination).setDescription("/portal/site/destination");
+    }
+
+    @Test
+    public void referenceMigrationUsesTheCurrentDescriptionAfterOverviewSave() throws Exception {
+        String staleDescription = "Original /portal/site/source /direct/assignment/old";
+        String currentDescription = "Current /portal/site/destination /direct/assignment/old";
+        String migratedDescription = "Current /portal/site/destination /direct/assignment/new";
+        when(originalDestination.getDescription()).thenReturn(staleDescription);
+        importedDescription.set("Current /portal/site/source /direct/assignment/old");
+        transferredEntities = Map.of("/direct/assignment/old", "/direct/assignment/new");
+        when(linkMigrationHelper.migrateAllLinks(transferredEntities.entrySet(), staleDescription))
+                .thenReturn("Original /portal/site/source /direct/assignment/new");
+        when(linkMigrationHelper.migrateAllLinks(transferredEntities.entrySet(), currentDescription))
+                .thenReturn(migratedDescription);
+
+        service.importToolContent("source", originalDestination, false);
+
+        verify(linkMigrationHelper).migrateAllLinks(transferredEntities.entrySet(), currentDescription);
+        assertEquals(migratedDescription, importedDescription.get());
+        verify(siteService, times(2)).save(importedDestination);
+        verify(siteService, never()).save(originalDestination);
     }
 
     private SitePage page(String toolId) {
@@ -108,19 +155,21 @@ public class SiteManageTemplateCopyTest {
         @Bean public SiteService siteService() { return mock(SiteService.class); }
         @Bean public EntityManager entityManager() { return mock(EntityManager.class); }
         @Bean public AuthzGroupService authzGroupService() { return mock(AuthzGroupService.class); }
+        @Bean public LinkMigrationHelper linkMigrationHelper() { return mock(LinkMigrationHelper.class); }
         @Bean public FunctionManager functionManager() { return mock(FunctionManager.class); }
         @Bean public ServerConfigurationService serverConfigurationService() { return mock(ServerConfigurationService.class); }
 
         @Bean
         public SiteManageService siteManageService(SiteService siteService, EntityManager entityManager,
                 AuthzGroupService authzGroupService, FunctionManager functionManager,
-                ServerConfigurationService serverConfigurationService) {
+                ServerConfigurationService serverConfigurationService, LinkMigrationHelper linkMigrationHelper) {
             SiteManageServiceImpl service = new SiteManageServiceImpl();
             service.setSiteService(siteService);
             service.setEntityManager(entityManager);
             service.setAuthzGroupService(authzGroupService);
             service.setFunctionManager(functionManager);
             service.setServerConfigurationService(serverConfigurationService);
+            service.setLinkMigrationHelper(linkMigrationHelper);
             service.setTransactionTemplate(new TransactionTemplate(mock(PlatformTransactionManager.class)));
             return service;
         }
