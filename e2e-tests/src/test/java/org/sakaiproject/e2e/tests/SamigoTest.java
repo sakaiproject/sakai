@@ -20,6 +20,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -201,6 +202,11 @@ class SamigoTest extends SakaiUiTestBase {
         String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
         page.navigate(courseUrl);
+        sakai.toolClick("Site Info");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Manage Tools").setExact(true)).click();
+        page.locator("#isMathJaxEnabledForSite").check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Finish").setExact(true)).click();
         sakai.toolClick("Tests");
         String testsUrl = page.url();
 
@@ -209,7 +215,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm\\:createnew").click(new Locator.ClickOptions().setForce(true));
 
         for (int question = 1; question <= 3; question++) {
-            addMultipleChoiceQuestion("10.00", "Timed preview question " + question,
+            addMultipleChoiceQuestion("10.00", "Timed preview question " + question + " $$x^2$$",
                 List.of("Option A", "Option B"), 0);
         }
 
@@ -226,6 +232,8 @@ class SamigoTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
         assertThat(page.locator("#assessmentForm\\:parts")).isVisible();
 
+        List<String> previewErrors = new ArrayList<>();
+        page.onPageError(previewErrors::add);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Preview").setExact(true)).click();
         assertThat(page.locator("#takeAssessmentForm")).isVisible();
         Locator begin = page.getByRole(AriaRole.BUTTON,
@@ -238,6 +246,8 @@ class SamigoTest extends SakaiUiTestBase {
         begin.click();
 
         assertThat(page.locator("body")).containsText("Timed preview question 1");
+        assertTrue(previewErrors.isEmpty(), "Preview JavaScript errors: " + previewErrors);
+        assertThat(page.locator(".MathJax, .MathJax_CHTML").first()).isVisible();
         Locator progress = page.locator("#questionProgressPanel table[id$=':tocquestions']");
         assertThat(progress.locator(".progressItem .linearButton")).hasCount(3);
         assertThat(progress.locator(".progressItem img[alt='unanswered icon']")).hasCount(3);
@@ -245,7 +255,9 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(next).isEnabled();
         next.click();
         assertThat(page.locator("body")).containsText("Timed preview question 2");
+        assertThat(page.locator(".MathJax, .MathJax_CHTML").first()).isVisible();
         assertThat(progress.locator(".currentQuestion")).containsText("2");
+        assertTrue(previewErrors.isEmpty(), "Preview JavaScript errors: " + previewErrors);
 
         if (!clickFirstVisibleIfPresent(page.locator(".exit-preview-button, button:has-text(\"Exit\"), a:has-text(\"Exit\"), a:has-text(\"Assessments\")"))) {
             page.navigate(testsUrl);
