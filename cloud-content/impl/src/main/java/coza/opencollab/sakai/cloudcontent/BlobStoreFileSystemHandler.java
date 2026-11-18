@@ -128,11 +128,17 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         }
 
         // All checks passed; construct the MinIO client last
-        this.client = MinioClient.builder()
+        MinioClient.Builder clientBuilder = MinioClient.builder()
                 .endpoint(endpoint)
-                .credentials(identity, credential)
-                .region(serverConfigurationService.getString("cloud.content.region", "us-east-1"))
-                .build();
+                .credentials(identity, credential);
+
+        // Optional override: only set when explicitly configured, otherwise let the SDK detect the region
+        String region = serverConfigurationService.getString("cloud.content.region", "");
+        if (region != null && !region.trim().isEmpty()) {
+            clientBuilder.region(region.trim());
+        }
+
+        this.client = clientBuilder.build();
     }
 
     private static final String LEGACY_BEAN_ID = "org.sakaiproject.content.api.FileSystemHandler.blobstore";
