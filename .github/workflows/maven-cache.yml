@@ -1,0 +1,59 @@
+# Seed a shared Maven repository cache for pull requests targeting 25.x.
+
+name: Maven Repository Cache
+
+on:
+  push:
+    branches: [25.x]
+
+concurrency:
+  group: maven-cache-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  warm-maven-cache:
+    runs-on: ubuntu-24.04
+    env:
+      MAVEN_ARGS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: JDK 17
+        uses: actions/setup-java@v6.0.1
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Node 22
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 22.14.0
+
+      - name: Check runner Maven
+        run: mvn --version
+
+      - name: Restore Maven local repository cache
+        id: cache-maven-restore
+        uses: actions/cache/restore@v6.1.0
+        with:
+          # Relative paths and cross-OS archives let all runners share this repository.
+          path: .m2/repository
+          enableCrossOsArchive: true
+          key: sakai-m2-25x-shared-maven-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            sakai-m2-25x-shared-maven-
+            sakai-m2-25x-maven-3.9.16
+
+      - name: Populate Maven local repository
+        run: mvn -B -ntp -V -DskipTests -Denforcer.skip -Dmaven.source.skip install
+
+      - name: Resolve Playwright dependencies
+        run: mvn -B -ntp -V -Pe2e -DskipTests test
+
+      - name: Save Maven local repository cache
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .m2/repository
+          enableCrossOsArchive: true
+          key: ${{ steps.cache-maven-restore.outputs.cache-primary-key }}

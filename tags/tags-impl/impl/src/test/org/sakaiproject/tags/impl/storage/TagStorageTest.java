@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -86,10 +85,8 @@ public class TagStorageTest extends BaseStorageTest {
             tagStorage.createTag(tag);
             fail("Should have thrown an exception");
         } catch ( RuntimeException e ) {
-            assertThat(e.getMessage(), startsWith("Failure in database action: Create a tag"));
-            // some credit to http://stackoverflow.com/a/39221730
-            assertThat(e.getCause(), allOf(instanceOf(SQLException.class),
-                    hasProperty("message", startsWith("integrity constraint violation"))));
+            assertThat(e.getCause(), instanceOf(SQLException.class));
+            assertThat(((SQLException) e.getCause()).getSQLState(), equalTo("23503"));
         }
 
         verify(tagsEventTrackingService, never()).newEvent(anyString(), anyString(), anyBoolean());
