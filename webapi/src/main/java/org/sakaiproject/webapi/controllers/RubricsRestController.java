@@ -664,12 +664,15 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
     @ExceptionHandler(RubricInTrashException.class)
     public ResponseEntity<Map<String, String>> rubricInTrash() {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "rubric_in_trash"));
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Map.of("error", "rubric_in_trash"));
     }
 
     @ExceptionHandler(RubricInUseException.class)
     public ResponseEntity<Map<String, List<String>>> rubricInUse(RubricInUseException exception) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(Map.of("blockingItems", exception.getBlockingItems()));
     }
 

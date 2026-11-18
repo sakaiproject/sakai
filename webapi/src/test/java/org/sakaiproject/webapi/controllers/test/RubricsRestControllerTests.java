@@ -22,6 +22,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.rubrics.api.RubricInTrashException;
+import org.sakaiproject.rubrics.api.RubricInUseException;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
@@ -99,6 +101,20 @@ public class RubricsRestControllerTests {
         when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
         mockMvc.perform(get("/sites/site1/rubrics/1"))
             .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void linkedRubricDeletionReturnsBlockingItemsAsJson() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setId(1L);
+        rubric.setOwnerId("site1");
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+        when(rubricsService.deleteRubric(1L, 0L)).thenThrow(new RubricInUseException(List.of("Final project")));
+
+        mockMvc.perform(delete("/sites/site1/rubrics/1").header("If-Match", "\"0\"").accept(MediaType.ALL))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.blockingItems[0]").value("Final project"));
     }
 
     @Test
