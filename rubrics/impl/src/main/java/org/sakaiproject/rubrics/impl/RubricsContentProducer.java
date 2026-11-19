@@ -60,7 +60,9 @@ public class RubricsContentProducer implements EntityContentProducer, EntityCont
     private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
             RubricsConstants.EVENT_RUBRIC_CREATED, SearchBuilderItem.ACTION_ADD,
             RubricsConstants.EVENT_RUBRIC_UPDATED, SearchBuilderItem.ACTION_ADD,
-            RubricsConstants.EVENT_RUBRIC_DELETED, SearchBuilderItem.ACTION_DELETE);
+            RubricsConstants.EVENT_RUBRIC_RESTORED, SearchBuilderItem.ACTION_ADD,
+            RubricsConstants.EVENT_RUBRIC_DELETED, SearchBuilderItem.ACTION_DELETE,
+            RubricsConstants.EVENT_RUBRIC_PERMANENTLY_DELETED, SearchBuilderItem.ACTION_DELETE);
 
     private RubricRepository rubricRepository;
     private SearchIndexBuilder searchIndexBuilder;
@@ -156,7 +158,7 @@ public class RubricsContentProducer implements EntityContentProducer, EntityCont
 
     @Override
     public Iterator<String> getSiteContentIterator(String siteId) {
-        return transactionTemplate.execute(status -> rubricRepository.findByOwnerId(siteId).stream()
+        return transactionTemplate.execute(status -> rubricRepository.findByOwnerIdAndSoftRemoved(siteId, false).stream()
                 .filter(RubricsContentProducer::isListed)
                 .map(rubric -> RubricsService.rubricReference(siteId, rubric.getId()))
                 .toList()
@@ -175,9 +177,9 @@ public class RubricsContentProducer implements EntityContentProducer, EntityCont
                         .map(function)));
     }
 
-    // Ad hoc rubrics belong to a single item and are never listed in the rubrics tool
+    // Ad hoc and soft-deleted rubrics are never listed in the rubrics tool or search index
     private static boolean isListed(Rubric rubric) {
-        return !Boolean.TRUE.equals(rubric.getAdhoc());
+        return !Boolean.TRUE.equals(rubric.getAdhoc()) && !rubric.isSoftDeleted();
     }
 
     /** The rubric title followed by the text of every criterion and rating. The indexer strips any markup. */

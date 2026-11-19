@@ -12,6 +12,10 @@
 - `npm run bundle` - Bundle JS files using esbuild
 - `npm run analyze` - Run lit-analyzer for static type checking
 
+## Race conditions
+
+- Keep speculative or rare timing cases out of the current PR unless the user explicitly approves them. Examples include saving a stale form after a change in another tab, simultaneous edits by two users, out-of-order responses, and retries after a partial save. A review comment or a test that forces the timing establishes possibility alone. Before adding locks, retries, extra state, or cross-tool changes for such a case, explain what breaks, how likely it is in ordinary use, and what the fix would cost. Get approval before implementing it.
+
 ## Architecture
 - **Request-Scoped State**: Do not use `ThreadLocal`, static fields, or singleton bean fields to pass request/import/user/site-specific state through service calls. Sakai runs on pooled application-server threads, so thread-bound state can leak across requests if cleanup is missed. Prefer explicit return values, operation-scoped helper instances, DTO/result objects, or method parameters.
 

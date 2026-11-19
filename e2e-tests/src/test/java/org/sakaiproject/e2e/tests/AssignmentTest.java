@@ -172,16 +172,42 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#new_assignment_title")).hasValue(rubricAssignmentTitle);
         assertThat(rubricSelector).hasValue(rubricId);
         assertThat(associateRubric).isChecked();
-        // Exit the edit form so returning to Assignments restores the list.
+
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
         assertThat(page.locator("#assignments-list")).isVisible();
 
+        Locator assignment = page.locator("#assignments-list tr").filter(new Locator.FilterOptions().setHasText(rubricAssignmentTitle));
+        assignment.locator("td[headers=remove] input[type=checkbox]").check();
+        page.locator("#btnRemove").click();
+        page.locator("input[name=eventSubmit_doDelete_assignment]").click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Trash").setExact(true)).click();
+        Locator trashedAssignment = page.locator("tr").filter(new Locator.FilterOptions().setHasText(rubricAssignmentTitle));
+        trashedAssignment.locator("input[name=selectedAssignments]").check();
+        page.onceDialog(dialog -> dialog.accept());
+        page.locator("#btnRestore").click();
+        assertThat(assignment).isVisible();
+        editAssignment(rubricAssignmentTitle);
+        assertThat(associateRubric).isChecked();
+        assertThat(rubricSelector).hasValue(rubricId);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+
         sakai.gotoPath(courseUrl);
         sakai.toolClick("Rubrics");
-        Locator rubric = page.locator("sakai-rubric").filter(new Locator.FilterOptions().setHasText(rubricTitle));
+        Locator rubric = page.locator("#site_rubrics sakai-rubric").filter(new Locator.FilterOptions().setHasText(rubricTitle));
         Locator draftButton = rubric.locator("button.draft");
         assertThat(draftButton).hasAttribute("aria-disabled", "true");
         assertThat(draftButton).hasAttribute("title", "Unlink this rubric from all items before saving it as a draft.");
+
+        Locator deleteControl = rubric.locator("sakai-item-delete.sakai-rubric");
+        deleteControl.locator("button[data-bs-toggle='modal']").click();
+        Locator deleteDialog = deleteControl.getByRole(AriaRole.DIALOG);
+        Response trashResponse = page.waitForResponse(response -> response.url().endsWith("/rubrics/" + rubricId)
+                && response.request().method().equals("DELETE"),
+            () -> deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+                .setName("Move to Trash").setExact(true)).click());
+        assertEquals(422, trashResponse.status());
+        assertThat(deleteDialog.getByRole(AriaRole.ALERT)).containsText(rubricAssignmentTitle);
+        deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Cancel").setExact(true)).click();
 
         sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");

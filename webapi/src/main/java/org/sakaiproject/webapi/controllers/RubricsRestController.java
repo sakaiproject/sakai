@@ -27,6 +27,8 @@ import jakarta.persistence.OptimisticLockException;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StaleStateException;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.RubricInTrashException;
+import org.sakaiproject.rubrics.api.RubricInUseException;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionOutcomeTransferBean;
@@ -105,6 +107,14 @@ public class RubricsRestController extends AbstractSakaiApiController {
         checkSakaiSession();
 
         return rubricsService.getRubricsForSite(siteId).stream().map(b -> entityModelForRubricBean(b)).collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "/sites/{siteId}/deleted-rubrics", produces = MediaType.APPLICATION_JSON_VALUE)
+    List<EntityModel<RubricTransferBean>> getDeletedRubricsForSite(@PathVariable("siteId") String siteId) {
+
+        checkSakaiSession();
+
+        return rubricsService.getDeletedRubricsForSite(siteId).stream().map(b -> entityModelForRubricBean(b)).collect(Collectors.toList());
     }
 
     @GetMapping(value = "/rubrics/shared", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -317,37 +327,35 @@ public class RubricsRestController extends AbstractSakaiApiController {
     public ResponseEntity patchRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestBody List<JsonPatchOperation> patch, @RequestHeader("If-Match") String revision) throws Exception {
 
         checkSakaiSession();
-        requireRubricPath(siteId, rubricId, null);
+        RubricTransferBean rubric = requireRubricPath(siteId, rubricId, null);
+        requireRubricOutsideTrash(rubric);
 
-        return rubricsService.getRubric(rubricId).map(rubric -> {
-
-            try {
-                Long expectedRevision = checkRevision(revision, rubric.getVersion());
-                // Parse the wire representation so JSON Patch tests compare matching integer node types.
-                JsonNode patched = jsonMapper.readTree(jsonMapper.writeValueAsString(rubric));
-                for (JsonPatchOperation operation : patch) {
-                    try {
-                        patched = operation.apply(patched);
-                    } catch (JsonPatchException e) {
-                        if (operation instanceof TestOperation) {
-                            throw new RubricsConflictException(e);
-                        }
-                        throw e;
+        try {
+            Long expectedRevision = checkRevision(revision, rubric.getVersion());
+            // Parse the wire representation so JSON Patch tests compare matching integer node types.
+            JsonNode patched = jsonMapper.readTree(jsonMapper.writeValueAsString(rubric));
+            for (JsonPatchOperation operation : patch) {
+                try {
+                    patched = operation.apply(patched);
+                } catch (JsonPatchException e) {
+                    if (operation instanceof TestOperation) {
+                        throw new RubricsConflictException(e);
                     }
+                    throw e;
                 }
-                RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
-                patchedBean.setVersion(expectedRevision);
-                if (!Objects.equals(rubricId, patchedBean.getId())) {
-                    return ResponseEntity.badRequest().build();
-                }
-                return ResponseEntity.ok(rubricsService.saveRubric(patchedBean));
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().build();
-            } catch (JsonPatchException | JsonProcessingException e) {
-                log.error("Failed to patch rubric", e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+            RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
+            patchedBean.setVersion(expectedRevision);
+            if (!Objects.equals(rubricId, patchedBean.getId())) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok(rubricsService.saveRubric(patchedBean));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (JsonPatchException | JsonProcessingException e) {
+            log.error("Failed to patch rubric", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}")
@@ -361,9 +369,37 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-	}
+    }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/restore")
+    public ResponseEntity restoreRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
+
+        checkSakaiSession();
+
+        requireRubricPath(siteId, rubricId, null);
+
+        if (rubricsService.restoreRubric(rubricId, parseRevision(revision))) {
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/permanent")
+    public ResponseEntity permanentlyDeleteRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
+
+        checkSakaiSession();
+
+        requireRubricPath(siteId, rubricId, null);
+
+        if (rubricsService.permanentlyDeleteRubric(rubricId, parseRevision(revision))) {
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EntityModel<RubricTransferBean>> getRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId) throws Exception {
 
         checkSakaiSession();
@@ -539,7 +575,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
     public ResponseEntity patchCriterion(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId, @PathVariable("criterionId") Long criterionId, @RequestBody JsonPatch patch, @RequestHeader("If-Match") String revision) throws Exception {
 
         checkSakaiSession();
-        requireRubricPath(siteId, rubricId, criterionId);
+        RubricTransferBean rubric = requireRubricPath(siteId, rubricId, criterionId);
+        requireRubricOutsideTrash(rubric);
 
         return rubricsService.getCriterion(criterionId, siteId).map(criterion -> {
 
@@ -591,12 +628,19 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.deleteRating(ratingId, criterionId, siteId, rubricId, parseRevision(revision))));
     }
 
-    private void requireRubricPath(String siteId, Long rubricId, Long criterionId) {
+    private RubricTransferBean requireRubricPath(String siteId, Long rubricId, Long criterionId) {
         RubricTransferBean rubric = rubricsService.getRubric(rubricId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rubric unavailable"));
         if (!Objects.equals(siteId, rubric.getOwnerId()) || (criterionId != null
                 && rubric.getCriteria().stream().noneMatch(criterion -> criterionId.equals(criterion.getId())))) {
             throw new SecurityException("Rubric or criterion does not match request path");
+        }
+        return rubric;
+    }
+
+    private void requireRubricOutsideTrash(RubricTransferBean rubric) {
+        if (rubric.getSoftRemovedDate() != null) {
+            throw new RubricInTrashException(rubric.getId());
         }
     }
 
@@ -616,6 +660,20 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))
                 .body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
+    }
+
+    @ExceptionHandler(RubricInTrashException.class)
+    public ResponseEntity<Map<String, String>> rubricInTrash() {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Map.of("error", "rubric_in_trash"));
+    }
+
+    @ExceptionHandler(RubricInUseException.class)
+    public ResponseEntity<Map<String, List<String>>> rubricInUse(RubricInUseException exception) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Map.of("blockingItems", exception.getBlockingItems()));
     }
 
     @ExceptionHandler({ RubricsConflictException.class, OptimisticLockException.class,
