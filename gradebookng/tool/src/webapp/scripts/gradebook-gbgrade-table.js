@@ -2620,8 +2620,11 @@ GbGradeTable.setupKeyboardNavigation = function() {
         return iGotThis(true);
       }
 
-      const colIndex = +current.getAttribute("data-col-index");
-      const totalColumns = GbGradeTable.instance.getColumns().length;
+      // Use the column's position: not every fixed column's cells set data-col-index
+      // (Student Number, Sections), and a missing one reads as the first column.
+      const columns = GbGradeTable.instance.getColumns();
+      const colIndex = columns.indexOf(GbGradeTable.cellComponentForElement(current)?.getColumn());
+      const totalColumns = columns.length;
 
       if (GbGradeTable.isBoundaryCell(colIndex)) {
         if (!inBoundaryCell) {
