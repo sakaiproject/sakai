@@ -166,6 +166,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     this.heroWidthBackup = this.data.heroWidth;
     this.heroWidthForcedBackup = this.data.heroWidthForced;
     this.showImageBackup = this.data.showImage;
+    this._heroWidthDirty = false;
   }
 
   cancel() {
@@ -186,6 +187,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     };
     this._updateAvailableWidgetCount();
     this.newImageBlob = undefined;
+    this._heroWidthDirty = false;
     const programmeEl = document.getElementById("course-dashboard-programme");
     if (programmeEl) {
       programmeEl.textContent = this.data.programme ?? "";
@@ -223,16 +225,22 @@ export class SakaiCourseDashboard extends SakaiElement {
       .catch(error => console.error(error.message));
     }
 
+    const forced = Boolean(this.data.heroWidthForced);
     const data = {
       widgetLayout: this.data.widgetLayout,
       heroWidth: this._normalizeHeroWidth(this.data.heroWidth),
     };
 
+    if (this._heroWidthDirty && !forced) {
+      data.updateHeroWidth = true;
+    }
+    this._heroWidthDirty = false;
+
     if (this._siteEditable) {
       data.overview = this.data.overview;
       data.programme = this.data.programme;
       data.showImage = Boolean(this.data.showImage);
-      data.heroWidthForced = Boolean(this.data.heroWidthForced);
+      data.heroWidthForced = forced;
     }
 
     const url = `/api/sites/${this.siteId}/dashboard`;
@@ -261,6 +269,7 @@ export class SakaiCourseDashboard extends SakaiElement {
 
   _heroWidthChanged(e) {
 
+    this._heroWidthDirty = true;
     this.data = {
       ...this.data,
       heroWidth: this._normalizeHeroWidth(e.target.value),

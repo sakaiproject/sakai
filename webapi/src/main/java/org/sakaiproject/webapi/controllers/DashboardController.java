@@ -436,8 +436,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
                     site.setShortDescription(bean.getProgramme());
                     Map<String, Object> config = readSiteDashboardConfig(site);
                     config.put("showImage", bean.getShowImage() == null || Boolean.TRUE.equals(bean.getShowImage()));
-                    config.put("heroWidth", normalizeHeroWidth(bean.getHeroWidth()));
-                    config.put("heroWidthForced", Boolean.TRUE.equals(bean.getHeroWidthForced()));
+                    boolean heroWidthForced = Boolean.TRUE.equals(bean.getHeroWidthForced());
+                    config.put("heroWidthForced", heroWidthForced);
+                    if (heroWidthForced) {
+                        config.put("heroWidth", normalizeHeroWidth(bean.getHeroWidth()));
+                    }
                     config.remove("widgetLayout");
                     config.remove("template");
                     config.remove("overviewW");
@@ -454,11 +457,8 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
             if (canVisitSite) {
                 List<DashboardWidgetTile> layout = DashboardLayoutHelper.normalize(bean.getWidgetLayout());
-                boolean heroWidthForced = siteEditable
-                        ? Boolean.TRUE.equals(bean.getHeroWidthForced())
-                        : resolveSiteHeroWidthForced(readSiteDashboardConfig(site));
-                // Keep personal width prefs when the site forces width, so they return if force is cleared.
-                saveUserCourseLayout(userId, siteId, layout, normalizeHeroWidth(bean.getHeroWidth()), !heroWidthForced);
+                saveUserCourseLayout(userId, siteId, layout, normalizeHeroWidth(bean.getHeroWidth()),
+                        Boolean.TRUE.equals(bean.getUpdateHeroWidth()));
             } else {
                 log.warn("Denied course layout save for user [{}] without SITE_VISIT on site [{}]", userId, siteId);
             }
