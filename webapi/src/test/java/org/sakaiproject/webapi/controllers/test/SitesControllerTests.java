@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -70,6 +71,11 @@ public class SitesControllerTests {
         @Bean
         public ServerConfigurationService serverConfigurationService() {
             return mock(ServerConfigurationService.class);
+        }
+
+        @Bean
+        public SqlService sqlService() {
+            return mock(SqlService.class);
         }
     }
 
