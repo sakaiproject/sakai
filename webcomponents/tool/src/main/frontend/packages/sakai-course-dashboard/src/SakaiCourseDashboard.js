@@ -219,6 +219,7 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     if (this._siteEditable && imageBlob) {
 
+      const previewUrl = this.data.image;
       const fd = new FormData();
       fd.append("siteImage", imageBlob);
 
@@ -231,15 +232,23 @@ export class SakaiCourseDashboard extends SakaiElement {
         if (!r.ok) {
           throw new Error(`Failed to update image for url ${imageUrl}`);
         }
-        URL.revokeObjectURL(this.data.image);
         return r.text();
       })
       .then(newUrl => {
 
-        if (!this._isCurrentEditRevision(saveRevision)) {
+        if (!newUrl) {
           return;
         }
-        this.data = { ...this.data, image: `${newUrl}?version=${Math.random()}` };
+        const permanentUrl = `${newUrl}?version=${Math.random()}`;
+        if (this.data?.image === previewUrl) {
+          this.data = { ...this.data, image: permanentUrl };
+        }
+        if (this.imageBackup === previewUrl) {
+          this.imageBackup = permanentUrl;
+        }
+        if (this.data?.image !== previewUrl && this.imageBackup !== previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+        }
       })
       .catch(error => console.error(error.message));
     }
