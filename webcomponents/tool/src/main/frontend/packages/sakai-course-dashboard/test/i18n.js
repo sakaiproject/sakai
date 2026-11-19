@@ -43,6 +43,7 @@ hero_width=Width
 hero_width_full=Full width
 hero_width_wide=Wide
 hero_width_narrow=Narrow
+force_hero_width=Apply this width for everyone
 show_image=Show image
 widgets_available={0} widgets available
 close=Close

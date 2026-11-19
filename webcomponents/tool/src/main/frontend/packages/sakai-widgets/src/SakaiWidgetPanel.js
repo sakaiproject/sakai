@@ -76,22 +76,20 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
 
     this._resizeObserver?.disconnect();
     this._resizeObserver = undefined;
-    this._heroSlot?.removeEventListener("slotchange", this._onHeroSlotChange);
-    this._heroSlot = undefined;
     super.disconnectedCallback();
   }
 
   firstUpdated() {
 
-    this._heroSlot = this.renderRoot?.querySelector("slot[name=\"hero\"]");
-    this._onHeroSlotChange = () => this._syncHeroSlot();
-    this._heroSlot?.addEventListener("slotchange", this._onHeroSlotChange);
-    this._syncHeroSlot();
+    const slot = this.renderRoot?.querySelector("slot[name=\"hero\"]");
+    if (slot) {
+      this._onHeroSlotChange({ target: slot });
+    }
   }
 
-  _syncHeroSlot() {
+  _onHeroSlotChange(e) {
 
-    const hasHero = Boolean(this._heroSlot?.assignedElements({ flatten: true }).length);
+    const hasHero = Boolean(e.target.assignedElements({ flatten: true }).length);
     if (hasHero !== this._hasHero) {
       this._hasHero = hasHero;
     }
@@ -572,7 +570,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
           ?data-hero-auto=${this.heroUsesAutoHeight()}
           @dragover=${this.editing ? this._onDragOver : nothing}
           @drop=${this.editing ? e => this._onDrop(e, this._layout.length) : nothing}>
-        <slot name="hero"></slot>
+        <slot name="hero" @slotchange=${this._onHeroSlotChange}></slot>
         ${repeat(this._layout ?? [], tileKey, (tile, i) => html`
           ${this.getWidget(tile, i)}
         `)}

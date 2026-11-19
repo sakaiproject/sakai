@@ -416,7 +416,7 @@ public class DashboardControllerTests {
     }
 
     @Test
-    public void testGetSiteDashboardUsesUserCourseLayoutAndHeroOverride() throws Exception {
+    public void testGetSiteDashboardUsesPersonalHeroWidthUnlessForced() throws Exception {
 
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("student");
@@ -433,7 +433,7 @@ public class DashboardControllerTests {
         when(site.getReference()).thenReturn("/site/course1");
         when(site.getProperties()).thenReturn(properties);
         when(properties.getProperty("dashboard-config"))
-                .thenReturn("{\"showImage\":false,\"heroWidth\":\"full\"}");
+                .thenReturn("{\"showImage\":false,\"heroWidth\":\"full\",\"heroWidthForced\":false}");
         when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
         when(securityService.isSuperUser()).thenReturn(false);
         when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
@@ -453,9 +453,53 @@ public class DashboardControllerTests {
         DashboardRestBean bean = dashboardController.getSiteDashboard(siteId);
 
         assertFalse(bean.getShowImage());
+        assertFalse(bean.getHeroWidthForced());
         assertEquals("narrow", bean.getHeroWidth());
         assertFalse(bean.getSiteEditable());
         assertTrue(bean.getLayoutEditable());
+        assertEquals(List.of("grades"),
+                bean.getWidgetLayout().stream().map(DashboardWidgetTile::getId).toList());
+    }
+
+    @Test
+    public void testGetSiteDashboardForcedHeroWidthOverridesPersonalPreference() throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("student");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+
+        String siteId = "course1";
+        Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
+        ResourceProperties properties = mock(ResourceProperties.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getTitle()).thenReturn("Course 1");
+        when(site.getShortDescription()).thenReturn("Programme");
+        when(site.getDescription()).thenReturn("Overview");
+        when(site.getReference()).thenReturn("/site/course1");
+        when(site.getProperties()).thenReturn(properties);
+        when(properties.getProperty("dashboard-config"))
+                .thenReturn("{\"showImage\":true,\"heroWidth\":\"wide\",\"heroWidthForced\":true}");
+        when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
+        when(securityService.isSuperUser()).thenReturn(false);
+        when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
+
+        Preferences preferences = mock(Preferences.class);
+        ResourceProperties prefProps = mock(ResourceProperties.class);
+        when(preferencesService.getPreferences("student")).thenReturn(preferences);
+        when(preferences.getProperties("dashboard-config")).thenReturn(prefProps);
+        when(prefProps.getProperty("courseLayouts")).thenReturn(
+                "{\"course1\":{\"widgetLayout\":[{\"id\":\"grades\",\"w\":1,\"h\":1}],\"heroWidth\":\"narrow\"}}");
+
+        ReflectionTestUtils.setField(dashboardController, "courseWidgets", List.of("announcements", "grades"));
+        ReflectionTestUtils.setField(dashboardController, "defaultCourseLayoutStudent", List.of("announcements"));
+
+        when(siteStatsViewService.getCourseDashboardWidgetIds(siteId)).thenReturn(List.of());
+
+        DashboardRestBean bean = dashboardController.getSiteDashboard(siteId);
+
+        assertTrue(bean.getHeroWidthForced());
+        assertEquals("wide", bean.getHeroWidth());
         assertEquals(List.of("grades"),
                 bean.getWidgetLayout().stream().map(DashboardWidgetTile::getId).toList());
     }

@@ -36,6 +36,7 @@ export class SakaiCourseDashboard extends SakaiElement {
         "hero_width_full",
         "hero_width_wide",
         "hero_width_narrow",
+        "force_hero_width",
         "show_image",
         "widgets_available",
       ],
@@ -100,6 +101,7 @@ export class SakaiCourseDashboard extends SakaiElement {
         this.data = {
           ...siteData,
           heroWidth: this._normalizeHeroWidth(siteData.heroWidth),
+          heroWidthForced: Boolean(siteData.heroWidthForced),
           showImage: siteData.showImage !== false,
           layoutEditable: siteData.layoutEditable !== false,
           siteEditable: Boolean(siteData.siteEditable),
@@ -158,6 +160,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     this.programmeBackup = this.data.programme;
     this.widgetLayoutBackup = structuredClone(this.data.widgetLayout);
     this.heroWidthBackup = this.data.heroWidth;
+    this.heroWidthForcedBackup = this.data.heroWidthForced;
     this.showImageBackup = this.data.showImage;
   }
 
@@ -173,6 +176,7 @@ export class SakaiCourseDashboard extends SakaiElement {
       programme: this.programmeBackup,
       widgetLayout: structuredClone(this.widgetLayoutBackup),
       heroWidth: this.heroWidthBackup,
+      heroWidthForced: this.heroWidthForcedBackup,
       showImage: this.showImageBackup,
       image: this.imageBackup,
     };
@@ -224,6 +228,7 @@ export class SakaiCourseDashboard extends SakaiElement {
       data.overview = this.data.overview;
       data.programme = this.data.programme;
       data.showImage = Boolean(this.data.showImage);
+      data.heroWidthForced = Boolean(this.data.heroWidthForced);
     }
 
     const url = `/api/sites/${this.siteId}/dashboard`;
@@ -261,6 +266,11 @@ export class SakaiCourseDashboard extends SakaiElement {
   _showImageChanged(e) {
 
     this.data = { ...this.data, showImage: e.target.checked };
+  }
+
+  _heroWidthForcedChanged(e) {
+
+    this.data = { ...this.data, heroWidthForced: e.target.checked };
   }
 
   shouldUpdate() {
@@ -449,7 +459,9 @@ export class SakaiCourseDashboard extends SakaiElement {
 
   _heroChrome() {
 
-    if (!this.editing) {
+    const forced = Boolean(this.data.heroWidthForced);
+    const canEditWidth = this._siteEditable || (this._layoutEditable && !forced);
+    if (!this.editing || (!this._siteEditable && !canEditWidth)) {
       return nothing;
     }
 
@@ -459,7 +471,7 @@ export class SakaiCourseDashboard extends SakaiElement {
       <div class="course-dashboard-hero-chrome">
         <div class="course-dashboard-hero-chrome-title">${this._i18n.hero_title}</div>
         <div class="course-dashboard-hero-chrome-controls">
-          ${this._layoutEditable ? html`
+          ${canEditWidth ? html`
             <label class="course-dashboard-hero-control">
               <span class="course-dashboard-hero-control-label">${this._i18n.hero_width}</span>
               <select class="form-select form-select-sm"
@@ -473,6 +485,14 @@ export class SakaiCourseDashboard extends SakaiElement {
             </label>
           ` : nothing}
           ${this._siteEditable ? html`
+            <div class="form-check course-dashboard-hero-control">
+              <input class="form-check-input"
+                  type="checkbox"
+                  id="course-dashboard-force-hero-width"
+                  .checked=${forced}
+                  @change=${this._heroWidthForcedChanged}>
+              <label class="form-check-label" for="course-dashboard-force-hero-width">${this._i18n.force_hero_width}</label>
+            </div>
             <div class="form-check course-dashboard-hero-control">
               <input class="form-check-input"
                   type="checkbox"
