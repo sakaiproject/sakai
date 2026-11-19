@@ -299,7 +299,7 @@ public class SitesController extends AbstractSakaiApiController {
         } catch (IdUnusedException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            log.error("getSiteMember failed for siteId=" + siteId + " userId=" + userId + ": " + e.getMessage(), e);
+            log.error("getSiteMember failed for siteId={} userId={}", siteId, userId, e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -331,14 +331,14 @@ public class SitesController extends AbstractSakaiApiController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            log.error("getSiteDetails failed for siteId=" + siteId + ": " + e.getMessage(), e);
+            log.error("getSiteDetails failed for siteId={}", siteId, e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
             } catch (SQLException e) {
-                log.error("SQLException in finally block: " + e);
+                log.error("SQLException in finally block", e);
             }
             if (conn != null) {
                 sqlService.returnConnection(conn);
