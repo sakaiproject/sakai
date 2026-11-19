@@ -365,7 +365,16 @@ class Feedback {
             this.displayError(Feedback.BAD_DESCRIPTION);
             return false;
         }
-        
+
+        // Check here: an upload over the server's limit is cut off before it can answer.
+        const attachmentsSize = [...formData.values()]
+            .filter(value => value instanceof File)
+            .reduce((total, file) => total + file.size, 0);
+        if (attachmentsSize > this.feedback.maxAttachmentsMB * 1024 * 1024) {
+            this.displayError(Feedback.ATTACHMENTS_TOO_BIG);
+            return false;
+        }
+
         if (!loggedIn) {
             if (!senderAddress || senderAddress.length === 0) {
                 this.displayError(Feedback.NO_SENDER_ADDRESS);
@@ -396,7 +405,7 @@ class Feedback {
                 errorMessage = this.feedback.i18n.error_bad_request;
                 break;
             case Feedback.ATTACHMENTS_TOO_BIG:
-                errorMessage = this.feedback.i18n.error_attachments_too_big;
+                errorMessage = this.feedback.i18n.error_attachments_too_big.replace('{0}', this.feedback.maxAttachmentsMB);
                 break;
             case Feedback.BAD_TITLE:
                 errorMessage = this.feedback.i18n.error_bad_title;
