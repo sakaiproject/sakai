@@ -16,7 +16,6 @@
 package org.sakaiproject.grading.impl.messaging;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +30,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.GradingPersistenceManager;
-import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.messaging.api.UserNotificationData;
@@ -108,38 +106,24 @@ public class GradebookUserNotificationHandler extends AbstractUserNotificationHa
         }
 
         try {
-            Optional<Gradebook> optGradebook = gradingPersistenceManager.getGradebook(gradebookUid);
-            if (optGradebook.isEmpty() || !BooleanUtils.isTrue(optGradebook.get().getAssignmentsDisplayed())) {
-                return Optional.empty();
-            }
-
-            Optional<GradebookAssignment> optItem = gradingPersistenceManager.getAssignmentByNameAndGradebook(itemName, gradebookUid);
-            if (optItem.isEmpty()) {
-                return Optional.empty();
-            }
-
-            GradebookAssignment item = optItem.get();
-            if (!BooleanUtils.isTrue(item.getReleased())
+            // One query: the item's gradebook is loaded with it
+            GradebookAssignment item = gradingPersistenceManager.getAssignmentByNameAndGradebook(itemName, gradebookUid).orElse(null);
+            if (item == null
+                    || !BooleanUtils.isTrue(item.getReleased())
+                    || !BooleanUtils.isTrue(item.getGradebook().getAssignmentsDisplayed())
                     || (BooleanUtils.isTrue(item.getExternallyMaintained()) && ASSIGNMENTS_APP_NAME.equals(item.getExternalAppName()))) {
                 return Optional.empty();
             }
 
             Site site = getSite(gradebookUid);
-            if (site == null) {
-                return Optional.empty();
-            }
-
-            ToolConfiguration tool = site.getToolForCommonId(GRADEBOOK_TOOL_ID);
-            if (tool == null) {
-                return Optional.empty();
-            }
-
-            if (hasUnviewedNotification(studentId, site.getId(), SERVICE_REF_PREFIX + gradebookUid + "/" + itemName + "/" + studentId + "/")) {
+            ToolConfiguration tool = site != null ? site.getToolForCommonId(GRADEBOOK_TOOL_ID) : null;
+            if (tool == null
+                    || hasUnviewedNotification(studentId, SERVICE_REF_PREFIX + gradebookUid + "/" + itemName + "/" + studentId + "/")) {
                 return Optional.empty();
             }
 
             String url = serverConfigurationService.getPortalUrl() + "/site/" + site.getId() + "/tool/" + tool.getId();
-            return Optional.of(Collections.singletonList(
+            return Optional.of(List.of(
                     new UserNotificationData(from, studentId, site.getId(), item.getName(), url, GRADEBOOK_TOOL_ID, false, null)));
         } catch (Exception ex) {
             log.error("Failed to create a grade notification for event reference {}", ref, ex);
@@ -169,23 +153,21 @@ public class GradebookUserNotificationHandler extends AbstractUserNotificationHa
      * Avoid piling up notifications when an item is re-scored before the student has seen the
      * previous notification for it. Once viewed or cleared, a new score notifies again.
      */
-    boolean hasUnviewedNotification(String studentId, String siteId, String itemRefPrefix) {
+    boolean hasUnviewedNotification(String studentId, String itemRefPrefix) {
 
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-        List<String> refs = transactionTemplate.execute(status -> {
+        // Item names can contain LIKE wildcards
+        String pattern = itemRefPrefix.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+        Long count = new TransactionTemplate(transactionManager).execute(status -> {
             CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
-            CriteriaQuery<String> cq = cb.createQuery(String.class);
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
             Root<UserNotification> root = cq.from(UserNotification.class);
-            cq.select(root.get("ref"))
-                .where(
-                    cb.equal(root.get("event"), EVENT_UPDATE_ITEM_SCORE),
+            cq.select(cb.count(root)).where(
                     cb.equal(root.get("toUser"), studentId),
-                    cb.equal(root.get("siteId"), siteId),
-                    cb.isFalse(root.get("viewed"))
-                );
-            return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
+                    cb.equal(root.get("event"), EVENT_UPDATE_ITEM_SCORE),
+                    cb.isFalse(root.get("viewed")),
+                    cb.like(root.get("ref"), pattern, '!'));
+            return sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
         });
-
-        return refs != null && refs.stream().anyMatch(r -> r != null && r.startsWith(itemRefPrefix));
+        return count != null && count > 0;
     }
 }

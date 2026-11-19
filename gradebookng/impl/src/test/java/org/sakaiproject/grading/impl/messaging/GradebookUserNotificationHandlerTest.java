@@ -62,16 +62,16 @@ public class GradebookUserNotificationHandlerTest {
 
         MockitoAnnotations.openMocks(this);
         handler = spy(handler);
-        doReturn(false).when(handler).hasUnviewedNotification(anyString(), anyString(), anyString());
+        doReturn(false).when(handler).hasUnviewedNotification(anyString(), anyString());
 
         gradebook = new Gradebook();
         gradebook.setUid(SITE_ID);
         gradebook.setAssignmentsDisplayed(true);
-        when(gradingPersistenceManager.getGradebook(SITE_ID)).thenReturn(Optional.of(gradebook));
 
         item = new GradebookAssignment();
         item.setName("Quiz 1");
         item.setReleased(true);
+        item.setGradebook(gradebook);
         when(gradingPersistenceManager.getAssignmentByNameAndGradebook("Quiz 1", SITE_ID)).thenReturn(Optional.of(item));
 
         ToolConfiguration tool = mock(ToolConfiguration.class);
@@ -116,6 +116,7 @@ public class GradebookUserNotificationHandlerTest {
         GradebookAssignment slashed = new GradebookAssignment();
         slashed.setName("Unit 1/Quiz");
         slashed.setReleased(true);
+        slashed.setGradebook(gradebook);
         when(gradingPersistenceManager.getAssignmentByNameAndGradebook("Unit 1/Quiz", SITE_ID)).thenReturn(Optional.of(slashed));
 
         List<UserNotificationData> result = handle("/gradebook/site1/Unit 1/Quiz/student/8.0/student");
@@ -129,8 +130,11 @@ public class GradebookUserNotificationHandlerTest {
         Gradebook groupGradebook = new Gradebook();
         groupGradebook.setUid("group1");
         groupGradebook.setAssignmentsDisplayed(true);
-        when(gradingPersistenceManager.getGradebook("group1")).thenReturn(Optional.of(groupGradebook));
-        when(gradingPersistenceManager.getAssignmentByNameAndGradebook("Quiz 1", "group1")).thenReturn(Optional.of(item));
+        GradebookAssignment groupItem = new GradebookAssignment();
+        groupItem.setName("Quiz 1");
+        groupItem.setReleased(true);
+        groupItem.setGradebook(groupGradebook);
+        when(gradingPersistenceManager.getAssignmentByNameAndGradebook("Quiz 1", "group1")).thenReturn(Optional.of(groupItem));
         when(siteService.getSite("group1")).thenThrow(new IdUnusedException("group1"));
         Group group = mock(Group.class);
         Site site = siteService.getSite(SITE_ID);
@@ -194,7 +198,7 @@ public class GradebookUserNotificationHandlerTest {
     @Test
     public void skipsWhenAnUnviewedNotificationExists() {
 
-        doReturn(true).when(handler).hasUnviewedNotification(STUDENT, SITE_ID, "/gradebook/site1/Quiz 1/student/");
+        doReturn(true).when(handler).hasUnviewedNotification(STUDENT, "/gradebook/site1/Quiz 1/student/");
         assertTrue(handle("/gradebook/site1/Quiz 1/student/8.0/student").isEmpty());
     }
 }
