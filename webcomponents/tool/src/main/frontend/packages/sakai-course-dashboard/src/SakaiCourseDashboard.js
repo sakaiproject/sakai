@@ -132,6 +132,9 @@ export class SakaiCourseDashboard extends SakaiElement {
 
   widgetLayoutChanged(e) {
 
+    if (!Array.isArray(e.detail?.layout)) {
+      return;
+    }
     this.data = { ...this.data, widgetLayout: e.detail.layout };
     if (typeof e.detail.availableCount === "number") {
       this._availableWidgetCount = e.detail.availableCount;
@@ -149,6 +152,7 @@ export class SakaiCourseDashboard extends SakaiElement {
 
   overviewChanged(e) {
 
+    e.stopPropagation();
     this.data = { ...this.data, overview: e.detail.content };
   }
 
