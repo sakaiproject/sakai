@@ -46,11 +46,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -4319,6 +4318,89 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertNotNull(replacement.get("bundle"));
             Assert.assertEquals(assignment.getTitle(), replacement.get("title"));
         }
+    }
+
+    @Test
+    public void getSelectedGroupUsers() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String siteRef = "/site/" + context;
+        String graderId = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(graderId);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentRef)).thenReturn(true);
+
+        String id1 = UUID.randomUUID().toString();
+        String id2 = UUID.randomUUID().toString();
+        String id3 = UUID.randomUUID().toString();
+        String id4 = UUID.randomUUID().toString();
+        User u1 = when(mock(User.class).getId()).thenReturn(id1).getMock();
+        User u2 = when(mock(User.class).getId()).thenReturn(id2).getMock();
+        User u3 = when(mock(User.class).getId()).thenReturn(id3).getMock();
+        User u4 = when(mock(User.class).getId()).thenReturn(id4).getMock();
+        for (User u : List.of(u1, u2, u3, u4)) {
+            when(userDirectoryService.getUser(u.getId())).thenReturn(u);
+        }
+
+        when(userDirectoryService.getUser("missing-user")).thenThrow(new UserNotDefinedException("missing-user"));
+        List<User> allowed = List.of(u1, u2, u3); // u4 may not submit
+
+        String groupRefA = siteRef + "/group/a";
+        String groupRefB = siteRef + "/group/b";
+        String groupRefGhosts = siteRef + "/group/ghosts";
+        String groupRefDeleted = siteRef + "/group/deleted";
+        Group groupA = when(mock(Group.class).getReference()).thenReturn(groupRefA).getMock();
+        Group groupB = when(mock(Group.class).getReference()).thenReturn(groupRefB).getMock();
+        Group ghosts = when(mock(Group.class).getReference()).thenReturn(groupRefGhosts).getMock();
+        Group deleted = when(mock(Group.class).getReference()).thenReturn(groupRefDeleted).getMock();
+        when(groupA.getId()).thenReturn("a");
+        when(groupB.getId()).thenReturn("b");
+
+        // realm members; LinkedHashSet keeps the returned user order predictable
+        AuthzGroup siteRealm = when(mock(AuthzGroup.class).getUsers()).thenReturn(new LinkedHashSet<>(List.of(id1, id2, id3, id4))).getMock();
+        AuthzGroup realmA = when(mock(AuthzGroup.class).getUsers()).thenReturn(new LinkedHashSet<>(List.of(id1, id2))).getMock();
+        AuthzGroup realmB = when(mock(AuthzGroup.class).getUsers()).thenReturn(new LinkedHashSet<>(List.of(id2, id3))).getMock();
+        AuthzGroup realmGhosts = when(mock(AuthzGroup.class).getUsers()).thenReturn(new LinkedHashSet<>(List.of(id1, "missing-user"))).getMock();
+        when(authzGroupService.getAuthzGroup(siteRef)).thenReturn(siteRealm);
+        when(authzGroupService.getAuthzGroup(groupRefA)).thenReturn(realmA);
+        when(authzGroupService.getAuthzGroup(groupRefB)).thenReturn(realmB);
+        when(authzGroupService.getAuthzGroup(groupRefGhosts)).thenReturn(realmGhosts);
+        when(authzGroupService.getAuthzGroup(groupRefDeleted)).thenThrow(new GroupNotDefinedException(groupRefDeleted));
+
+        Site site = mock(Site.class);
+        when(site.getReference()).thenReturn(siteRef);
+        when(site.getGroups()).thenReturn(List.of(groupA, groupB, ghosts, deleted));
+        when(siteService.siteReference(context)).thenReturn(siteRef);
+        when(siteService.getSite(context)).thenReturn(site);
+
+        // blank selection
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers(null, assignment, allowed).isEmpty());
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers(" ", assignment, allowed).isEmpty());
+
+        // all, without asn.all.groups: union of gradeable groups, u2 (in both) appears once
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(graderId), eq(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION), anyCollection())).thenReturn(Set.of(groupRefA, groupRefB));
+        List<User> users = assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, assignment, allowed);
+        Assert.assertEquals(3, users.size());
+        Assert.assertEquals(Set.of(u1, u2, u3), new HashSet<>(users));
+
+        // undefined users and deleted groups are skipped
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(graderId), eq(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION), anyCollection())).thenReturn(Set.of(groupRefGhosts, groupRefDeleted));
+        Assert.assertEquals(List.of(u1), assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, assignment, allowed));
+
+        // single group by reference or id: only that group, and only if gradeable
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(graderId), eq(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION), anyCollection())).thenReturn(Set.of(groupRefA));
+        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers(groupRefA, assignment, allowed));
+        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers("a", assignment, allowed));
+        // group B is in the site but not gradeable; unknown reference matches nothing
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers(groupRefB, assignment, allowed).isEmpty());
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers("b", assignment, allowed).isEmpty());
+        Assert.assertTrue(assignmentService.getSelectedGroupUsers(siteRef + "/group/none", assignment, allowed).isEmpty());
+
+        // with asn.all.groups: all uses site members, a single group is still just that group
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(graderId), eq(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION), anyCollection())).thenReturn(Set.of(groupRefA));
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, siteRef)).thenReturn(true);
+        Assert.assertEquals(List.of(u1, u2, u3), assignmentService.getSelectedGroupUsers(AssignmentConstants.ALL, assignment, allowed));
+        Assert.assertEquals(List.of(u1, u2), assignmentService.getSelectedGroupUsers(groupRefA, assignment, allowed));
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {
