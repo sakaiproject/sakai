@@ -29,9 +29,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -62,6 +64,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback;
@@ -2512,6 +2515,11 @@ public class ItemAddListener implements ActionListener {
 		set.add(new ItemMetaData(item.getData(),
 					ItemMetaDataIfc.MCMS_PARTIAL_CREDIT, bean.getMcmsPartialCredit()));
 		}
+		minScoreCriteria(item, bean).forEach((label, entry) -> {
+			if (StringUtils.isNotEmpty(entry)) {
+				set.add(new ItemMetaData(item.getData(), label, entry));
+			}
+		});
 		
 		// 2/19/06 use PREDEFINED_SCALE to be in sync with what we are using
 		// for import/export
@@ -2674,7 +2682,30 @@ public class ItemAddListener implements ActionListener {
 			  itemMetaData.setEntry(bean.isTimedQuestion() ? Integer.toString(bean.getTimeLimit()) : "false");
 		  }
 	  }
+
+	  // The essay criteria may be new to an item published before they existed
+	  minScoreCriteria(item, bean).forEach((label, entry) -> {
+		  Optional<ItemMetaDataIfc> existing = ((Set<ItemMetaDataIfc>) itemMetaDataSet).stream()
+				  .filter(m -> label.equals(m.getLabel())).findFirst();
+		  if (existing.isPresent()) {
+			  existing.get().setEntry(entry);
+		  } else if (StringUtils.isNotEmpty(entry)) {
+			  itemMetaDataSet.add(new PublishedItemMetaData(item.getData(), label, entry));
+		  }
+	  });
 	  return itemMetaDataSet;
+	}
+
+	// The criteria an essay answer must meet to get the minimum score, keyed by metadata label.
+	// Empty entries mean the criterion isn't set.
+	private Map<String, String> minScoreCriteria(ItemFacade item, ItemBean bean) {
+		Map<String, String> criteria = new LinkedHashMap<>();
+		if (TypeFacade.ESSAY_QUESTION.equals(item.getTypeId())) {
+			Integer wordCount = bean.getItemMinScoreWordCount();
+			criteria.put(ItemMetaDataIfc.MIN_SCORE_WORD_COUNT, wordCount != null && wordCount > 0 ? wordCount.toString() : "");
+			criteria.put(ItemMetaDataIfc.MIN_SCORE_KEYWORDS, StringUtils.trimToEmpty(bean.getItemMinScoreKeywords()));
+		}
+		return criteria;
 	}
 
 	private void preparePublishedTextForMatrixSurvey(ItemFacade item, ItemBean bean) {
