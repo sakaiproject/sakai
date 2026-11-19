@@ -111,7 +111,7 @@
 						</h:commandLink>
 						<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 						<h:panelGroup rendered="#{ForumTool.selectedTopic.availability == 'false'}">
-							<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
+							<span class="bi bi-calendar-week" aria-hidden="true" style="margin-right:.5em"></span>
 							<h:outputText styleClass="sr-only" value="#{msgs.topic_restricted_message}" />
 						</h:panelGroup>
 						<h:panelGroup rendered="#{ForumTool.selectedTopic.locked =='true'}">

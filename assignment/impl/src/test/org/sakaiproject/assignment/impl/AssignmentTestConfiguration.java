@@ -20,14 +20,13 @@ import static org.mockito.Mockito.mock;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
 import org.hsqldb.jdbcDriver;
 import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -35,7 +34,6 @@ import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
-import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.impl.reminder.prefs.AssignmentUserNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -61,7 +59,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.TaskService;
-import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.timesheet.api.TimeSheetService;
@@ -108,8 +105,6 @@ public class AssignmentTestConfiguration {
         srb.applySetting(org.hibernate.cfg.Environment.DATASOURCE, dataSource);
         srb.applySettings(hibernateProperties());
         StandardServiceRegistry sr = srb.build();
-        sr.getService(MutableIdentifierGeneratorFactoryInitiator.INSTANCE.getServiceInitiated())
-                .register("uuid2", AssignableUUIDGenerator.class);
         hibernateMappings.processAdditionalMappings(sfb);
         return sfb.buildSessionFactory(sr);
     }
@@ -169,10 +164,7 @@ public class AssignmentTestConfiguration {
         return mock(AnnouncementService.class);
     }
 
-    @Bean(name = "org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer")
-    public AssignmentActivityProducer assignmentActivityProducer() {
-        return mock(AssignmentActivityProducer.class);
-    }
+
 
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
     public AuthzGroupService authzGroupService() {
@@ -234,10 +226,7 @@ public class AssignmentTestConfiguration {
         return scs;
     }
 
-    @Bean(name = "org.sakaiproject.taggable.api.TaggingManager")
-    public TaggingManager taggingManager() {
-        return mock(TaggingManager.class);
-    }
+
 
     @Bean(name = "org.sakaiproject.time.api.TimeService")
     public TimeService timeService() {
@@ -266,7 +255,10 @@ public class AssignmentTestConfiguration {
 
     @Bean(name = "org.sakaiproject.event.api.LearningResourceStoreService")
     public LearningResourceStoreService learningResourceStoreService() {
-        return mock(LearningResourceStoreService.class);
+        LearningResourceStoreService service = mock(LearningResourceStoreService.class);
+        Mockito.when(service.getActor(Mockito.anyString())).thenAnswer(invocation ->
+                new LearningResourceStoreService.LRS_Actor(invocation.getArgument(0) + "@example.edu"));
+        return service;
     }
 
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")

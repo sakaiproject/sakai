@@ -54,6 +54,16 @@ import org.apache.commons.text.StringEscapeUtils;
 @Slf4j
 public class SakaiLTIUtilTest {
 
+	@Test
+	public void identifiesDeepLinkControlParameters() {
+		assertTrue(SakaiLTIUtil.isDeepLinkControlParameter("state"));
+		assertTrue(SakaiLTIUtil.isDeepLinkControlParameter("nonce"));
+		assertTrue(SakaiLTIUtil.isDeepLinkControlParameter("redirect_uri"));
+		assertTrue(SakaiLTIUtil.isDeepLinkControlParameter("flow"));
+		assertTrue(SakaiLTIUtil.isDeepLinkControlParameter("lti_storage_target"));
+		assertFalse(SakaiLTIUtil.isDeepLinkControlParameter("vendor_tenant_id"));
+	}
+
 	public static String [] shouldBeTheSame = {
 		null,
 		"",
@@ -1355,4 +1365,3 @@ public class SakaiLTIUtilTest {
 		assertNull("findBestToolMatchBean should return null when all tools are null", result);
 	}
 }
-

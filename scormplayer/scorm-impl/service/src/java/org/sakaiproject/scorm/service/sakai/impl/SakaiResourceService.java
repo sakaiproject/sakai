@@ -68,6 +68,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 
 import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
+import static org.sakaiproject.scorm.api.ScormConstants.PERM_UPLOAD;
 
 @Slf4j
 public abstract class SakaiResourceService extends AbstractResourceService
@@ -605,6 +606,11 @@ public abstract class SakaiResourceService extends AbstractResourceService
 		try (stream)
 		{
 			String siteId = getTemporaryArchiveSiteId();
+			String siteReference = siteService().siteReference(siteId);
+			if (!securityService().isSuperUser()
+					&& (siteReference == null || !securityService().unlock(PERM_UPLOAD, siteReference))) {
+				throw new PermissionException(null, PERM_UPLOAD, siteReference);
+			}
 			String escapedSiteId = Validator.escapeResourceName(siteId);
 			if (StringUtils.isBlank(escapedSiteId))
 				throw new IllegalStateException("Unable to resolve current site context for temporary SCORM archive");

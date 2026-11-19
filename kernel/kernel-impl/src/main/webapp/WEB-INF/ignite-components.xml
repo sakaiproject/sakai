@@ -33,6 +33,11 @@
         <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
     </bean>
 
+    <bean id="org.sakaiproject.ignite.api.CacheAdminService"
+          class="org.sakaiproject.ignite.CacheAdminServiceImpl">
+        <property name="sakaiIgnite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+    </bean>
+
     <!--
     Expiry policy to for when cache objects are considered expired (ttl)
     Default is 120 minutes from when object is created
@@ -68,8 +73,8 @@
     <bean id="org.sakaiproject.ignite.DataRegionConfiguration.SpringRegion"
           class="org.apache.ignite.configuration.DataRegionConfiguration">
         <property name="name" value="spring_region"/>
-        <property name="initialSize" value="#{10L * 1024 * 1024}"/>
-        <property name="maxSize" value="#{100L * 1024 * 1024}"/>
+        <property name="initialSize" value="#{300L * 1024 * 1024}"/>
+        <property name="maxSize" value="#{1024L * 1024 * 1024}"/>
         <property name="pageEvictionMode" value="RANDOM_2_LRU"/>
         <property name="persistenceEnabled" value="false"/>
         <property name="metricsEnabled" value="true"/>
@@ -125,6 +130,41 @@
           class="java.util.ArrayList">
         <constructor-arg>
             <list>
+                <!-- Password guesses need synchronous replication and primary-node reads. -->
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.user.impl.PasswordLoginBackoff"/>
+                    <property name="dataRegionName" value="spring_region"/>
+                    <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+                    <property name="readFromBackup" value="false"/>
+                    <property name="expiryPolicyFactory">
+                        <bean class="javax.cache.expiry.ModifiedExpiryPolicy" factory-method="factoryOf">
+                            <constructor-arg>
+                                <bean class="javax.cache.expiry.Duration">
+                                    <constructor-arg value="SECONDS"/>
+                                    <constructor-arg>
+                                        <bean class="org.sakaiproject.user.impl.PasswordLoginBackoff" factory-method="windowSeconds">
+                                            <constructor-arg ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+                                        </bean>
+                                    </constructor-arg>
+                                </bean>
+                            </constructor-arg>
+                        </bean>
+                    </property>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.user.api.AuthenticationManager"/>
+                    <property name="dataRegionName" value="spring_region"/>
+                    <property name="expiryPolicyFactory">
+                        <bean class="javax.cache.expiry.CreatedExpiryPolicy" factory-method="factoryOf">
+                            <constructor-arg>
+                                <bean class="javax.cache.expiry.Duration">
+                                    <constructor-arg value="MINUTES"/>
+                                    <constructor-arg value="5"/>
+                                </bean>
+                            </constructor-arg>
+                        </bean>
+                    </property>
+                </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.coursemanagement.impl.AcademicSessionCmImpl"/>
                 </bean>
@@ -181,9 +221,6 @@
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.component.common.type.TypeImpl"/>
-                </bean>
-                <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.sakaiproject.taggable.impl.LinkImpl"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.Assignment"/>
@@ -258,7 +295,7 @@
                     <property name="name" value="org.sakaiproject.hbm.privacy.PrivacyRecord"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.eternal">
-                    <property name="name" value="org.sakaiproject.lti13.LTI13Servlet_cache"/>
+                    <property name="name" value="org.sakaiproject.lti.impl.SakaiAccessTokenServiceImpl_cache"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.lti13.ClientAssertionReplay_cache"/>
@@ -276,9 +313,9 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.adl.datamodels.nav.SCORM_2004_NAV_DM.mElements"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                <!--<bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="java.net.URL"/>
-                </bean>
+                </bean>-->
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.adl.datamodels.DMDelimiter"/>
                 </bean>

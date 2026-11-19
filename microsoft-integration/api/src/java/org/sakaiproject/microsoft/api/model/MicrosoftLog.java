@@ -19,16 +19,16 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.microsoft.api.converters.JpaConverterMap;
 
@@ -117,8 +117,7 @@ public class MicrosoftLog {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "mc_log_seq")
-	@SequenceGenerator(name = "mc_log_seq", sequenceName = "mc_log_seq")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "mc_log_seq", sequenceName = "mc_log_seq"))
 	private Long id;
 
 	@Column(name = "event")
@@ -128,7 +127,7 @@ public class MicrosoftLog {
 	private Status status;
 	
 	@Lob
-	@Column(name="context")
+	@Column(name="context", length = Length.LONG32)
 	@Convert(converter = JpaConverterMap.class)
 	private Map<String, String> context;
 	

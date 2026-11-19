@@ -31,14 +31,14 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -112,11 +112,19 @@ public class DownloadCPServlet extends HttpServlet {
 	 */
 	private void exportAssessmentZip(HttpServletRequest req, HttpServletResponse res, String assessmentId, String agentIdString) throws ServletException, IOException {
 		AssessmentService assessmentService = new AssessmentService();
+		String currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
+		String createdBy = assessmentService.getAssessmentCreatedBy(assessmentId);
+
+		if (!canExport(req, res, agentIdString, currentSiteId, createdBy)) {
+			handleAccessDenied(req, res);
+			return;
+		}
+
 		AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
 		int success = assessmentService.updateAllRandomPoolQuestions(assessment);
 		String errorPoolSizeTooLarge = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "update_pool_error_size_too_large");
 		String errorPoolUpdateUnknown = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
-		String pathUpdateError = "/jsf/qti/poolUpdateError.faces";
+		String pathUpdateError = "/jsf/author/poolUpdateError.faces";
 
 		if (success != AssessmentService.UPDATE_SUCCESS) {
 			if (success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){
@@ -124,14 +132,6 @@ public class DownloadCPServlet extends HttpServlet {
 			} else {
 				handleExportError(req, res, errorPoolUpdateUnknown, pathUpdateError);
 			}
-			return;
-		}
-
-		String currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
-		String createdBy = assessmentService.getAssessmentCreatedBy(assessmentId);
-
-		if (!canExport(req, res, agentIdString, currentSiteId, createdBy)) {
-			handleAccessDenied(req, res);
 			return;
 		}
 
@@ -220,7 +220,7 @@ public class DownloadCPServlet extends HttpServlet {
 		String exportPoolZip = "exportPool.zip";
 		String xmlFileName = "exportAssessment.xml";
 		String manifestFileName = "imsmanifest.xml";
-		XMLController xmlController = (XMLController) ContextUtil.lookupBeanFromExternalServlet("xmlController", req, res);
+		XMLController xmlController = (XMLController) ContextUtil.lookupBeanFromExternalServlet("xmlController", req, res, getServletContext());
 
 		res.setContentType(contentType);
 		String zipFilename = (isAssessment) ? exportAssessmentZip : exportPoolZip;
@@ -303,7 +303,7 @@ public class DownloadCPServlet extends HttpServlet {
 		String agentIdString = AgentFacade.getAgentString();
 		if (agentIdString == null || agentIdString.equals("")) { // try this
 			PersonBean person = (PersonBean) ContextUtil
-					.lookupBeanFromExternalServlet("person", req, res);
+					.lookupBeanFromExternalServlet("person", req, res, getServletContext());
 			agentIdString = person.getAnonymousId();
 		}
 		return agentIdString;

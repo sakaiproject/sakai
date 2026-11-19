@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -52,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  */
 @Slf4j
-public class BaseGroup implements Group, Identifiable
+public class BaseGroup implements Group, Identifiable, Serializable
 {
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
@@ -69,16 +70,17 @@ public class BaseGroup implements Group, Identifiable
 	/** The properties. */
 	protected ResourcePropertiesEdit m_properties = null;
 
-	/** The site I belong to. */
-	protected Site m_site = null;
+	/** The site I belong to. Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	protected transient Site m_site = null;
 
-	/** The azg from the AuthzGroupService that is my AuthzGroup impl. */
-	protected AuthzGroup m_azg = null;
+	/** The azg from the AuthzGroupService that is my AuthzGroup impl. Lazily loaded, never copied. */
+	protected transient AuthzGroup m_azg = null;
 
 	/** Set to true if we have changed our azg, so it need to be written back on save. */
 	protected boolean m_azgChanged = false;
 
-	private BaseSiteService siteService;
+	/** Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	private transient BaseSiteService siteService;
 
 	/**
 	 * Construct. Auto-generate the id.

@@ -30,7 +30,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IllegalSecurityAdvisorException;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 import java.util.Stack;
@@ -48,7 +47,6 @@ public class AdvisorTest {
 	@Mock private FunctionManager functionManager;
 	@Mock private AuthzGroupService authzGroupService;
 	@Mock private EntityManager entityManager;
-	@Mock private MemoryService memoryService;
 	@Mock private ServerConfigurationService serverConfigurationService;
 	@Mock private EventTrackingService eventTrackingService;
 	@Mock private ThreadLocalManager threadLocalManager;
@@ -65,7 +63,6 @@ public class AdvisorTest {
 		securityService.setFunctionManager(functionManager);
 		securityService.setAuthzGroupService(authzGroupService);
 		securityService.setEntityManager(entityManager);
-		securityService.setMemoryService(memoryService);
 		securityService.setServerConfigurationService(serverConfigurationService);
 		securityService.setEventTrackingService(eventTrackingService);
 		securityService.setThreadLocalManager(threadLocalManager);

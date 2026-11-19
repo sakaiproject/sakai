@@ -40,6 +40,7 @@
     "@sakai-ui/sakai-permissions": "file:../sakai-permissions",
     "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
     "@sakai-ui/sakai-search": "file:../sakai-search",
+    "@sakai-ui/sakai-tag-selector": "file:../sakai-tag-selector",
     "@sakai-ui/sakai-toggle": "file:../sakai-toggle",
     "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo"
   }

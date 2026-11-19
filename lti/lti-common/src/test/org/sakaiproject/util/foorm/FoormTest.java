@@ -98,9 +98,8 @@ public class FoormTest {
 		pro.setProperty("webpage","http://www.cnn.com/");
 
 		// Properties parms, String[] formDefinition, boolean forInsert, Object loader, SortedMap<String,String> errors
-		log.debug(foorm.formValidate(pro, test_form, true, null, null));
 
-		HashMap<String, Object> rm = new HashMap<String,Object> ();
+		HashMap<String, Object> rm = new HashMap<> ();
 
 		// Object parms, String[] formDefinition, Object loader, boolean forInsert, Map<String, Object> dataMap, 
 		//    SortedMap<String,String> errors
@@ -227,54 +226,5 @@ public class FoormTest {
 		} catch (SQLException ex3) {
 			log.error("Unable to close connection", ex3);
 		}
-
 	}
-
-	public void testCreateSchema() {
-		boolean doReset = true;
-		Foorm foorm = new Foorm();
-		String[] sqls = foorm.formSqlTable("lti_content", test_form, "hsqldb", doReset);
-		conn = getHSqlDatabase();
-
-		for (String sql : sqls) {
-			log.debug("SQL={}", sql);
-			try {
-				update(conn, sql);
-			} catch (SQLException e) {
-				// Ignore
-			}
-		}
-
-		try {
-			query(conn,"SELECT * FROM lti_content");
-		} catch (SQLException ex3) {
-			log.error("Unable to query from lti_content table", ex3);
-			assert false;
-		}
-
-		try {
-			log.debug("Second time...");
-			doReset = false;
-			Statement st = conn.createStatement(); 
-			ResultSet rs =  st.executeQuery("SELECT * FROM lti_content");
-			ResultSetMetaData md   = rs.getMetaData();
-			sqls = foorm.formAdjustTable("lti_content", test_form_2, "hsqldb", md);
-			for (String sql : sqls) {
-				log.debug("SQL={}", sql);
-				try {
-					update(conn, sql);
-				} catch (SQLException e) {
-					log.error("Unable to update: {}, error: {}", sql, e);
-					assert false;
-				}
-			}
-			query(conn,"SELECT * FROM lti_content");
-		} catch (SQLException ex3) {
-			log.error("Unable to query from lti_content table", ex3);
-			assert false;
-		}
-
-
-	}
-
 }

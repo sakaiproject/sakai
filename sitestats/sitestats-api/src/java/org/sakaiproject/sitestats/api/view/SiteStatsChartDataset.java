@@ -20,5 +20,6 @@ public class SiteStatsChartDataset implements Serializable {
 
 	private String key;
 	private String label;
+	private String color;
 	private List<SiteStatsChartPoint> points = new ArrayList<SiteStatsChartPoint>();
 }

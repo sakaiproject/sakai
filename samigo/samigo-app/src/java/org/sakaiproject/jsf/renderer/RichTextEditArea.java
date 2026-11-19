@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.ValueHolder;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.render.Renderer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.component.ValueHolder;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -120,14 +120,14 @@ public class RichTextEditArea extends Renderer
     int maxCharCount = 0;
     if (tmpMaxCharCount != null) 
     {
-    	maxCharCount = new Integer(tmpMaxCharCount).intValue();
+    	maxCharCount = Integer.valueOf(tmpMaxCharCount).intValue();
     }
 
     int col;
     int row;
     if (tmpCol != null)
     {
-      col = new Integer(tmpCol).intValue();
+      col = Integer.valueOf(tmpCol).intValue();
     }
     else
     {
@@ -135,7 +135,7 @@ public class RichTextEditArea extends Renderer
     }
     if (tmpRow != null)
     {
-      row = new Integer(tmpRow).intValue();
+      row = Integer.valueOf(tmpRow).intValue();
     }
     else
     {
@@ -222,19 +222,19 @@ public class RichTextEditArea extends Renderer
 	  }
 
 	  //come up w/ rows/cols for the textarea if needed
-	  int textBoxRows = (new Integer(outRow).intValue()/20);
+	  int textBoxRows = (Integer.valueOf(outRow).intValue()/20);
 	  int textBoxCols = 0;
 	  if (columnsNotDefined) {
-		  textBoxCols  = (new Integer(outRow).intValue()/3);
+		  textBoxCols  = (Integer.valueOf(outRow).intValue()/3);
 	  }
 	  else {
-		  textBoxCols = (new Integer(outCol).intValue()/4);
+		  textBoxCols = (Integer.valueOf(outCol).intValue()/4);
 	  }
 
     //fck's tool bar can get pretty big
-    if (new Integer(outRow).intValue() < 300) 
+    if (Integer.valueOf(outRow).intValue() < 300) 
     {
-         outRow = (new Integer(outRow).intValue() + 100) + "";
+         outRow = (Integer.valueOf(outRow).intValue() + 100) + "";
     }
 
     //figure out if the toggle should be on

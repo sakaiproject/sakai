@@ -24,10 +24,10 @@ package org.sakaiproject.user.jsf;
 import org.sakaiproject.jsf2.util.JSFDepends;
 import org.sakaiproject.jsf2.util.RendererUtil;
 
-import javax.faces.component.UICommand;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
+import jakarta.faces.component.UICommand;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 import java.io.IOException;
 
 public class ToolBarItemRenderer extends JSFDepends.CommandLinkRenderer

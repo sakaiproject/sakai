@@ -20,10 +20,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
+import org.hibernate.SessionFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -80,12 +81,17 @@ public class GradeAssignmentUserNotificationHandler extends AbstractUserNotifica
 
                     TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
                     long currentCount = transactionTemplate.execute(status -> {
-
-                            return (Long) sessionFactory.getCurrentSession().createCriteria(UserNotification.class)
-                                .add(Restrictions.eq("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION))
-                                .add(Restrictions.eq("ref", ref))
-                                .add(Restrictions.eq("toUser", to.getSubmitter())).setProjection(Projections.rowCount()).uniqueResult();
-                        });
+                        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+                        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+                        Root<UserNotification> root = cq.from(UserNotification.class);
+                        cq.select(cb.count(root))
+                            .where(
+                                cb.equal(root.get("event"), AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION),
+                                cb.equal(root.get("ref"), ref),
+                                cb.equal(root.get("toUser"), to.getSubmitter())
+                            );
+                        return sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
+                    });
 
                     if (currentCount == 0) {
                         try {

@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>26-SNAPSHOT</version>
+    <version>27-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
   <groupId>org.sakaiproject</groupId>
   <artifactId>e2e-tests</artifactId>
-  <version>26-SNAPSHOT</version>
+  <version>27-SNAPSHOT</version>
   <name>Sakai Playwright Java E2E Tests</name>
   <packaging>jar</packaging>
 
@@ -21,10 +21,17 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <axe.core.version>4.11.3</axe.core.version>
     <junit.jupiter.version>5.12.1</junit.jupiter.version>
-    <playwright.version>1.58.0</playwright.version>
+    <playwright.version>1.64.0</playwright.version>
+    <sakai.test.forks>1</sakai.test.forks>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>${sakai.poi.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.deque.html.axe-core</groupId>
       <artifactId>playwright</artifactId>
@@ -61,6 +68,13 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <proc>none</proc>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <dependencies>
           <dependency>
@@ -70,6 +84,8 @@
           </dependency>
         </dependencies>
         <configuration>
+          <forkCount>${sakai.test.forks}</forkCount>
+          <reuseForks>true</reuseForks>
           <includes>
             <include>**/*Test.java</include>
           </includes>

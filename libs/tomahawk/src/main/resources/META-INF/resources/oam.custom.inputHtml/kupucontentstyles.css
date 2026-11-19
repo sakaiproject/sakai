@@ -1,0 +1,98 @@
+/*****************************************************************************
+ *
+ * Kupu content styles
+ *
+ * Copyright (c) 2003-2005 Kupu Contributors. See CREDITS.txt
+ *
+ * Instead of customizing this file, it is recommended to add your own
+ * CSS file.  Feel free to use whole or parts of this for your own
+ * designs, but give credit where credit is due.
+ *
+ *****************************************************************************/
+
+/* $Id: kupucontentstyles.css 9984 2005-03-21 14:29:21Z yuppie $ */
+
+/* this is an example CSS that defines styles for all classes set by kupu. of
+   course customizations can include completely different styles, and also for
+   different elements (changeable or not) */
+
+.image-left {
+   float: left;
+   clear: both;
+}
+
+.image-inline {
+   float: none;
+}
+
+.image-right {
+   float: right;
+   clear: both;
+}
+
+table {
+    border-width: 0px;
+    padding: 3px;
+}
+
+table.plain td {
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+}
+
+table.listing {
+    border-width: 0px;
+}
+
+table.listing td {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+table.listing th {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    background-color: gray;
+    color: white;
+}
+
+table.grid {
+    border-width: 0px;
+}
+
+table.grid td {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+table.grid th {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+table.data {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+table.data td {
+    border-style: solid;
+    border-width: 1px;
+    border-color: gray;
+}
+
+table.data th {
+    border-style: solid;
+    border-width: 1px;
+    border-color: gray;
+}
+
+.repeatable {
+    background-color: pink;
+}

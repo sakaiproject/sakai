@@ -697,8 +697,7 @@ ${extra}")
 	<label for="$panelName">$tlang.getString("search.label")</label>
 	<div class="sakai-table-searchFilterControls">
 		<div class="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center flex-grow-1">
-			<input type="text" name="$panelName" id="$panelName" value="$formattedText.escapeHtml($!userSearchTerm)" class="sakai-table-searchFilter-searchField w-100" data-search-url="#toolLink("$action" "$searchActionKey")" data-clear-url="#toolLink("$action" "$clearSearchActionKey")" />
-			<button type="button" class="sakai-table-searchFilter-clearBtn bg-transparent border-0 m-0 lh-1" aria-label="$tlang.getString('search.clear')" #if(!($!userSearchTerm && !$userSearchTerm.isEmpty())) style="display:none" #end>&#x2715;</button>
+			<input type="search" name="$panelName" id="$panelName" value="$formattedText.escapeHtml($!userSearchTerm)" class="sakai-table-searchFilter-searchField w-100" data-search-url="#toolLink("$action" "$searchActionKey")" data-clear-url="#toolLink("$action" "$clearSearchActionKey")" />
 		</div>
 	</div>
 </div>

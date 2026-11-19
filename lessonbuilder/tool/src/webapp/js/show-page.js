@@ -536,6 +536,19 @@ $(document).ready(function () {
         // it's not really HTML, but I don't want any processing done on it
         $('#mm-names').html(names);
       };
+      // Prevent duplicate file uploads. This removes the 'name' attribute from selector input so the browser ignores it during submit.
+      const inputsFile = $(this).closest('form').find('input.mm-file-input[name="mm-file"]');
+      const viewedFiles = new Set();
+      for (let i = 0; i < inputsFile.length; i++) {
+        const currentInput = $(inputsFile[i]);
+        const currentValue = currentInput.val();
+        if (currentValue === '') continue;
+        if (viewedFiles.has(currentValue)) {
+            currentInput.removeAttr('name');
+        } else {
+            viewedFiles.add(currentValue);
+        }
+      }
       // prevent double click
       if (!mmactive) {
           return false;
@@ -1515,14 +1528,6 @@ $(document).ready(function () {
       } else {
         $("#subpage-button-color-group").hide();
       }
-    });
-
-    $("#subpage-choose-button").tooltip();
-    $("#subpage-choose-button").attr("title", $('#subpage-choose').html());
-    $("#subpage-choose-button").click(function (e) {
-
-      e.preventDefault();
-      window.location = $('#subpage-choose').attr('href');
     });
 
     $("#item-button").click(function () {
@@ -3667,11 +3672,13 @@ var mimeMime = "";
 
 function getMimeType(url) {
      var mime = "";
-     // Access-Control-Allow-Origin: *
-     var base = location.protocol + '//' + location.host;
+     const pageId = document.querySelector("#lessonsCurrentPageId").value;
+     const csrfToken = document.querySelector("#add-multimedia-dialog input[name='csrf9']").value;
      $.ajax({type: "GET",
        async: false,
-        url: base + '/lessonbuilder-tool/ajax?op=getmimetype&url=' + encodeURIComponent(url),
+       url: "/lessonbuilder-tool/ajax",
+       data: {op: "getmimetype", pageId, url},
+       headers: {"X-CSRF-Token": csrfToken},
        success: function (data, status, hdr) {
      mime = data.trim();
       }});

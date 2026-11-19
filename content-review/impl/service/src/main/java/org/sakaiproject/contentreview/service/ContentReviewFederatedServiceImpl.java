@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
@@ -305,8 +305,8 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	}
 
 	@Override
-	public void updateUserEULATimestamp(String userId) {
-		getSelectedProvider().updateUserEULATimestamp(userId);
+	public boolean updateUserEULATimestamp(String userId) {
+		return getSelectedProvider().updateUserEULATimestamp(userId);
 	}
 
 	@Override

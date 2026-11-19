@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.sakaiproject.microsoft</groupId>
 		<artifactId>microsoft-integration</artifactId>
-		<version>26-SNAPSHOT</version>
+		<version>27-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -53,17 +53,17 @@
 		<dependency>
 			<groupId>com.microsoft.azure</groupId>
 			<artifactId>msal4j</artifactId>
-			<version>1.25.0</version>
+			<version>1.26.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.microsoft.graph</groupId>
 			<artifactId>microsoft-graph</artifactId>
-			<version>6.65.0</version>
+			<version>6.71.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.azure</groupId>
 			<artifactId>azure-identity</artifactId>
-			<version>1.18.4</version>
+			<version>1.18.7</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.azure</groupId>
@@ -74,12 +74,12 @@
 		<dependency>
 			<groupId>com.azure</groupId>
 			<artifactId>azure-core-http-okhttp</artifactId>
-			<version>1.13.5</version>
+			<version>1.13.8</version>
 		</dependency>
 
 		<!-- third party dependencies -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
 		<dependency>
@@ -99,8 +99,16 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>jakarta.mail</artifactId>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.angus</groupId>
+			<artifactId>angus-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.persistence</groupId>
+			<artifactId>jakarta.persistence-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

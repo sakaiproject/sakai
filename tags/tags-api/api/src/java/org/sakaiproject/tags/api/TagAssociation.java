@@ -13,14 +13,12 @@
  ******************************************************************************/
 package org.sakaiproject.tags.api;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedNativeQueries;
-import javax.persistence.NamedNativeQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.GenericGenerator;
 import lombok.Data;
@@ -28,18 +26,12 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @Data
-@NamedNativeQueries({
-        @NamedNativeQuery(
-                name = "FIND_ASSOCIATIONS_BY_ITEM_AND_COLLECTION",
-                query = "select ta.* from tagservice_tagassociation ta, tagservice_tag t where item_id = :itemId and tagcollectionid = :collectionId and t.tagid = ta.tag_id",
-                resultClass = TagAssociation.class),
-})
 @Entity
 @NoArgsConstructor
 @Table(name = "tagservice_tagassociation",
 	uniqueConstraints = @UniqueConstraint(columnNames = { "tag_id", "item_id" })
 )
-public class TagAssociation {
+public class TagAssociation implements org.sakaiproject.springframework.data.PersistableEntity<String> {
 
 	@Id
 	@Column(name = "id", length = 99, nullable = false)

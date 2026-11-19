@@ -17,7 +17,11 @@ package org.sakaiproject.lessonbuildertool.util;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.entityproviders.LessonsEntityProvider;
 
@@ -28,6 +32,10 @@ import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 
 public class LessonConditionUtil {
 
+    private static final ObjectMapper JSON_MAPPER = MapperFactory.createDefaultJsonMapper();
+
+    private record ItemLabel(long id, String name) {}
+
 
     public static UIComponent makeConditionEditor(SimplePageBean simplePageBean, UIContainer parent, String rsfId) {
         return UIOutput.make(parent, rsfId)
@@ -36,18 +44,28 @@ public class LessonConditionUtil {
     }
 
     public static UIComponent makeConditionPicker(SimplePageBean simplePageBean, UIContainer parent, String rsfId) {
-        SimplePageItem currentPageItem = null;
-        List<SimplePageItem> list = simplePageBean.getSimplePageToolDao().findPageItemsBySakaiId(Long.toString(simplePageBean.getCurrentPageId()));
-        if (list != null && !list.isEmpty()) {
-            currentPageItem = list.get(0);
+        List<SimplePageItem> pageItems = simplePageBean.getSimplePageToolDao()
+                .findPageItemsBySakaiId(Long.toString(simplePageBean.getCurrentPageId()));
+        if (pageItems == null || pageItems.isEmpty()) {
+            return null;
         }
 
-        // Create the component only if the current page item is defined
-        return currentPageItem != null
-                ? UIOutput.make(parent, rsfId)
-                        .decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
-                        .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID))
-                        .decorate(new UIFreeAttributeDecorator("lesson-id", String.valueOf(currentPageItem.getId())))
-                : null;
-   }
+        List<ItemLabel> items = simplePageBean.getLessonsAccess()
+                .getAccessibleItemsOnPage(simplePageBean.getCurrentSiteId(), simplePageBean.getCurrentPageId(),
+                        simplePageBean.getCurrentUserId(), simplePageBean).stream()
+                .map(item -> {
+                    String name = item.getType() == SimplePageItem.QUESTION ? item.getAttribute("questionText") : null;
+                    return new ItemLabel(item.getId(), name != null ? name : item.getName());
+                }).toList();
+
+        try {
+            return UIOutput.make(parent, rsfId)
+                    .decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
+                    .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID))
+                    .decorate(new UIFreeAttributeDecorator("lesson-items", JSON_MAPPER.writeValueAsString(items)));
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Unable to serialize condition picker items for page "
+                    + simplePageBean.getCurrentPageId(), e);
+        }
+    }
 }

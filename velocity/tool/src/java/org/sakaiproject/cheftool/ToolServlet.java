@@ -26,9 +26,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -496,7 +496,7 @@ public abstract class ToolServlet extends VmServlet
 				initState(state, req, res);
 
 				// mark this state as initialized
-				state.setAttribute(ALERT_STATE_INITED, new Boolean(true));
+				state.setAttribute(ALERT_STATE_INITED, Boolean.valueOf(true));
 			}
 
 			// othewise update it

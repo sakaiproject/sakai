@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:aop="http://www.springframework.org/schema/aop"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	                       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="classpath:org/sakaiproject/coursemanagement/impl/cm-admin.xml"/>
 
 	<!--
 		The Course Management service implementation is configured via an alias.
@@ -58,7 +58,7 @@
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
 
-	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"
+	<bean id="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl" autowire-candidate="false"
 		  class="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl"
 		  init-method="init"
 		  destroy-method="destroy">
@@ -68,11 +68,6 @@
 		</property>
 	</bean>
 
-	<aop:config>
-		<aop:advisor
-				advice-ref="cmAdminAuthzAdvisor"
-				pointcut="execution(* org.sakaiproject.coursemanagement.api.CourseManagementAdministration.*(..))"/>
-	</aop:config>
 
 	<!-- Hibernate doesn't generate all of the indexes we need.  This bean will fill in the missing indexes -->
 	<bean id="cm_index_generator"
@@ -83,12 +78,6 @@
 		<property name="scs" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
-	<!-- AOP Advisor performs Authz checks for the CM Admin service -->
-	<bean id="cmAdminAuthzAdvisor" class="org.sakaiproject.coursemanagement.impl.aop.CourseManagementAdministrationAuthzAdvisor">
-		<property name="securityService">
-			<ref bean="org.sakaiproject.authz.api.SecurityService" />
-		</property>
-	</bean>
 
 	<!--  Reconciliation Job for CM data -->
 <!--

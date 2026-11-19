@@ -18,20 +18,20 @@ package org.sakaiproject.hierarchy.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -64,8 +64,7 @@ public class HierarchyNode implements PersistableEntity<Long> {
     @Id
     @Column(name = "ID")
     @EqualsAndHashCode.Include
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "hierarchy_node_seq")
-    @SequenceGenerator(name = "hierarchy_node_seq", sequenceName = "HIERARCHY_NODE_ID_SEQ", allocationSize = 1)
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "hierarchy_node_seq", sequenceName = "HIERARCHY_NODE_ID_SEQ", allocationSize = 1))
     private Long id;
 
     @Column(name = "HIERARCHYID", length = 255)
@@ -81,7 +80,7 @@ public class HierarchyNode implements PersistableEntity<Long> {
     private String title;
 
     @Lob
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", length = Length.LONG32)
     private String description;
 
     /** Token used to group nodes that share a permission boundary. */

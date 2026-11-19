@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf;
 
-import javax.faces.component.UIComponentBase;
+import jakarta.faces.component.UIComponentBase;
 
 /**
  * @author Chen Wen

@@ -23,47 +23,91 @@
 package org.sakaiproject.tags.api;
 
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import org.hibernate.Length;
+import org.hibernate.annotations.GenericGenerator;
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
  * A data object representing a tag.
  */
 @Data
+@Builder(toBuilder = true)
 @AllArgsConstructor
-public class Tag {
+@NoArgsConstructor
+@Entity(name = "TagServiceTag")
+@Table(name = "tagservice_tag", indexes = {
+    @Index(name = "tagservice_tag_taglabel", columnList = "taglabel"),
+    @Index(name = "tagservice_tag_tagcollectionid", columnList = "tagcollectionid"),
+    @Index(name = "tagservice_tag_externalid", columnList = "externalid")
+})
+public class Tag implements PersistableEntity<String> {
 
+    @Id
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @Column(name = "tagid", length = 36)
     private String tagId;
+    @Column(name = "tagcollectionid", length = 99, nullable = false)
     private String tagCollectionId;
+    /** Plain text; escape for the output context when displaying this label. */
+    @Column(name = "taglabel", length = 255)
     private String tagLabel;
+    @Lob
+    @Column(name = "description", length = Length.LONG32)
     private String description;
+    @Column(name = "createdby", length = 99)
     private String createdBy;
-    private long  creationDate;
+    @Column(name = "creationdate")
+    private Long creationDate;
+    @Column(name = "lastmodifiedby", length = 99)
     private String lastModifiedBy;
-    private long  lastModificationDate;
+    @Column(name = "lastmodificationdate")
+    private Long lastModificationDate;
+    @Column(name = "externalid", length = 255)
     private String externalId;
+    @Lob
+    @Column(name = "alternativelabels", length = Length.LONG32)
     private String alternativeLabels;
+    @Column(name = "externalcreation")
     private Boolean externalCreation;
-    private long  externalCreationDate;
+    @Column(name = "externalcreationdate")
+    private Long externalCreationDate;
+    @Column(name = "externalupdate")
     private Boolean externalUpdate;
-    private long  lastUpdateDateInExternalSystem ;
+    @Column(name = "lastupdatedateinexternalsystem")
+    private Long lastUpdateDateInExternalSystem;
+    @Column(name = "parentid", length = 255)
     private String parentId;
+    @Lob
+    @Column(name = "externalhierarchycode", length = Length.LONG32)
     private String externalHierarchyCode;
+    @Column(name = "externaltype", length = 255)
     private String externalType;
+    @Lob
+    @Column(name = "data", length = Length.LONG32)
     private String data;
+    @Transient
     private String collectionName;
-
-
-
-    /**
-     * Check that the values we've been given make sense.
-     */
-    public Errors validate() {
-        Errors errors = new Errors();
-        //At this moment there is not extra validation. This can be the place to do this in the future
-        return errors;
+    @Override
+    @JsonIgnore
+    public String getId() {
+        return tagId;
     }
-
-
 }
     

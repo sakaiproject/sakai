@@ -103,30 +103,6 @@ table{
 	{
 		@include flex-grow(1);
 
-		.sakai-table-searchFilter-inputWrapper
-		{
-			&:has(.sakai-table-searchFilter-clearBtn) .sakai-table-searchFilter-searchField
-			{
-				padding-right: 1.5em;
-			}
-
-			.sakai-table-searchFilter-clearBtn
-			{
-				position: absolute;
-				right: 4px;
-				top: 50%;
-				transform: translateY(-50%);
-				cursor: pointer;
-				color: var(--sakai-text-color-2);
-				font-size: 0.85em;
-
-				&:hover
-				{
-					color: var(--sakai-text-color-1);
-				}
-			}
-		}
-
 		input[type=button], input[type=submit],
 		input[type=button]:disabled, input[type=submit]:disabled
 		{
@@ -367,6 +343,12 @@ table{
 .#{$namespace}html .tablesorter td,
 .#{$namespace}html .tablesorter .tablesorter-filter-row td {
 	border-bottom: 1px solid var(--sakai-border-color);
+}
+
+.#{$namespace}html .sakai-datatables-filter-row td {
+	background-color: var(--sakai-background-color-2);
+	border-bottom: 1px solid var(--sakai-border-color);
+	color: var(--sakai-text-color-1);
 }
 
 .#{$namespace}html .tablesorter th,

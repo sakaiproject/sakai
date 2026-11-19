@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:extend>
+    <div class="container">
+        <form wicket:id="event" class="needs-validation" novalidate>
+            <div class="row mb-4">
+                <div class="col">
+                    <h1 wicket:id="addItemTitle" class="display-6" />
+                </div>
+            </div>
+
+            <div wicket:id="addEditItemFeedback"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="text" 
+                               class="form-control" 
+                               wicket:id="name" 
+                               id="name" 
+                               maxlength="99" 
+                               placeholder="Enter name"
+                               required />
+                        <label for="name" class="form-label">
+                            <wicket:message key="attendance.add.label.name" />
+                            <span class="text-danger">*</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="datetime-local" 
+                               class="form-control" 
+                               wicket:id="startDateTime" 
+                               id="startDateTime" 
+                               placeholder="Select date and time" />
+                        <label for="startDateTime" class="form-label">
+                            <wicket:message key="attendance.add.label.startDateTime" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col d-flex gap-2">
+                    <button type="submit" 
+                            class="btn btn-primary" 
+                            wicket:id="submit">
+                        <wicket:container wicket:id="submitLabel" />
+                    </button>
+                    <button type="submit" 
+                            class="btn btn-secondary" 
+                            wicket:id="submitAndAddAnother">
+                        <wicket:container wicket:id="submitMoreLabel"/>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-outline-secondary" 
+                            wicket:id="cancel">
+                        <wicket:message key="button.cancel" />
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</wicket:extend>
+</body>
+</html>

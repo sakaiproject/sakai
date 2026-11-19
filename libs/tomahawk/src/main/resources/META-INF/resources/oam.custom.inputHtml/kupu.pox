@@ -1,0 +1,500 @@
+<?xml version="1.0" ?>
+<catalog xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="kupupox">
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html
+		</msgid>
+		<msgstr i18n:translate="">
+			Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html
+		</msgid>
+		<msgstr i18n:translate="">
+			Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html
+		</msgid>
+		<msgstr i18n:translate="">
+			Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Cut
+		</msgid>
+		<msgstr i18n:translate="">
+			Cut
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Copy
+		</msgid>
+		<msgstr i18n:translate="">
+			Copy
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Paste
+		</msgid>
+		<msgstr i18n:translate="">
+			Paste
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Color chosen
+		</msgid>
+		<msgstr i18n:translate="">
+			Color chosen
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			No head in document!
+		</msgid>
+		<msgstr i18n:translate="">
+			No head in document!
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Properties modified
+		</msgid>
+		<msgstr i18n:translate="">
+			Properties modified
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Not inside link
+		</msgid>
+		<msgstr i18n:translate="">
+			Not inside link
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Delete link
+		</msgid>
+		<msgstr i18n:translate="">
+			Delete link
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Create link
+		</msgid>
+		<msgstr i18n:translate="">
+			Create link
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Create image
+		</msgid>
+		<msgstr i18n:translate="">
+			Create image
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Add table
+		</msgid>
+		<msgstr i18n:translate="">
+			Add table
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Add row
+		</msgid>
+		<msgstr i18n:translate="">
+			Add row
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Delete row
+		</msgid>
+		<msgstr i18n:translate="">
+			Delete row
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Add column
+		</msgid>
+		<msgstr i18n:translate="">
+			Add column
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Delete column
+		</msgid>
+		<msgstr i18n:translate="">
+			Delete column
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Delete Table
+		</msgid>
+		<msgstr i18n:translate="">
+			Delete Table
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Invalid table size
+		</msgid>
+		<msgstr i18n:translate="">
+			Invalid table size
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			No row to delete
+		</msgid>
+		<msgstr i18n:translate="">
+			No row to delete
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			No parentcolumn found!
+		</msgid>
+		<msgstr i18n:translate="">
+			No parentcolumn found!
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Not inside a table!
+		</msgid>
+		<msgstr i18n:translate="">
+			Not inside a table!
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Could not set status bar message, check your browser\'s security settings.
+		</msgid>
+		<msgstr i18n:translate="">
+			Could not set status bar message, check your browser\'s security settings.
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			View source
+		</msgid>
+		<msgstr i18n:translate="">
+			View source
+		</msgstr>
+	</message>
+	<message filenames="kupubasetools.js">
+		<msgid>
+			Not inside a definition list element!
+		</msgid>
+		<msgstr i18n:translate="">
+			Not inside a definition list element!
+		</msgstr>
+	</message>
+	<message filenames="kupubeforeunload.js">
+		<msgid>
+			Discard changes? If you click OK, any changes you have made will be lost.
+		</msgid>
+		<msgstr i18n:translate="">
+			Discard changes? If you click OK, any changes you have made will be lost.
+		</msgstr>
+	</message>
+	<message filenames="kupucnftable.js">
+		<msgid>
+			Not inside a row!
+		</msgid>
+		<msgstr i18n:translate="">
+			Not inside a row!
+		</msgstr>
+	</message>
+	<message filenames="kupudrawers.js">
+		<msgid>
+			Can only preview web urls
+		</msgid>
+		<msgstr i18n:translate="">
+			Can only preview web urls
+		</msgstr>
+	</message>
+	<message filenames="kupudrawers.js">
+		<msgid>
+			Right click to copy link
+		</msgid>
+		<msgstr i18n:translate="">
+			Right click to copy link
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js">
+		<msgid>
+			No destination URL available!
+		</msgid>
+		<msgstr i18n:translate="">
+			No destination URL available!
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js kupumultieditor.js">
+		<msgid>
+			Please wait while saving document...
+		</msgid>
+		<msgstr i18n:translate="">
+			Please wait while saving document...
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js kupumultieditor.js">
+		<msgid>
+			Starting HTML cleanup
+		</msgid>
+		<msgstr i18n:translate="">
+			Starting HTML cleanup
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js kupumultieditor.js">
+		<msgid>
+			Cleanup done, sending document to server
+		</msgid>
+		<msgstr i18n:translate="">
+			Cleanup done, sending document to server
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js">
+		<msgid>
+			Request sent to server
+		</msgid>
+		<msgstr i18n:translate="">
+			Request sent to server
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js">
+		<msgid>
+			Sending request to server
+		</msgid>
+		<msgstr i18n:translate="">
+			Sending request to server
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js">
+		<msgid>
+			Editor not initialized yet!
+		</msgid>
+		<msgstr i18n:translate="">
+			Editor not initialized yet!
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js">
+		<msgid>
+			Browser not supported!
+		</msgid>
+		<msgstr i18n:translate="">
+			Browser not supported!
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js">
+		<msgid>
+			Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information.
+		</msgid>
+		<msgstr i18n:translate="">
+			Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information.
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js">
+		<msgid>
+			Error saving document
+		</msgid>
+		<msgstr i18n:translate="">
+			Error saving document
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js">
+		<msgid>
+			Document saved
+		</msgid>
+		<msgstr i18n:translate="">
+			Document saved
+		</msgstr>
+	</message>
+	<message filenames="kupueditor.js kupumultieditor.js">
+		<msgid>
+			Couldn\'t set design mode. Kupu will not work on this browser.
+		</msgid>
+		<msgstr i18n:translate="">
+			Couldn\'t set design mode. Kupu will not work on this browser.
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			Unsupported browser!
+		</msgid>
+		<msgstr i18n:translate="">
+			Unsupported browser!
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}
+		</msgid>
+		<msgstr i18n:translate="">
+			exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			No element found in the config island!
+		</msgid>
+		<msgstr i18n:translate="">
+			No element found in the config island!
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			Selection not inside the node!
+		</msgid>
+		<msgstr i18n:translate="">
+			Selection not inside the node!
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			Start node offset detected in a node without children!
+		</msgid>
+		<msgstr i18n:translate="">
+			Start node offset detected in a node without children!
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			End node offset detected in a node without children!
+		</msgid>
+		<msgstr i18n:translate="">
+			End node offset detected in a node without children!
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			Start offset out of range!
+		</msgid>
+		<msgstr i18n:translate="">
+			Start offset out of range!
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			End offset out of range!
+		</msgid>
+		<msgstr i18n:translate="">
+			End offset out of range!
+		</msgstr>
+	</message>
+	<message filenames="kupuhelpers.js">
+		<msgid>
+			Offset out of document range
+		</msgid>
+		<msgstr i18n:translate="">
+			Offset out of document range
+		</msgstr>
+	</message>
+	<message filenames="kupuinit_form.js kupuinit_genericelements.js kupuinit.js kupuinit_multi.js">
+		<msgid>
+			There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error}).
+		</msgid>
+		<msgstr i18n:translate="">
+			There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error}).
+		</msgstr>
+	</message>
+	<message filenames="kupumultieditor.js">
+		<msgid>
+			Editor initialized
+		</msgid>
+		<msgstr i18n:translate="">
+			Editor initialized
+		</msgstr>
+	</message>
+	<message filenames="kupusaveonpart.js">
+		<msgid>
+			You are leaving the editor. Do you want to save your changes?
+		</msgid>
+		<msgstr i18n:translate="">
+			You are leaving the editor. Do you want to save your changes?
+		</msgstr>
+	</message>
+	<message filenames="kupusourceedit.js">
+		<msgid>
+			Source edit tool initialized
+		</msgid>
+		<msgstr i18n:translate="">
+			Source edit tool initialized
+		</msgstr>
+	</message>
+	<message filenames="kupusourceedit.js">
+		<msgid>
+			Cleaning up HTML...
+		</msgid>
+		<msgstr i18n:translate="">
+			Cleaning up HTML...
+		</msgstr>
+	</message>
+	<message filenames="kupuspellchecker.js">
+		<msgid>
+			There were no errors.
+		</msgid>
+		<msgstr i18n:translate="">
+			There were no errors.
+		</msgstr>
+	</message>
+	<message filenames="kupuspellchecker.js">
+		<msgid>
+			Error loading data, status ${status}
+		</msgid>
+		<msgstr i18n:translate="">
+			Error loading data, status ${status}
+		</msgstr>
+	</message>
+	<message filenames="kupuspellchecker.js">
+		<msgid>
+			This feature requires pop-ups to be enabled on your browser!
+		</msgid>
+		<msgstr i18n:translate="">
+			This feature requires pop-ups to be enabled on your browser!
+		</msgstr>
+	</message>
+	<message filenames="kupustart_form.js kupustart_multi.js">
+		<msgid>
+			Error loading translation (status ${status} ), falling back to english
+		</msgid>
+		<msgstr i18n:translate="">
+			Error loading translation (status ${status} ), falling back to english
+		</msgstr>
+	</message>
+	<message filenames="kuputoolcollapser.js">
+		<msgid>
+			click to unfold
+		</msgid>
+		<msgstr i18n:translate="">
+			click to unfold
+		</msgstr>
+	</message>
+	<message filenames="kuputoolcollapser.js">
+		<msgid>
+			click to fold
+		</msgid>
+		<msgstr i18n:translate="">
+			click to fold
+		</msgstr>
+	</message>
+</catalog>
+

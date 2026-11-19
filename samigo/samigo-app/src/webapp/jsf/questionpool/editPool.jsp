@@ -47,14 +47,6 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
-<f:verbatim rendered="#{questionpool.showTags eq true and questionpool.canManageTags eq true}">
-	<script>
-		// Initialize input sync
-		window.addEventListener("load", () => {
-			window.syncTagSelectorInput("tag-selector", "editform:questionPoolTags");
-		});
-	</script>
-</f:verbatim>
 <script src="/library/js/spinner.js"></script>
           <script>
               function flagFolders() {
@@ -159,13 +151,21 @@ function textCounter(field, maxlimit) {
     <div class="col-sm-6">
         <sakai-tag-selector
             id="tag-selector"
+            input-id="editform:questionPoolTags"
             class="b5 flex-grow-1"
-            selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
-            collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
-            site-id="<h:outputText value='#{author.currentSiteId}'/>"
+            selected-ids="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
             add-new="true"
         ></sakai-tag-selector>
         <h:inputHidden id="questionPoolTags" value="#{questionpool.currentPool.tags.tagIdsCsv}" />
+        <h:outputText id="tagOptions" value="#{questionpool.tagOptionsJson}" style="display: none" />
+        <script>
+            customElements.whenDefined("sakai-tag-selector").then(() => {
+                const selector = document.getElementById("tag-selector");
+                selector.options = JSON.parse(document.getElementById("editform:tagOptions").textContent);
+                const selectedIds = (selector.selectedIds || "").split(",");
+                selector.selectedTags = selector.options.filter(tag => selectedIds.includes(tag.code));
+            });
+        </script>
     </div>
 </h:panelGroup>
 
@@ -297,4 +297,3 @@ function textCounter(field, maxlimit) {
 </body>
 </html>
 </f:view>
-

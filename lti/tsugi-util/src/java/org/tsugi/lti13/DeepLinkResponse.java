@@ -24,7 +24,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import java.security.Key;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -217,9 +217,6 @@ public class DeepLinkResponse {
 
 	private JSONArray deep_links = null;
 
-	private String returnedData = null;
-
-
 	/**
 	 * We check for the fields essential for the class to operate here.
 	 */
@@ -235,11 +232,6 @@ public class DeepLinkResponse {
 			throw new java.lang.RuntimeException("Incorrect MESSAGE_TYPE");
 		}
 		
-		String returnedData = (String) body.get(DATA);
-		if ( returnedData == null || returnedData.length() < 1 ) {
-			throw new java.lang.RuntimeException("Missing data element from ContentItem return");
-		}
-
 		// It is OK for this to be null
 		deep_links = LTIUtil.getArray(body, DEEP_LINKS);
 

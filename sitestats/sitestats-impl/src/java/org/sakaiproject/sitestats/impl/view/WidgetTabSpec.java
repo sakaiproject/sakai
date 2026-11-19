@@ -19,12 +19,19 @@ class WidgetTabSpec {
 	private final String titleKey;
 	private final List<String> filterIds;
 	private final WidgetReportFactory reportFactory;
+	private final WidgetReportViewFactory viewFactory;
 
 	WidgetTabSpec(String widgetId, String id, String titleKey, List<String> filterIds, WidgetReportFactory reportFactory) {
+		this(widgetId, id, titleKey, filterIds, reportFactory, null);
+	}
+
+	WidgetTabSpec(String widgetId, String id, String titleKey, List<String> filterIds, WidgetReportFactory reportFactory,
+			WidgetReportViewFactory viewFactory) {
 		this.widgetId = widgetId;
 		this.id = id;
 		this.titleKey = titleKey;
 		this.filterIds = Collections.unmodifiableList(new ArrayList<String>(filterIds));
 		this.reportFactory = reportFactory;
+		this.viewFactory = viewFactory;
 	}
 }

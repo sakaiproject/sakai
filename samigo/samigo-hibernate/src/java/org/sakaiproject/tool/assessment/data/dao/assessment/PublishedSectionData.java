@@ -58,7 +58,7 @@ public class PublishedSectionData
   private Date createdDate;
   private String lastModifiedBy;
   private Date lastModifiedDate;
-  private Set itemSet;
+  private Set<ItemDataIfc> itemSet;
   private Set sectionMetaDataSet;
   private HashMap sectionMetaDataMap;
   private Set sectionAttachmentSet;
@@ -234,30 +234,23 @@ public class PublishedSectionData
     this.sectionMetaDataSet.add(new PublishedSectionMetaData(this, label, entry));
   }
 
-  public ArrayList getItemArray() {
-    ArrayList list = new ArrayList();
-    if(itemSet == null) itemSet = new HashSet();
-    Iterator iter = itemSet.iterator();
-    while (iter.hasNext()){
-      list.add(iter.next());
-    }
-    return list;
+  public List<ItemDataIfc> getItemArray() {
+    if (itemSet == null) itemSet = new HashSet<>();
+    return new ArrayList<>(itemSet);
   }
 
   public String getSectionMetaDataByLabel(String label) {
     return (String)this.sectionMetaDataMap.get(label);
   }
 
-  public ArrayList getItemArraySortedForGrading() {
-  // this returns all items, used for grading
-    ArrayList list = getItemArray();
+  public List<ItemDataIfc> getItemArraySortedForGrading() {
+    List<ItemDataIfc> list = getItemArray();
     Collections.sort(list);
     return list;
   }
 
   public void addItem(ItemDataIfc item) {
-    if (itemSet == null)
-      itemSet = new HashSet();
+    if (itemSet == null) itemSet = new HashSet<>();
     itemSet.add(item);
   }
 

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Properties;
 import java.util.Stack;
 
@@ -66,6 +67,33 @@ public class XmlTest {
     }
 
     @Test
+    public void testReadLegacyArchiveDocument() throws IOException {
+        Files.writeString(tempFile.toPath(), "<archive><sakai:site><site id='legacy'/></sakai:site></archive>");
+
+        assertNull("Default reader must still require bound namespace prefixes", Xml.readDocument(tempFile.getPath()));
+        Document doc = Xml.readDocument(tempFile.getPath(), false);
+        assertNotNull(doc);
+        assertEquals("legacy", ((Element) doc.getElementsByTagName("site").item(0)).getAttribute("id"));
+        assertEquals(1, doc.getElementsByTagName("sakai:site").getLength());
+    }
+
+    @Test
+    public void testReadLegacyArchiveDocumentFallsBackToLatin1() throws IOException {
+        Files.write(tempFile.toPath(), "<archive><sakai:site title='caf\u00e9'/></archive>".getBytes(StandardCharsets.ISO_8859_1));
+
+        Document doc = Xml.readDocument(tempFile.getPath(), false);
+        assertNotNull(doc);
+        assertEquals("caf\u00e9", ((Element) doc.getElementsByTagName("sakai:site").item(0)).getAttribute("title"));
+    }
+
+    @Test
+    public void testReadLegacyArchiveDocumentRejectsDoctype() throws IOException {
+        Files.writeString(tempFile.toPath(), "<!DOCTYPE archive [<!ENTITY xxe SYSTEM 'file:///xml-test-missing-entity'>]><archive>&xxe;</archive>");
+
+        assertNull(Xml.readDocument(tempFile.getPath(), false));
+    }
+
+    @Test
     public void testReadDocumentFromString() {
         Document doc = Xml.readDocumentFromString(TEST_XML);
         assertNotNull("Document should be read from string", doc);
@@ -93,6 +121,91 @@ public class XmlTest {
         
         Xml.processString(TEST_XML, handler);
         assertTrue("Content should be processed", result.toString().contains("content"));
+    }
+
+    @Test(expected = SAXException.class)
+    public void testProcessStringRejectsExternalEntity() throws Exception {
+        Xml.processString("<!DOCTYPE root [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><root>&xxe;</root>", new DefaultHandler());
+    }
+
+    @Test(expected = SAXException.class)
+    public void testSecureSaxReaderRejectsInternalDoctype() throws Exception {
+        Xml.createSecureXMLReader(true).parse(new org.xml.sax.InputSource(new java.io.StringReader(
+                "<!DOCTYPE root [<!ENTITY repeated 'value'>]><root>&repeated;</root>")));
+    }
+
+    @Test
+    public void testSaxParserPreservesLargeSubmissionXml() throws Exception {
+        StringBuilder xml = new StringBuilder("<submission");
+        for (int i = 0; i < 40; i++) {
+            xml.append(" submitter").append(i).append("='user'");
+        }
+        xml.append('>').append("<node>".repeat(26)).append("</node>".repeat(26)).append("</submission>");
+        Xml.processString(xml.toString(), new DefaultHandler());
+    }
+
+    @Test
+    public void testLegacyDoctypeParsersDoNotLoadExternalResources() throws Exception {
+        String xml = "<!DOCTYPE root SYSTEM 'file:///xml-test-missing.dtd' ["
+                + "<!ENTITY % remote SYSTEM 'file:///xml-test-missing-parameter.dtd'>%remote;"
+                + "<!ENTITY external SYSTEM 'file:///xml-test-missing-entity'>]><root>&external;<child>value</child></root>";
+        Document document = Xml.createSecureDocumentBuilderFactoryWithDoctype(true)
+                .newDocumentBuilder().parse(toInputStream(xml));
+        assertEquals("value", document.getDocumentElement().getTextContent());
+
+        StringBuilder content = new StringBuilder();
+        Xml.createSecureSAXParserWithDoctype(false).parse(toInputStream(xml), new DefaultHandler() {
+            @Override
+            public void characters(char[] ch, int start, int length) {
+                content.append(ch, start, length);
+            }
+        });
+        assertEquals("value", content.toString());
+    }
+
+    @Test(expected = SAXException.class)
+    public void testSecureDomParserRejectsExcessiveAttributes() throws Exception {
+        StringBuilder xml = new StringBuilder("<root");
+        for (int i = 0; i < 31; i++) {
+            xml.append(" a").append(i).append("='value'");
+        }
+        xml.append("/>");
+        Xml.createSecureDocumentBuilderFactory().newDocumentBuilder().parse(toInputStream(xml.toString()));
+    }
+
+    @Test(expected = javax.xml.transform.TransformerException.class)
+    public void testSecureTransformationRejectsDoctype() throws Exception {
+        String xml = "<!DOCTYPE root [<!ENTITY entity 'value'>]><root>&entity;</root>";
+        Xml.createSecureTransformerFactory().newTransformer().transform(
+                Xml.createSecureSource(toInputStream(xml)),
+                new javax.xml.transform.stream.StreamResult(new java.io.StringWriter()));
+    }
+
+    @Test
+    public void testPackageSchemasAllowLocalIncludesAndRejectEscapingFiles() throws Exception {
+        java.nio.file.Path directory = java.nio.file.Files.createTempDirectory("xml-schema-test");
+        java.nio.file.Path schema = directory.resolve("root.xsd");
+        java.nio.file.Path included = directory.resolve("included.xsd");
+        try {
+            java.nio.file.Files.writeString(included,
+                    "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'><xs:element name='root' type='xs:string'/></xs:schema>");
+            java.nio.file.Files.writeString(schema,
+                    "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'><xs:include schemaLocation='included.xsd'/></xs:schema>");
+            javax.xml.validation.Schema compiled = Xml.createSecureSchema(directory.toFile(), java.util.List.of(schema.toFile()));
+            compiled.newValidator().validate(new javax.xml.transform.dom.DOMSource(Xml.readDocumentFromString("<root>value</root>")));
+            java.nio.file.Files.createDirectory(directory.resolve("subdirectory"));
+            try {
+                Xml.createSecureSchema(directory.resolve("subdirectory").toFile(), java.util.List.of(schema.toFile()));
+                fail("Schema outside the package must be rejected");
+            } catch (IOException expected) {
+                // The package boundary is enforced before schema parsing.
+            }
+        } finally {
+            java.nio.file.Files.deleteIfExists(schema);
+            java.nio.file.Files.deleteIfExists(included);
+            java.nio.file.Files.deleteIfExists(directory.resolve("subdirectory"));
+            java.nio.file.Files.deleteIfExists(directory);
+        }
     }
 
     @Test
@@ -176,6 +289,45 @@ public class XmlTest {
         assertNotNull("Node string representation should not be null", result);
         assertTrue("Should contain node type", result.contains("Node Type: Element"));
         assertTrue("Should contain node name", result.contains("Name: root"));
+    }
+
+    @Test
+    public void testWriteDocumentWithNullAttribute() {
+        Document doc = createArchiveWithNullAttribute();
+
+        Xml.writeDocument(doc, tempFile.getPath());
+
+        Document restored = Xml.readDocument(tempFile.getPath());
+        assertArchiveAttributes(restored);
+    }
+
+    @Test
+    public void testWriteDocumentToStringWithNullAttribute() {
+        Document doc = createArchiveWithNullAttribute();
+
+        String xml = Xml.writeDocumentToString(doc);
+
+        assertNotNull("Archive XML should be serialized", xml);
+        assertArchiveAttributes(Xml.readDocumentFromString(xml));
+    }
+
+    private Document createArchiveWithNullAttribute() {
+        // SAK-53107: the deployed Xerces serializer must not be mixed with the JDK DOM.
+        Document doc = Xml.createDocument();
+        Element root = doc.createElement("archive");
+        doc.appendChild(root);
+        root.setAttribute("redirect", null);
+        root.setAttribute("title", "caf\u00e9 & chat");
+        return doc;
+    }
+
+    private void assertArchiveAttributes(Document doc) {
+        assertNotNull("Archive XML should be readable", doc);
+        Element root = doc.getDocumentElement();
+        assertEquals("archive", root.getTagName());
+        assertTrue("Null attribute should be preserved as empty", root.hasAttribute("redirect"));
+        assertEquals("", root.getAttribute("redirect"));
+        assertEquals("caf\u00e9 & chat", root.getAttribute("title"));
     }
 
     private ByteArrayInputStream toInputStream(String xml) {

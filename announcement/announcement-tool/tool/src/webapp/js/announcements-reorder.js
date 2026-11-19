@@ -9,9 +9,7 @@ const initialise = () => {
   }
 
   const undoLast = document.getElementById("undo-last");
-  const undoLastInactive = document.getElementById("undo-last-inact");
   const undoAll = document.getElementById("undo-all");
-  const undoAllInactive = document.getElementById("undo-all-inact");
   const lastMoveArray = document.getElementById("lastMoveArray");
   const lastItemMoved = document.getElementById("lastItemMoved");
 
@@ -19,39 +17,69 @@ const initialise = () => {
   const order = () => items().map(item => item.dataset.reorderableId);
   const restore = itemOrder => {
     const itemsById = new Map(items().map(item => [ item.dataset.reorderableId, item ]));
-    itemOrder.forEach(id => list.append(itemsById.get(id)));
+    itemOrder.forEach(id => {
+      const item = itemsById.get(id);
+      if (item) {
+        list.append(item);
+      }
+    });
     reorderer.refresh();
   };
 
   const initialOrder = order();
-  let previousOrder = initialOrder;
+  let previousOrder = [ ...initialOrder ];
+
+  const updateMoveButtons = () => {
+    const reorderItems = items();
+    reorderItems.forEach((item, index) => {
+      const moveUp = item.querySelector('[data-action="move-up"]');
+      const moveDown = item.querySelector('[data-action="move-down"]');
+      if (moveUp) {
+        moveUp.disabled = index === 0;
+      }
+      if (moveDown) {
+        moveDown.disabled = index === reorderItems.length - 1;
+      }
+    });
+  };
+
+  const enableUndo = () => {
+    if (undoLast) {
+      undoLast.disabled = false;
+    }
+    if (undoAll) {
+      undoAll.disabled = false;
+    }
+  };
 
   const updateOrder = movedItem => {
-    const reorderedItems = items();
-    reorderedItems.forEach((item, index) => {
-      const position = index + 1;
-      item.querySelectorAll("input[id^='index'], input[id^='holder']").forEach(input => {
-        input.value = position;
-        input.setAttribute("value", position);
-      });
-    });
+    updateMoveButtons();
+    enableUndo();
 
-    lastItemMoved.textContent = lastItemMoved.dataset.movedMessage
-      .replace("{0}", reorderedItems.indexOf(movedItem) + 1)
-      .replace("{1}", reorderedItems.length);
-    undoLast.style.display = "";
-    undoLastInactive.style.display = "none";
-    undoAll.style.display = "";
-    undoAllInactive.style.display = "none";
+    const reorderedItems = items();
+    if (lastItemMoved?.dataset.movedMessage && movedItem) {
+      lastItemMoved.textContent = lastItemMoved.dataset.movedMessage
+        .replace("{0}", reorderedItems.indexOf(movedItem) + 1)
+        .replace("{1}", reorderedItems.length);
+    }
   };
 
   const savePreviousOrder = itemOrder => {
-    previousOrder = itemOrder || order();
-    lastMoveArray.textContent = previousOrder.join(" ");
+    previousOrder = [ ...(itemOrder || order()) ];
+    if (lastMoveArray) {
+      lastMoveArray.textContent = previousOrder.join(" ");
+    }
   };
 
-  document.getElementById("lastMoveArrayInit").textContent = initialOrder.join(" ");
-  lastMoveArray.textContent = initialOrder.join(" ");
+  const lastMoveArrayInit = document.getElementById("lastMoveArrayInit");
+  if (lastMoveArrayInit) {
+    lastMoveArrayInit.textContent = initialOrder.join(" ");
+  }
+  if (lastMoveArray) {
+    lastMoveArray.textContent = initialOrder.join(" ");
+  }
+
+  updateMoveButtons();
 
   reorderer.addEventListener("reordered", event => {
     savePreviousOrder(event.detail.previousReorderedIds);
@@ -59,42 +87,45 @@ const initialise = () => {
     updateOrder(movedItem);
   });
 
-  list.addEventListener("change", event => {
-    const input = event.target.closest("input[id^='index']");
-    if (!input || !list.contains(input)) {
+  list.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button || !list.contains(button)) {
       return;
     }
 
-    const newPosition = Number.parseInt(input.value, 10);
-    const reorderItems = items();
-    const movedItem = input.closest(".reorder-element");
-    const currentPosition = reorderItems.indexOf(movedItem) + 1;
-    if (!Number.isInteger(newPosition) || newPosition < 1 || newPosition > reorderItems.length) {
-      input.value = currentPosition;
+    const row = button.closest(".reorder-element");
+    if (!row) {
       return;
     }
 
-    if (newPosition === currentPosition) {
-      return;
+    if (button.dataset.action === "move-up") {
+      const previous = row.previousElementSibling;
+      if (!previous) {
+        return;
+      }
+      savePreviousOrder();
+      list.insertBefore(row, previous);
+      reorderer.refresh();
+      updateOrder(row);
+    } else if (button.dataset.action === "move-down") {
+      const next = row.nextElementSibling;
+      if (!next) {
+        return;
+      }
+      savePreviousOrder();
+      list.insertBefore(next, row);
+      reorderer.refresh();
+      updateOrder(row);
     }
-
-    savePreviousOrder();
-    if (newPosition > currentPosition) {
-      reorderItems[newPosition - 1].after(movedItem);
-    } else {
-      reorderItems[newPosition - 1].before(movedItem);
-    }
-    reorderer.refresh();
-    updateOrder(movedItem);
   });
 
-  undoLast.addEventListener("click", event => {
+  undoLast?.addEventListener("click", event => {
     event.preventDefault();
     restore(previousOrder);
     updateOrder(items()[0]);
   });
 
-  undoAll.addEventListener("click", event => {
+  undoAll?.addEventListener("click", event => {
     event.preventDefault();
     restore(initialOrder);
     updateOrder(items()[0]);

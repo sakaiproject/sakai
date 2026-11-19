@@ -32,7 +32,7 @@ import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.memory.api.Cache;
+import org.springframework.cache.Cache;
 import org.sakaiproject.util.api.FormattedText;
 
 
@@ -86,7 +86,7 @@ public class CommonsManagerImpl implements CommonsManager {
         // Social commons caches are keyed on the owner's user id
         String key = (query.isUserSite()) ? query.getCallerId() : query.getCommonsId();
 
-        List<Post> posts = (List<Post>) cache.get(key);
+        List<Post> posts = cache.get(key, List.class);
         if (posts == null) {
             log.debug("Cache miss or expired on id: {}", key);
             if (query.isUserSite()) {
@@ -410,6 +410,6 @@ public class CommonsManagerImpl implements CommonsManager {
     private void removeContextIdsFromCache(List<String> contextIds) {
 
         Cache cache = sakaiProxy.getCache(POST_CACHE);
-        contextIds.forEach(contextId -> cache.remove(contextId));
+        contextIds.forEach(cache::evict);
     }
 }

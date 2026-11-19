@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.video.training"
+          title="Video Training"
+          description="Hybrid video training library with role-aware visibility">
+        <category name="course"/>
+        <category name="project"/>
+    </tool>
+</registration>

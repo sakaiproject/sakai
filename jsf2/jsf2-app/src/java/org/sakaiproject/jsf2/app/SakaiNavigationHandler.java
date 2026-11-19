@@ -15,9 +15,9 @@
  */
 package org.sakaiproject.jsf2.app;
 
-import javax.faces.application.NavigationHandler;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.application.NavigationHandler;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * <p>

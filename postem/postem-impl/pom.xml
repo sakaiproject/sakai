@@ -4,7 +4,7 @@
     <parent>
         <artifactId>postem-base</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>sakai-postem-impl</name>
@@ -16,7 +16,11 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>

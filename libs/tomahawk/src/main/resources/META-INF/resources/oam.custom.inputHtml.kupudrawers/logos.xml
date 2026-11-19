@@ -1,0 +1,163 @@
+<?xml version="1.0" ?>
+<?oxygen RNGSchema="file:libraries.rng" type="xml"?>
+<collection id="collection-logos.xml">
+    <uri>kupudrawers/logos.xml</uri>
+    <icon>kupuimages/kupulibrary.png</icon>
+    <title>Logo's</title>
+    <src>kupudrawers/logos.xml</src>
+    <items>
+        <resource id="bitflux_logo.png">
+            <uri>kupudrawers/logos/bitflux_logo.png</uri>
+            <title>Bitflux logo</title>
+            <description>Bitflux CMS: http://bitflux.ch</description>
+            <size>957b</size>
+            <height>60</height>
+            <width>160</width>
+            <preview>kupudrawers/logos/bitflux_logo_preview.png</preview>
+        </resource>
+        <resource id="bubnbros.png">
+            <uri>kupudrawers/logos/bubnbros.png</uri>
+            <title>Bub'n'bros banner</title>
+            <description>Bub'n'bros game: http://bub-n-bros.sourceforge.net/</description>
+            <size>4806b</size>
+            <height>51</height>
+            <width>461</width>
+            <preview>kupudrawers/logos/bubnbros_preview.png</preview>
+        </resource>
+        <resource id="codespeak_logo.png">
+            <uri>kupudrawers/logos/codespeak_logo.png</uri>
+            <title>Codespeak logo</title>
+            <description>Codespeak: http://codespeak.net</description>
+            <size>4270b</size>
+            <height>75</height>
+            <width>154</width>
+            <preview>kupudrawers/logos/codespeak_logo_preview.png</preview>
+        </resource>
+        <resource id="diver_logo.png">
+            <uri>kupudrawers/logos/diver_logo.png</uri>
+            <title>Diver logo</title>
+            <description>ver.di: http://www.verdi.de</description>
+            <size>1800b</size>
+            <height>53</height>
+            <width>215</width>
+            <preview>kupudrawers/logos/diver_logo_preview.png</preview>
+        </resource>
+        <resource id="eth_logo.png">
+            <uri>kupudrawers/logos/eth_logo.png</uri>
+            <title>ETH logo</title>
+            <description>ETH: http://www.ethz.ch</description>
+            <size>4030b</size>
+            <height>103</height>
+            <width>400</width>
+            <preview>kupudrawers/logos/eth_logo_preview.png</preview>
+        </resource>
+        <resource id="infrae_logo.png">
+            <uri>kupudrawers/logos/infrae_logo.png</uri>
+            <title>Infrae logo</title>
+            <description>Infrae: http://www.infrae.com</description>
+            <size>3846b</size>
+            <height>140</height>
+            <width>280</width>
+            <preview>kupudrawers/logos/infrae_logo_preview.png</preview>
+        </resource>
+        <resource id="kupu_logo.png">
+            <uri>kupudrawers/logos/kupu_logo.png</uri>
+            <title>Kupu logo</title>
+            <description>Kupu: http://kupu.oscom.org</description>
+            <size>17489b</size>
+            <height>115</height>
+            <width>175</width>
+            <preview>kupudrawers/logos/kupu_logo_preview.png</preview>
+        </resource>
+        <resource id="lenya_logo.png">
+            <uri>kupudrawers/logos/lenya_logo.png</uri>
+            <title>Lenya logo</title>
+            <description>Lenya: http://lenya.apache.org</description>
+            <size>3469b</size>
+            <height>86</height>
+            <width>330</width>
+            <preview>kupudrawers/logos/lenya_logo_preview.png</preview>
+        </resource>
+        <resource id="opensource.png">
+            <uri>kupudrawers/logos/opensource.png</uri>
+            <title>Open Source icon</title>
+            <description>OSI: http://www.opensource.org</description>
+            <size>7767b</size>
+            <height>216</height>
+            <width>250</width>
+            <preview>kupudrawers/logos/opensource_preview.png</preview>
+        </resource>
+        <resource id="oscom4_banner.png">
+            <uri>kupudrawers/logos/oscom4_banner.gif</uri>
+            <title>OSCOM 4 banner</title>
+            <description>OSCOM: http://www.oscom.org</description>
+            <size>15129b</size>
+            <height>60</height>
+            <width>460</width>
+            <preview>kupudrawers/logos/oscom4_banner_preview.png</preview>
+        </resource>
+        <resource id="oscom_logo.png">
+            <uri>kupudrawers/logos/oscom_logo.png</uri>
+            <title>OSCOM logo</title>
+            <description>OSCOM: http://www.oscom.org</description>
+            <size>3233b</size>
+            <height>54</height>
+            <width>330</width>
+            <preview>kupudrawers/logos/oscom_logo_preview.png</preview>
+        </resource>
+        <resource id="plone_logo.png">
+            <uri>kupudrawers/logos/plone_logo.png</uri>
+            <title>Plone logo</title>
+            <description>Plone: http://plone.org</description>
+            <size>10624b</size>
+            <height>57</height>
+            <width>219</width>
+            <preview>kupudrawers/logos/plone_logo_preview.png</preview>
+        </resource>
+        <resource id="pypy_logo.png">
+            <uri>kupudrawers/logos/pypy_logo.png</uri>
+            <title>PYPY logo</title>
+            <description>PYPY: http://codespeak.net/pypy/</description>
+            <size>2163b</size>
+            <height>110</height>
+            <width>149</width>
+            <preview>kupudrawers/logos/pypy_logo_preview.png</preview>
+        </resource>
+        <resource id="silva_logo.png">
+            <uri>kupudrawers/logos/silva_logo.png</uri>
+            <title>Silva icon</title>
+            <description>Silva: http://www.infrae.com/products/silva/</description>
+            <size>22033b</size>
+            <height>250</height>
+            <width>250</width>
+            <preview>kupudrawers/logos/silva_logo_preview.png</preview>
+        </resource>
+        <resource id="twiki_logo.png">
+            <uri>kupudrawers/logos/twiki_logo.png</uri>
+            <title>TWiki logo</title>
+            <description>TWiki: http://www.twiki.org</description>
+            <size>7218b</size>
+            <height>64</height>
+            <width>131</width>
+            <preview>kupudrawers/logos/twiki_logo_preview.png</preview>
+        </resource>
+        <resource id="zea_logo.png">
+            <uri>kupudrawers/logos/zea_logo.png</uri>
+            <title>ZEA logo</title>
+            <description>Zope Europe Association: http://www.zope-europe.org</description>
+            <size>15027b</size>
+            <height>54</height>
+            <width>287</width>
+            <preview>kupudrawers/logos/zea_logo_preview.png</preview>
+        </resource>
+        <resource id="zope_logo.png">
+            <uri>kupudrawers/logos/zope_logo.png</uri>
+            <title>Zope logo</title>
+            <description>Zope: http://www.zope.org</description>
+            <size>1799b</size>
+            <height>54</height>
+            <width>201</width>
+            <preview>kupudrawers/logos/zope_logo_preview.png</preview>
+        </resource>
+    </items>
+</collection>

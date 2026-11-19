@@ -55,7 +55,7 @@ import javax.portlet.PortletSession;
 import javax.portlet.ReadOnlyException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.sakaiproject.lti.LocalEventTrackingService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
@@ -335,7 +335,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 		request.setAttribute("imsti.oldvalues", oldValues);
 
 		String allowRoster = ServerConfigurationService.getString(SakaiLTIUtil.LTI_ROSTER_ENABLED, SakaiLTIUtil.LTI_ROSTER_ENABLED_DEFAULT);
-		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
+		request.setAttribute("allowRoster", Boolean.valueOf("true".equals(allowRoster)));
 
 		// For outcomes we check for tools in the site before offering the options
 		String allowOutcomes = ServerConfigurationService.getString(SakaiLTIUtil.LTI_OUTCOMES_ENABLED, SakaiLTIUtil.LTI_OUTCOMES_ENABLED_DEFAULT);
@@ -361,7 +361,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 
 		if ( ! foundGradebook ) allowOutcomes = "false";
 
-		request.setAttribute("allowOutcomes", new Boolean("true".equals(allowOutcomes)));
+		request.setAttribute("allowOutcomes", Boolean.valueOf("true".equals(allowOutcomes)));
 		if ( "true".equals(allowOutcomes) ) {
 			List<String> assignments = getGradeBookAssignments();
 			if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
@@ -634,7 +634,6 @@ public class IMSLTIPortlet extends GenericPortlet {
 				}
 			}
 
-			log.debug("old placementsecret={}", oldPlacementSecret);
 			if ( oldPlacementSecret == null &&
 					("true".equals(allowOutcomes) ||
                      "true".equals(allowRoster) ) ) {
@@ -645,7 +644,6 @@ public class IMSLTIPortlet extends GenericPortlet {
 					String date_secret = sdf.format(date);
 					prefs.setValue("sakai:imsti."+LTI_PORTLET_PLACEMENTSECRET, uuid);
 					prefs.setValue("sakai:imsti.placementsecretdate", date_secret);
-					log.debug("placementsecret set to={} data={}", uuid, date_secret);
 					changed = true;
 				} catch (ReadOnlyException e) {
 					setErrorMessage(request, rb.getString("error.modify.prefs") );

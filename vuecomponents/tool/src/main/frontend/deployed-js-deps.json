@@ -1,0 +1,8 @@
+{
+  "generatedAt": "2026-09-11T12:01:53.717Z",
+  "source": "webpack report",
+  "bundleDir": "target/js",
+  "reportFile": "target/js/report.json",
+  "lockFile": "package-lock.json",
+  "deployedPackages": []
+}

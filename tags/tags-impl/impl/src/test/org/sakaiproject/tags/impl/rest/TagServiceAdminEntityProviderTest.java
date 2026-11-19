@@ -1,0 +1,155 @@
+/**********************************************************************************
+ *
+ * Copyright (c) 2016 The Sakai Foundation
+ *
+ * Original developers:
+ *
+ *   Unicon
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+package org.sakaiproject.tags.impl.rest;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagCollection;
+import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tags.impl.TagServiceTestConfiguration;
+import org.sakaiproject.tool.api.SessionManager;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.sakaiproject.tool.api.Session;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TagServiceTestConfiguration.class)
+public class TagServiceAdminEntityProviderTest {
+
+    @Autowired private TagService tagService;
+    @Autowired private SessionManager sessionManager;
+
+    @Autowired private TagServiceAdminEntityProvider provider;
+    @Autowired private SecurityService securityService;
+    private Session session;
+    private Map<String, Object> params;
+
+    @Before
+    public void setUpProvider() {
+        reset(securityService, sessionManager);
+        session = mock(Session.class);
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("admin");
+        when(securityService.unlock("tagservice.manage", "/site/!admin")).thenReturn(true);
+        when(session.getAttribute("sakai.tagservice-admin.token")).thenReturn("valid-token");
+        params = new HashMap<>();
+        params.put("session", "valid-token");
+    }
+
+    @Test
+    public void anonymousDownloadIsDeniedBeforeCheckingPermissionsOrToken() {
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(null);
+        assertThrows(SecurityException.class, () -> provider.downloadCollection(null, params));
+        verifyNoInteractions(securityService, session);
+    }
+
+    @Test
+    public void downloadRequiresManagePermissionEvenWithValidToken() {
+        when(securityService.unlock("tagservice.manage", "/site/!admin")).thenReturn(false);
+        assertThrows(SecurityException.class, () -> provider.downloadCollection(null, params));
+        verifyNoInteractions(session);
+    }
+
+    @Test
+    public void downloadRequiresTokenInCurrentSession() {
+        when(session.getAttribute("sakai.tagservice-admin.token")).thenReturn(null);
+        assertThrows(SecurityException.class, () -> provider.downloadCollection(null, params));
+    }
+
+    @Test
+    public void downloadRequiresRequestToken() {
+        params.remove("session");
+        assertThrows(SecurityException.class, () -> provider.downloadCollection(null, params));
+    }
+
+    @Test
+    public void downloadRejectsMismatchedToken() {
+        params.put("session", "wrong-token");
+        assertThrows(SecurityException.class, () -> provider.downloadCollection(null, params));
+    }
+
+    @Test
+    public void permittedDownloadReturnsStoredTags() {
+        TagCollection collection = TagCollection.builder().name("download").build();
+        tagService.createTagCollection(collection);
+        Tag tag = Tag.builder().tagCollectionId(collection.getTagCollectionId()).tagLabel("download").build();
+        String tagId = tagService.createTag(tag);
+        params.put("tagcollectionid", collection.getTagCollectionId());
+        List<Tag> downloaded = provider.downloadCollection(null, params);
+        assertEquals(1, downloaded.size());
+        assertEquals(tagId, downloaded.get(0).getTagId());
+        assertEquals(tag.getTagLabel(), downloaded.get(0).getTagLabel());
+        XMLTranscoder encoder = new XMLTranscoder(true, true, false, false);
+        String xml = encoder.encode(downloaded.get(0), "Tag", null);
+        Map<String, Object> exported = encoder.decode(xml);
+        assertEquals(collection.getTagCollectionId(), exported.get("tagCollectionId"));
+        assertEquals(tag.getTagLabel(), exported.get("tagLabel"));
+        assertFalse(exported.containsKey("collection"));
+    }
+
+    @Test
+    public void updatingMissingTagReportsItsId() {
+        params.put("tagid", "missing-tag");
+        JSONObject response = (JSONObject) JSONValue.parse(provider.updateTag(null, params));
+        assertEquals("ERROR", response.get("status"));
+        assertEquals("No tag with id missing-tag", response.get("message"));
+    }
+
+    @Test
+    public void updatingMissingCollectionReportsItsId() {
+        params.put("tagcollectionid", "missing-collection");
+        JSONObject response = (JSONObject) JSONValue.parse(provider.updateTagCollection(null, params));
+        assertEquals("ERROR", response.get("status"));
+        assertEquals("No tag collection with id missing-collection", response.get("message"));
+    }
+
+    @Test
+    public void anonymousSessionCreationPropagatesAccessDenial() {
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(null);
+        assertThrows(SecurityException.class, () -> provider.startSession(null, params));
+    }
+
+    @Test
+    public void tagMutationPropagatesInvalidTokenDenial() {
+        params.put("session", "wrong-token");
+        assertThrows(SecurityException.class, () -> provider.createTag(null, params));
+    }
+}

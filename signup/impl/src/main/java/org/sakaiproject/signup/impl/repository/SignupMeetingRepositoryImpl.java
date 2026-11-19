@@ -15,11 +15,12 @@
  */
 package org.sakaiproject.signup.impl.repository;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -136,21 +137,19 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 	}
 
 	@Override
-	public void updateAll(List<SignupMeeting> meetings) {
-		if (meetings == null || meetings.isEmpty()) return;
+	public List<SignupMeeting> updateAll(List<SignupMeeting> meetings) {
+		if (meetings == null || meetings.isEmpty()) return List.of();
 
+		List<SignupMeeting> savedMeetings = new ArrayList<>(meetings.size());
 		for (SignupMeeting meeting : meetings) {
-			save(meeting);
+			savedMeetings.add(save(meeting));
 		}
+		return savedMeetings;
 	}
 
 	@Override
-	public void updateMeetingsAndRemoveTimeslots(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots) {
-		if (meetings != null && !meetings.isEmpty()) {
-			for (SignupMeeting meeting : meetings) {
-				save(meeting);
-			}
-		}
+	public List<SignupMeeting> updateMeetingsAndRemoveTimeslots(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots) {
+		List<SignupMeeting> savedMeetings = updateAll(meetings);
 
 		// Remove the deleted timeslot and related attendees/wait-list people
 		if (removedTimeslots != null && !removedTimeslots.isEmpty()) {
@@ -160,6 +159,7 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 				sTimeslot.ifPresent(timeslot -> sessionFactory.getCurrentSession().delete(timeslot));
 			}
 		}
+		return savedMeetings;
 	}
 
 	private Optional<SignupTimeslot> loadSignupTimeslot(Long timeslotId) {

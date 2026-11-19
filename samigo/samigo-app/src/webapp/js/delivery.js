@@ -86,12 +86,22 @@ function showNotif2(item, button,formName)
         }
 }
 
-function clearIfDefaultString(formField, defaultString) {
-    if(formField.value == defaultString) {
-        formField.value = "";
+// JSF here cannot render a search type or a placeholder, so a student search gets them here.
+// Enter searches (see submitOnEnter); emptying a search the page was loaded with clears it.
+function setupStudentSearch(fieldId, prompt, clearButtonId) {
+    var field = document.getElementById(fieldId);
+    if (!field) {
+        return;
     }
+    field.type = "search";
+    field.placeholder = prompt;
+    var applied = field.value;
+    field.addEventListener("input", function () {
+        if (applied && !field.value) {
+            document.getElementById(clearButtonId).click();
+        }
+    });
 }
-
 
 function submitOnEnter(event, defaultButtonId) {
     var characterCode;

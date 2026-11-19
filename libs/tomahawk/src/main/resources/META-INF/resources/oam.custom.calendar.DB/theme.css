@@ -1,0 +1,155 @@
+/* Default attributes of table container for entire calendar */
+.jscalendar-DB-table-style {
+    font-family:arial;
+    font-size:11px;
+    border-width:1px;
+    border-style:solid;
+    border-color:#a0a0a0;
+	background-color: #ffffff;
+}
+
+/* Default attributes of DIV containing table container for entire calendar.
+ * You probably don't want to alter this style.
+ */
+.jscalendar-DB-div-style {
+	z-index: +999;
+	position: absolute;
+	visibility: hidden;
+}
+
+/* Default attributes used in calendar title (month and year columns).*/
+.jscalendar-DB-title-style {
+    padding:2px;
+    font-family:arial;
+    font-size:11px;
+    font-weight:bold;
+    color:#FFFFFF;    
+}
+
+/* Default attributes used in calendar title background.*/
+.jscalendar-DB-title-background-style {
+	background-color: #0000aa;
+}
+
+/* Normal appearance of controls in calendar title. */
+/* Note: The right, left and down icons are images, jscalendar-DBich must be edited if you need to change them. */
+.jscalendar-DB-title-control-normal-style {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #3366FF;
+	cursor: pointer;
+}
+
+/* Normal appearance of images in calendar title. */
+/* Note: The right, left and down icons are images, jscalendar-DBich must be edited if you need to change them. */
+.jscalendar-DB-title-img-normal-style {
+	cursor: pointer;
+}
+
+/* Moused-over (selected) appearance of controls in calendar title. */
+.jscalendar-DB-title-control-select-style {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #88AAFF;
+	cursor: pointer;
+}
+
+/* Moused-over (selected) appearance of controls in calendar title. */
+.jscalendar-DB-title-img-select-style {
+	cursor: pointer;
+}
+
+/* Default attributes of drop down lists (month and year). */
+.jscalendar-DB-dropdown-style {
+	font-family: arial;
+	font-size: 11px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #a0a0a0;
+	background-color: #FFFFDD;
+	cursor: pointer;
+}
+
+/* Default attributes selected (mouse-over) item in drop down lists (month and year). */
+.jscalendar-DB-dropdown-select-style {
+	background-color: #FFCC99;
+}
+
+/* Default attributes unselected (mouse-off) item in drop down lists (month and year). */
+.jscalendar-DB-dropdown-normal-style {
+	background-color:inherit;
+}
+
+/* Default attributes of calendar body (weekday titles and numbers). */
+.jscalendar-DB-body-style {
+	background-color: #FFFFFF;
+	font-family: verdana;
+	font-size: 10px;
+}
+
+/* Attributes of current day in calendar body. */
+.jscalendar-DB-current-day-style {
+	color: red;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+/* Attributes of end-of-week days (Sundays) in calendar body. */
+.jscalendar-DB-end-of-weekday-style {
+	color: #909090;
+	text-decoration: none;
+}
+
+/* Attributes of all other days in calendar body. */
+.jscalendar-DB-normal-day-style {
+	color: black;
+	text-decoration: none;
+}
+
+.jscalendar-DB-would-be-selected-day-style {
+	background-color: #EEEEEE;
+}
+
+/* Attributes of border around selected day in calendar body. */
+.jscalendar-DB-selected-day-style {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #a0a0a0;
+}
+
+/* Default attributes of designated holidays. */
+.jscalendar-DB-holiday-style {
+	background-color: #FFDDDD;
+}
+
+/* Attributes of today display at bottom on calendar */
+.jscalendar-DB-today-style {
+	padding: 0px;
+	color: black;
+	background-color: #f0f0f0;
+	text-align: center;
+	text-decoration: none;
+}
+
+/* Attributes of today display label at bottom on calendar */
+.jscalendar-DB-today-lbl-style {
+	padding: 5px;
+	text-align: center;
+}
+
+/* Attributes of week number division (divider.gif) */
+.jscalendar-DB-weeknumber-div-style {
+	background-color: #d0d0d0;
+	padding: 0px;
+}
+
+/* Attributes of week labels in calendar. */
+.jscalendar-DB-normal-week-style {
+	color: black;
+	text-decoration: none;
+}
+
+.jscalendar-DB-would-be-selected-week-style {
+	background-color: #EEEEEE;
+}
+

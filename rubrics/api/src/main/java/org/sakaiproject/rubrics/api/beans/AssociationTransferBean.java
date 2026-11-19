@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 public class AssociationTransferBean {
 
     private Long id;
+    private Long version;
     private String itemId;
     private Map<String, Integer> parameters;
     private Long rubricId;
@@ -35,6 +36,7 @@ public class AssociationTransferBean {
     public AssociationTransferBean(ToolItemRubricAssociation association) {
         Objects.requireNonNull(association, "association must not be null in constructor");
         id = association.getId();
+        version = association.getVersion();
         itemId = association.getItemId();
         toolId = association.getToolId();
         rubricId = association.getRubric().getId();

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
 
-import javax.faces.model.SelectItem;
+import jakarta.faces.model.SelectItem;
 
 import org.sakaiproject.signup.api.SakaiFacade;
 import org.sakaiproject.signup.api.model.SignupAttendee;

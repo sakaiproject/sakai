@@ -62,8 +62,7 @@ The following are the configuration options which can be adjusted as one needs. 
 - content.cleaner.filter.utf8.replacement = ""
   - the replacement character to use if a surrogate is found, the default is to remove it.
 
-The following options are for adjusting the woodstox xml parser, generally nobody will ever need to adjust these but if
-you see the following exceptions in the log then then you will need to adjust the appropriate setting in the job.
+The conversion job uses the shared Kernel XML utilities. Increase the corresponding job setting if the log reports an attribute limit exception.
 After increasing the appropriate setting just rerun the job and it will reprocess those assignments that were skipped.
 If the error occurred on a submission you will need to delete the Assignment and all its submissions and then rerun the job. 
 
@@ -72,4 +71,4 @@ If the error occurred on a submission you will need to delete the Assignment and
 - `javax.xml.stream.XMLStreamException: Maximum attribute size limit (524288) exceeded`
   - Attribute size should be increased appropriately 
 
-See the following [link](https://github.com/FasterXML/woodstox/blob/master/src/main/java/com/ctc/wstx/api/WstxInputProperties.java)
+The default attribute limits are supplied by `MapperFactory` and used by both the conversion service and its job configuration.

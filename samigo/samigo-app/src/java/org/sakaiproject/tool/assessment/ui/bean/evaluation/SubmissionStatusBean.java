@@ -28,9 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.event.ActionEvent;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.bean.ManagedBean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.jsf2.model.PhaseAware;
@@ -86,7 +86,6 @@ public class SubmissionStatusBean implements Serializable, PhaseAware {
   
   // Searching
   private String searchString;
-  private String defaultSearchString;
   
   private Boolean releasedToGroups = null;
 
@@ -103,10 +102,9 @@ public class SubmissionStatusBean implements Serializable, PhaseAware {
   }
 
 	protected void init() {
-        defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-
+        // no search is an empty search; the page shows its prompt as a placeholder
         if (searchString == null) {
-			searchString = defaultSearchString;
+			searchString = "";
 		}
 		
 		// Get allAgents only at the first time
@@ -655,7 +653,7 @@ public class SubmissionStatusBean implements Serializable, PhaseAware {
   }
   public void setSearchString(String searchString) {
       if (StringUtils.trimToNull(searchString) == null) {
-          searchString = defaultSearchString;
+          searchString = "";
       }
   	if (!StringUtils.equals(searchString, this.searchString)) {
 	    	log.debug("setSearchString " + searchString);
@@ -675,7 +673,7 @@ public class SubmissionStatusBean implements Serializable, PhaseAware {
   }
   
 	private boolean isFilteredSearch() {
-        return !StringUtils.equals(searchString, defaultSearchString);
+        return StringUtils.isNotBlank(searchString);
 	}
 
 	/**

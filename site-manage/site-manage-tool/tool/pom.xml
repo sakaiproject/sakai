@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.sitemanage</groupId>
         <artifactId>sitemanage</artifactId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -14,6 +14,10 @@
     <artifactId>sakai-site-manage-tool</artifactId>
     <packaging>war</packaging>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-api</artifactId>
@@ -64,13 +68,6 @@
             <groupId>org.sakaiproject.edu-services.course-management</groupId>
             <artifactId>coursemanagement-api</artifactId>
         </dependency>
-        <!-- ScoringService integration -->
-        <dependency>
-            <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
-            <artifactId>scoring-service-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.sakaiproject.velocity</groupId>
             <artifactId>sakai-velocity-tool-api</artifactId>
@@ -78,6 +75,17 @@
         <dependency>
             <groupId>org.sakaiproject.velocity</groupId>
             <artifactId>sakai-velocity-tool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity.tools</groupId>
+            <artifactId>velocity-tools-generic</artifactId>
+            <version>3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.userauditservice</groupId>
@@ -123,8 +131,8 @@
         <!-- No longer need Avalon Framework dependencies due to simplified FOP initialization -->
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

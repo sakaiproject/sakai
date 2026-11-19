@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.importer.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.File;
@@ -25,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.sakaiproject.importer.api.Importable;
@@ -211,9 +212,10 @@ public class Blackboard55FileParser extends IMSFileParser {
 			String descriptorFilename = XPathHelper.getNodeValue("./@file",resourceNode);
 			DocumentBuilder docBuilder;
 		    try {
-				docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			    InputStream fis = new FileInputStream(pathToData + "/" + descriptorFilename);
-			    return (Document) docBuilder.parse(fis);
+				docBuilder = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
+                try (InputStream fis = new FileInputStream(resolvePackageFile(descriptorFilename))) {
+                    return (Document) docBuilder.parse(fis);
+                }
 			} catch (Exception e) {
 				return null;
 			}
@@ -270,14 +272,11 @@ public class Blackboard55FileParser extends IMSFileParser {
 	
 	protected class Bb55FileHelper extends FileHelper {
 		
-		public byte[] getFileBytesForNode(Node node, String contextPath) throws IOException {
-			// for Bb, we ignore the context path
-			String basePath = XPathHelper.getNodeValue("./@baseurl",node.getParentNode());
-			String fileName = XPathHelper.getNodeValue("./@href", node);
-			String filePath = basePath + "/" + fileName;
-			return getBytesFromFile(new File(pathToData + "/" + filePath));
-		}
-		
+        @Override
+        protected File getSourceFileForNode(Node node) throws IOException {
+            String basePath = XPathHelper.getNodeValue("./@baseurl", node.getParentNode());
+            return resolvePackageFile(basePath, XPathHelper.getNodeValue("./@href", node));
+        }
 	}
 
 	public ImportFileParser newParser() {

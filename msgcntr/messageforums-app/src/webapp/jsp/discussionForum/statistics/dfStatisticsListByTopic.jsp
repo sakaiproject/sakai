@@ -1,5 +1,5 @@
- <%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
-                 javax.faces.el.*, org.sakaiproject.tool.messageforums.*,
+ <%@ page import="java.util.*, jakarta.faces.context.*, jakarta.faces.application.*,
+                 jakarta.faces.el.*, org.sakaiproject.tool.messageforums.*,
                  org.sakaiproject.api.app.messageforums.*,
                  org.sakaiproject.site.cover.SiteService,
                  org.sakaiproject.tool.messageforums.ui.MessageForumStatisticsBean,
@@ -199,11 +199,6 @@
                                     sakaiReminder.new($(this).val());
                                   });
                                 });
-
-				if (document.getElementById("dfStatisticsForm:multigradebook-group-container") !== null) {
-					window.syncGbSelectorInput("gb-selector", "dfStatisticsForm:gb_selector");
-				}
-
 			});
 		</script>
         <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
@@ -304,13 +299,13 @@
 		<div style="margin-bottom: 1rem;">
 			<h:panelGroup rendered="#{mfStatisticsBean.gradingService.isGradebookGroupEnabled(ForumTool.siteId) && !mfStatisticsBean.discussionGeneric}" id="multigradebook-group-container">
 				<div style="margin-bottom: 0.5rem;">
-					<sakai-multi-gradebook
-						id="gb-selector"
+					<sakai-gradebook-item-selector
+						id="gb-selector" input-id="dfStatisticsForm:gb_selector"
 						site-id='<h:outputText value="#{ForumTool.siteId}" />'
 						user-id='<h:outputText value="#{ForumTool.userId}" />'
 						group-id='<h:outputText value="#{mfStatisticsBean.groupId}" />'
 						selected-temp='<h:outputText value="Hey" />'>
-					</sakai-multi-gradebook>
+					</sakai-gradebook-item-selector>
 					<h:inputHidden 
 						id="gb_selector" 
 						value="#{mfStatisticsBean.selectedAssign}" 

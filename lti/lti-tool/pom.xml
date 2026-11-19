@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lti</artifactId>
         <groupId>org.sakaiproject.lti</groupId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
     </parent>
     
     <name>LTI Admin Tool (lti-tool)</name>
@@ -31,8 +31,8 @@
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
@@ -45,7 +45,6 @@
         <dependency>
                 <groupId>org.sakaiproject.entitybroker</groupId>
                 <artifactId>entitybroker-api</artifactId>
-                <scope>provided</scope>
         </dependency>
         <dependency>
                 <groupId>org.sakaiproject.entitybroker</groupId>
@@ -90,11 +89,15 @@
         <dependency>
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-lang3</artifactId>
-         </dependency>
+        </dependency>
         <dependency>
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-text</artifactId>
-         </dependency>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

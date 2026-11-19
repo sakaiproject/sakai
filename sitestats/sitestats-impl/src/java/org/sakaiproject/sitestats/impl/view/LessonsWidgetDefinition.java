@@ -76,7 +76,7 @@ public class LessonsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 
 	private WidgetMetricValue lessonsMostReadPageValue(String siteId, String userId) {
 		String mostReadPage = statsManager().getMostReadLessonPage(siteId);
-		return WidgetMetricValue.withDetail(mostReadPage == null ? "-" : mostReadPage, mostReadPage);
+		return WidgetMetricValue.of(mostReadPage == null ? "-" : mostReadPage);
 	}
 
 	private WidgetMetricValue lessonsUserReadMorePagesValue(String siteId, String userId) {

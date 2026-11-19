@@ -24,11 +24,13 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -55,6 +57,11 @@ public class PollsServiceTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
         return Mockito.mock(FormattedText.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        return Mockito.mock(LocaleService.class);
     }
 
     @Bean(name = "org.sakaiproject.api.app.scheduler.SchedulerManager")
@@ -95,6 +102,11 @@ public class PollsServiceTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
     public LinkMigrationHelper linkMigrationHelper() {
         return Mockito.mock(LinkMigrationHelper.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchIndexBuilder")
+    public SearchIndexBuilder searchIndexBuilder() {
+        return Mockito.mock(SearchIndexBuilder.class);
     }
 
     @Bean(name = "org.sakaiproject.event.api.UsageSessionService")

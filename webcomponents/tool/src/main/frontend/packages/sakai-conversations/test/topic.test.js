@@ -26,6 +26,39 @@ describe("sakai-topic tests", () => {
     fetchMock.hardReset();
   });
 
+  for (const posts of [undefined, [{ id: "own-post", message: "My reply", viewed: true, canView: true }]]) {
+    it(`persists viewing a topic with ${posts ? "already-read replies" : "no replies"}`, async () => {
+
+      const topic = { ...data.discussionTopic, posts, viewed: false, numberOfUnreadPosts: 0 };
+      const el = await fixture(html`<sakai-topic .topic=${topic}></sakai-topic>`);
+
+      await waitUntil(() => topic.viewed);
+      expect(fetchMock.callHistory.calls(markViewedUrl)).to.have.lengthOf(1);
+      expect(JSON.parse(fetchMock.callHistory.calls(markViewedUrl)[0].options.body)).to.deep.equal([]);
+      await elementUpdated(el);
+    });
+  }
+
+  it("does not persist viewing the hidden responsive copy", async () => {
+
+    const topic = { ...data.discussionTopic, posts: [], viewed: false, numberOfUnreadPosts: 0 };
+    const wrapper = await fixture(html`<div hidden><sakai-topic .topic=${topic}></sakai-topic></div>`);
+
+    await elementUpdated(wrapper.querySelector("sakai-topic"));
+    expect(topic.viewed).to.be.false;
+    expect(fetchMock.callHistory.calls(markViewedUrl)).to.have.lengthOf(0);
+  });
+
+  it("does not mark unseen replies read when opening a topic", async () => {
+
+    const topic = { ...data.discussionTopic, posts: [], viewed: false, numberOfUnreadPosts: 1 };
+    const el = await fixture(html`<sakai-topic .topic=${topic}></sakai-topic>`);
+
+    await elementUpdated(el);
+    expect(topic.viewed).to.be.false;
+    expect(fetchMock.callHistory.calls(markViewedUrl)).to.have.lengthOf(0);
+  });
+
   it("renders a discussion topic", async () => {
 
     const unviewedPosts = [

@@ -630,7 +630,7 @@ public class GradebookNgBusinessService {
 
 		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
-			Double newGradePercentage = new Double("0.0");
+			Double newGradePercentage = Double.valueOf("0.0");
 
 			if(StringUtils.isNotBlank(newGrade)){
 				newGradePercentage = FormatHelper.validateDouble(newGrade);
@@ -772,7 +772,7 @@ public class GradebookNgBusinessService {
 		final Integer gradingType = getGradebook(gradebookUid, siteId).getGradeType();
 		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			// the stored grade represents points so the number needs to be adjusted back to percentage
-			Double storedGradePoints = new Double("0.0");
+			Double storedGradePoints = Double.valueOf("0.0");
 			if (StringUtils.isNotBlank(storedGrade)) {
 				storedGradePoints = FormatHelper.validateDouble(storedGrade);
 			}
@@ -1129,7 +1129,7 @@ public class GradebookNgBusinessService {
 				gbCourseGrade.setDisplayString(courseGradeFormatter.format(courseGrade));
 			}
 			sg.setCourseGrade(gbCourseGrade);
-			sg.setHasCourseGradeComment(StringUtils.isNotBlank(getAssignmentGradeComment(gradebook.getUid(), courseGrade.getId(),uid)));
+			sg.setHasCourseGradeComment(courseGrade.isHasComment());
 			// Add to map so we can build on it later
 			matrix.put(uid, sg);
 		}
@@ -2245,6 +2245,20 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
+	/**
+	 * Gets existing grades, comments and excuses keyed by student UUID.
+	 * Students without a grade record or comment are absent from the result.
+	 */
+	public Map<String, GradeDefinition> getGradesForStudentsForItem(final String gradebookUid, final String siteId,
+			final Long assignmentId, final List<String> studentIds) {
+		final Map<String, GradeDefinition> grades = new HashMap<>();
+		// The grading service filters its input list according to the current user's permissions.
+		for (GradeDefinition grade : gradingService.getGradesForStudentsForItem(gradebookUid, siteId, assignmentId, new ArrayList<>(studentIds))) {
+			grades.put(grade.getStudentUid(), grade);
+		}
+		return grades;
+	}
+
 	public GradeDefinition getGradeForStudentForItem(String gradebookUid, String siteId, String studentId, Long assignmentId) {
 		return this.gradingService.getGradeDefinitionForStudentForItem(gradebookUid, siteId, assignmentId, studentId);
 	}
@@ -2335,11 +2349,11 @@ public class GradebookNgBusinessService {
 	 */
 	public void removeAssignment(final String gradebookUid, final String siteId, final Long assignmentId) {
 
+		this.gradingService.removeAssignment(assignmentId);
 		// Delete task
 		String reference =  GradingConstants.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + siteId + Entity.SEPARATOR + assignmentId; 
 		taskService.removeTaskByReference(reference);
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assignmentId.toString(), RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
-		this.gradingService.removeAssignment(assignmentId);
 
 		EventHelper.postDeleteAssignmentEvent(getGradebook(gradebookUid, siteId), assignmentId, getUserRoleOrNone(siteId));
 	}

@@ -32,13 +32,15 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.memory.mock.MemoryService;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.sakaiproject.tool.assessment.business.entity.ItemStatistics;
 import org.sakaiproject.tool.assessment.business.entity.QuestionPoolStatistics;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries;
@@ -51,16 +53,16 @@ public class StatisticsServiceTest {
     private StatisticsService statisticsService;
     private StatisticsFacadeQueries statisticsFacadeQueries;
     private QuestionPoolService questionPoolService;
-    private MemoryService memoryService;
+    private CacheManager cacheManager;
 
     @Before
     public void setUp() {
         GradingService gradingService = new GradingService();
         questionPoolService = mock(QuestionPoolService.class);
         statisticsFacadeQueries = mock(StatisticsFacadeQueries.class);
-        memoryService = new MemoryService();
+        cacheManager = new ConcurrentMapCacheManager();
 
-        statisticsService = spy(new StatisticsService(gradingService, memoryService,
+        statisticsService = spy(new StatisticsService(gradingService, cacheManager,
                 questionPoolService, statisticsFacadeQueries));
 
         doReturn(Collections.emptySet()).when(questionPoolService).getAllItemHashes(any());
@@ -643,9 +645,36 @@ public class StatisticsServiceTest {
     }
 
     @Test
+    public void testClassifyMutuallyExclusiveFillInBlankSubmission() {
+        StatisticsService service = new StatisticsService(new GradingService(), cacheManager,
+                new QuestionPoolService(), new StatisticsFacadeQueries());
+        PublishedItemData item = item(1L, TypeIfc.FILL_IN_BLANK);
+        item.addItemMetaData(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB, "true");
+        Map<Long, PublishedAnswer> answers = Map.of(
+                1L, answer(1L, true, 1L, "red|blue", null),
+                2L, answer(2L, true, 2L, "red|blue", null));
+        ItemGradingData firstBlank = gradingData(1L, 1L, 1L);
+        firstBlank.setAnswerText("red");
+        ItemGradingData secondBlank = gradingData(2L, 2L, 1L);
+        secondBlank.setAnswerText("blue");
+        List<ItemGradingData> submission = List.of(firstBlank, secondBlank);
+
+        assertEquals(SubmissionOutcome.CORRECT, service.classifySubmission(item, submission, answers));
+        // Used answers must not leak into a subsequent classification.
+        assertEquals(SubmissionOutcome.CORRECT, service.classifySubmission(item, submission, answers));
+
+        secondBlank.setAnswerText("red");
+        assertEquals(SubmissionOutcome.INCORRECT, service.classifySubmission(item, submission, answers));
+
+        item.getItemMetaDataSet().clear();
+        item.addItemMetaData(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB, "false");
+        assertEquals(SubmissionOutcome.CORRECT, service.classifySubmission(item, submission, answers));
+    }
+
+    @Test
     public void testClassifyCalculatedSubmissionTreatsBlankPartsAsBlank() {
         GradingService gradingService = mock(GradingService.class);
-        StatisticsService service = new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+        StatisticsService service = new StatisticsService(gradingService, cacheManager, questionPoolService, statisticsFacadeQueries);
 
         PublishedItemData item = item(0L, TypeIfc.CALCULATED_QUESTION);
 
@@ -665,7 +694,7 @@ public class StatisticsServiceTest {
     public void testClassifyCalculatedSubmissionCanBeCorrect() {
         GradingService gradingService = mock(GradingService.class);
         doReturn(true).when(gradingService).getCalcQResult(any(), any(), any(), anyInt());
-        StatisticsService service = new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+        StatisticsService service = new StatisticsService(gradingService, cacheManager, questionPoolService, statisticsFacadeQueries);
 
         PublishedItemData item = item(0L, TypeIfc.CALCULATED_QUESTION);
         ItemGradingData attemptedPart = gradingData(0L, 10L, 0L);

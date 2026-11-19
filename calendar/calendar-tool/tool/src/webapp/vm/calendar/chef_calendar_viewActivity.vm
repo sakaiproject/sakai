@@ -160,17 +160,17 @@
 					<td>$formattedText.escapeHtml($event.Location)</td>
 				</tr>
 			#end
-			#if($event.EventUrl && $event.EventUrl != "")
+			#if($formattedText.validateURL($event.EventUrl))
 				<tr>
 					<th>$tlang.getString("gen.url")</th>
-					<td><a href="$event.EventUrl">$event.DisplayName</a></td>
+					<td><a href="$formattedText.escapeHtml($event.EventUrl, false)">$formattedText.escapeHtml($event.DisplayName)</a></td>
 				</tr>
 			#end
 			#set ($calObj = $CalendarService.getCalendar($event.CalendarReference))
 			#if ($calObj.getContext() != $PortalService.CurrentSiteId )
 				<tr> 
 					<th>$tlang.getString("gen.fromsite")</th>
-					<td>$SiteService.getSiteDisplay($calObj.getContext())</td>
+					<td>$formattedText.escapeHtml($SiteService.getSiteDisplay($calObj.getContext()))</td>
 				</tr>
 			#end
 

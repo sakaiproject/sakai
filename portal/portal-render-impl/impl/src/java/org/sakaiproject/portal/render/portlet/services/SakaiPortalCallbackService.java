@@ -25,7 +25,7 @@ import java.util.Map;
 
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.pluto.PortletWindow;
 import org.apache.pluto.spi.PortalCallbackService;

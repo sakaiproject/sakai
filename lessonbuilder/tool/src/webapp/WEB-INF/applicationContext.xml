@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <!-- lets new SimplePageBean(beanFactory) honor its @Autowired qualifiers, TimeService is a UserTimeService too -->
+  <context:annotation-config/>
+
+  <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
    <!-- Use the Sakai session factory, pre-configured, instead of one local to TaskList
         we are adding our HBM files to the Sakai session factory instead of creating
@@ -55,6 +64,8 @@ simplePageBean.addCommentsSection,
 simplePageBean.addForum,
 simplePageBean.addLayout,
 simplePageBean.addMultimedia,
+simplePageBean.addVideoTraining,
+simplePageBean.cancelVideoTraining,
 simplePageBean.addOldPage,
 simplePageBean.addPageLayout,
 simplePageBean.addPages,
@@ -270,7 +281,7 @@ simplePageBean.addForumSummary,
         destroy-method="destroy">
 
     <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
     <property name="messageLocator" ref="messageLocator"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
   </bean>
@@ -293,16 +304,54 @@ simplePageBean.addForumSummary,
 	lazy-init="true"
         init-method="init"
         destroy-method="destroy">
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageLocator" ref="messageLocator"/>
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
   </bean>
 
+	<bean id="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"
+		class="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"
+		lazy-init="true"
+				init-method="init"
+				destroy-method="destroy">
+				<property name="videoTrainingService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+	</bean>
+
+	<bean id="org.sakaiproject.videotraining.api.util.ContentResourceHelper"
+	class="org.sakaiproject.videotraining.api.util.ContentResourceHelper">
+	<constructor-arg ref="org.sakaiproject.content.api.ContentHostingService"/>
+	</bean>
+
   <bean id="org.sakaiproject.lessonbuildertool.service.GradebookIfc"
 	class="org.sakaiproject.lessonbuildertool.service.GradebookIfc">
     <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
     <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.PageIndexService"
+        class="org.sakaiproject.lessonbuildertool.service.PageIndexService">
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.PlacementPageService"
+        class="org.sakaiproject.lessonbuildertool.service.PlacementPageService">
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.RemovedPageService"
+        class="org.sakaiproject.lessonbuildertool.service.RemovedPageService">
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="pageIndexService" ref="org.sakaiproject.lessonbuildertool.service.PageIndexService" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc" />
+    <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+    <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity" />
+    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity" />
+    <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity" />
   </bean>
 
   <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
@@ -316,9 +365,13 @@ simplePageBean.addForumSummary,
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
+    <property name="videoTrainingEntity" ref="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+    <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="pageIndexService" ref="org.sakaiproject.lessonbuildertool.service.PageIndexService" />
+    <property name="removedPageService" ref="org.sakaiproject.lessonbuildertool.service.RemovedPageService" />
     <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
@@ -326,7 +379,6 @@ simplePageBean.addForumSummary,
     <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageSource"><ref bean="messageSource"/></property>
 
   </bean>
@@ -337,6 +389,7 @@ simplePageBean.addForumSummary,
         destroy-method="destroy">
 
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
+    <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
@@ -357,8 +410,19 @@ simplePageBean.addForumSummary,
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
+  </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.service.PagePromotionService"
+	class="org.sakaiproject.lessonbuildertool.service.PagePromotionService">
+	<constructor-arg ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	<constructor-arg ref="org.sakaiproject.site.api.SiteService" />
+	<constructor-arg ref="org.sakaiproject.lessonbuildertool.service.PageIndexService" />
+	<constructor-arg>
+	  <bean class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+	  </bean>
+	</constructor-arg>
   </bean>
 
 	<bean id="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap" class="java.util.HashMap">       
@@ -480,6 +544,7 @@ simplePageBean.addForumSummary,
 	    init-method="init" >
 	    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	    <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
+	    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 	    <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 	    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 	    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
@@ -494,7 +559,6 @@ simplePageBean.addForumSummary,
 	  <property name="dao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	  <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 	  <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-	  <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 	  <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	  <property name="messageLocator" ref="messageLocator"/>
 	  <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />

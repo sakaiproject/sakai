@@ -25,6 +25,11 @@ import java.util.Objects;
 public class RatingTransferBean {
 
     private Long id;
+    private Long version;
+    private Long rubricVersion;
+    private String rubricLastModifiedBy;
+    private String rubricLastModifiedByDisplayName;
+    private String rubricFormattedModifiedDate;
     private Long criterionId;
     private String description;
     private Double points;
@@ -34,6 +39,9 @@ public class RatingTransferBean {
     public RatingTransferBean(Rating rating) {
         Objects.requireNonNull(rating, "rating must not be null in constructor");
         id = rating.getId();
+        version = rating.getVersion();
+        rubricVersion = rating.getCriterion().getRubric().getVersion();
+        rubricLastModifiedBy = rating.getCriterion().getRubric().getLastModifiedBy();
         criterionId = rating.getCriterion().getId();
         description = rating.getDescription();
         points = rating.getPoints();

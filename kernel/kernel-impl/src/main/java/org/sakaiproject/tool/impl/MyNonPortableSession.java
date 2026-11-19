@@ -29,7 +29,7 @@ import org.sakaiproject.tool.api.NonPortableSession;
 
 /**
  * NonPortableSession stores a users session data that can not be 'shared'
- * in a Terracotta (or similar) cluster.
+ * in a cluster.
  */
 public class MyNonPortableSession implements NonPortableSession {
 

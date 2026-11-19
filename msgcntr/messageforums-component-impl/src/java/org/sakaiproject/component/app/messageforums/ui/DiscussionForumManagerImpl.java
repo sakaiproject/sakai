@@ -20,9 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +38,7 @@ import java.util.function.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
@@ -87,8 +90,8 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -99,7 +102,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -110,8 +112,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional
-public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
-    DiscussionForumManager {
+public class DiscussionForumManagerImpl implements DiscussionForumManager {
   private static final String MC_DEFAULT = "mc.default.";
   private AreaManager areaManager;
   private MessageForumsForumManager forumManager;
@@ -128,19 +129,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private AuthzGroupService authzGroupService;
   private boolean usingHelper = false; // just a flag until moved to database from helper
   private ContentHostingService contentHostingService;
-  private MemoryService memoryService;
-  private Cache<String, Set<String>> allowedFunctionsCache;
+  @Setter private CacheManager cacheManager;
+  private Cache allowedFunctionsCache;
   private EventTrackingService eventTrackingService;
   private ToolManager toolManager;
   private LearningResourceStoreService learningResourceStoreService;
   @Setter private UIPermissionsManager uiPermissionsManager;
+  @Setter private SessionFactory sessionFactory;
   
   public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
   public void init()
   {
      log.info("init()");
-     allowedFunctionsCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl.allowedFunctionsCache");
+     allowedFunctionsCache = cacheManager.getCache("org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl.allowedFunctionsCache");
   }
 
   public void setContentHostingService(ContentHostingService contentHostingService) {
@@ -1114,6 +1116,32 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForum(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
+  @Override
+  public DiscussionForum getForumForUpdate(String siteId, Long forumId) {
+      DiscussionForum forum = getForumById(forumId);
+      if (forum == null) {
+          throw new IllegalArgumentException("Forum not found");
+      }
+      if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+              || !uiPermissionsManager.isChangeSettings(forum, siteId)) {
+          throw new SecurityException("Not allowed to update this forum");
+      }
+      return forum;
+  }
+
+  @Override
+  public DiscussionForum updateForumAvailability(String siteId, Long forumId, boolean restricted,
+          Instant openDate, Instant closeDate) {
+      DiscussionForum forum = getForumForUpdate(siteId, forumId);
+      if (restricted && (openDate == null || closeDate == null || closeDate.isBefore(openDate))) {
+          throw new IllegalArgumentException("Invalid forum availability dates");
+      }
+      forum.setAvailabilityRestricted(restricted);
+      forum.setOpenDate(restricted ? Date.from(openDate) : null);
+      forum.setCloseDate(restricted ? Date.from(closeDate) : null);
+      return saveForum(siteId, forum);
+  }
+
   public DiscussionForum saveForum(DiscussionForum forum)
   {
     if (log.isDebugEnabled())
@@ -2049,7 +2077,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     String configured = ServerConfigurationService.getString(MC_DEFAULT + roleId);
     if (StringUtils.isNotBlank(configured)) return configured;
     String cacheId = contextSiteId + "/" + roleId;
-    Set<String> allowedFunctions = allowedFunctionsCache.get(cacheId);
+    Set<String> allowedFunctions = allowedFunctionsCache.get(cacheId, Set.class);
     if (allowedFunctions == null) {
       allowedFunctions = authzGroupService.getAllowedFunctions(roleId, Collections.singletonList(contextSiteId));
       allowedFunctionsCache.put(cacheId, allowedFunctions);
@@ -2122,7 +2150,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
           level = permissionLevelManager.getDefaultNonePermissionLevel();
         } else {
           String cacheId = contextSiteId + "/" + name;
-          Set<String> allowedFunctions = allowedFunctionsCache.get(cacheId);
+          Set<String> allowedFunctions = allowedFunctionsCache.get(cacheId, Set.class);
           if (allowedFunctions == null) {
             allowedFunctions = authzGroupService.getAllowedFunctions(name, Collections.singletonList(contextSiteId));
             allowedFunctionsCache.put(cacheId, allowedFunctions);
@@ -2439,14 +2467,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	public boolean isSiteHasAnonymousTopics(final String contextId)
 	{
 		return forumManager.isSiteHasAnonymousTopics(contextId);
-	}
-
-	public MemoryService getMemoryService() {
-		return memoryService;
-	}
-
-	public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
 	}
 
 	public List<String> getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName) {

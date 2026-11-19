@@ -12,7 +12,6 @@
     <directive name="omitXmlDeclaration" value="true" />
     <directive name="omitDoctypeDeclaration" value="true" />
     <directive name="maxInputSize" value="1000000" /><!-- default of 100k -->
-    <directive name="useXHTML" value="true" /><!-- allow loose html, default true -->
     <directive name="validateParamAsEmbed" value="true" />
     <directive name="onUnknownTag" value="remove" /><!-- default remove, encode will keep the tag as HTML entities encoding -->
     <!-- remember, this won't work for relative URIs - AntiSamy doesn't know anything about the URL or your web structure -->

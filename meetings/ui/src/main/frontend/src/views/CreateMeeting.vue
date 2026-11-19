@@ -207,7 +207,7 @@ export default {
   computed: {
     ...mapState(useDataStore, ["storedData"]),
     disableGroupSelection() {
-      return true || !this.groups || this.groups.length === 0;
+      return !this.groups || this.groups.length === 0;
     },
     allValid() {
       return this.saveEnabled && !Object.values(this.validations).includes(false);

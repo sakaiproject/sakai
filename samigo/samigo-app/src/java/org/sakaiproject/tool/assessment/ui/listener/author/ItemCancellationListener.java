@@ -16,22 +16,21 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService.TotalScoreCancellationException;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
@@ -43,7 +42,6 @@ public class ItemCancellationListener implements ActionListener {
 
 
     public void processAction(ActionEvent ae) throws AbortProcessingException {
-        PublishedItemService publishedItemService = new PublishedItemService();
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
         String cancellation = ContextUtil.lookupParam("cancellation");
@@ -59,9 +57,9 @@ public class ItemCancellationListener implements ActionListener {
         log.debug("outcome {}", outcome);
         log.debug("regrade: {}", regrade);
 
-        String publishedAssessmentId = assessmentBean.getAssessmentId() != null
+        String publishedAssessmentId = SamigoConstants.OUTCOME_AUTHOR_EDIT_ASSESSMENT.equals(outcome)
                 ? assessmentBean.getAssessmentId()
-                : questionScoresBean.getPublishedId();
+                : (SamigoConstants.OUTCOME_EVALUATION_QUESTION_SCORES.equals(outcome) ? questionScoresBean.getPublishedId() : null);
 
         // Abort if publishedAssessmentId or passed params are invalid
         if (!NumberUtils.isParsable(publishedAssessmentId)
@@ -76,15 +74,21 @@ public class ItemCancellationListener implements ActionListener {
                     publishedAssessmentId, itemId, cancellation));
         }
 
-        ItemFacade publishedItemFacade = publishedItemService.getItem(itemId);
-
-        // Set cancellation and save item
-        publishedItemFacade.getData().setCancellation(Integer.parseInt(cancellation));
-        publishedItemService.saveItem(publishedItemFacade);
-
-        // Process cancellation
-        PublishedAssessmentFacade updatedPublishedAssessment = publishedAssessmentService.preparePublishedItemCancellation(
-                publishedAssessmentService.getPublishedAssessment(publishedAssessmentId));
+        PublishedAssessmentFacade updatedPublishedAssessment;
+        try {
+            updatedPublishedAssessment = publishedAssessmentService.cancelPublishedItem(
+                    publishedAssessmentId, itemId, Integer.parseInt(cancellation));
+        } catch (TotalScoreCancellationException e) {
+            String messageKey = e.isChangesMayHaveBeenMade() ? "cancel_question_error_incomplete"
+                    : (e.isCategoryRestricted() ? "cancel_question_reduce_total_category_restricted"
+                            : "cancel_question_reduce_total_unavailable");
+            cancellationError(messageKey);
+            log.warn("Question cancellation rejected for assessment {} and item {}", publishedAssessmentId, itemId, e);
+            throw new AbortProcessingException(e);
+        } catch (IllegalArgumentException e) {
+            cancellationError("cancel_question_error_cancelling");
+            throw new AbortProcessingException(e);
+        }
 
         // Update bean with updated Assessment
         if (SamigoConstants.OUTCOME_AUTHOR_EDIT_ASSESSMENT.equals(outcome)) {
@@ -95,7 +99,12 @@ public class ItemCancellationListener implements ActionListener {
             if (regrade) {
                 publishedAssessmentService.regradePublishedAssessment(
                         publishedAssessmentService.getPublishedAssessment(publishedAssessmentId), false);
-                publishedAssessmentService.updateGradebook((PublishedAssessmentData) updatedPublishedAssessment.getData());
+                try {
+                    publishedAssessmentService.updateGradebook((PublishedAssessmentData) updatedPublishedAssessment.getData());
+                } catch (InvalidCategoryException e) {
+                    cancellationError("cancel_question_error_gradebook_category");
+                    log.warn("Gradebook rejected cancellation synchronization for assessment {}", publishedAssessmentId, e);
+                }
             }
 
             // Update questionsScores bean
@@ -105,4 +114,9 @@ public class ItemCancellationListener implements ActionListener {
             questionScoreListener.questionScores(publishedAssessmentId, questionScoresBean, false);
         }
     }
+    private void cancellationError(String messageKey) {
+        String message = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.CommonMessages", messageKey);
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+    }
+
 }

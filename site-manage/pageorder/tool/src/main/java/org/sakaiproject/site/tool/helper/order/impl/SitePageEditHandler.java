@@ -354,6 +354,28 @@ public class SitePageEditHandler {
         return toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page);
     }
 
+    private boolean isEnabledFromRealm(Site site, SitePage page) {
+        List<Set<String>> required = getSingleToolPagePermissions(page);
+        if (required.isEmpty()) {
+            return true;
+        }
+
+        try {
+            AuthzGroup realm = authzGroupService.getAuthzGroup(site.getReference());
+            Set<Role> roles = getRolesWithout(realm, SiteService.SECURE_UPDATE_SITE);
+            for (Set<String> permissionSet : required) {
+                for (Role role : roles) {
+                    if (role.getAllowedFunctions().containsAll(permissionSet)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (GroupNotDefinedException e) {
+            throw new IllegalStateException("Unable to load realm for site " + site.getId(), e);
+        }
+    }
+
     public boolean allowsHide(SitePage page) {
         if (!serverConfigurationService.getBoolean(HIDDEN_ENABLED_CFG, true)) {
             return false;
@@ -438,7 +460,7 @@ public class SitePageEditHandler {
         }
 
         boolean visible = isVisible(page);
-        boolean enabled = isEnabled(page);
+        boolean enabled = isEnabledFromRealm(site, page);
         boolean singleTool = tools.size() == 1;
         boolean required = singleTool && isRequired(site, toolId);
         boolean siteInfoTool = SITE_SETUP_TOOL.equals(toolId) || SITE_INFO_TOOL.equals(toolId);

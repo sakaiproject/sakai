@@ -15,12 +15,13 @@
  */
 package org.sakaiproject.contentreview.service;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -60,22 +61,12 @@ public class I18nXmlUtility
 	private static final String TAG_NAME_KEY = "key";
 	private static final String TAG_NAME_ARG = "arg";
 
-	private static DocumentBuilderFactory documentBuilderFactory = null;
-	private static DocumentBuilder documentBuilder = null;
-
 	/**
 	 * Gets a DocumentBuilder instance
 	 */
 	public static DocumentBuilder getDocumentBuilder() {
 		try {
-			if (documentBuilderFactory == null) {
-				documentBuilderFactory = DocumentBuilderFactory.newInstance();
-			}
-			if (documentBuilder == null) {
-				documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			}
-
-			return documentBuilder;
+			return Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
 		}
 		catch (Exception e) {
 			throw new ContentReviewProviderException("Failed to produce an XML Document Builder", e);
@@ -97,7 +88,7 @@ public class I18nXmlUtility
 		doc.appendChild(el);
 
 		try {
-			TransformerFactory tranFactory = TransformerFactory.newInstance();
+			TransformerFactory tranFactory = Xml.createSecureTransformerFactory();
 			Transformer aTransformer = tranFactory.newTransformer();
 			Source src = new DOMSource(doc);
 			StringWriter writer = new StringWriter();

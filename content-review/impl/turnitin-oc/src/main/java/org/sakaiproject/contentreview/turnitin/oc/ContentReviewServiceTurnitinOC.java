@@ -39,29 +39,27 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.binary.Hex;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.utils.Hex;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.BufferedHttpEntity;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -83,9 +81,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.sakaiproject.serialization.MapperFactory;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -94,14 +92,14 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 @Slf4j
 public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
@@ -122,7 +120,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private SessionManager sessionManager;
 	
 	@Setter
-	private MemoryService memoryService;
+	private CacheManager cacheManager;
 	
 	@Setter
 	private AuthzGroupService authzGroupService;
@@ -210,6 +208,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private int maxRetryMinutes;
 	private int maxRetry;
 	private boolean skipDelays;
+	private ObjectMapper jsonMapper;
 
 	private final HashMap<String, String> BASE_HEADERS = new HashMap<>();
 	private final HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<>();
@@ -225,7 +224,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 	
 	//Caches requests for instructors so that we don't have to send a request for every student
-	private Cache EULA_CACHE;
+	private Cache eulaCache;
 	private static final String EULA_LATEST_KEY = "latest";
 	private static final String EULA_DEFAULT_LOCALE = "en-US";
 	
@@ -311,11 +310,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private String PROP_INDEXING_DISABLED = "turnitin.oc.disable.all.indexing";
 	private boolean indexingDisabled = false;
 	
-	private CloseableHttpAsyncClient client;
+	private CloseableHttpClient client;
 	private ObjectMapper objectMapper;
 
 	public void init() {
-		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
+		jsonMapper = MapperFactory.createDefaultJsonMapper();
+		eulaCache = cacheManager.getCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE");
 		// Retrieve Service URL and API key
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
@@ -380,8 +380,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		CONTENT_UPLOAD_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
 		
 		objectMapper = new ObjectMapper();
-		client = HttpAsyncClients.createDefault();
-		client.start();
+		client = HttpClients.createDefault();
 
 		if(StringUtils.isNotEmpty(apiKey) && StringUtils.isNotEmpty(serviceUrl)) {
 			try {
@@ -437,10 +436,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 		String error = null;
 		if ((responseCode >= 200) && (responseCode < 300) && (responseBody != null)) {
-			// create JSONObject from responseBody
-			JSONObject responseJSON = JSONObject.fromObject(responseBody);
+			// create JsonNode from responseBody
+			JsonNode responseJSON = jsonMapper.readTree(responseBody);
 			if (responseJSON.has("id")) {
-				id = responseJSON.getString("id");
+				id = responseJSON.get("id").asText();
 			} else {
 				error = "returned with no ID: " + responseJSON;
 			}
@@ -473,11 +472,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				&& responseCode < 300
 				&& !"[]".equals(responseBody)) {
 			// Loop through response via JSON, convert objects to Webhooks
-			JSONArray webhookList = JSONArray.fromObject(responseBody);
+			JsonNode webhookList = jsonMapper.readTree(responseBody);
 			for (int i=0; i < webhookList.size(); i++) {
-				JSONObject webhookJSON = webhookList.getJSONObject(i);
+				JsonNode webhookJSON = webhookList.get(i);
 				if (webhookJSON.has("id") && webhookJSON.has("url")) {
-					webhooks.add(new Webhook(webhookJSON.getString("id"), webhookJSON.getString("url")));
+					webhooks.add(new Webhook(webhookJSON.get("id").asText(), webhookJSON.get("url").asText()));
 				}
 			}
 		}else {
@@ -629,10 +628,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
 				if ((responseCode >= 200) && (responseCode < 300) && (responseBody != null)) {
-					// create JSONObject from responseBody
-					JSONObject responseJSON = JSONObject.fromObject(responseBody);
-					if (responseJSON.containsKey("viewer_url")) {
-						viewerUrl = responseJSON.getString("viewer_url");
+					// create JsonNode from responseBody
+					JsonNode responseJSON = jsonMapper.readTree(responseBody);
+					if (responseJSON.has("viewer_url")) {
+						viewerUrl = responseJSON.get("viewer_url").asText();
 						log.debug("Successfully retrieved viewer url: {}", viewerUrl);
 					} else {
 						log.error("Viewer URL not found. Response: {}", responseMessage);
@@ -760,7 +759,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					break;
 				}
 			}else if (is != null) {
-				HttpEntity entity = new InputStreamEntity(is);
+				HttpEntity entity = new InputStreamEntity(is, ContentType.APPLICATION_OCTET_STREAM);
 				switch (method) {
 				case "POST":
 					((HttpPost) request).setEntity(new BufferedHttpEntity(entity));
@@ -773,23 +772,22 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 			}
 	
-			Future<HttpResponse> future = client.execute(request, null);
-			HttpResponse httpResponse = future.get();
-	
-	
-			// Send request:
-			int responseCode = httpResponse.getStatusLine().getStatusCode();
-			String responseMessage = httpResponse.getStatusLine().getReasonPhrase();
-			String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
-	
-	
-			log.debug("Turnitin response code: {}; message: {}; body:\n{}", responseCode, responseMessage, responseBody);
-			HashMap<String, Object> response = new HashMap<>();
-			response.put(RESPONSE_CODE, responseCode);
-			response.put(RESPONSE_MESSAGE, responseMessage);
-			response.put(RESPONSE_BODY, responseBody);
-	
-			return response;
+			return client.execute(request, httpResponse -> {
+				int responseCode = httpResponse.getCode();
+				String responseMessage = httpResponse.getReasonPhrase();
+				HttpEntity entity = httpResponse.getEntity();
+				String responseBody = entity != null
+					? IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8)
+					: "";
+
+				log.debug("Turnitin response code: {}; message: {}; body:\n{}", responseCode, responseMessage, responseBody);
+				HashMap<String, Object> response = new HashMap<>();
+				response.put(RESPONSE_CODE, responseCode);
+				response.put(RESPONSE_MESSAGE, responseMessage);
+				response.put(RESPONSE_BODY, responseBody);
+
+				return response;
+			});
 		}finally {
 			if(is != null) {
 				try {
@@ -872,7 +870,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 	}
 
-	private JSONObject getSubmissionJSON(String reportId) throws Exception {
+	private JsonNode getSubmissionJSON(String reportId) throws Exception {
 		HashMap<String, Object> response = makeHttpCall("GET",
 				getNormalizedServiceUrl() + "submissions/" + reportId,
 				BASE_HEADERS,
@@ -883,8 +881,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
-		// Create JSONObject from response
-		JSONObject responseJSON = JSONObject.fromObject(responseBody);
+		// Create JsonNode from response
+		JsonNode responseJSON = jsonMapper.readTree(responseBody);
 		if ((responseCode < 200) || (responseCode >= 300)) {
 			throw new ContentReviewProviderException("getSubmissionJSON invalid request: " + responseCode + ", " + responseMessage + ", " + responseBody,
 				createLastError(doc -> createFormattedMessageXML(doc, "submission.error.unexpected.response", responseMessage, responseCode)));
@@ -906,23 +904,23 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
-		// create JSONObject from response
-		JSONObject responseJSON = JSONObject.fromObject(responseBody);
+		// create JsonNode from response
+		JsonNode responseJSON = jsonMapper.readTree(responseBody);
 
 		if ((responseCode >= 200) && (responseCode < 300)) {
 			// See if report is complete or pending. If pending, ignore, if complete, get
 			// score and viewer URL
-			if (responseJSON.containsKey("status") && responseJSON.getString("status").equals(STATUS_COMPLETE)) {
+			if (responseJSON.has("status") && responseJSON.get("status").asText().equals(STATUS_COMPLETE)) {
 				log.debug("Submission successful");
-				if (responseJSON.containsKey("overall_match_percentage")) {
-					return responseJSON.getInt("overall_match_percentage");
+				if (responseJSON.has("overall_match_percentage")) {
+					return responseJSON.get("overall_match_percentage").asInt();
 				} else {
 					log.error("Report came back as complete, but without a score");
 					return -2;
 				}
 
-			} else if (responseJSON.containsKey("status")
-					&& responseJSON.getString("status").equals(STATUS_PROCESSING)) {
+			} else if (responseJSON.has("status")
+					&& responseJSON.get("status").asText().equals(STATUS_PROCESSING)) {
 				log.debug("report is processing...");
 				return -1;
 			} else {
@@ -1044,13 +1042,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 			String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
-			// create JSONObject from responseBody
-			JSONObject responseJSON = JSONObject.fromObject(responseBody);
+			// create JsonNode from responseBody
+			JsonNode responseJSON = jsonMapper.readTree(responseBody);
 
 			if ((responseCode >= 200) && (responseCode < 300)) {
-				String status = responseJSON.containsKey("status") ? responseJSON.getString("status") : null;
-				if (STATUS_CREATED.equals(status) && responseJSON.containsKey("id")) {
-					submissionId = responseJSON.getString("id");
+				String status = responseJSON.has("status") ? responseJSON.get("status").asText() : null;
+				if (STATUS_CREATED.equals(status) && responseJSON.has("id")) {
+					submissionId = responseJSON.get("id").asText();
 				} else {
 					log.error("getSubmissionId response: {}", responseMessage);
 					setLastError(item, doc-> {
@@ -1302,7 +1300,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							// Set item externalId to externalId
 							item.setExternalId(externalId);
 							// Reset retry count
-							item.setRetryCount(new Long(0));
+							item.setRetryCount(Long.valueOf(0));
 							Calendar cal = Calendar.getInstance();
 							// Reset cal to current time
 							cal.setTime(new Date());
@@ -1332,11 +1330,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)					
 					try {
 						// Get submission status, returns the state of the submission as string		
-						JSONObject submissionJSON = getSubmissionJSON(item.getExternalId());
-						if (!submissionJSON.containsKey("status")) {
+						JsonNode submissionJSON = getSubmissionJSON(item.getExternalId());
+						if (!submissionJSON.has("status")) {
 							throw new ContentReviewProviderException("Response from Turnitin is missing expected data", createLastError(doc->createFormattedMessageXML(doc, "submission.error.missing.data")));
 						}
-						String submissionStatus = submissionJSON.getString("status");
+						String submissionStatus = submissionJSON.get("status").asText();
 
 						if (COMPLETE_STATUS.equals(submissionStatus)) {
 							success++;
@@ -1403,7 +1401,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		placeholderItem.setNextRetryTime(getDueDateRetryTime(dueDate));
 		placeholderItem.setDateQueued(new Date());
 		placeholderItem.setDateSubmitted(new Date());
-		placeholderItem.setRetryCount(new Long(0));	
+		placeholderItem.setRetryCount(Long.valueOf(0));	
 		// All other fields are copied from original item
 		placeholderItem.setProviderId(item.getProviderId());						
 		placeholderItem.setUserId(item.getUserId());
@@ -1412,7 +1410,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		crqs.update(placeholderItem);
 	}
 
-	private void handleSubmissionStatus(JSONObject submissionJSON, ContentReviewItem item, Assignment assignment) {
+	private void handleSubmissionStatus(JsonNode submissionJSON, ContentReviewItem item, Assignment assignment) {
 		try {
 			Date assignmentDueDate = null;
 			String reportGenSpeed = null;
@@ -1421,7 +1419,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				reportGenSpeed = assignment.getProperties().get("report_gen_speed");
 			}
 
-			String submissionStatus = submissionJSON.getString("status");
+			String submissionStatus = submissionJSON.get("status").asText();
 
 			switch (submissionStatus) {
 			case "COMPLETE":
@@ -1459,7 +1457,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 				}
 				// Reset retry count
-				item.setRetryCount(new Long(0));
+				item.setRetryCount(Long.valueOf(0));
 				// Schedule next retry time
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
@@ -1476,7 +1474,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// do nothing... try again
 				break;
 			default:
-				String errorCode = submissionJSON.containsKey("error_code") ? submissionJSON.getString("error_code") : submissionStatus;
+				String errorCode = submissionJSON.has("error_code") ? submissionJSON.get("error_code").asText() : submissionStatus;
 				// Grab an appropriate message from turnitin.properties by the prefix "submission.terminal.status."
 				// If a message with this key exists, it's considered a terminal error and the item should not be retried
 				String terminalKey = "submission.terminal.status." + errorCode;
@@ -1739,41 +1737,46 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private Map<String, Object> getLatestEula(){
 		return getLatestEula(null);
 	}
-	
-	private Map<String, Object> getLatestEula(String local){
+
+	private Map<String, Object> getLatestEula(String locale) {
 		String cacheKey = EULA_LATEST_KEY;
-		String localParam = "";
-		if(StringUtils.isNotEmpty(local)) {
-			cacheKey += "-" + local;
-			localParam = "?lang=" + local;
+		String localeParam = "";
+		if (StringUtils.isNotEmpty(locale)) {
+			cacheKey += "-" + locale;
+			localeParam = "?lang=" + locale;
 		}
-		Map<String, Object> eula = null;
-		if(EULA_CACHE.containsKey(cacheKey)) {
-			//EULA is still cached, grab it:
-			Object cacheObj = EULA_CACHE.get(cacheKey);
-			if(cacheObj != null && cacheObj instanceof Map && ((Map<String, Object>) cacheObj).containsKey("url")){
-				eula = ((Map<String, Object>) cacheObj);
-			}
-		}
-		if(eula == null) {
-			//get Eula from API and cache it:
+
+		Map<String, Object> eula = eulaCache.get(cacheKey, Map.class);
+
+		if (!hasValidEulaUrl(eula)) {
+			// get Eula from API and cache it
 			try {
-				Map<String, Object> response = makeHttpCall("GET", getNormalizedServiceUrl() + "eula/" + EULA_LATEST_KEY + localParam, BASE_HEADERS, null, null);
-				String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
-				if(StringUtils.isNotEmpty(responseBody)) {
-					eula = new ObjectMapper().readValue(responseBody, Map.class);
+				Map<String, Object> response = makeHttpCall("GET", getNormalizedServiceUrl() + "eula/" + EULA_LATEST_KEY + localeParam, BASE_HEADERS, null, null);
+				Object responseBodyObject = response.get(RESPONSE_BODY);
+				String responseBody = responseBodyObject instanceof String ? (String) responseBodyObject : "";
+				if (StringUtils.isNotEmpty(responseBody)) {
+					eula = jsonMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
 				}
-				if(eula != null && eula.containsKey("url")) {
-					//store in cache:
-					EULA_CACHE.put(cacheKey, eula);
+				if (eula != null && eula.containsKey("url")) {
+					// store in cache
+					eulaCache.put(cacheKey, eula);
 				}
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}			
+				log.error("Error retrieving latest EULA for locale: {}", locale, e);
+			}
 		}
 		return eula;
 	}
-	
+
+	private boolean hasValidEulaUrl(Map<String, Object> eula) {
+		if (eula != null) {
+			Object url = eula.get("url");
+			return url instanceof String && StringUtils.isNotEmpty((String) url);
+		}
+		return false;
+	}
+
+
 	private String getUserEulaLocale(String userId) {
 		String userLocale = null;
 		// Check user preference for locale			
@@ -1873,12 +1876,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 
 		body = stringBuilder.toString();
-		JSONObject webhookJSON = JSONObject.fromObject(body);
 		String eventType = request.getHeader("X-Turnitin-Eventtype");
 		String signature_header = request.getHeader("X-Turnitin-Signature");
 		log.debug("webhookEvent body: {}", body);
 
 		try {
+			JsonNode webhookJSON = jsonMapper.readTree(body);
 			// Make sure cb is signed correctly
 			String secrete_key_encoded = getSigningSignature(apiKey.getBytes(), body);
 			if (StringUtils.isNotEmpty(secrete_key_encoded) && signature_header.equals(secrete_key_encoded)) {
@@ -1889,7 +1892,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						try {
 							log.debug("Submission complete webhook cb received");
 							log.debug(webhookJSON.toString());
-							Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("id"));
+							Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.get("id").asText());
 							ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
 							Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
 							handleSubmissionStatus(webhookJSON, item, assignment);
@@ -1906,12 +1909,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						errors++;
 					}
 				} else if (SIMILARITY_COMPLETE_EVENT_TYPE.equals(eventType) || SIMILARITY_UPDATED_EVENT_TYPE.equals(eventType)) {
-					if (webhookJSON.has("submission_id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
+					if (webhookJSON.has("submission_id") && STATUS_COMPLETE.equals(webhookJSON.path("status").asText())) {
 						log.debug("Similarity complete webhook cb received");
 						log.debug(webhookJSON.toString());
-						Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("submission_id"));
+						Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.get("submission_id").asText());
 						ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
-						handleReportStatus(item, webhookJSON.getInt("overall_match_percentage"));
+						handleReportStatus(item, webhookJSON.get("overall_match_percentage").asInt());
 						success++;
 					} else {
 						log.debug("Callback item received without needed information");

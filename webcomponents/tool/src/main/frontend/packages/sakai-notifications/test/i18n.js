@@ -41,6 +41,8 @@ push_setup_failure_info_4=Please talk to your {} administrator about resolving t
 relies on push notifications to give you realtime updates on your courses.
 samigoCreated=Created/updated new assessment "{0}" in "{1}"
 sam=Tests&Quizzes
+site=Site Import
+site_import_completed=Import completed for "{0}"
 show=Show
 show_notifications=Show Notifications
 test=Test

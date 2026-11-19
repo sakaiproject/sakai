@@ -21,6 +21,8 @@
 
 package org.sakaiproject.connector.fck;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,10 +39,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,9 +52,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.fileupload.DiskFileUpload;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
@@ -347,7 +349,7 @@ public class FCKConnectorServlet extends HttpServlet {
           document.getDocumentElement().normalize();
           try {
                out = response.getWriter();
-               TransformerFactory tFactory = TransformerFactory.newInstance();
+               TransformerFactory tFactory = Xml.createSecureTransformerFactory();
                Transformer transformer = tFactory.newTransformer();
                
                DOMSource source = new DOMSource(document);
@@ -406,7 +408,7 @@ public class FCKConnectorServlet extends HttpServlet {
                status = "203";
           }
           else {
-               DiskFileUpload upload = new DiskFileUpload();
+               JakartaServletFileUpload upload = new JakartaServletFileUpload(DiskFileItemFactory.builder().get());
                String mime="";
                InputStream requestStream = null;
                byte [] bytes=null;
@@ -434,7 +436,7 @@ public class FCKConnectorServlet extends HttpServlet {
                    }
                    else {
                 	   //If this is a multipart request
-                	   if (ServletFileUpload.isMultipartContent(request)) {
+                	   if (JakartaServletFileUpload.isMultipartContent(request)) {
 	                       List items = upload.parseRequest(request);
 	
 	                       Map fields = new HashMap();
@@ -1124,7 +1126,6 @@ public class FCKConnectorServlet extends HttpServlet {
 
      private ContentResource bypassAddAttachment(HttpServletRequest request, String fileName, String mimeType, byte[] bytes, InputStream requestStream, ResourceProperties props) throws Exception {
     	 try {
-    		 
              securityService.pushAdvisor(contentNewAdvisor);
 	         String path = request.getPathInfo();
 			 String resourceId = Validator.escapeResourceName(fileName);

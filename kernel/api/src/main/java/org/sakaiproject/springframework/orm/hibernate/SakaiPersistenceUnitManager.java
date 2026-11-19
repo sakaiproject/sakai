@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.springframework.orm.hibernate;
 
-import javax.persistence.spi.PersistenceUnitInfo;
+import jakarta.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 
 import lombok.Setter;
@@ -52,8 +52,14 @@ public class SakaiPersistenceUnitManager extends DefaultPersistenceUnitManager {
         }
 
         // override default UUIDGenerator with AssignableUUIDGenerator
-        pui.addProperty(org.hibernate.jpa.AvailableSettings.IDENTIFIER_GENERATOR_STRATEGY_PROVIDER, SakaiIdentifierGeneratorProvider.class.getName());
+        pui.addProperty("hibernate.identifier_generator_strategy_provider", SakaiIdentifierGeneratorProvider.class.getName());
         AssignableUUIDGenerator.setServerConfigurationService(serverConfigurationService);
+
+        // Hibernate 6 detects the dialect from the JDBC metadata; only override it when explicitly configured
+        String dialect = serverConfigurationService.getString(AvailableSettings.DIALECT);
+        if (StringUtils.isNotBlank(dialect)) {
+            pui.getProperties().setProperty(AvailableSettings.DIALECT, dialect);
+        }
 
         postProcessPersistenceUnitInfo(pui);
 

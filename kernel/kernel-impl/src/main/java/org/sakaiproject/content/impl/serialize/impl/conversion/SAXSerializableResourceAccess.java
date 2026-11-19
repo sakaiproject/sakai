@@ -34,7 +34,6 @@ import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,7 +68,6 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 
 	private Type1BaseContentResourceSerializer type1ResourceSerializer;
 
-	private SAXParserFactory parserFactory;
 
 	private AccessMode accessMode = AccessMode.INHERITED;
 
@@ -356,15 +354,9 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 		InputSource ss = new InputSource(r);
 
 		SAXParser p = null;
-		if (parserFactory == null)
-		{
-			parserFactory = SAXParserFactory.newInstance();
-			parserFactory.setNamespaceAware(false);
-			parserFactory.setValidating(false);
-		}
 		try
 		{
-			p = parserFactory.newSAXParser();
+			p = Xml.createSecureSAXParser(false);
 		}
 		catch (ParserConfigurationException e)
 		{

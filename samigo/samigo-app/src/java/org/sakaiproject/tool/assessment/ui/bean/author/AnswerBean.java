@@ -56,11 +56,11 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
  
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.context.ExternalContext;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.context.ExternalContext;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 
 @SuppressWarnings("deprecation")
@@ -81,7 +81,7 @@ public class AnswerBean implements Serializable, Comparable{
   // for EMI questions
   private String requiredOptionsCount;
   //for EMI questions
-  private Double score = new Double(0.0);
+  private Double score = Double.valueOf(0.0);
   // Whether the user set the score or it was auto set
   private Boolean scoreUserSet = Boolean.FALSE;
   //Attachments for EMI questions

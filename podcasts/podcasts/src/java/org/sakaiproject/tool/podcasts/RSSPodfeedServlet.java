@@ -24,10 +24,10 @@ package org.sakaiproject.tool.podcasts;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -244,7 +244,6 @@ public class RSSPodfeedServlet extends HttpServlet {
 		final String header = request.getHeader("Authorization");
 		String[] elements = null;
 
-		log.debug("Authorization: " + header);
 
 		if (header != null)
 			elements = header.split(" ");
@@ -254,12 +253,10 @@ public class RSSPodfeedServlet extends HttpServlet {
 			final String type = elements[0];
 			final String hash = elements[1];
 
-			log.debug("type: " + type + " hash: " + hash);
 
 			final String[] credential = (new String(base64Encoder.decode(hash.getBytes())))
 					.split(":");
 
-			log.debug("credential: " + credential);
 
 			if (credential != null && credential.length >= 2) {
 				final String eid = credential[0];

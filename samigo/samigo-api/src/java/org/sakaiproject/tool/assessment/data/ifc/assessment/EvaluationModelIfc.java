@@ -42,7 +42,7 @@ public interface EvaluationModelIfc
 
   // scoring type 
   public static final Integer HIGHEST_SCORE = 1;
-  //public static Integer AVERAGE_SCORE = new Integer(2);
+  //public static Integer AVERAGE_SCORE = Integer.valueOf(2);
   public static final Integer LAST_SCORE= 2;
   public static final Integer ALL_SCORE= 3;
   public static final Integer AVERAGE_SCORE= 4;

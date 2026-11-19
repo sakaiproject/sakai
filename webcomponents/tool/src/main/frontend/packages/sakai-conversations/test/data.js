@@ -5,8 +5,8 @@ export const siteId = "site1";
 export const siteTitle = "Site 1";
 export const gradingItemId = 1;
 export const tags = [
-  { id: 1, label: "eggs" },
-  { id: 2, label: "sports" },
+  { id: "conv-1", label: "eggs" },
+  { id: "conv-2", label: "sports" },
 ];
 
 export const topicsUrl = `/api/sites/${siteId}/topics`;
@@ -237,3 +237,5 @@ export const comment = {
   formattedCreatedDate: formattedCommentCreatedDate,
   message: commentMessage,
 };
+
+export { i18n as tagSelectorI18n, i18nUrl as tagSelectorI18nUrl } from "../../sakai-tag-selector/test/data.js";

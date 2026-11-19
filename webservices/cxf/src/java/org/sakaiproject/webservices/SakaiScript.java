@@ -28,15 +28,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -224,12 +224,16 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session session = establishSession(sessionid);
 
+        UserEdit userEdit = null;
         try {
-            UserEdit userEdit = null;
             String userid = userDirectoryService.getUserByEid(eid).getId();
             userEdit = userDirectoryService.editUser(userid);
             userDirectoryService.removeUser(userEdit);
         } catch (Exception e) {
+            // release the edit lock if we obtained it but the removal failed, otherwise the user stays locked
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -274,8 +278,10 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setPassword(password);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
-            log.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
+            log.error("WS changeUserInfo(): {} : {}", e.getClass().getName(), e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -340,7 +346,9 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setLastName(lastname);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS changeUserName(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -373,7 +381,9 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setEmail(email);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS changeUserEmail(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -406,7 +416,9 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setType(type);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS changeUserType(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -439,7 +451,9 @@ public class SakaiScript extends AbstractWebService {
             userEdit.setPassword(password);
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
-            userDirectoryService.cancelEdit(userEdit);
+            if (userEdit != null && userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
             log.error("WS changeUserPassword(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
@@ -3465,7 +3479,7 @@ public class SakaiScript extends AbstractWebService {
                         //check if the origin attribute, if set, is set for web services
                         String origin = (String) existingSession.getAttribute(SESSION_ATTR_NAME_ORIGIN);
                         if (StringUtils.equals(origin, SESSION_ATTR_VALUE_ORIGIN_WS)) {
-                            log.warn("WS getSessionForUser() reusing existing session for: " + eid + ", session=" + existingSession.getId());
+                            log.warn("Reusing existing web service session for user {}", eid);
                             return existingSession.getId();
                         }
                     }
@@ -3489,7 +3503,7 @@ public class SakaiScript extends AbstractWebService {
             //if wsonly, inject the origin attribute
             if (wsonly) {
                 newsession.setAttribute(SESSION_ATTR_NAME_ORIGIN, SESSION_ATTR_VALUE_ORIGIN_WS);
-                log.warn("WS getSessionForUser() set origin attribute on session: " + newsession.getId());
+                log.warn("Set web service session origin for user {}", eid);
             }
 
             //register the session with presence
@@ -3505,7 +3519,7 @@ public class SakaiScript extends AbstractWebService {
                 log.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + eid + ", ipAddress=" + ipAddress);
                 throw new RuntimeException("WS failed. Unable to establish session");
             } else {
-                log.warn("WS getSessionForUser() OK. Established session for userid=" + eid + ", session=" + newsession.getId() + ", ipAddress=" + ipAddress);
+                log.warn("Established web service session for user {} ipAddress={}", eid, ipAddress);
                 return newsession.getId();
             }
         } catch (Exception e) {
@@ -3627,7 +3641,7 @@ public class SakaiScript extends AbstractWebService {
         try {
             return session.getUserId();
         } catch (Exception e) {
-            log.warn("WS getUserId() failed for session: " + sessionid);
+            log.warn("Could not retrieve user ID for web service session");
             return "";
         }
     }
@@ -3853,7 +3867,7 @@ public class SakaiScript extends AbstractWebService {
 
             Map<String, List<String>> toolsToImport = new HashMap<>();
             toolsToImport.put("sakai.resources", Arrays.asList(new String[]{sourcesiteid}));
-            siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, false);
+            siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), new HashMap<>(), false);
 
         } catch (Exception e) {
             log.error("WS copyResources(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -4072,13 +4086,18 @@ public class SakaiScript extends AbstractWebService {
             throw new RuntimeException("WS setUserProperty(): Permission denied. Restricted to super users.");
         }
 
+        UserEdit user = null;
         try {
             String userid = userDirectoryService.getUserByEid(eid).getId();
-            UserEdit user = userDirectoryService.editUser(userid);
+            user = userDirectoryService.editUser(userid);
             user.getPropertiesEdit().addProperty(key, value);
             userDirectoryService.commitEdit(user);
         }
         catch (Exception e) {
+            // release the edit lock if we obtained it but the commit failed, otherwise the user stays locked
+            if (user != null && user.isActiveEdit()) {
+                userDirectoryService.cancelEdit(user);
+            }
             log.warn("WS setUserProperty(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return "failure";
         }
@@ -4314,7 +4333,7 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
 
-            siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, true);
+            siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), new HashMap<>(), true);
 
         } catch (Exception e) {
             log.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
@@ -4359,7 +4378,7 @@ public class SakaiScript extends AbstractWebService {
 
     		Map<String, List<String>> toolsToImport = new HashMap<>();
     		toolsToImport.put(toolid, Arrays.asList(new String[]{sourcesiteid}));
-			siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, true);
+			siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), new HashMap<>(), true);
     	}
     	catch (Exception e)
     	{
@@ -4589,7 +4608,7 @@ public class SakaiScript extends AbstractWebService {
 
             if (matchingServers.size() == 0) {
                 log.warn("can't find any sessions for server with id=" + serverid);
-                return new Integer(0);
+                return Integer.valueOf(0);
             }
 
             Collections.sort(matchingServers);
@@ -4600,7 +4619,7 @@ public class SakaiScript extends AbstractWebService {
         } catch (Exception e) {
             log.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
         }
-        return new Integer(0);
+        return Integer.valueOf(0);
     }
 
 
@@ -4634,7 +4653,7 @@ public class SakaiScript extends AbstractWebService {
         } catch (Exception e) {
             log.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
         }
-        return new Integer(count);
+        return Integer.valueOf(count);
     }
 
     private Integer getSessionCountForServer(Map servers, String serverKey, int millisBeforeExpire) {
@@ -4658,7 +4677,7 @@ public class SakaiScript extends AbstractWebService {
         } else {
             log.warn("can't find any sessions for server with id=" + serverKey);
         }
-        return new Integer(count);
+        return Integer.valueOf(count);
 
     }
 

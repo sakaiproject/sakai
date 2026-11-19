@@ -23,6 +23,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.panels.BulkGradePanel;
@@ -221,20 +222,23 @@ public class QuickEntryPage extends BasePage {
             final List<String> gradableUserIds = this.businessService.getGradeableUsers(gradebookUid, siteId, null);
             final List<User> gradableUsers = this.businessService.getUsers(gradableUserIds);
             Map<String, List<String>> groupContainer = this.businessService.getGroupMemberships(gradebookUid, siteId);
+            final Set<String> groupMembers = params.get("groupNow").isNull() ? null : new HashSet<>(
+                    groupContainer.get("/site/" + getCurrentSiteId() + "/group/" + params.get("groupNow").toString()));
+            final List<User> visibleUsers = gradableUsers.stream()
+                    .filter(user -> groupMembers == null || groupMembers.contains(user.getId())).toList();
             List<QuickEntryRowModel> rows = new ArrayList<>();
+            final Map<String, GradeDefinition> grades = this.businessService.getGradesForStudentsForItem(
+                    gradebookUid, siteId, this.assignmentNow.getId(), visibleUsers.stream().map(User::getId).toList());
 
-            int totalstudents = 0;
+            int totalstudents = gradableUsers.size();
             int studentsnow = 0;
-            for (User userNow: gradableUsers) {
+            for (User userNow: visibleUsers) {
                 final String uid = userNow.getId();
                 QuickEntryRowModel rowNow = new QuickEntryRowModel();
-                totalstudents++;
-                if(!params.get("groupNow").isNull() && !groupContainer.get("/site/" + getCurrentSiteId() + "/group/"+params.get("groupNow").toString()).contains(uid)){
-                    continue;
-                }
                 studentsnow++;
                 rowNow.setName(userNow.getLastName() + ", " + userNow.getFirstName() + " (" + userNow.getDisplayId() + ')');
-                String commentNow = this.businessService.getAssignmentGradeComment(gradebookUid, this.assignmentNow.getId(),uid);
+                final GradeDefinition grade = grades.get(uid);
+                String commentNow = grade != null ? grade.getGradeComment() : null;
                 if(commentNow != null){
                     rowNow.setComment(commentNow);
                     rowNow.setOriginalComment(commentNow);
@@ -244,10 +248,10 @@ public class QuickEntryPage extends BasePage {
                     // this field, we need to set it to null
                     rowNow.setOriginalComment(null);
                 }
-                String gradeNow = this.businessService.getGradeForStudentForItem(gradebookUid, siteId, uid, this.assignmentNow.getId()).getGrade();
+                String gradeNow = grade != null ? grade.getGrade() : null;
                 String localeGrade = FormatHelper.formatGradeForDisplay(gradeNow);
                 rowNow.setGrade(StringUtils.defaultIfBlank(localeGrade, null));
-                rowNow.setExcused(!Objects.equals(this.businessService.getAssignmentExcuse(gradebookUid, this.assignmentNow.getId(),uid), "0"));
+                rowNow.setExcused(grade != null && grade.isExcused());
                 rowNow.setLocked(this.assignmentNow.getExternallyMaintained());
                 rowNow.setMaxGrade(this.assignmentNow.getPoints());
                 rowNow.setStudentid(uid);

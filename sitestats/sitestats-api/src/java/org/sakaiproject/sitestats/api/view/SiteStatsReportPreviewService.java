@@ -8,7 +8,7 @@ package org.sakaiproject.sitestats.api.view;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 
 /**
- * Stores short-lived report definitions created by Wicket flows before they are
+ * Stores short-lived report definitions created by report editing flows before they are
  * persisted, so client-rendered report panels can fetch them through the JSON API.
  */
 public interface SiteStatsReportPreviewService {

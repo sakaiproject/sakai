@@ -1,4 +1,4 @@
-//For usage information, go the tutorial at vuecomponents/docs/i18n.md
+// Loads translations through Sakai's shared i18n service.
 import { loadProperties } from "../resources/meetings-i18n.js";
 
 export default {

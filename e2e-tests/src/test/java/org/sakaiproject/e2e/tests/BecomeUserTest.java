@@ -53,7 +53,7 @@ class BecomeUserTest extends SakaiUiTestBase {
         page.locator("#su\\:become").click();
 
         try {
-            page.waitForURL(Pattern.compile("/portal(?:/|$)"), new Page.WaitForURLOptions().setTimeout(30_000));
+            page.waitForURL(Pattern.compile("/portal(?:/|$)"), new Page.WaitForURLOptions().setTimeout(15_000));
         } catch (RuntimeException ignored) {
         }
 
@@ -70,21 +70,7 @@ class BecomeUserTest extends SakaiUiTestBase {
     }
 
     private void gotoAdminSite() {
-        for (int attempt = 0; attempt < 3; attempt++) {
-            try {
-                page.navigate("/portal/site/!admin", new Page.NavigateOptions().setWaitUntil(com.microsoft.playwright.options.WaitUntilState.DOMCONTENTLOADED));
-            } catch (RuntimeException ignored) {
-            }
-            if (!page.url().startsWith("chrome-error://")) {
-                return;
-            }
-            try {
-                page.navigate("/portal", new Page.NavigateOptions().setWaitUntil(com.microsoft.playwright.options.WaitUntilState.DOMCONTENTLOADED));
-            } catch (RuntimeException ignored) {
-            }
-            page.waitForTimeout(250);
-        }
-        throw new IllegalStateException("Unable to load /portal/site/!admin without chrome-error navigation");
+        sakai.gotoPath("/portal/site/!admin");
     }
 
     private boolean isVisible(Locator locator, double timeoutMs) {

@@ -23,10 +23,10 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.List;
 
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,7 +79,7 @@ public class DeleteTemplateListener extends TemplateBaseListener implements Acti
       // its status = 0 (inactive) instead of removing it from the DB
       List l = delegate.getAssessmentByTemplate(deleteId);
       if (l.size()==0){ // save to delete
-        delegate.deleteAssessmentTemplate(new Long(deleteId));
+        delegate.deleteAssessmentTemplate(Long.valueOf(deleteId));
       }
       else{ // set status to "0"
 	AssessmentTemplateFacade t = delegate.getAssessmentTemplate(deleteId);

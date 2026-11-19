@@ -16,6 +16,8 @@
  **********************************************************************************/
 package org.sakaiproject.contentreview.compilatio.util;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -31,15 +33,15 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPConnection;
-import javax.xml.soap.SOAPConnectionFactory;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPBody;
+import jakarta.xml.soap.SOAPConnection;
+import jakarta.xml.soap.SOAPConnectionFactory;
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPEnvelope;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPMessage;
+import jakarta.xml.soap.SOAPPart;
 
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
@@ -103,7 +105,7 @@ public class CompilatioAPIUtil {
 			// loading the XML document
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			soapResponse.writeTo(out);
-			DocumentBuilderFactory builderfactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory builderfactory = Xml.createSecureDocumentBuilderFactory(false);
 			builderfactory.setNamespaceAware(true);
 
 			DocumentBuilder builder = builderfactory.newDocumentBuilder();

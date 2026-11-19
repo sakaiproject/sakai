@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.event.ActionEvent;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.bean.ManagedBean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.bean.util.QuestionCancellationEligibility;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
@@ -65,6 +66,14 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="questionScores")
 @SessionScoped
 public class QuestionScoresBean implements Serializable, PhaseAware {
+  public boolean isTotalScoreCancellationAllowed() {
+    return QuestionCancellationEligibility.restrictionKey(publishedAssessment).isEmpty();
+  }
+
+  public String getTotalScoreCancellationRestrictionMessage() {
+    return QuestionCancellationEligibility.restrictionMessage(publishedAssessment);
+  }
+
   @Setter
   private String assessmentId;
   @Setter
@@ -159,8 +168,6 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   //Searching
   @Getter
   private String searchString;
-  @Getter @Setter
-  private String defaultSearchString;
   
   @Getter @Setter
   private Map userIdMap;
@@ -209,10 +216,9 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 			searchString = null;
 		}
 
-		defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-
+		// no search is an empty search; the page shows its prompt as a placeholder
 		if (searchString == null) {
-			searchString = defaultSearchString;
+			searchString = "";
 		}
 
 		// Get allAgents only at the first time
@@ -512,7 +518,7 @@ public List getAllAgents(boolean valueChanged)
 
 public void setSearchString(String searchString) {
     if (StringUtils.trimToNull(searchString) == null) {
-        searchString = defaultSearchString;
+        searchString = "";
     }
 	if (!StringUtils.equals(searchString, this.searchString)) {
 	        log.debug("setSearchString {}", searchString);
@@ -532,7 +538,7 @@ public void clear(ActionEvent event) {
 }
 
 	private boolean isFilteredSearch() {
-      return !StringUtils.equals(searchString, defaultSearchString);
+      return StringUtils.isNotBlank(searchString);
 	}
 	
 	/**

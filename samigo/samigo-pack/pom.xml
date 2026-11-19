@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>26-SNAPSHOT</version>
+		<version>27-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Component Package (samigo-pack)</name>
@@ -41,6 +41,10 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>samigo-impl</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>samigo-services</artifactId>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>samigo-qti</artifactId>

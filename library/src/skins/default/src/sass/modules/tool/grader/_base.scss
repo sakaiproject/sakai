@@ -159,7 +159,7 @@ sakai-grader {
 
   #grader {
 
-    background-color: var(--sakai-title-bar-bg-color);
+    background-color: var(--sakai-dashboard-widget-secondary-bg-color, var(--sakai-background-color-2));
 
     #grader-rubric-block,
     #student-rubric-block {

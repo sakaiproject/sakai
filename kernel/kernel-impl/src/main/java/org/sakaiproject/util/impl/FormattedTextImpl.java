@@ -44,7 +44,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -225,11 +224,7 @@ public class FormattedTextImpl implements FormattedText
         if (url != null) {
             try {
                 InputSource is = new InputSource(url.toExternalForm());
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setFeature(Policy.EXTERNAL_GENERAL_ENTITIES, false);
-                dbf.setFeature(Policy.EXTERNAL_PARAM_ENTITIES, false);
-                dbf.setFeature(Policy.DISALLOW_DOCTYPE_DECL, true);
-                dbf.setFeature(Policy.LOAD_EXTERNAL_DTD, false);
+                DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document document = builder.parse(is);
                 document.getDocumentElement().normalize();
@@ -253,7 +248,7 @@ public class FormattedTextImpl implements FormattedText
                 Source source = new DOMSource(document);
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     Result result = new StreamResult(baos);
-                    TransformerFactory.newInstance().newTransformer().transform(source, result);
+                    Xml.createSecureTransformerFactory().newTransformer().transform(source, result);
                     try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
                         return Policy.getInstance(bais);
                     } catch (IOException ioe) {
@@ -269,6 +264,21 @@ public class FormattedTextImpl implements FormattedText
         }
         log.warn("Could not create antisamy policy from a null file");
         return Policy.getInstance();
+    }
+
+    @Override
+    public String stripUnsupportedCharacters(String value) {
+        if (!cleanUTF8 || value == null) {
+            return value;
+        }
+        StringBuilder result = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!Character.isSurrogate(c)) {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
 
     /*

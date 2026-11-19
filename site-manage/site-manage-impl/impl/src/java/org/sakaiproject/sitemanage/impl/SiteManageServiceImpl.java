@@ -162,20 +162,29 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
             eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
+			// Reflects only that importToolsIntoSite returned without throwing. transferCopyEntities
+            // logs and swallows individual EntityProducer failures, so a partial import still
+            // counts as succeeded here.
+            boolean importSucceeded = false;
 			try {
                 log.info("Started Site Import for the site {}", id);
                 importToolsIntoSite(site, existingTools, importTools, toolItemMap, toolOptions, cleanup);
+                importSucceeded = true;
                 log.info("Finished Site Import for the site {}", id);
             } catch (Exception e) {
-                log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
+                log.warn("Site Import Task encountered an exception for site {}", id, e);
             } finally {
                 currentSiteImports.remove(id);
             }
 
-            if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
-                userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
+            // Only signal completion (email and the site.import.end event that drives the bullhorn)
+            // when the import ran without throwing; a hard failure must not be reported as completed.
+            if (importSucceeded) {
+                if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
+                    userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
+                }
+                eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, importSites, id, false, NotificationService.NOTI_OPTIONAL));
             }
-            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 
             // clear any sakai related state from the thread before returning it
             threadLocalManager.clear();
@@ -212,9 +221,8 @@ public class SiteManageServiceImpl implements SiteManageService {
             List<SitePage> pageList = site.getPages();
             Set<String> toolsCopied = new HashSet<>();
 
-
             Map<String, String> transversalMap = new HashMap<>();
-            
+
             // Add code to copy tool permissions from source site to destination site
             log.debug("About to copy tool permissions from site {} to site {}", oSiteId, nSiteId);
             copyToolPermissions(oSiteId, nSiteId);
@@ -279,6 +287,50 @@ public class SiteManageServiceImpl implements SiteManageService {
                 securityService.popAdvisor(securityAdvisor);
             }
         }
+    }
+
+    @Override
+    public boolean importAllToolsIntoSiteThread(String fromSiteId, Site site) {
+        // The destination already has the source's placements, minus excluded tools.
+        Set<String> selectedTools = new LinkedHashSet<>();
+        for (SitePage page : site.getPages()) {
+            for (ToolConfiguration tool : page.getTools()) {
+                if (StringUtils.isNotBlank(tool.getToolId())) {
+                    selectedTools.add(tool.getToolId());
+                }
+            }
+        }
+
+        if (serverConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)) {
+            selectedTools.add(SiteManageConstants.SITE_INFO_TOOL_ID);
+        }
+
+        Map<String, List<String>> importTools = new HashMap<>();
+        for (String toolId : selectedTools) {
+            importTools.put(toolId, List.of(fromSiteId));
+        }
+
+        Map<String, Map<String, List<String>>> toolOptions = new HashMap<>();
+        for (EntityProducer producer : entityManager.getEntityProducers()) {
+            if (producer instanceof EntityTransferrer) {
+                EntityTransferrer transferrer = (EntityTransferrer) producer;
+                String[] supportedTools = transferrer.myToolIds();
+                if (supportedTools != null) {
+                    for (String toolId : supportedTools) {
+                        if (selectedTools.contains(toolId)) {
+                            // Duplicate copies settings and permissions without opting into publication.
+                            transferrer.getTransferOptions().ifPresent(options ->
+                                toolOptions.put(toolId, Map.of(fromSiteId, options.stream()
+                                    .filter(option -> !EntityTransferrer.PUBLISH_OPTION.equals(option))
+                                    .collect(Collectors.toList()))));
+                        }
+                    }
+                }
+            }
+        }
+
+        return importToolsIntoSiteThread(site, new ArrayList<>(selectedTools), importTools,
+            Collections.emptyMap(), toolOptions, true);
     }
 
     @Override

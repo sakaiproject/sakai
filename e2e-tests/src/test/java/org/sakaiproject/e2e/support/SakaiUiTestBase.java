@@ -15,21 +15,18 @@
  */
 package org.sakaiproject.e2e.support;
 
+import com.microsoft.playwright.APIRequest;
+import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import com.microsoft.playwright.Tracing;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
 import java.util.Locale;
-import org.junit.jupiter.api.AfterAll;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
 
 public abstract class SakaiUiTestBase {
 
@@ -39,42 +36,38 @@ public abstract class SakaiUiTestBase {
     protected BrowserContext context;
     protected Page page;
     protected SakaiHelper sakai;
-    private String artifactSlug;
-
-    protected static final Path ARTIFACT_ROOT = Path.of("target", "playwright-artifacts");
+    private APIRequestContext fixtureRequest;
 
     @BeforeAll
-    static void launchBrowser() throws Exception {
-        Files.createDirectories(ARTIFACT_ROOT);
+    static void launchBrowser() {
+        SakaiHelper.clearSiteCache();
 
         if (playwright == null || browser == null) {
             playwright = Playwright.create();
             BrowserType browserType = browserType(playwright, SakaiEnvironment.browserName());
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
-                .setHeadless(SakaiEnvironment.headless());
+                .setHeadless(SakaiEnvironment.headless()).setTimeout(15_000);
             browser = browserType.launch(launchOptions);
+            // Surefire can create a separate JUnit root for each class within the same fork.
+            Runtime.getRuntime().addShutdownHook(new Thread(SakaiUiTestBase::closeBrowser,
+                "sakai-e2e-browser-cleanup"));
         }
     }
 
-    @AfterAll
-    static void closeBrowser() {
-        if (browser != null) {
-            browser.close();
-            browser = null;
-        }
-
-        if (playwright != null) {
-            playwright.close();
-            playwright = null;
+    private static void closeBrowser() {
+        try {
+            if (browser != null) {
+                browser.close();
+            }
+        } finally {
+            if (playwright != null) {
+                playwright.close();
+            }
         }
     }
 
     @BeforeEach
-    void createContext(TestInfo testInfo) throws Exception {
-        artifactSlug = slug(testInfo);
-        Path testDir = ARTIFACT_ROOT.resolve(artifactSlug);
-        Files.createDirectories(testDir);
-
+    void createContext() {
         Browser activeBrowser = browser;
         if (activeBrowser == null) {
             throw new IllegalStateException("Browser is not initialized");
@@ -83,48 +76,34 @@ public abstract class SakaiUiTestBase {
         Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
             .setIgnoreHTTPSErrors(true)
             .setBaseURL(SakaiEnvironment.baseUrl())
-            .setRecordVideoDir(testDir.resolve("video"));
+            .setLocale("en-US")
+            .setTimezoneId("America/New_York");
 
         context = activeBrowser.newContext(contextOptions);
-        context.setDefaultTimeout(30_000);
-        context.setDefaultNavigationTimeout(120_000);
-
-        context.tracing().start(new Tracing.StartOptions()
-            .setScreenshots(true)
-            .setSnapshots(true)
-            .setSources(true));
+        // setLocale() only affects navigator.language/Intl in the browser; Sakai negotiates
+        // its UI language server-side from the Accept-Language header, so it must be set here too.
+        context.setExtraHTTPHeaders(Map.of("Accept-Language", "en-US,en;q=0.9"));
+        context.setDefaultTimeout(15_000);
+        context.setDefaultNavigationTimeout(15_000);
 
         page = context.newPage();
-        sakai = new SakaiHelper(page, SakaiEnvironment.baseUrl());
+        fixtureRequest = playwright.request().newContext(new APIRequest.NewContextOptions()
+            .setBaseURL(SakaiEnvironment.baseUrl()).setIgnoreHTTPSErrors(true).setTimeout(15_000));
+        sakai = new SakaiHelper(page, SakaiEnvironment.baseUrl(), fixtureRequest);
     }
 
     @AfterEach
-    void tearDown(TestInfo testInfo) {
-        if (artifactSlug == null) {
-            artifactSlug = slug(testInfo);
-        }
-        Path testDir = ARTIFACT_ROOT.resolve(artifactSlug);
-
-        try {
+    void closeContext() {
+        try (BrowserContext closingContext = context) {
             if (page != null) {
-                page.screenshot(new Page.ScreenshotOptions().setPath(testDir.resolve("final.png")).setFullPage(true));
+                // Route callbacks can still be queued when the test finishes.
+                page.unrouteAll();
             }
-        } catch (RuntimeException ignored) {
-            // Ignore teardown screenshot failures.
-        }
-
-        try {
-            if (context != null) {
-                context.tracing().stop(new Tracing.StopOptions().setPath(testDir.resolve("trace.zip")));
+        } finally {
+            if (fixtureRequest != null) {
+                fixtureRequest.dispose();
             }
-        } catch (RuntimeException ignored) {
-            // Ignore tracing failures so context close still runs.
         }
-
-        if (context != null) {
-            context.close();
-        }
-        artifactSlug = null;
     }
 
     private static BrowserType browserType(Playwright playwrightInstance, String browserName) {
@@ -138,10 +117,4 @@ public abstract class SakaiUiTestBase {
         return playwrightInstance.chromium();
     }
 
-    private static String slug(TestInfo testInfo) {
-        String className = testInfo.getTestClass().map(Class::getSimpleName).orElse("UnknownClass");
-        String methodName = testInfo.getTestMethod().map(method -> method.getName()).orElse("unknownMethod");
-        String base = className + "-" + methodName + "-" + Instant.now().toEpochMilli();
-        return base.replaceAll("[^A-Za-z0-9._-]", "_");
-    }
 }

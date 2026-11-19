@@ -44,11 +44,18 @@ class MeetingsTest extends SakaiUiTestBase {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
 
-        Locator meetingsLink = page.locator("#toolMenu a.btn-nav, ul.site-page-list a.btn-nav")
+        Locator meetingsLink = page.locator("li.site-list-item.is-current-site .site-page-list a.btn-nav")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Meetings?", Pattern.CASE_INSENSITIVE)))
             .first();
         if (meetingsLink.count() > 0) {
-            meetingsLink.click(new Locator.ClickOptions().setForce(true));
+            // Exercise the collapsed navigation state that previously made the forced click fail.
+            Locator siteToggle = page.locator("li.site-list-item.is-current-site button[data-bs-toggle='collapse']");
+            if ("true".equals(siteToggle.getAttribute("aria-expanded"))) {
+                siteToggle.click();
+            }
+            assertThat(siteToggle).hasAttribute("aria-expanded", "false");
+            assertThat(meetingsLink).isHidden();
+            sakai.toolClick("Meetings");
             assertThat(page.locator("#content, main, .portletBody").first()).isVisible();
             assertThat(page.locator("body")).containsText(Pattern.compile("Meetings|meeting", Pattern.CASE_INSENSITIVE));
             return;

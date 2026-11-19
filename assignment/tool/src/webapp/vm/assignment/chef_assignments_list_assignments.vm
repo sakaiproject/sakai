@@ -43,10 +43,6 @@
         });
         ASN.checkIframeTags();
 
-        // Initialize tag selector
-        #if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
-            window.syncTagSelectorInput("tag-selector", "tag_selector");
-        #end
     });
 </script>
 
@@ -68,18 +64,27 @@
 		<div id="tagSection" class="pe-lg-3 w-100" >
 		#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
 			<form id="tagFilterForm" name="tagFilterForm" class="d-flex gap-1" method="post" action="#toolForm("AssignmentAction")">
-				<input hidden id="tag_selector" name="tag_selector" />
+				<input hidden id="tag_selector" name="tag_selector" value="$formattedText.escapeHtml($!tag_selector)" />
 				<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
-				
+
 				<div class="flex-grow-1">
-					<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+					<sakai-tag-selector
+					    id="tag-selector"
+					    input-id="tag_selector"
+					    selected-ids="$formattedText.escapeHtml($!tag_selector)"
+					    collection-id="$siteId"
+					    add-new="false"
+					    extra-options="$formattedText.escapeHtml($allTaggedGroupsAndInstructors)"
+					    tool="$!tagTool"
+					    site-id="$siteId"
+					></sakai-tag-selector>
 				</div>
 				<div  class="">
 					<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"
 							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
 					#if ($!tag_selector)
 					<input type="submit" id="btnSearchTagsClear" value="$tlang.getString("search_clear")" accesskey="c"
-							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.clearShadowTags(); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.clearTags(); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
 					#end
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</div>
@@ -339,14 +344,14 @@
 									<strong>
 										## normal instructor view
 										#if ($assignment.Draft && $!allowUpdateAssignment )
-											<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
+											<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))">
 										#else
-											<a name="asnActionLink" href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
+											<a name="asnActionLink" href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))">
 										#end
 										#if ($!assignment.draft)
 											<span class="highlight">$tlang.getString("gen.dra2")</span>
 										#end
-											$formattedText.escapeHtml($!assignment.Title)
+											$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))
 										</a>
 										#if ($assignmentAlertMap.containsKey($assignment.getId()))
 											<span>$assignmentAlertMap.get($assignment.getId())</span>
@@ -369,27 +374,13 @@
 									</strong>
 									<div class="itemAction">
 										#set($prevAction=false)
-										#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")<span class="skip"> $formattedText.escapeHtml($!assignment.Title)</span></a>#end
-										#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) |#else#set($prevAction=true)#end<a name="asnActionLink" onclick="duplicateLink(this);SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );return false;" href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")<span class="skip"> $formattedText.escapeHtml($!assignment.Title)</span></a>#end
-										#if ($taggable && $allowAddAssignment)
-											#foreach ($provider in $providers)
-												#set ($helperInfo = false)
-												#set ($activity = $producer.getActivity($assignment))
-												#set ($helperInfo = $provider.getActivityHelperInfo($activity.reference))
-												#if ($helperInfo)
-													#if($prevAction)
-														|
-													#else
-														#set($prevAction=true)
-													#end
-														<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$formattedText.escapeUrl($activity.reference)&providerId=$formattedText.escapeUrl($provider.id)")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );" title="$!helperInfo.description">$!helperInfo.name</a>
-												#end
-											#end
-										#end
+										#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")<span class="skip"> $formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))</span></a>#end
+										#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) |#else#set($prevAction=true)#end<a name="asnActionLink" onclick="duplicateLink(this);SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );return false;" href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")<span class="skip"> $formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))</span></a>#end
+
 										#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))#if($prevAction) |#end
 										#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 										## show "view submissions" link for ungraded type of assignment
-											<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >#if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $formattedText.escapeHtml($!assignment.getTitle())</span></a>
+											<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >#if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.getTitle()))</span></a>
 										#end
 										<div id="linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 									</div>
@@ -407,11 +398,11 @@
 											## if not submitted or returned and still allowed to submit within the due time
 											#if ($service.canSubmit($assignment))
 												## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))">
 											#else
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))">
 											#end
-											$formattedText.escapeHtml($assignment.Title)</a>
+											$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))</a>
 											#assignmentIcons($assignment)
 											#if ($rubricMap.containsKey($assignment.getId()))
 												<sakai-rubric-student-button
@@ -423,7 +414,7 @@
 												</sakai-rubric-student-button>
 											#end
 										#else
-											$formattedText.escapeHtml($assignment.Title)
+											$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))
 											#assignmentIcons($assignment)
 											#if ($rubricMap.containsKey($assignment.getId()))
 												<sakai-rubric-student-button
@@ -436,8 +427,8 @@
 											#end
 											#if ($!allowSubmit)
 												<div class="itemAction">
-													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)&submitterIdInstructor=instructor")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );" title="$formattedText.escapeHtml($!assignment.Title)">
-														$tlang.getString("subasstudent")<span class="skip">: $formattedText.escapeHtml($assignment.Title)</span>
+													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)&submitterIdInstructor=instructor")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );" title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))">
+														$tlang.getString("subasstudent")<span class="skip">: $formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))</span>
 													</a>
 													<div id="subAsStudentSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 												</div>
@@ -463,7 +454,7 @@
 										## SAK-21525 END
 										#if($allowSubmit)
 											<strong>
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))">$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))</a>
 												#assignmentIcons($assignment)
 											</strong>
 											#set($submissionId="undefined")
@@ -483,39 +474,9 @@
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>
 											#end
-											#if ($taggable && $allowAddAssignment)
-												<div class="itemAction">
-													#set($prevAction=false)
-													#foreach ($provider in $providers)
-														#set ($activityHelperInfo = false)
-														#set ($activity = $producer.getActivity($assignment))
-														#set ($activityHelperInfo = $provider.getActivityHelperInfo($activity.reference))
-														#if ($activityHelperInfo)
-															#if($prevAction)
-																|
-															#else
-																#set($prevAction=true)
-															#end
-															<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$formattedText.escapeUrl($activity.reference)&providerId=$formattedText.escapeUrl($provider.id)")" title="$!activityHelperInfo.description">$!activityHelperInfo.name</a>
-														#end
-														#if ($!submission)
-															#set ($itemHelperInfo = false)
-															#set ($item = $producer.getItem($submission, $user.getId()))
-															#set ($itemHelperInfo = $provider.getItemHelperInfo($item.reference))
-															#if ($itemHelperInfo)
-																#if($prevAction)
-																	|
-																#else
-																	#set($prevAction=true)
-																#end
-																<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($provider.id)")" title="$!itemHelperInfo.description">$!itemHelperInfo.name</a>
-															#end
-														#end
-													#end
-												</div>
-											#end
+
 										#else
-											<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+											<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))">$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))</a>
 										#end
 									#end
 									#set ($deleted = false)
@@ -640,7 +601,7 @@
 									#set($totalNumber = $!service.countSubmissions($assignmentReference, null))
 									<div class="spinnerBesideContainer">
 										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >
-											<span class="skip"> #if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $formattedText.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
+											<span class="skip"> #if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title)). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
 										</a>
 									</div>
 								#end
@@ -676,7 +637,7 @@
 								<td class="tag-header hidden-xs">
 								#if ($tagsMap.containsKey($assignment.getId()))
 									#foreach($tag in $tagsMap.get($assignment.getId()))
-										<span class="badge bg-info">$tag</span>
+										<span class="badge bg-info">$formattedText.escapeHtml($tag)</span>
 									#end
 								#end
 								</td>
@@ -684,7 +645,7 @@
 							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
 										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" onclick="ASN.checkEnableRemove();" />
-										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove"): $formattedText.escapeHtml($!assignment.Title)</label>
+										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove"): $formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))</label>
 								</td>
 							#end
 						</tr>
@@ -696,7 +657,7 @@
 							<tr>
 								<!-- title col -->
 								<td class="peer-header">
-									<strong title="$formattedText.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $formattedText.escapeHtml($assignment.Title)</strong>
+									<strong title="$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))</strong>
 									#if ($assignment.IsGroup)
 										$tlang.getFormattedMessage("peerAssessmentName", $tlang.getString("peerAssessmentGroups"))
 									#else

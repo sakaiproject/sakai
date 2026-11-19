@@ -7,7 +7,6 @@
 			class="org.sakaiproject.calendar.impl.DbCalendarService"
 			init-method="init"
 			destroy-method="destroy">
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
  		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
@@ -64,7 +63,7 @@
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
 		<property name="clock">
 			<bean class="java.time.Clock" factory-method="systemUTC"/>
 		</property>
@@ -77,5 +76,14 @@
 	</bean>
 
 	<import resource="hibernate-hbms.xml"/>
+
+	<bean id="org.sakaiproject.calendar.impl.CalendarContentProducer"
+		class="org.sakaiproject.calendar.impl.CalendarContentProducer"
+		init-method="init">
+		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+	</bean>
 
 </beans>

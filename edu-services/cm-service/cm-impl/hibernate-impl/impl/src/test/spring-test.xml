@@ -3,6 +3,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <import resource="classpath:org/sakaiproject/coursemanagement/impl/cm-admin.xml"/>
+
+    <bean id="org.sakaiproject.authz.api.SecurityService" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg type="java.lang.Class" value="org.sakaiproject.authz.api.SecurityService"/>
+    </bean>
+
 	<bean id="cmDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName"><value>${hibernate.connection.driver_class}</value></property>
 		<property name="url"><value>${hibernate.connection.url}</value></property>
@@ -34,7 +40,6 @@
             <prop key="hibernate.dialect">${hibernate.dialect}</prop>
             <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
             <prop key="hibernate.cache.use_second_level_cache">false</prop>
-            <prop key="hibernate.query.substitutions">true 1, false 0</prop>
             <prop key="hibernate.hbm2ddl.auto">update</prop>
           </props>
         </property>
@@ -70,7 +75,7 @@
         <property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
     </bean>
 
-    <bean id="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"
+    <bean id="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl" autowire-candidate="false"
           class="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl">
         <property name="sessionFactory" ref="cmSessionFactory"/>
         <property name="authn">

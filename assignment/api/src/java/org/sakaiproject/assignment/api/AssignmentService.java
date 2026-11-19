@@ -340,6 +340,24 @@ public interface AssignmentService extends EntityProducer {
     public void softDeleteAssignment(Assignment assignment) throws PermissionException;
 
     /**
+     * Whether deleting this group assignment can release its locks. Student work and grading
+     * keep the locks in place; empty grading placeholders do not, unless linked to a rubric.
+     */
+    boolean canReleaseGroupLocks(Assignment assignment);
+
+    /**
+     * Whether a submission contains student work or saved grading data, including a zero score.
+     * Empty grading placeholders and inherited resubmission defaults do not count as work.
+     */
+    boolean hasSubmissionWork(AssignmentSubmission submission);
+
+    /**
+     * Restore an assignment from Trash. Empty group assignments return as drafts so that
+     * instructors can review current groups before publishing. Missing groups are removed.
+     */
+    Assignment restoreAssignment(String assignmentId) throws IdUnusedException, PermissionException;
+
+    /**
      * Softly delete this Assignment and remove all references to it.
      *
      * @param assignment - The Assignment to softly delete.
@@ -372,13 +390,26 @@ public interface AssignmentService extends EntityProducer {
      */
     public void updateAssignment(Assignment assignment) throws PermissionException;
 
+    /** Establish or validate Gradebook destinations before saving a published Assignment and its association. */
+    void updateAssignmentWithGradebook(Assignment assignment, String integration,
+            Map<String, Long> categories, Map<String, String> items) throws PermissionException;
+
+
     /**
-     * Publishes a draft assignment and performs first-publish integrations.
+     * Publishes an assignment, synchronizes its peer review schedule, and performs first-publish integrations.
      *
      * @param assignment the Assignment to publish.
      * @throws PermissionException if current User does not have permission to update the assignment.
      */
     public void publishAssignment(Assignment assignment) throws PermissionException;
+
+    /**
+     * Returns an assignment to draft and removes its scheduled peer review.
+     *
+     * @param assignment the Assignment to unpublish.
+     * @throws PermissionException if the current user cannot update the assignment.
+     */
+    public void unpublishAssignment(Assignment assignment) throws PermissionException;
 
     /**
      * Integrates assignment availability and due dates with Announcement and Calendar tools.
@@ -404,6 +435,28 @@ public interface AssignmentService extends EntityProducer {
      * @throws PermissionException
      */
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException;
+
+    /**
+     * Update a submission, optionally allowing student-submission events and notifications.
+     * Pass false when saving only grades, feedback, or release state. Grade-release
+     * notifications are unaffected.
+     *
+     * @param submission the submission to update
+     * @param notifySubmission whether the update may generate a student-submission event and notifications
+     * @throws PermissionException if the current user cannot update or grade the submission
+     */
+    void updateSubmission(AssignmentSubmission submission, boolean notifySubmission) throws PermissionException;
+
+    /**
+     * Archives the current feedback text and visible submitted attachments in the existing HTML history.
+     * Call before changing the submission's submitted flag, date, feedback, or attachments, including
+     * when saving the first draft of a resubmission. Draft attachments are not archived.
+     * This only changes the supplied submission; the caller remains responsible for saving it through
+     * {@link #updateSubmission(AssignmentSubmission)} and its permission checks.
+     *
+     * @param submission the existing submission before the resubmission changes
+     */
+    void archiveSubmissionHistory(AssignmentSubmission submission);
 
     /**
      * @param reference
@@ -445,6 +498,15 @@ public interface AssignmentService extends EntityProducer {
     public AssignmentSubmission getSubmission(String submissionId) throws IdUnusedException, PermissionException;
 
     /**
+     * Reads a submission under its active peer-review assignment rather than general submission-read permission.
+     * The current user must be the assigned assessor or a member of the assigned assessor group,
+     * and the review must be open and not removed. Returns null for a missing submission.
+     *
+     * @throws PermissionException if the current user is not authorized for this peer review
+     */
+    AssignmentSubmission getSubmissionForPeerAssessment(String submissionId, String assessorId) throws PermissionException;
+
+    /**
      * Access all the Assignemnts that are not deleted and self-drafted ones
      *
      * @param context -
@@ -471,6 +533,17 @@ public interface AssignmentService extends EntityProducer {
      * @return All submittable Assignments in the site mapped to the User IDs of those who can submit them.
      */
     public Map<Assignment, List<String>> getSubmittableAssignmentsForContext(String context);
+
+    /**
+     * Get eligible submitters visible to the current user and their gradable,
+     * non-anonymous assignments. Applies the site/group visibility rules and
+     * configured non-submitter permissions.
+     *
+     * @param context the site ID
+     * @param groupReference a group reference, or {@link AssignmentConstants#ALL} for all visible groups
+     * @return visible students mapped to their assignments; a student's list may be empty
+     */
+    Map<User, List<Assignment>> getAssignmentsByStudent(String context, String groupReference);
 
     /**
      * Access a User's AssignmentSubmission to a particular Assignment.
@@ -514,6 +587,15 @@ public interface AssignmentService extends EntityProducer {
      * @return List over all the submissions for an Assignment.
      */
     public Set<AssignmentSubmission> getSubmissions(Assignment assignment);
+
+    /**
+     * Get the submissions for several assignments in one query.
+     * Missing assignment ids are present in the result with an empty set.
+     *
+     * @param assignmentIds assignment ids to load; blank ids are ignored
+     * @return submissions grouped by assignment id, never null
+     */
+    public Map<String, Set<AssignmentSubmission>> getSubmissions(Collection<String> assignmentIds);
 
     /**
      * @param assignmentId
@@ -939,4 +1021,10 @@ public interface AssignmentService extends EntityProducer {
      * Returns true if the submission contains instructor feedback, whether as comment text (inline) or attachments.
      */
     public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission);
+
+    /**
+     * Returns whether an unreleased submission has a grade or feedback eligible for bulk release.
+     * This checks submission state only; updating the submission still requires permission.
+     */
+    public boolean isSubmissionEligibleForRelease(AssignmentSubmission submission);
 }

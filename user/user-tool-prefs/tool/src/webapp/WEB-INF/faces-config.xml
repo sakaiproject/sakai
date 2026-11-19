@@ -1,10 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+<faces-config xmlns="https://jakarta.ee/xml/ns/jakartaee"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
-        	        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
-              version="2.3">
+              xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_3_0.xsd"
+              version="3.0">
 	<application>
       <message-bundle>user-tool-prefs</message-bundle>
         <locale-config>
@@ -33,7 +32,7 @@
             <renderer-class>org.sakaiproject.user.jsf.HideDivisionRenderer</renderer-class>
         </renderer>
         <renderer>
-            <component-family>javax.faces.Command</component-family>
+            <component-family>jakarta.faces.Command</component-family>
             <renderer-type>org.sakaiproject.user.jsf.ToolBarItem</renderer-type>
             <renderer-class>org.sakaiproject.user.jsf.ToolBarItemRenderer</renderer-class>
         </renderer>

@@ -91,7 +91,7 @@ public interface Event extends Serializable
 
 	/**
 	 * Retrieve the events time
-	 * @return the events time
+	 * @return the event's time, which may be null before the event is posted
 	 */
 	Date getEventTime();
 

@@ -17,6 +17,7 @@ package org.sakaiproject.webapi.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.webapi.security.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,7 @@ public class UserController extends AbstractSakaiApiController{
     @Autowired
     private SecurityService securityService;
 
+    @PublicApi("Reports only whether the current caller is an administrator.")
     @GetMapping("/user/roles")
     public ResponseEntity<Map<String, Boolean>> checkSuperUser() {
 

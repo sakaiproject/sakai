@@ -14,6 +14,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
     forcePreview: { attribute: "force-preview", type: Boolean },
     instructor: { type: Boolean },
+    isPeerOrSelf: { attribute: "is-peer-or-self", type: Boolean },
   };
 
   constructor() {
@@ -41,12 +42,13 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
   }
 
   shouldUpdate() {
-    return this._rubricId;
+    return super.shouldUpdate() && this._rubricId;
   }
 
   render() {
 
     return html`
+      ${this.renderSaveError()}
       <a @click=${this.showRubric} href="javascript:;" title="${this._i18n.preview_rubric}">
         <span class="si si-sakai-rubrics"></span>
       </a>
@@ -70,7 +72,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     if (this.forcePreview) {
       this.showRubricLightbox(this._rubricId);
     } else {
-      this.showRubricLightbox(this._rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "evaluated-item-owner-id": this.evaluatedItemOwnerId });
+      this.showRubricLightbox(this._rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "evaluated-item-owner-id": this.evaluatedItemOwnerId, "instructor": this.instructor, "is-peer-or-self": this.isPeerOrSelf });
     }
   }
 
@@ -99,17 +101,12 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
             { "op": "replace", "path": "/status", "value": evaluationStatus }
           ]),
           credentials: "include",
-          headers: { "Content-Type": "application/json-patch+json" },
+          headers: { "Content-Type": "application/json-patch+json", "If-Match": `"${evaluation.version}"` },
           method: "PATCH",
         })
-        .then(r => {
-
-          if (!r.ok) {
-            throw new Error("Failed to release evaluation");
-          }
-        });
+        .then(r => this.readSaveResponse(r));
       }
     })
-    .catch (error => console.error(error));
+    .catch(error => { this.reportSaveError(error); throw error; });
   }
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
-    <!-- Sample configuration for SAML -->
-    <!-- import resource="xlogin-context.saml.xml" / -->
-
-    <!-- Sample configuration for SAML with ADFS IdP -->
-    <!-- import resource="xlogin-context.saml.adfs-prod.xml" / -->
+    <context:annotation-config/>
+    <!-- SAML is enabled and configured exclusively through sakai.properties. -->
+    <bean class="org.sakaiproject.login.springframework.SakaiSamlSecurityConfiguration"/>
 
     <!-- Sample configuration for CAS authentication -->
     <!-- import resource="xlogin-context.cas3.xml" / -->

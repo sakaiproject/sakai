@@ -21,6 +21,11 @@ view=View
 widget_title=Grades
 url_tooltip=Click to be taken to the grades
 course_assignment=Course/Assignment
+save_filter=Save filter
+reset_filter=Reset filter
+filters=Filters
+open_filters=Show filters
+close_filters=Hide filters
 `;
 
 export const userId = "adrian";

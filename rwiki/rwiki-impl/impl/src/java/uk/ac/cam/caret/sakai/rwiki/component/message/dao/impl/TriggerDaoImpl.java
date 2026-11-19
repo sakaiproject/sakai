@@ -24,14 +24,17 @@ package uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl;
 import java.util.Date;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.TriggerDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Trigger;
@@ -41,8 +44,11 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
  * @author ieb
  */
 @Slf4j
-public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
+@Transactional(readOnly = true)
+public class TriggerDaoImpl implements TriggerDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -75,16 +81,14 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Trigger.class).add(
-							Expression.eq("user", user)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RwikiTriggerImpl> cq = cb.createQuery(RwikiTriggerImpl.class);
+			Root<RwikiTriggerImpl> root = cq.from(RwikiTriggerImpl.class);
+
+			cq.select(root).where(cb.equal(root.get("user"), user));
+
+			return session.createQuery(cq).getResultList();
 		}
 		finally
 		{
@@ -108,16 +112,14 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Trigger.class).add(
-							Expression.eq("pagespage", space)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RwikiTriggerImpl> cq = cb.createQuery(RwikiTriggerImpl.class);
+			Root<RwikiTriggerImpl> root = cq.from(RwikiTriggerImpl.class);
+
+			cq.select(root).where(cb.equal(root.get("pagespace"), space));
+
+			return session.createQuery(cq).getResultList();
 		}
 		finally
 		{
@@ -142,17 +144,15 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Trigger.class).add(
-							Expression.eq("pagespage", space)).add(
-							Expression.eq("pagename", page)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RwikiTriggerImpl> cq = cb.createQuery(RwikiTriggerImpl.class);
+			Root<RwikiTriggerImpl> root = cq.from(RwikiTriggerImpl.class);
+
+			cq.select(root).where(cb.equal(root.get("pagespace"), space),
+				cb.equal(root.get("pagename"), page));
+
+			return session.createQuery(cq).getResultList();
 		}
 		finally
 		{
@@ -170,7 +170,7 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 	@Transactional
 	public void update(Object o)
 	{
-		getHibernateTemplate().saveOrUpdate(o);
+		sessionFactory.getCurrentSession().merge(o);
 	}
 
 }

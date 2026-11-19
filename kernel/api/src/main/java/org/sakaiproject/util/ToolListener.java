@@ -29,9 +29,9 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -158,15 +158,15 @@ public class ToolListener implements ServletContextListener
 
 		// only set context param javax.faces.STATE_SAVING_METHOD if it's not already configured in the web.xml,
 		// always respecting when its declared in the web.xml
-		if (StringUtils.isBlank(context.getInitParameter("javax.faces.STATE_SAVING_METHOD"))) {
+		if (StringUtils.isBlank(context.getInitParameter("jakarta.faces.STATE_SAVING_METHOD"))) {
 			String defaultStateSavingMethod = serverConfigurationService.getString("jsf.state_saving_method", "client");
 			String stateSavingMethod = serverConfigurationService.getString("jsf.state_saving_method." + contextName, defaultStateSavingMethod);
 			try {
-				context.setInitParameter("javax.faces.STATE_SAVING_METHOD", stateSavingMethod);
-				log.debug("Adding context param [javax.faces.STATE_SAVING_METHOD => {}] for context {}", stateSavingMethod, contextName);
+				context.setInitParameter("jakarta.faces.STATE_SAVING_METHOD", stateSavingMethod);
+				log.debug("Adding context param [jakarta.faces.STATE_SAVING_METHOD => {}] for context {}", stateSavingMethod, contextName);
 			} catch (UnsupportedOperationException uoe) {
 				// Tomcat does not permit this if you don't declare the listener, aka spring web apps as they use ServletContextInitializer
-				log.debug("Could not add context param [javax.faces.STATE_SAVING_METHOD] for context {}, {}", context, uoe.getMessage());
+				log.debug("Could not add context param [jakarta.faces.STATE_SAVING_METHOD] for context {}, {}", context, uoe.getMessage());
 			}
 		}
 	}

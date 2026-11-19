@@ -15,15 +15,13 @@
  */
 package org.sakaiproject.assignment.api;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +34,6 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 /**
  * Created by enietzel on 3/6/17.
@@ -116,7 +113,7 @@ public class AssignmentEntity implements Entity {
             String xml = assignmentService.getXmlAssignment(assignment);
             Document document = null;
             try (ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"))) {
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                DocumentBuilder builder = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
                 document = builder.parse(in);
             } catch (Exception e) {
                 log.warn("Could not read assignment XML input stream", e);

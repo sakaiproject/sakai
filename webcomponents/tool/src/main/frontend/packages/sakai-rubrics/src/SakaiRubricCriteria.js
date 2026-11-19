@@ -2,6 +2,7 @@ import { RubricsElement } from "./RubricsElement.js";
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { repeat } from "lit/directives/repeat.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import "../sakai-rubric-edit.js";
 import "../sakai-item-delete.js";
 import "../sakai-rubric-criterion-edit.js";
@@ -42,19 +43,14 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/sort`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       credentials: "include",
       body: JSON.stringify(e.detail.reorderedIds),
     })
-    .then(r => {
-
-      if (!r.ok) {
-        throw new Error("Network error while saving criteria sort");
-      }
-    })
-    .catch (error => console.error(error));
+    .then(r => this.readSaveResponse(r)))
+    .catch(error => this.reportSaveError(error));
   }
 
   _ratingsReordered(e) {
@@ -74,20 +70,14 @@ export class SakaiRubricCriteria extends RubricsElement {
     });
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/sort`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       credentials: "include",
       body: JSON.stringify(e.detail.reorderedIds),
     })
-    .then(r => {
-
-      if (!r.ok) {
-        throw new Error(`Network error while saving ratings sort at ${url}`);
-      }
-
-    })
-    .catch (error => console.error(error));
+    .then(r => this.readSaveResponse(r)))
+    .catch(error => this.reportSaveError(error));
   }
 
   letShareKnow() { this.dispatchEvent(new SharingChangeEvent()); }
@@ -105,19 +95,14 @@ export class SakaiRubricCriteria extends RubricsElement {
     criterion.ratings = sortedIds.map(id => criterion.ratings.find(r => r.id == id));
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/sort`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       credentials: "include",
       body: JSON.stringify(sortedIds),
     })
-    .then(r => {
-
-      if (!r.ok) {
-        throw new Error(`Network error while saving ratings sort at ${url}`);
-      }
-    })
-    .catch (error => console.error(error));
+    .then(r => this.readSaveResponse(r)))
+    .catch(error => this.reportSaveError(error));
   }
 
   saveRating(e) {
@@ -125,30 +110,26 @@ export class SakaiRubricCriteria extends RubricsElement {
     e.stopPropagation();
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.detail.criterionId}/ratings/${e.detail.rating.id}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       method: "POST",
-      body: JSON.stringify(e.detail.rating)
+      body: JSON.stringify({
+        ...e.detail.rating,
+        version: this.criteria.find(c => c.id == e.detail.criterionId).ratings.find(r => r.id == e.detail.rating.id).version,
+      })
     })
-    .then(r => {
-
-      if (r.ok) {
-        const criterion = this.criteria.find(c => c.id == e.detail.criterionId);
-        const rating = criterion.ratings.find(rat => rat.id == e.detail.rating.id);
-        rating.title = e.detail.rating.title;
-        rating.description = e.detail.rating.description;
-        rating.points = e.detail.rating.points;
-        rating.new = false;
-        this.requestUpdate();
-        this.updateComplete.then(() => this.querySelector(`#criterion-ratings-reorderer-${e.detail.criterionId}`).requestUpdate());
-        this.letShareKnow();
-        this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
-      } else {
-        throw new Error("Network error while saving rating");
-      }
+    .then(r => this.readSaveResponse(r)))
+    .then(saved => {
+      const criterion = this.criteria.find(c => c.id == e.detail.criterionId);
+      Object.assign(criterion.ratings.find(rating => rating.id == saved.id), saved, { new: false });
+      e.target.saved();
+      this.requestUpdate();
+      this.updateComplete.then(() => this.renderRoot.querySelector(`#criterion-ratings-reorderer-${criterion.id}`).requestUpdate());
+      this.letShareKnow();
+      this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
     })
-    .catch(error => console.error(error));
+    .catch(error => e.target.reportSaveError(error));
   }
 
   deleteCriterion(e) {
@@ -185,20 +166,14 @@ export class SakaiRubricCriteria extends RubricsElement {
     const ratingPos = e.target.dataset.ratingPos;
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/default?position=${ratingPos}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
     })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-      throw new Error("Network error while adding rating");
-    })
+    .then(r => this.readSaveResponse(r)))
     .then(nr => this.addRatingResponse(criterionId, ratingPos, nr))
-    .catch (error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 
   addRatingResponse(criterionId, ratingPos, newRating) {
@@ -210,6 +185,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (!criterion.ratings) criterion.ratings = [];
 
     criterion.ratings.splice(parseInt(ratingPos), 0, newRating);
+    this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
 
     this.letShareKnow();
     this.requestUpdate();
@@ -227,18 +203,12 @@ export class SakaiRubricCriteria extends RubricsElement {
     }
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.detail.criterionId}/ratings/${e.detail.id}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "DELETE",
+      headers: { "If-Match": `"${criterion.ratings.find(r => r.id == e.detail.id).version}"` },
       credentials: "include",
     })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error("Network error while deleting rating");
-    })
+    .then(r => this.readSaveResponse(r)))
     .then(c => {
 
       // The current weight may be lost because comes from DB and the UI can have a different value.
@@ -250,7 +220,7 @@ export class SakaiRubricCriteria extends RubricsElement {
       this.letShareKnow();
       this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
     })
-    .catch (error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 
   // SAK-47640 - Get the maximum and minimum possible grade of the criterion,
@@ -276,26 +246,21 @@ export class SakaiRubricCriteria extends RubricsElement {
   cloneCriterion(e) {
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.currentTarget.dataset.criterionId}/copy`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
     })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-      throw new Error("Server error while cloning criterion");
-    })
+    .then(r => this.readSaveResponse(r)))
     .then(clone => this.createCriterionResponse(clone))
-    .catch(error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 
   createCriterionResponse(nc) {
 
     this.criteria.push(nc);
     this.criteriaMap.set(nc.id, nc);
+    this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
 
     // Add the criterion to the rubric
     this.requestUpdate();
@@ -305,6 +270,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   criterionEdited(e) {
 
     const criterion = this.criteriaMap.get(e.detail.id);
+    criterion.version = e.detail.version;
     criterion.title = e.detail.title;
     criterion.description = e.detail.description;
     criterion.new = false;
@@ -320,6 +286,9 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   saveWeights() {
 
+    if (this._savingWeights || (!this.isDraft && !this.validWeight)) {
+      return;
+    }
     this._savingWeights = true;
 
     const parentRubric = this.closest("sakai-rubric");
@@ -333,20 +302,14 @@ export class SakaiRubricCriteria extends RubricsElement {
   createCriterion(e, empty = false) {
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/default${empty ? "Empty" : ""}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
     })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-      throw new Error("Network error while getting default criterion");
-    })
+    .then(r => this.readSaveResponse(r)))
     .then(nc => this.createCriterionResponse(nc))
-    .catch(error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 
   openEditWithKeyboard(e) {
@@ -396,6 +359,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   render() {
 
     return html`
+      ${this.renderSaveError()}
       <sakai-reorderer drop-class="criterion-row" @reordered=${this._criteriaReordered}>
         <div data-rubric-id="${this.rubricId}" class="criterion style-scope sakai-rubric-criterion">
         ${repeat(this.criteria, c => c.id, c => html`
@@ -514,8 +478,8 @@ export class SakaiRubricCriteria extends RubricsElement {
                           criterion-id="${c.id}"
                           @save-rating=${this.saveRating}
                           @delete-rating=${this.deleteRating}
-                          minpoints="${c.pointrange ? c.pointrange.low : 0}"
-                          maxpoints="${c.pointrange ? c.pointrange.high : 0}"
+                          minpoints="${ifDefined(c.pointrange?.low)}"
+                          maxpoints="${ifDefined(c.pointrange?.high)}"
                           .rating=${r}
                           ?removable="${ this.isRatingRemovable(c) }"
                           ?is-locked="${this.isLocked}">
@@ -527,7 +491,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                         </p>
                       </div>
                       <span class="points">
-                        ${this.weighted && r.points > 0 ? html`
+                        ${this.weighted && r.points !== 0 ? html`
                           <b>
                             (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
                           </b>
@@ -570,6 +534,11 @@ export class SakaiRubricCriteria extends RubricsElement {
         `)}
         </div>
       </sakai-reorderer>
+      ${!this.weighted ? html `
+        <div class="rubric-totals mb-3">
+          <span class="fw-bold">${this.tr("total_grade")}</span> ${this.maxPoints}
+        </div>
+      ` : nothing }
       ${!this.isLocked ? html`
         <div class="action-buttons">
           ${this.weighted ? html`
@@ -583,7 +552,13 @@ export class SakaiRubricCriteria extends RubricsElement {
                 <span>${this.maxPoints}</span>
               </div>
             </div>
-            <button class="btn-link save-weights" @click="${this.saveWeights}" .disabled=${this._savingWeights || (!this.validWeight && !this.isDraft)}>
+            <div id="weight-save-help-${this.rubricId}"
+                class="weight-save-help ${!this.isDraft && !this.validWeight ? "sak-banner-warn" : ""}"
+                role="status">${!this.isDraft && !this.validWeight ? this.tr("published_invalid_weights") : nothing}</div>
+            <button type="button" class="btn btn-link save-weights"
+                @click="${this.saveWeights}"
+                aria-describedby=${ifDefined(!this.isDraft && !this.validWeight ? `weight-save-help-${this.rubricId}` : undefined)}
+                ?disabled=${this._savingWeights || (!this.isDraft && !this.validWeight)}>
               <span class="add fa fa-save" aria-hidden="true"></span>
               ${this._i18n.save_weights}
             </button>

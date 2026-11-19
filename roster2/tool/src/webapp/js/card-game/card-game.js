@@ -288,9 +288,7 @@ export default class CardGame extends BaseGame {
                 </div>
                 <div class="col-md-8 col-xl-7">
                     <h2>${this.tr("whats_the_user_name")}</h2>
-                    <select id="${this.selectId}" class="form-control">
-                        <option value="" disabled selected><option>
-                    </select>
+                    <sakai-user-picker id="${this.selectId}"></sakai-user-picker>
                     <div class="d-flex mt-2">
                         ${this.state.feedbackState === FEEDBACK_STATES.NO
                             ? `<button class="btn btn-primary flex-grow-1" data-check>${this.tr("check")}</button>`
@@ -474,7 +472,7 @@ export default class CardGame extends BaseGame {
 
     calcUserOptionsData() {
         return this.state.learnUsers.map(({ id, displayName }) => {
-            return { id, text: displayName };
+            return { id, name: displayName };
         });
     }
 
@@ -562,17 +560,15 @@ export default class CardGame extends BaseGame {
     }
 
     effectInitSelect() {
-        this.select = $("#" + this.selectId).select2({
-            data: this.state.userOptionsData,
-            placeholder: this.tr("user_name_select_placeholder"),
-            language: {
-                noResults: () => this.tr("no_name_found")
-            },
-        });
+        this.select = document.getElementById(this.selectId);
+        if (!this.select) { return; }
+        this.select.options = this.state.userOptionsData;
+        this.select.label = this.tr("whats_the_user_name");
+        this.select.placeholder = this.tr("user_name_select_placeholder");
     }
 
     effectDisableSelect() {
-        this.select.prop('disabled', true);
+        this.select.disabled = true;
     }
 
     effectFocusContinue() {
@@ -597,7 +593,7 @@ export default class CardGame extends BaseGame {
 
     // Gets selected userId from select
     getSelectedId() {
-        return $("#" + this.selectId).select2('data')[0].id ?? "";
+        return this.select?.values?.[0] ?? "";
     }
 
     // Gets user with specified userId from state

@@ -33,16 +33,15 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.opencsv.CSVReader;
@@ -103,10 +102,14 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
@@ -269,39 +272,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return toolTitle;
 	}
 
-	@Override
-	public List<String> getBulkDateFieldsForCurrentSite() {
-		Set<String> fields = new LinkedHashSet<>();
-
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ASSIGNMENTS, columnsNames[0]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ASSESSMENTS, columnsNames[1]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_GRADEBOOK, columnsNames[2]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_SIGNUP, columnsNames[3]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_RESOURCES, columnsNames[5]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_CALENDAR, columnsNames[4]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_FORUMS, columnsNames[5]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, columnsNames[4]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_LESSONS, columnsNames[6]);
-
-		return new ArrayList<>(fields);
-	}
-
-	private void addBulkDateFieldsForTool(Set<String> fields, String commonId, String[] toolColumnsNames) {
-		if (!currentSiteContainsTool(commonId)) {
-			return;
-		}
-
-		Arrays.stream(toolColumnsNames)
-			.filter(this::isBulkDateField)
-			.forEach(fields::add);
-	}
-
-	private boolean isBulkDateField(String fieldName) {
-		return !DateManagerConstants.JSON_ID_PARAM_NAME.equals(fieldName)
-				&& !DateManagerConstants.JSON_TITLE_PARAM_NAME.equals(fieldName)
-				&& !DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME.equals(fieldName);
-	}
-
 	private String getUrlForTool(String tool) {
 		try {
 			Site site = siteService.getSite(getCurrentSiteId());
@@ -322,6 +292,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 		if (instant == null) return "";
 		ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, userTimeService.getLocalTimeZone().toZoneId());
         return userDate.format(outputDatePickerFormat);
+	}
+
+	private ZoneId getGradebookZoneId() {
+		// Gradebook treats due dates as date-only values in the server timezone.
+		return ZoneId.systemDefault();
+	}
+
+	private String formatToGradebookDateFormat(Date date) {
+		if (date == null) return "";
+		return date.toInstant().atZone(getGradebookZoneId()).format(outputDatePickerFormat);
 	}
 
 	@Override
@@ -628,7 +608,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				Integer feedbackMode = isDraft ? ((AssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery()
 												: ((PublishedAssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery();
-				errored |= validateAssessmentFeedbackDates(errors, toolTitle, idx, feedbackMode, control.getLateHandling(), dueDate, acceptUntil, feedbackStart, feedbackEnd);
+				errored |= validateAssessmentFeedbackDates(errors, toolTitle, idx, feedbackMode, control.getLateHandling(), dueDate, acceptUntil, feedbackStart, feedbackEnd,
+						loadAssessmentExceptionDueRetracts(assessment, isDraft));
 
 				if (errored) {
 					continue;
@@ -665,7 +646,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 	}
 
 	private boolean validateAssessmentFeedbackDates(List<DateManagerError> errors, String toolTitle, int idx, Integer feedbackMode,
-			Integer lateHandling, Instant dueDate, Instant acceptUntil, Instant feedbackStart, Instant feedbackEnd) {
+			Integer lateHandling, Instant dueDate, Instant acceptUntil, Instant feedbackStart, Instant feedbackEnd,
+			List<AssessmentFeedbackDateRules.DueRetract> exceptionDates) {
 		if (!AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode)) {
 			return false;
 		}
@@ -681,7 +663,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		Date feedbackStartForValidation = feedbackStart != null ? Date.from(feedbackStart) : null;
 		Date feedbackEndForValidation = feedbackEnd != null ? Date.from(feedbackEnd) : null;
 		for (AssessmentFeedbackDateRules.Violation violation : AssessmentFeedbackDateRules.validate(dueDateForValidation, acceptUntilForValidation,
-				lateHandling, feedbackStartForValidation, feedbackEndForValidation)) {
+				lateHandling, feedbackStartForValidation, feedbackEndForValidation, exceptionDates)) {
 			errors.add(new DateManagerError(AssessmentFeedbackDateValidationSupport.dateManagerField(violation.getField()),
 					resourceLoader.getString(AssessmentFeedbackDateValidationSupport.dateManagerMessageKey(violation.getError())),
 					"assessments", toolTitle, idx));
@@ -689,6 +671,40 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 
 		return errored;
+	}
+
+	private List<AssessmentFeedbackDateRules.DueRetract> loadAssessmentExceptionDueRetracts(AssessmentIfc assessment, boolean isDraft) {
+		ExtendedTimeFacade extendedTimeFacade = assessmentPersistenceService.getExtendedTimeFacade();
+		if (extendedTimeFacade == null || assessment == null) {
+			return Collections.emptyList();
+		}
+
+		List<ExtendedTime> extendedTimes;
+		if (isDraft) {
+			AssessmentBaseIfc data = ((AssessmentFacade) assessment).getData();
+			if (data == null) {
+				return Collections.emptyList();
+			}
+			extendedTimes = extendedTimeFacade.getEntriesForAss(data);
+		} else {
+			PublishedAssessmentIfc data = ((PublishedAssessmentFacade) assessment).getData();
+			if (data == null) {
+				return Collections.emptyList();
+			}
+			extendedTimes = extendedTimeFacade.getEntriesForPub(data);
+		}
+
+		if (extendedTimes == null || extendedTimes.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<AssessmentFeedbackDateRules.DueRetract> exceptionDates = new ArrayList<>(extendedTimes.size());
+		for (ExtendedTime extendedTime : extendedTimes) {
+			if (extendedTime != null) {
+				exceptionDates.add(new AssessmentFeedbackDateRules.DueRetract(extendedTime.getDueDate(), extendedTime.getRetractDate()));
+			}
+		}
+		return exceptionDates;
 	}
 
 	@Override
@@ -807,7 +823,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					JSONObject gobj = new JSONObject();
 					gobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, gbitem.getId());
 					gobj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, gbitem.getName());
-					gobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, formatToUserDateFormat(gbitem.getDueDate()));
+					gobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, formatToGradebookDateFormat(gbitem.getDueDate()));
 					gobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 					gobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 					gobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, "false");
@@ -857,7 +873,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						} else {
 							date = LocalDate.parse(dueDateRaw, inputDateFormatter);
 						}
-						ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+						ZoneId zone = getGradebookZoneId();
 						dueDate = date.atStartOfDay(zone).toInstant();
 					} catch (DateTimeParseException e) {
 						log.warn("Could not parse due date [{}], {}", dueDateRaw, e);
@@ -1867,14 +1883,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject assessmentJsonObject = this.createJsonObject(columnsNames[1], columns, idx);
 			assessmentJsonObject.put("due_date_label", columns[3] != null? columns[3].replaceAll("\"", "") : "");
 			assessmentJsonObject.put("accept_until_label", columns[4] != null? columns[4].replaceAll("\"", "") : "");
-			if (StringUtils.isBlank((String)assessmentJsonObject.get("due_date"))) {
-				assessmentJsonObject.remove("due_date");
-				assessmentJsonObject.put("due_date", ZonedDateTime.now().toString());
-			}
-			if (StringUtils.isBlank((String)assessmentJsonObject.get("accept_until"))) {
-				assessmentJsonObject.remove("accept_until");
-				assessmentJsonObject.put("accept_until", ZonedDateTime.now().toString());
-			}
 			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
 				PublishedAssessmentFacade pubAssessment = pubAssessmentServiceQueries.getPublishedAssessment(Long.parseLong(id));
 				assessmentJsonObject.put("is_draft", false);
@@ -2081,7 +2089,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 				boolean startChanged = this.compareDates(pubAssessment.getStartDate(), startCsv);
 				boolean dueChanged = this.compareDates(pubAssessment.getDueDate(), (columns.length > 3? columns[3] : ""));
 				boolean retractChanged = this.compareDates(pubAssessment.getRetractDate(), (columns.length > 4? columns[4] : ""));
-				changed = startChanged || dueChanged || retractChanged;
+				AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
+				boolean feedbackByDate = AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(pubAssessment.getAssessmentFeedback().getFeedbackDelivery());
+				boolean feedbackStartChanged = feedbackByDate && this.compareDates(control.getFeedbackDate(), (columns.length > 5 ? columns[5] : ""));
+				boolean feedbackEndChanged = feedbackByDate && this.compareDates(control.getFeedbackEndDate(), (columns.length > 6 ? columns[6] : ""));
+				changed = startChanged || dueChanged || retractChanged || feedbackStartChanged || feedbackEndChanged;
 				
 				log.debug("Published Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}')", 
 					id, startChanged, this.formatToUserDateFormat(pubAssessment.getStartDate()), startCsv,
@@ -2094,8 +2106,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 				boolean startChanged = this.compareDates(control.getStartDate(), startCsv);
 				boolean dueChanged = this.compareDates(control.getDueDate(), (columns.length > 3? columns[3] : ""));
 				boolean retractChanged = this.compareDates(control.getRetractDate(), (columns.length > 4? columns[4] : ""));
-				boolean feedbackStartChanged = this.compareDates(control.getFeedbackDate(), (columns.length > 5? columns[5] : ""));
-				boolean feedbackEndChanged = this.compareDates(control.getFeedbackEndDate(), (columns.length > 6? columns[6] : ""));
+				boolean feedbackByDate = AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assesmentData.getAssessmentFeedback().getFeedbackDelivery());
+				boolean feedbackStartChanged = feedbackByDate && this.compareDates(control.getFeedbackDate(), (columns.length > 5 ? columns[5] : ""));
+				boolean feedbackEndChanged = feedbackByDate && this.compareDates(control.getFeedbackEndDate(), (columns.length > 6 ? columns[6] : ""));
 				changed = startChanged || dueChanged || retractChanged || feedbackStartChanged || feedbackEndChanged;
 				
 				log.debug("Draft Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}'), feedbackStart={} (DB: '{}' vs CSV: '{}'), feedbackEnd={} (DB: '{}' vs CSV: '{}')", 
@@ -2117,7 +2130,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						date = LocalDate.parse(columns[2], inputDateFormatter);
 					}
 					columns[2] = date.format(outputDateFormatter);
-					ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+					ZoneId zone = getGradebookZoneId();
 					if (gbitem.getDueDate() != null) {
 						changed = !gbitem.getDueDate().toInstant().atZone(zone).toLocalDate().equals(date);
 					} else {
@@ -2156,17 +2169,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 				log.error("Cannot identify the tool Content received", ex);
 			}
 		} else if (DateManagerConstants.COMMON_ID_FORUMS.equals(toolId.replaceAll("\"", ""))) {
-			if (columns[4].replaceAll("\"", "").equals(resourceLoader.getString("itemtype.forum"))) {
+			String forumType = StringUtils.defaultString(resourceLoader.getString("itemtype.forum"));
+			if (StringUtils.startsWith(StringUtils.trimToEmpty(columns[4].replaceAll("\"", "")), forumType)) {
 				DiscussionForum forum = (DiscussionForum) forumManager.getForumByIdWithTopics(Long.parseLong(id));
 				
-				changed = this.compareDates(forum.getOpenDate(), columns[2])
-						|| this.compareDates(forum.getCloseDate(), columns[3]);
+				changed = this.compareDates(forum.getAvailabilityRestricted() ? forum.getOpenDate() : null, columns[2])
+						|| this.compareDates(forum.getAvailabilityRestricted() ? forum.getCloseDate() : null, columns[3]);
 			} else {
 				Topic topic = forumManager.getTopicById(false, Long.parseLong(id));
 				topic = (topic!=null)? forumManager.getTopicById(true, Long.parseLong(id)) : topic;
 
-				changed = this.compareDates(topic.getOpenDate(), columns[2])
-						|| this.compareDates(topic.getCloseDate(), columns[3]);
+				changed = this.compareDates(topic.getAvailabilityRestricted() ? topic.getOpenDate() : null, columns[2])
+						|| this.compareDates(topic.getAvailabilityRestricted() ? topic.getCloseDate() : null, columns[3]);
 			}
 		} else if (DateManagerConstants.COMMON_ID_ANNOUNCEMENTS.equals(toolId.replaceAll("\"", ""))) {
 			try {
@@ -2242,9 +2256,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				isDifferent = true;
 			}
 		} else if (date != null) {
-			// CSV has empty/blank date but DB has a date - treat as unchanged
-			// This handles cases where the CSV export intentionally omits certain dates
-			isDifferent = false;
+			isDifferent = true; // Clear an existing date, just as the Date Manager UI does.
 		}
 		return isDifferent;
 	}

@@ -15,18 +15,17 @@
  */
 package org.sakaiproject.conversations.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import java.time.Instant;
 
@@ -50,8 +49,7 @@ public class PostStatus implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "conv_post_status_id_sequence")
-    @SequenceGenerator(name = "conv_post_status_id_sequence", sequenceName = "CONV_POST_STATUS_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "conv_post_status_id_sequence", sequenceName = "CONV_POST_STATUS_S"))
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -27,7 +27,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
-public class ImageMapQuestionBean {
+public final class ImageMapQuestionBean implements MatchingEntry {
 
 	private ItemContentsBean parent;
 	private ItemTextIfc itemText;

@@ -25,22 +25,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Date;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -54,7 +52,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
@@ -76,6 +73,9 @@ import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>
@@ -85,11 +85,24 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class BeginDeliveryActionListener implements ActionListener
+public class BeginDeliveryActionListener extends SpringBeanAutowiringSupport implements ActionListener
 {
+
+  @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private ServerConfigurationService serverConfigurationService;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
-  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
-  private ToolManager toolManager = Objects.requireNonNull(ComponentManager.get(ToolManager.class));
+  @Autowired
+  @Qualifier("org.sakaiproject.rubrics.api.RubricsService")
+  private RubricsService rubricsService;
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.ToolManager")
+  private ToolManager toolManager;
 
   /**
    * ACTION.
@@ -99,15 +112,22 @@ public class BeginDeliveryActionListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
+    processAction(ae, true);
+  }
+
+  public void processAction(ActionEvent ae, boolean useRequestParameters) throws
+    AbortProcessingException
+  {
     log.debug("BeginDeliveryActionListener.processAction() ");
 
     // get managed bean and set its action accordingly
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     log.debug("****DeliveryBean= "+delivery);
-    String actionString = ContextUtil.lookupParam("actionString");
-    String publishedId = ContextUtil.lookupParam("publishedId");
-    String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    // Published URL requests keep the action and assessment resolved by LoginServlet.
+    String actionString = useRequestParameters ? ContextUtil.lookupParam("actionString") : null;
+    String publishedId = useRequestParameters ? ContextUtil.lookupParam("publishedId") : null;
+    String assessmentId = useRequestParameters ? ContextUtil.lookupParam("assessmentId") : null;
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
 
     if (StringUtils.isNotBlank(actionString)) {
       // if actionString is null, likely that action & actionString has been set already, 
@@ -135,7 +155,9 @@ public class BeginDeliveryActionListener implements ActionListener
 
     AssessmentAccessControlIfc control = pub.getAssessmentAccessControl();
     boolean releaseToAnonymous = control.getReleaseTo() != null && control.getReleaseTo().indexOf("Anonymous Users")> -1;
-    boolean canReview = delivery.isAccessByUrlAndAuthorized();
+    boolean canReview = delivery.isAccessByUrlAndAuthorized()
+        && delivery.getPublishedAssessment() != null
+        && pub.getPublishedAssessmentId().equals(delivery.getPublishedAssessment().getPublishedAssessmentId());
     PublishedAssessmentService service = new PublishedAssessmentService();
     String siteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
     
@@ -189,12 +211,11 @@ public class BeginDeliveryActionListener implements ActionListener
     // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
     delivery.setProtocol(ContextUtil.getProtocol());
 
-    ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     Long sizeMax = Long.valueOf(serverConfigurationService.getInt("samigo.sizeMax", 20480));
     delivery.setFileUploadSizeMax(Math.round(sizeMax.floatValue()/1024));
     delivery.setPublishedAssessment(pub);
 
-    if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(delivery.getPublishedAssessment().getPublishedAssessmentId()))) {
+    if (!delivery.isFromPrint() && secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(delivery.getPublishedAssessment().getPublishedAssessmentId()))) {
       String secureDeliveryModuleId = pub.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
       if (StringUtils.equals(secureDeliveryModuleId, SecureDeliverySeb.MODULE_NAME)) {
@@ -344,6 +365,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setInstructorMessage(instructorMessage);
 
     String ownerSiteId = service.getPublishedAssessmentOwner(pubAssessment.getPublishedAssessmentId());
+    delivery.setSiteId(ownerSiteId);
     String ownerSiteName = AgentFacade.getSiteName(ownerSiteId);
     delivery.setCourseName(ownerSiteName);
 
@@ -357,10 +379,13 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setQuestionIndex(0);
     delivery.setBeginTime(null);
     delivery.setFeedbackOnDate(false);
-		ExtendedTimeDeliveryService extTimeService = new ExtendedTimeDeliveryService(delivery.getPublishedAssessment());
+		ExtendedTimeDeliveryService extTimeService = null;
+		if (!delivery.isFromPrint() && delivery.getActionMode() != DeliveryBean.PREVIEW_ASSESSMENT) {
+			extTimeService = new ExtendedTimeDeliveryService(delivery.getPublishedAssessment());
+		}
 		PublishedAssessmentFacade paFacade = delivery.getPublishedAssessment();
 
-		if (extTimeService.hasExtendedTime()) {
+		if (extTimeService != null && extTimeService.hasExtendedTime()) {
 			delivery.setDueDate(extTimeService.getDueDate());
 			delivery.setRetractDate(extTimeService.getRetractDate());
 			if (extTimeService.getTimeLimit() > 0)
@@ -421,7 +446,7 @@ public class BeginDeliveryActionListener implements ActionListener
     String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
 
     //Override time limit settings if there's values in extended time
-    if (extTimeService.hasExtendedTime()) {
+    if (extTimeService != null && extTimeService.hasExtendedTime()) {
     	if (extTimeService.getTimeLimit() > 0) {
     		control.setTimeLimit(extTimeService.getTimeLimit());
     		hasTimeLimit = "true";
@@ -497,7 +522,7 @@ public class BeginDeliveryActionListener implements ActionListener
     		}
     	}
     	else {
-    		if (extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0) {
+    		if (extTimeService != null && extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0) {
     			control.setTimeLimit(extTimeService.getTimeLimit());
     		}
     		Date attemptDate = unSubmittedAssessmentGrading.getAttemptDate();
@@ -558,8 +583,14 @@ public class BeginDeliveryActionListener implements ActionListener
     				List resourceIdList = assessmentService.getAssessmentResourceIdList(pub);
     				PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
     				personBean.setResourceIdListInPreview(resourceIdList);
-    				RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, "preview");
-    				thread.start();
+    				if (!delivery.isFromPrint()) {
+    					RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, "preview");
+    					thread.start();
+    				} else {
+    					// The print flow needs this temporary publish to survive until the PDF has been
+    					// built, so hand the id over for PDFAssessmentBean to remove afterwards.
+    					delivery.setPrintPreviewPublishedId(publishedId);
+    				}
     			} 
     			catch (Exception e) {
     				log.error(e.getMessage(), e);

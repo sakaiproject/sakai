@@ -58,7 +58,6 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.SiteService;
@@ -68,6 +67,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.cache.CacheManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -215,7 +215,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	@Setter protected UserDirectoryService userDirectoryService;
 	@Setter protected List<AuthzGroupAdvisor> authzGroupAdvisors;
 	@Setter protected SiteService siteService;
-	@Setter protected MemoryService memoryService;
+	@Setter protected CacheManager cacheManager;
 	@Setter protected SchedulingService schedulingService;
 	@Setter protected SqlService sqlService;
 	@Setter protected TimeService timeService;

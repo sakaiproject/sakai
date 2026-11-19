@@ -21,17 +21,23 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +48,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.indices.PutMappingRequest;
+import org.opensearch.common.xcontent.XContentType;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
@@ -54,6 +63,7 @@ import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchConstants;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -426,6 +436,40 @@ public class ElasticSearchTest {
     }
 
     @Test
+    public void searchTermsTolerateStraySpacesAndColons() throws InvalidSearchQueryException {
+        elasticSearchIndexBuilder.addResource(notification, event);
+        addResources();
+        elasticSearchIndexBuilder.refreshIndex();
+
+        for (String terms : List.of(" asdf organ", "asdf  organ", "asdf organ ", "asdf\torgan", "asdf: organ", "asdf:", ":asdf", "keyboard:")) {
+            assertEquals("search for [" + terms + "]", resourceName, firstReference(terms));
+        }
+
+        // every term still has to match, so a tab can't widen the search to any of the words
+        assertEquals(0, elasticSearchService.search("asdf\tzzznosuchword", null, null, 0, 10).size());
+
+        for (String terms : List.of("", " ", "   ", ":")) {
+            assertEquals("search for [" + terms + "]", 0, elasticSearchService.search(terms, null, null, 0, 10).size());
+        }
+    }
+
+    @Test
+    public void searchTermsCanStillTargetAField() throws InvalidSearchQueryException {
+        elasticSearchIndexBuilder.addResource(notification, event);
+        addResources();
+        elasticSearchIndexBuilder.refreshIndex();
+
+        assertEquals(resourceName, firstReference("asdf siteid:" + siteId));
+        assertEquals(0, elasticSearchService.search("asdf siteid:nosuchsite", null, null, 0, 10).size());
+    }
+
+    private String firstReference(String terms) throws InvalidSearchQueryException {
+        SearchList list = elasticSearchService.search(terms, null, null, 0, 10);
+        assertNotEquals("no results for [" + terms + "]", 0, list.size());
+        return list.get(0).getReference();
+    }
+
+    @Test
     public void testSearch() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
@@ -448,6 +492,52 @@ public class ElasticSearchTest {
             log.error(e.getMessage(), e);
             fail();
         }
+    }
+
+    @Test
+    public void searchWithResultsQueriesTheIndexOnce() throws InvalidSearchQueryException {
+        elasticSearchIndexBuilder.addResource(notification, event);
+        elasticSearchIndexBuilder.refreshIndex();
+
+        SearchList list = elasticSearchService.search("asdf", siteIds, null, 0, 10);
+
+        assertEquals(1, list.size());
+        assertEquals(resourceName, list.get(0).getReference());
+        assertEquals(1, list.getFullSize());
+        verify(eventTrackingService, times(1)).newEvent(eq(SearchService.EVENT_SEARCH), anyString(), eq(true), anyInt());
+    }
+
+    /** A deployment's own mapping can give the facet field terms, which the default mapping never has. */
+    @Test
+    public void facetsLeaveOutOtherSitesAndPagesPastTheEndStayEmpty() throws Exception {
+        elasticSearchIndexBuilder.client.indices().putMapping(
+                new PutMappingRequest(elasticSearchIndexBuilder.indexName).source(
+                        "{\"properties\":{\"contents\":{\"type\":\"text\",\"analyzer\":\"snowball\",\"fields\":{"
+                                + "\"lowercase\":{\"type\":\"text\",\"analyzer\":\"standard\",\"fielddata\":true}}}}}",
+                        XContentType.JSON),
+                RequestOptions.DEFAULT);
+        elasticSearchIndexBuilder.setUseSiteFilters(true);
+
+        String otherSiteResource = "other site resource";
+        Event otherSiteEvent = mock(Event.class);
+        when(otherSiteEvent.getResource()).thenReturn(otherSiteResource);
+        when(entityContentProducer.matches(otherSiteEvent)).thenReturn(true);
+        when(entityContentProducer.getAction(otherSiteEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
+        when(entityContentProducer.getSiteId(otherSiteResource)).thenReturn("other-site");
+        when(entityContentProducer.getContent(otherSiteResource)).thenReturn("asdf aaaothersiteword");
+        when(entityContentProducer.getId(otherSiteResource)).thenReturn(otherSiteResource);
+        elasticSearchIndexBuilder.addResource(notification, event);
+        elasticSearchIndexBuilder.addResource(notification, otherSiteEvent);
+        elasticSearchIndexBuilder.refreshIndex();
+
+        SearchList list = elasticSearchService.search("asdf", siteIds, null, 0, 10);
+
+        assertEquals(1, list.size());
+        List<String> terms = Arrays.asList(list.get(0).getTerms().getTerms());
+        assertFalse("no terms to check", terms.isEmpty());
+        assertFalse("terms: " + terms, terms.contains("aaaothersiteword"));
+
+        assertEquals(0, elasticSearchService.search("asdf", siteIds, null, 5, 10).size());
     }
 
     @Test
@@ -497,6 +587,35 @@ public class ElasticSearchTest {
                 elasticSearchIndexBuilder.getPendingDocuments() == 0);
         assertTrue(elasticSearchService.getNDocs() == 106);
 
+    }
+
+    @Test
+    public void testGetResourceNamesOnlyReturnsSiteDocuments() {
+        // 25 more documents in the test site, on top of resourceName, alongside 105 in other sites
+        List<String> expected = new ArrayList<>();
+        expected.add(resourceName);
+        for (int i = 0; i < 25; i++) {
+            String name = "site doc " + i;
+            Event newEvent = mock(Event.class);
+            when(newEvent.getResource()).thenReturn(name);
+            when(entityContentProducer.matches(newEvent)).thenReturn(true);
+            when(entityContentProducer.getSiteId(name)).thenReturn(siteId);
+            when(entityContentProducer.getAction(newEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
+            when(entityContentProducer.getContent(name)).thenReturn(generateContent());
+            when(entityContentProducer.getType(name)).thenReturn("sakai:content");
+            when(entityContentProducer.getId(name)).thenReturn(name);
+            events.add(newEvent);
+            expected.add(name);
+        }
+
+        addResources();
+        elasticSearchIndexBuilder.refreshIndex();
+        assertEquals(131, elasticSearchService.getNDocs());
+
+        Collection<String> names = elasticSearchIndexBuilder.getResourceNames(siteId);
+
+        assertEquals(expected.size(), names.size());
+        assertEquals(new HashSet<>(expected), new HashSet<>(names));
     }
 
     @Test

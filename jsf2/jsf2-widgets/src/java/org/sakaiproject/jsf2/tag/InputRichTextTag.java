@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.jsf2.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.ValueHolder;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.webapp.UIComponentTag;
 
 import lombok.Data;
 
@@ -66,7 +68,7 @@ public class InputRichTextTag
   private String immediate;
   private String required;
   private String validator;
-  private String valueChangedListener;
+  private String valueChangeListener;
   private String accesskey;
   private String dir;
   private String style;
@@ -104,11 +106,17 @@ public class InputRichTextTag
     TagUtil.setString(component, "showXPath", showXPath);
     TagUtil.setString(component, "hideAble", hideAble);
     TagUtil.setString(component, "autoConfig", autoConfig); //????
-    TagUtil.setString(component, "converter", converter);
-    TagUtil.setString(component, "immediate", immediate);
-    TagUtil.setString(component, "required", required);
-    TagUtil.setString(component, "validator", validator);
-    TagUtil.setString(component, "valueChangedListener", valueChangedListener);
+    if (converter != null) {
+      if (isValueReference(converter)) {
+        TagUtil.setValueBinding(component, "converter", converter);
+      } else {
+        ((ValueHolder) component).setConverter(FacesContext.getCurrentInstance().getApplication().createConverter(converter));
+      }
+    }
+    TagUtil.setBoolean(component, "immediate", immediate);
+    TagUtil.setBoolean(component, "required", required);
+    TagUtil.setValidator(component, validator);
+    TagUtil.setValueChangeListener(component, valueChangeListener);
     TagUtil.setString(component, "accesskey", accesskey);
     TagUtil.setString(component, "dir", dir);
     TagUtil.setString(component, "style", style);
@@ -146,7 +154,7 @@ public class InputRichTextTag
     immediate = null;
     required = null;
     validator = null;
-    valueChangedListener = null;
+    valueChangeListener = null;
     accesskey = null;
     dir = null;
     style = null;

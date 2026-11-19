@@ -31,7 +31,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
   }
 
   hideComment() {
-    bootstrap.Dropdown.getOrCreateInstance(this.querySelector(".dropdown-menu"))?.hide();
+    bootstrap.Dropdown.getInstance(this.renderRoot.querySelector("[data-bs-toggle='dropdown']"))?.hide();
   }
 
   render() {
@@ -41,6 +41,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
         <button class="btn btn-icon"
             type="button"
             data-bs-toggle="dropdown"
+            ?disabled=${!this.criterion.comments?.trim()}
             data-bs-auto-close="false"
             aria-label="${this._i18n.criterion_comment_student}"
             aria-expanded="false">

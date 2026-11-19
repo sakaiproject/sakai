@@ -22,6 +22,7 @@ package org.sakaiproject.emailtemplateservice.impl.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import freemarker.template.TemplateException;
 import junit.framework.TestCase;
 
 import org.sakaiproject.emailtemplateservice.util.TextTemplateLogicUtils;
@@ -102,4 +103,21 @@ public class TestTextTemplateLogicUtils extends TestCase {
          assertNotNull(e.getMessage());
       }
    }
+   public void testRejectsTemplateClassInstantiation() {
+      for (String className : new String[] {
+            "freemarker.template.utility.Execute",
+            "freemarker.template.utility.ObjectConstructor",
+            "freemarker.template.utility.JythonRuntime",
+            "freemarker.template.SimpleScalar"}) {
+         String template = "<#assign instance=\"" + className + "\"?new()>";
+         try {
+            TextTemplateLogicUtils.processTextTemplate(template, Map.of("name", "Sakai"), "class-instantiation");
+            fail("Template must not instantiate " + className);
+         } catch (RuntimeException e) {
+            assertTrue(e.getCause() instanceof TemplateException);
+            assertTrue(e.getCause().getMessage(), e.getCause().getMessage().contains("not allowed"));
+         }
+      }
+   }
+
 }

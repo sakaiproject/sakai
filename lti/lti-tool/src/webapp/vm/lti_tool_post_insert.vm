@@ -56,6 +56,10 @@ $configUrl
 
 
 <p>
+#if ($openDeploy)
+<a class="btn btn-primary" accesskey="x" href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolId&openDeploy=true">$tlang.getString('gen.done')</a>
+#else
 <a class="btn btn-primary" accesskey="x" href="$sakai_ActionURL.setPanel("ToolSystem")">$tlang.getString('gen.done')</a>
+#end
 </p>
 </div>

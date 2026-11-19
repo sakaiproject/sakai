@@ -11,7 +11,7 @@ export class SakaiForums extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this.loadTranslations("forums");
+    this.loadTranslations({ bundle: "forums", requiredKeys: [ "no_discussions" ] });
   }
 
   async loadAllData() {
@@ -105,6 +105,10 @@ export class SakaiForums extends SakaiPageableElement {
   }
 
   content() {
+
+    if (!this.dataPage?.length) {
+      return html`<div class="sak-banner-info">${this._i18n.no_discussions}</div>`;
+    }
 
     return html`
 

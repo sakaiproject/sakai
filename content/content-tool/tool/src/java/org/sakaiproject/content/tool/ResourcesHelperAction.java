@@ -34,18 +34,16 @@ import java.nio.charset.StandardCharsets;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletRequestContext;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -98,6 +96,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -323,46 +324,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
 		{
-			String attributes = "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of state.attributes:\n";
-			List<String> attrNames = state.getAttributeNames();
-			for(String attrName : attrNames)
-			{
-				Object val = state.getAttribute(attrName);
-				if(val instanceof Collection)
-				{
-					int i = 0;
-					for(Object obj : (Collection) val)
-					{
-						attributes += "\t" + attrName + "[" + i + "] ==> " + obj + "\n";
-						i++;
-					}
-				}
-				else
-				{
-					attributes += "\t" + attrName + " ==> " + val + "\n";
-				}
-			}
-			attributes += "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of toolSession.attributes:\n";
-			Enumeration toolNames = toolSession.getAttributeNames();
-			while(toolNames.hasMoreElements())
-			{
-				String name = (String) toolNames.nextElement();
-				Object val = toolSession.getAttribute(name);
-				if(val instanceof Collection)
-				{
-					int i = 0;
-					for(Object obj : (Collection) val)
-					{
-						attributes += "\t" + name + "[" + i + "] ==> " + obj + "\n";
-						i++;
-					}
-				}
-				else
-				{
-					attributes += "\t" + name + " ==> " + val + "\n";
-				}
-			}
-			log.debug(attributes, new Throwable());
+			log.debug("Resource tool action pipe is missing");
             return ERROR_PAGE_TEMPLATE;
 		}
 		if(pipe.isActionCompleted())
@@ -485,7 +447,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
-		ResourceConditionsHelper.buildConditionContext(context, state);
 
 		context.put("invalidURLsError", contentResourceBundle.getString(MSG_KEY_CREATE_URLS_INVALID_URLS));
 		context.put("urlRequiredError", contentResourceBundle.getString(MSG_KEY_CREATE_URLS_REQUIRED_FIELD_URL));
@@ -552,7 +513,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}	
 
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
-		ResourceConditionsHelper.buildConditionContext(context, state);
 
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
@@ -778,7 +738,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 		
-		ResourceConditionsHelper.buildConditionContext(context, state);
 	
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
@@ -1067,14 +1026,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 			// capture properties
 			newFolder.captureProperties(params, ListItem.DOT + i);
-			if (newFolder.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (newFolder.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", newFolder.getConditionAssignmentPoints()));
-				return;
-			}
 			if(!"".equals(newFolder.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", newFolder.metadataValidationFails));
 				return;
@@ -1087,7 +1038,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 			fp.setRevisedListItem(newFolder);
 			
-			ResourceConditionsHelper.saveCondition(newFolder, params, state, i);
 			
 			actualCount++;
 		}
@@ -1341,14 +1291,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
-			if (newFile.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (newFile.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
-				return;
-			}
 			if(!"".equals(newFile.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", newFile.metadataValidationFails));
 				return;
@@ -1369,19 +1311,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
-			if (newFile.numberFieldIsInvalid) {
-				addAlert(state, contentResourceBundle.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (newFile.numberFieldIsOutOfRange) {
-			    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
-				return;
-			}
 			if(!"".equals(newFile.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", newFile.metadataValidationFails));
 				return;
 			}
-			ResourceConditionsHelper.saveCondition(newFile, params, state, i);
 				
 			actualCount++;
 			
@@ -1630,14 +1563,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				
 				// capture properties
 				newFile.captureProperties(params, ListItem.DOT + i);
-				if (newFile.numberFieldIsInvalid) {
-					addAlert(state, contentResourceBundle.getString("conditions.invalid.condition.argument"));
-					return;
-				}
-				if (newFile.numberFieldIsOutOfRange) {
-				    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
-					return;
-				}
 				if(!"".equals(newFile.metadataValidationFails)) {
 					addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", newFile.metadataValidationFails));
 					return;
@@ -1657,7 +1582,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 
-				ResourceConditionsHelper.saveCondition(newFile, params, state, i);
 				
 				uploadCount++;
 				
@@ -2033,8 +1957,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			//Now upload the received file
 			//Test that file has been sent in request 
-			org.apache.commons.fileupload.FileItem uploadFile = (org.apache.commons.fileupload.FileItem) request.getAttribute("file");
-			
+			org.apache.commons.fileupload2.core.FileItem uploadFile = (org.apache.commons.fileupload2.core.FileItem) request.getAttribute("file");
+
 			if(uploadFile != null)
 			{
 				String contentType = uploadFile.getContentType();

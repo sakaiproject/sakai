@@ -24,10 +24,10 @@ package org.sakaiproject.tool.syllabus;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.jsf2.util.JsfTool;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -211,8 +211,8 @@ public class SyllabusFilePickerServlet extends JsfTool
 /*comment out for using the global parameter rather than tool-by-tool setting
     SessionState state = UsageSessionService.getSessionState(toolSession.getPlacementId());
 		boolean show_other_sites = ServerConfigurationService.getBoolean("syllabus.resources.show_all_collections.helper", true);
-		state.setAttribute("resources.allow_user_to_see_all_sites", (new Boolean(show_other_sites)).toString());
-		state.setAttribute("resources.user_chooses_to_see_other_sites", (new Boolean(show_other_sites)).toString());
+		state.setAttribute("resources.allow_user_to_see_all_sites", (Boolean.valueOf(show_other_sites)).toString());
+		state.setAttribute("resources.user_chooses_to_see_other_sites", (Boolean.valueOf(show_other_sites)).toString());
 */
     String context = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2);
     String toolPath = Web.makePath(parts, 2, parts.length);

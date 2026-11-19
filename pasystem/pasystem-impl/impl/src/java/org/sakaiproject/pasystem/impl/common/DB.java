@@ -52,8 +52,7 @@ public class DB {
      * Run some database queries within a transaction with a helpful message if something goes wrong.
      */
     public static <E> E transaction(String actionDescription, DBAction<E> action) throws RuntimeException {
-        try {
-            Connection db = SqlService.borrowConnection();
+        try (Connection db = SqlService.borrowConnection()) {
             DBConnection dbc = new DBConnection(db);
             boolean autocommit = db.getAutoCommit();
 
@@ -71,7 +70,6 @@ public class DB {
                 if (autocommit) {
                     db.setAutoCommit(true);
                 }
-                SqlService.returnConnection(db);
             }
 
         } catch (SQLException e) {

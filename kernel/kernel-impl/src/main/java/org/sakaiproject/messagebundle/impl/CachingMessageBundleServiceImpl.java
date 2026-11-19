@@ -21,10 +21,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
+
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,16 +48,15 @@ public class CachingMessageBundleServiceImpl implements MessageBundleService {
     private static String CACHE_NAME = "org.sakaiproject.messagebundle.cache.bundles";
 
     @Setter private MessageBundleService dbMessageBundleService;
-    @Setter private MemoryService memoryService;
+    @Setter private CacheManager cacheManager;
 
-    private Cache<String, Map<String, String>> cache;
+    private Cache cache;
 
     public void init() {
-        cache = memoryService.getCache(CACHE_NAME);
+        cache = cacheManager.getCache(CACHE_NAME);
     }
 
     public void destroy() {
-        cache.close();
         cache = null;
     }
 
@@ -65,7 +65,7 @@ public class CachingMessageBundleServiceImpl implements MessageBundleService {
         String key = MessageBundleServiceImpl.getIndexKeyName(baseName, moduleName, locale != null ? locale.toString(): null);
         log.debug("Retrieve bundle from cache with key = {}", key);
 
-        Map<String, String> bundle = cache.get(key);
+        Map<String, String> bundle = cache.get(key, Map.class);
         if (bundle == null) {
             // bundle not in cache or expired, never returns null
             bundle = dbMessageBundleService.getBundle(baseName, moduleName, locale);
@@ -95,7 +95,7 @@ public class CachingMessageBundleServiceImpl implements MessageBundleService {
     public void updateMessageBundleProperty(MessageBundleProperty mbp) {
         String key = MessageBundleServiceImpl.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
         dbMessageBundleService.updateMessageBundleProperty(mbp);
-        cache.remove(key);
+        cache.evict(key);
     }
 
     @Override
@@ -149,14 +149,14 @@ public class CachingMessageBundleServiceImpl implements MessageBundleService {
     public void deleteMessageBundleProperty(MessageBundleProperty mbp) {
         String key = MessageBundleServiceImpl.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
         dbMessageBundleService.deleteMessageBundleProperty(mbp);
-        cache.remove(key);
+        cache.evict(key);
     }
 
     @Override
     public void revert(MessageBundleProperty mbp) {
         String key = MessageBundleServiceImpl.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
         dbMessageBundleService.revert(mbp);
-        cache.remove(key);
+        cache.evict(key);
     }
 
     @Override

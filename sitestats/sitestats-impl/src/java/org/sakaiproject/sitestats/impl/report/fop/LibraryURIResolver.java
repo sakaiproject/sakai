@@ -18,6 +18,10 @@
  */
 package org.sakaiproject.sitestats.impl.report.fop;
 
+import org.xml.sax.InputSource;
+
+import org.sakaiproject.util.Xml;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,7 +29,6 @@ import java.io.FileNotFoundException;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamSource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,10 +64,12 @@ public class LibraryURIResolver implements URIResolver {
 				fullResource = sitestatsRoot + resource;
 			}
 			FileInputStream fis = null;
-			StreamSource ss = null;
+			Source ss = null;
 			try{
 				fis = new FileInputStream(fullResource);
-				ss = new StreamSource(fis, resource);
+				InputSource input = new InputSource(fis);
+				input.setSystemId(resource);
+				ss = Xml.createSecureSource(input);
 				return ss;
 			}catch(FileNotFoundException e){
 				throw new TransformerException(e);

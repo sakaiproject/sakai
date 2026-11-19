@@ -70,11 +70,14 @@ describe("sakai-reorderer tests", () => {
     el.addEventListener("reordered", event => events.push(event.detail));
     handle.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
     item.dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true }));
-    el.querySelector("div").dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, clientY: 1000 }));
 
+    const container = el.querySelector("div");
+    container.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, clientY: 1000 }));
+    expect(Array.from(container.children).map(child => child.dataset.reorderableId)).to.deep.equal([ "item-2", "item-1" ]);
+
+    item.dispatchEvent(new DragEvent("dragend", { bubbles: true, cancelable: true }));
     expect(events).to.have.length(1);
     expect(events[0].reorderedIds).to.deep.equal([ "item-2", "item-1" ]);
     expect(events[0].previousReorderedIds).to.deep.equal([ "item-1", "item-2" ]);
-    expect(Array.from(el.querySelector("div").children).map(item => item.dataset.reorderableId)).to.deep.equal([ "item-2", "item-1" ]);
   });
 });

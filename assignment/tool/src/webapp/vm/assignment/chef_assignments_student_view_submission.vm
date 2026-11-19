@@ -111,7 +111,7 @@ $(document).ready(function(){
 				#if ($!assignment.isGroup) <p class="sak-banner-warn">$tlang.getString("exampleassign3")</p> #end
 			#else
 			<h3>
-				$formattedText.escapeHtml($assignment.Title)
+				$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))
 				<span class="highlight">
 					 - $!service.getSubmissionStatus($submission.Id, true)
 				</span>
@@ -194,7 +194,7 @@ $(document).ready(function(){
 				</div>
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
-						$formattedText.escapeHtml($assignment.Title)
+						$formattedText.escapeHtml($formattedText.unEscapeHtml($assignment.Title))
 						#assignmentIcons($assignment)
 						#set ($deleted = false)
 						#set ($deleted = $assignment.Deleted)
@@ -399,7 +399,7 @@ $(document).ready(function(){
 		<h4>
 			$tlang.getString("gen.instr")
 		</h4>
-		
+
 		#if (!$!assignment.Instructions.isEmpty())
 			<div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
 		#end
@@ -428,9 +428,7 @@ $(document).ready(function(){
 		></sakai-rubric-student>
 		#end
 
-		#if ($taggable)
-        	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
-		#end
+
 		<hr class="itemSeparator" />
 		#if ($returned)
 			<h3>$tlang.getString("gen.resubmission")</h3> 
@@ -491,7 +489,7 @@ $(document).ready(function(){
 		<input type="hidden" name="option" id="option" value="cancel" />
 		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignmentReference" />
-		
+
 		#if ($!rubricSelfReport)
 		<p class="instruction">
 			#if ($studentSelfReportMode == 0)
@@ -522,7 +520,7 @@ $(document).ready(function(){
 			## if a draft submission or the submission has been returned and has not yet submitted
 			## 1- text only; 2-attachment only; 3-text and attachment
 			#set ( $submissionType = $assignment.TypeOfSubmission.ordinal())
-			
+
 #if ($!assignment.IsGroup)
 <h4>$tlang.getString("group.select.represent")</h4>
 		#if ($!groups)
@@ -546,7 +544,7 @@ $(document).ready(function(){
 										#set($selected = true)
 									#end
 								#end
-								
+
 								<input type="radio" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
 							</td>
 							<td headers="name" class="checkbox" style="white-space:nowrap">
@@ -559,7 +557,7 @@ $(document).ready(function(){
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
 									$formattedText.escapeHtml($user.getDisplayName())#if ($showUserId) ($formattedText.escapeHtml($user.getDisplayId())) #end
-									#if ($velocityCount < $gusers.size()),#end
+									#if ($foreach.count < $gusers.size()),#end
 								#end
 							</span>	
 
@@ -644,7 +642,7 @@ $(document).ready(function(){
 							#set($entityval = "$assignment.Id")
                         				<input type="hidden" id="$contextkey" name="$contextkey" value="asn_student_view">
                         				<input type="hidden" id="$entitykey" name="$entitykey" value="$entityval">
-							<table border="0">
+							<table border="0" class="w-100">
 								<tr>
 									<td>
 										<textarea cols="80" rows="30" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$formattedText.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>						
@@ -865,7 +863,7 @@ $(document).ready(function(){
 											<td></td>
 										</tr>
 									</table>	
-									
+
 								#end
 							#end
 						</div>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.calendar</groupId>
         <artifactId>calendar</artifactId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -72,8 +72,8 @@
             <artifactId>jsf2-widgets-sun-depend</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.myfaces.tomahawk</groupId>
-                    <artifactId>tomahawk21</artifactId>
+                    <groupId>org.sakaiproject.tomahawk</groupId>
+                    <artifactId>tomahawk</artifactId>
                 </exclusion>
             </exclusions>
             <type>pom</type>
@@ -81,10 +81,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld.servlet</groupId>
@@ -99,6 +95,11 @@
         <dependency>
             <groupId>org.sakaiproject.portal</groupId>
             <artifactId>sakai-portal-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

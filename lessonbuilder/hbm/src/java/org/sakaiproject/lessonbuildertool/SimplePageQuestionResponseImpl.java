@@ -44,7 +44,7 @@ public class SimplePageQuestionResponseImpl implements SimplePageQuestionRespons
 	public SimplePageQuestionResponseImpl() {}
 
 	public SimplePageQuestionResponseImpl(String userId, long questionId) {
-		timeAnswered = new Date();
+		// Hibernate initializes the version timestamp when the response is persisted.
 		this.userId = userId;
 		this.questionId = questionId;
 		this.overridden = false;

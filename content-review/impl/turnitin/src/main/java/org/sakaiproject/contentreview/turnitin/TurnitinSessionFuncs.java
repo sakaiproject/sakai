@@ -63,7 +63,7 @@ public class TurnitinSessionFuncs {
 		Document doc = conn.callTurnitinReturnDocument(finalParams);
 
 		Element root = doc.getDocumentElement();
-		int rcode = new Integer(((CharacterData) 
+		int rcode = Integer.valueOf(((CharacterData) 
 				(root.getElementsByTagName("rcode").item(0).getFirstChild())).getData().trim()).intValue();
 		String message = ((CharacterData) 
 				(root.getElementsByTagName("rmessage").item(0).getFirstChild())).getData().trim();

@@ -35,12 +35,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -609,6 +609,8 @@ public class SyllabusTool
     					}
     					//update the calendar data for this item since the attachments have chnaged:
     					if(added){
+    						// let search reindex the item with its new attachments, without emailing the site
+    						syllabusService.draftChangeSyllabus(entry.getEntry(), siteId);
     						 //update calendar attachments
     				          if(entry.getEntry().getCalendarEventIdStartDate() != null
     				        		  && !"".equals(entry.getEntry().getCalendarEventIdStartDate())){
@@ -1588,13 +1590,13 @@ public class SyllabusTool
           getEntry().getEntry().setStatus(SyllabusData.ITEM_POSTED);
           SyllabusData saved = syllabusManager.saveSyllabus(getEntry().getEntry());
 
-          syllabusService.postChangeSyllabus(saved);
-          
           for(int i=0; i<attachments.size(); i++)
           {
             syllabusManager.addSyllabusAttachToSyllabusData(saved,
                 (SyllabusAttachment)attachments.get(i));            
           }
+          // after the attachments, so search and the notification see the whole item
+          syllabusService.postChangeSyllabus(saved);
           //update calendar attachments
           if(saved.getCalendarEventIdStartDate() != null){
         	  syllabusManager.addCalendarAttachments(saved.getSyllabusItem().getContextId(), saved.getCalendarEventIdStartDate(), attachments);
@@ -2234,6 +2236,8 @@ public class SyllabusTool
         }
 
         if(id.toLowerCase().startsWith("/attachment")) contentHostingService.removeResource(id);
+        // the attachment is gone even if the edit is cancelled, so let search drop its text now
+        syllabusService.draftChangeSyllabus(entry.getEntry());
       }
       catch(Exception e)
       {
@@ -2294,7 +2298,7 @@ public class SyllabusTool
         
         attachments.add(thisAttach);
         
-        if(entry.justCreated != true)
+        if(entry != null && entry.justCreated != true)
         {
           allAttachments.add(thisAttach);
         }

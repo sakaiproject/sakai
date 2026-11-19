@@ -35,13 +35,13 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.Set;
 
-import javax.faces.application.Application;
-import javax.faces.component.UIColumn;
-import javax.faces.component.html.HtmlDataTable;
-import javax.faces.component.html.HtmlOutputText;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.model.SelectItem;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.UIColumn;
+import jakarta.faces.component.html.HtmlDataTable;
+import jakarta.faces.component.html.HtmlOutputText;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
@@ -89,14 +89,14 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		// Get the section categories
 		categories = getSectionManager().getSectionCategories(getSiteContext());
 
-		// Get the default search text
+		// no search is an empty search; the page shows its prompt as a placeholder
 		if(StringUtils.trimToNull(searchText) == null) {
-			searchText = JsfUtil.getLocalizedMessage("roster_search_text");
+			searchText = "";
 		}
 
 		// Get the site enrollments
 		//List<EnrollmentRecord> siteStudents;
-		if(searchText.equals(JsfUtil.getLocalizedMessage("roster_search_text"))) {
+		if(searchText.isEmpty()) {
 			siteStudents = getSectionManager().getSiteEnrollments(getSiteContext());
 		} else {
 			siteStudents = getSectionManager().findSiteEnrollments(getSiteContext(), searchText);
@@ -327,7 +327,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 	public void setSearchText(String searchText) {
         if (StringUtils.trimToNull(searchText) == null) {
-        	searchText = JsfUtil.getLocalizedMessage("roster_search_text");
+        	searchText = "";
         }
     	if (!StringUtils.equals(searchText, this.searchText)) {
 	    	if (log.isDebugEnabled()) log.debug("setSearchString " + searchText);

@@ -25,6 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Enumeration;
@@ -40,6 +42,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.util.Zip;
 
 @Slf4j
 public class SiteZipper {
@@ -61,36 +64,36 @@ public class SiteZipper {
 		
 		log.debug("zipFilePath: " + zipFilePath);
 
-		ZipFile zipFile = new ZipFile(zipFilePath);
-		// Default path from the filename.
-		String unzippedArchivePath = null;
-		Enumeration<? extends ZipEntry> entries = zipFile.entries();
-		while (entries.hasMoreElements()) {
-			ZipEntry entry = entries.nextElement();
+        Path root = Path.of(m_unzipPath);
+        Files.createDirectories(root);
+        String unzippedArchivePath = null;
+        try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                Zip.resolveEntryPath(root, entries.nextElement().getName());
+            }
+            entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String entryName = Zip.validateEntryName(entry.getName());
+                Path destination = Zip.resolveEntryPath(root, entryName);
+                if (entry.isDirectory()) {
+                    Files.createDirectories(destination);
+                    if (unzippedArchivePath == null) {
+                        unzippedArchivePath = entryName;
+                    }
+                } else if (unzippedArchivePath != null && entryName.startsWith(unzippedArchivePath)) {
+                    Files.createDirectories(destination.getParent());
+                    try (InputStream in = zipFile.getInputStream(entry);
+                         OutputStream out = Files.newOutputStream(destination)) {
+                        IOUtils.copy(in, out);
+                    }
+                } else {
+                    log.info("Ignoring entry: {}", entryName);
+                }
+            }
+        }
 
-			//destination file from zip. Straight into the normal archive directory
-			File dest = new File(m_unzipPath, entry.getName());
-			log.debug("Dest: " + dest.getAbsolutePath());
-
-			if(entry.isDirectory()) {
-				//create dir
-				if(!dest.mkdirs()) {
-					throw new IOException("Failed to create directory "+ dest);
-				}
-				if (unzippedArchivePath == null) {
-					unzippedArchivePath = entry.getName();
-				}
-
-			} else if (unzippedArchivePath != null && entry.getName().startsWith(unzippedArchivePath)){
-				//extract contents
-				try (InputStream in = zipFile.getInputStream(entry); OutputStream out = new FileOutputStream(dest)) {
-					IOUtils.copy(in, out);
-				}
-			} else {
-				log.info("Ignoring entry: {}", entry.getName());
-			}
-		}
-		
 		//get original filename, remove timestamp, add -archive
 
 		log.debug("unzippedArchivePath: " + unzippedArchivePath);

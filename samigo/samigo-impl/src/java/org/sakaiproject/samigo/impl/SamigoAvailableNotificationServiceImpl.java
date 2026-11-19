@@ -41,8 +41,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
@@ -57,6 +57,9 @@ import java.util.*;
 
 @Slf4j
 public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNotificationService {
+
+  @Setter
+  private ExtendedTimeFacade extendedTimeFacade;
 
     @Setter private EmailService emailService;
     @Setter private EmailTemplateService emailTemplateService;
@@ -93,7 +96,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
     public void scheduleAssessmentAvailableNotification(String publishedId) {
         PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedId);
         try {
-            List<ExtendedTime> extensionContainer = PersistenceService.getInstance().getExtendedTimeFacade().getEntriesForPub(publishedAssessment.getData());
+            List<ExtendedTime> extensionContainer = extendedTimeFacade.getEntriesForPub(publishedAssessment.getData());
             Date startDate = publishedAssessment.getStartDate();
             // Only schedule a new notification if start date is in the future to prevent duplicates and spam
             if (Instant.now().isBefore(startDate.toInstant())) {    //for main
@@ -116,7 +119,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);  //remove main reminder
         PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedId);
         if (publishedAssessment != null){
-            List<ExtendedTime> extensionContainer = PersistenceService.getInstance().getExtendedTimeFacade().getEntriesForPub(publishedAssessment.getData());
+            List<ExtendedTime> extensionContainer = extendedTimeFacade.getEntriesForPub(publishedAssessment.getData());
             for (ExtendedTime extension: extensionContainer){  //remove all the assessment's extension reminders.
                 scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId + ',' + extension.getId().toString());
             }
@@ -147,7 +150,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
                 log.debug("Release to: {}", publishedAssessment.getAssessmentAccessControl().getReleaseTo());
                 log.debug("Execution has reached the inside of the main published/not deleted/not dead/Samigo-exists block.");
                 if (StringUtils.isNotBlank(extensionId)) { //first, we need to deal with the possibility that this could be an Exception email.
-                    ExtendedTime extension = PersistenceService.getInstance().getExtendedTimeFacade().getEntry(extensionId);
+                    ExtendedTime extension = extendedTimeFacade.getEntry(extensionId);
                     if(extension != null){  //make sure the extension exists
                         if (StringUtils.isNotBlank(extension.getUser())){ //when the extension has an individual user
                             User user = userDirectoryService.getUser(extension.getUser());
@@ -315,7 +318,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
 
     private boolean isUserInException(PublishedAssessmentFacade publishedAssessment, String userId, Site site){
         log.debug("Execution has arrived at isUserInException.");
-        for (ExtendedTime extension: PersistenceService.getInstance().getExtendedTimeFacade().getEntriesForPub(publishedAssessment.getData())){
+        for (ExtendedTime extension: extendedTimeFacade.getEntriesForPub(publishedAssessment.getData())){
             if(StringUtils.equals(extension.getUser(), userId)){    //check extension's single-user field
                 return true;
             }

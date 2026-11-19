@@ -21,6 +21,8 @@
 
 package org.sakaiproject.importer.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,7 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -70,10 +71,7 @@ public abstract class IMSFileParser extends ZipFileParser {
 	    InputStream fis = null;
         try {
             fis = new FileInputStream(absolutepathToManifest);
-            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
             DocumentBuilder docBuilder = builderFactory.newDocumentBuilder();
             this.archiveManifest = (Document) docBuilder.parse(fis);
         } catch (FileNotFoundException e) {
@@ -315,17 +313,19 @@ public abstract class IMSFileParser extends ZipFileParser {
 		
 		//This should be avoided
 		public byte[] getFileBytesForNode(Node node, String contextPath) throws IOException {
-			String filePath = getFilePathForNode(node, contextPath);
-			return getBytesFromFile(new File(pathToData + "/" + filePath));
+			return getBytesFromFile(getSourceFileForNode(node));
 		}
 		
 		
 		public InputStream getInputStreamForNode(Node node, String contextPath) throws IOException{
-			String filePath = getFilePathForNode(node,contextPath);
-			InputStream is = new FileInputStream(filePath);
+			InputStream is = new FileInputStream(getSourceFileForNode(node));
 			return is;
 		}
 		
+        protected File getSourceFileForNode(Node node) throws IOException {
+            return resolvePackageFile(XPathHelper.getNodeValue("./@href", node));
+        }
+
 		public String getFilePathForNode(Node node, String contextPath) {
 			return contextPath + "/" + getFilenameForNode(node);
 		}

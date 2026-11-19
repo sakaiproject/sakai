@@ -23,9 +23,7 @@ import org.sakaiproject.sitestats.api.event.detailed.forums.ForumData;
 import org.sakaiproject.sitestats.api.event.detailed.forums.MessageData;
 import org.sakaiproject.sitestats.api.event.detailed.forums.MsgForumsData;
 import org.sakaiproject.sitestats.api.event.detailed.forums.TopicData;
-import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -37,10 +35,11 @@ public class ForumsResolvedRefTransformer
 	/**
 	 * Transforms MsgForumsData for presentation to the user
 	 * @param resolved the data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(MsgForumsData resolved, ResourceLoader rl)
+	public static List<EventDetail> transform(MsgForumsData resolved, LocalizedMessages rl,
+			UserTimeService userTimeService)
 	{
 		if (resolved instanceof ForumData)
 		{
@@ -83,10 +82,9 @@ public class ForumsResolvedRefTransformer
 				return list;
 			}
 
-			UserTimeService timeServ = Locator.getFacade().getUserTimeService();
-			msg.conversation.ifPresent(c -> ForumsResolvedRefTransformer.addMsgDetails(list, rl.getString("de_msgforums_conversation"), c, timeServ, rl));
+			msg.conversation.ifPresent(c -> ForumsResolvedRefTransformer.addMsgDetails(list, rl.getString("de_msgforums_conversation"), c, userTimeService, rl));
 			String key = msg.repliedTo ? rl.getString("de_msgforums_message_responded") : rl.getString("de_msgforums_message");
-			ForumsResolvedRefTransformer.addMsgDetails(list, key, msg, timeServ, rl);
+			ForumsResolvedRefTransformer.addMsgDetails(list, key, msg, userTimeService, rl);
 
 			return list;
 		}
@@ -94,13 +92,14 @@ public class ForumsResolvedRefTransformer
 		return Collections.emptyList();
 	}
 
-	private static void addMsgDetails(List<EventDetail> list, String key, MessageData msg, UserTimeService timeServ, ResourceLoader rl)
+	private static void addMsgDetails(List<EventDetail> list, String key, MessageData msg,
+			UserTimeService timeServ, LocalizedMessages rl)
 	{
 		String date = timeServ.shortLocalizedTimestamp(msg.creationDate, timeServ.getLocalTimeZone(), rl.getLocale());
 		list.add(EventDetail.newText(key, rl.getFormattedMessage("de_msgforums_message_template", msg.title, msg.author, date)));
 	}
 
-	private static EventDetail topicToRef(TopicData topic, ResourceLoader rl)
+	private static EventDetail topicToRef(TopicData topic, LocalizedMessages rl)
 	{
 		if (topic.deleted)
 		{

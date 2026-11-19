@@ -15,17 +15,17 @@
  */
 package org.sakaiproject.conversations.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.EnumType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Lob;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -41,8 +41,7 @@ public class Settings implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "conv_settings_id_sequence")
-    @SequenceGenerator(name = "conv_settings_id_sequence", sequenceName = "CONV_SETTINGS_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "conv_settings_id_sequence", sequenceName = "CONV_SETTINGS_S"))
     private Long id;
 
     @Column(name = "SITE_ID", length = 99, nullable = false)
@@ -70,7 +69,7 @@ public class Settings implements PersistableEntity<Long> {
     private Boolean requireGuidelinesAgreement = Boolean.FALSE;
 
     @Lob
-    @Column(name = "GUIDELINES")
+    @Column(name = "GUIDELINES", length = Length.LONG32)
     private String guidelines = "";
 
     @Column(name = "DEFAULT_TOPIC_TYPE", length = 32)

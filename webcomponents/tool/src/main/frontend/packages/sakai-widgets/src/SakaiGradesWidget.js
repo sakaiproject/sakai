@@ -5,11 +5,18 @@ import "@sakai-ui/sakai-grades/sakai-grades.js";
 
 export class SakaiGradesWidget extends SakaiDashboardWidget {
 
+  static properties = {
+    revealOnClick: { attribute: "reveal-on-click", type: Boolean },
+    savedFilters: { attribute: false, type: Object },
+  };
+
   constructor() {
 
     super();
 
     this.widgetId = "grades";
+    this.revealOnClick = true;
+    this.hasFilters = true;
   }
 
   content() {
@@ -19,7 +26,12 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
       <sakai-grades
         user-id="${ifDefined(this.userId ? this.userId : undefined)}"
         site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
-        secret
+        page-size="${this._pageSize()}"
+        ?secret=${this.revealOnClick !== false}
+        ?save-filters=${Boolean(this.userId) && !this.siteId}
+        ?filters-open=${this.filtersOpen}
+        .savedFilters=${this.savedFilters}
+        @filters-closed=${this._closeFilters}
       >
       </sakai-grades>
     `;

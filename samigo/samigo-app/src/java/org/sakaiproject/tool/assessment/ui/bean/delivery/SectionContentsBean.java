@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.faces.model.SelectItem;
+import jakarta.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
@@ -107,7 +107,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
   @Getter @Setter private SectionGradingData sectionGradingData;
   @Getter private String timeLimit;
-  @Getter private boolean timedSection;
+  private boolean timedSection;
 
   @Getter @Setter private Integer numberToBeFixed;
   @Getter @Setter private Long poolIdToBeFixed;
@@ -269,7 +269,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   {
     if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
     {
-      Integer authortype = new Integer(section.getSectionMetaDataByLabel(
+      Integer authortype = Integer.valueOf(section.getSectionMetaDataByLabel(
         SectionDataIfc.AUTHOR_TYPE));
       setSectionAuthorType(authortype);
 
@@ -291,7 +291,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     String qorderString = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING);
     if (StringUtils.isNotBlank(qorderString) && StringUtils.isNumeric(qorderString))
     {
-      Integer questionorder = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
+      Integer questionorder = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
       setQuestionOrdering(questionorder);
     }
     else
@@ -307,12 +307,12 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   public void setMetadataFixed(SectionDataIfc section) {
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) != null){
-		Integer numberfixed = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+		Integer numberfixed = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
 		setNumberToBeFixed(numberfixed);
 	}
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW) != null) {
-		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW));
+		Long poolid = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW));
 		setPoolIdToBeFixed(poolid);
 	}
 
@@ -345,12 +345,12 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   public void setMetadataRandowDraw(SectionDataIfc section) {
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) != null){
-		Integer numberdrawn = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+		Integer numberdrawn = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
 		setNumberToBeDrawn(numberdrawn);
 	}
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW) != null) {
-		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+		Long poolid = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
 		setPoolIdToBeDrawn(poolid);
 		retrievePoolOwnerName(poolid);
 		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) {
@@ -510,6 +510,11 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return getCancelledItemsCount() > 1;
   }
 
+  public boolean isTimedSection() {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    return timedSection && !delivery.isItemTimersDisabled();
+  }
+
   public String getTimeLimitString() {
     int seconds = Integer.parseInt(getTimeLimit());
     int hour = 0;
@@ -555,7 +560,9 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
    * @return 
    */
   public int getEnabled() {
-    if(!isTimedSection()) {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    // Preview has no grading attempt and cannot start a part timer.
+    if (delivery.getActionMode() == DeliveryBean.PREVIEW_ASSESSMENT || !isTimedSection()) {
         return 1;
     }
     
@@ -599,4 +606,3 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return delivery.samePage();
   }
 }
-

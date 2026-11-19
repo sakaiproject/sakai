@@ -15,8 +15,9 @@
  */
 package org.sakaiproject.conversations.api.beans;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.conversations.api.model.Metadata;
-import org.sakaiproject.conversations.api.model.Tag;
+import org.sakaiproject.conversations.api.beans.TagTransferBean;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.conversations.api.TopicType;
@@ -61,7 +62,7 @@ public class TopicTransferBean implements Entity {
     public boolean mustPostBeforeViewing;
     public boolean hasPosted;
     public boolean resolved;
-    public List<Tag> tags = new ArrayList<>();
+    public List<TagTransferBean> tags = new ArrayList<>();
     public Map<Reaction, Boolean> myReactions = new HashMap<>();
     public Map<Reaction, Integer> reactionTotals = new HashMap<>();
     public Set<String> groups = new HashSet<>();
@@ -156,7 +157,7 @@ public class TopicTransferBean implements Entity {
     public ConversationsTopic asTopic() {
 
         ConversationsTopic topic = new ConversationsTopic();
-        topic.setId(this.id);
+        topic.setId(StringUtils.trimToNull(this.id));
         topic.setSiteId(this.siteId);
         topic.setTitle(this.title);
         topic.setAboutReference(this.aboutReference);
@@ -170,7 +171,6 @@ public class TopicTransferBean implements Entity {
         metadata.setModified(this.modified);
         topic.setMetadata(metadata);
 
-        topic.setTagIds(this.tags.stream().map(t -> t.getId()).collect(Collectors.toSet()));
         topic.setGroups(this.groups);
         topic.setPinned(this.pinned);
         topic.setLocked(this.locked);

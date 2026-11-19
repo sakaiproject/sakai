@@ -17,13 +17,12 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
@@ -52,7 +51,7 @@ public class BulkEditItemsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
 	@Getter
     private List<Long> deletableItemsList = new ArrayList<Long>();
@@ -61,7 +60,7 @@ public class BulkEditItemsPanel extends BasePanel {
 		this.deletableItemsList.clear();
 	}
 
-	public BulkEditItemsPanel(final String id, final ModalWindow window) {
+	public BulkEditItemsPanel(final String id, final GbModalWindow window) {
 		super(id);
 		this.window = window;
 	}
@@ -168,15 +167,26 @@ public class BulkEditItemsPanel extends BasePanel {
 					BulkEditItemsPanel.this.businessService.updateAssignment(currentGradebookUid, currentSiteId, a);
 				}
 				List<Long> deletableItems = BulkEditItemsPanel.this.getDeletableItemsList();
-				int deleteCount = deletableItems.size();
-				for (int count=0; count < deleteCount; count++) {
-					BulkEditItemsPanel.this.businessService.removeAssignment(currentGradebookUid, currentSiteId, deletableItems.get(count));
+				List<String> deleted = new ArrayList<>();
+				List<String> blocked = new ArrayList<>();
+				for (Assignment assignment : assignments) {
+					if (deletableItems.contains(assignment.getId())) {
+						try {
+							BulkEditItemsPanel.this.businessService.removeAssignment(currentGradebookUid, currentSiteId, assignment.getId());
+							deleted.add(assignment.getName());
+						} catch (org.sakaiproject.grading.api.AssessmentInUseException e) {
+							blocked.add(assignment.getName());
+						}
+					}
 				}
 				getSession().success(getString("bulkedit.update.success"));
-				if (deleteCount > 0) {
-					String deletedList = assignments.stream().filter(a -> deletableItems.contains(a.getId())).map(Assignment::getName)
-						.collect(Collectors.joining(", "));
-					getSession().success(new StringResourceModel("bulkedit.delete.success").setParameters(deletedList).getString());
+				if (!deleted.isEmpty()) {
+					getSession().success(new StringResourceModel("bulkedit.delete.success")
+							.setParameters(String.join(", ", deleted)).getString());
+				}
+				if (!blocked.isEmpty()) {
+					getSession().error(new StringResourceModel("bulkedit.delete.inUse")
+							.setParameters(String.join(", ", blocked)).getString());
 				}
 				BulkEditItemsPanel.this.clearDeletableItemsList();
 			}

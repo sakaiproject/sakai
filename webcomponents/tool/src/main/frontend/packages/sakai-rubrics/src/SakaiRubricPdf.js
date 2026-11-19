@@ -41,6 +41,7 @@ export class SakaiRubricPdf extends RubricsElement {
         title="${this.tr("export_title", [ this.rubricTitle ])}"
         aria-label="${this.tr("export_title", [ this.rubricTitle ])}"
         href="${ifDefined(this._url)}"
+        download
         @click=${e => e.stopPropagation()}
         class="linkStyle pdf fa fa-file-pdf-o">
       </a>

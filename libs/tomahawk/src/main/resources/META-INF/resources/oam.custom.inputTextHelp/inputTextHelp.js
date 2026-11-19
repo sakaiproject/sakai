@@ -1,0 +1,1 @@
+function resetHelpValue(B,C){var A=document.getElementById(C);if(A.value==B){A.value="";}}function selectText(B,C){var A=document.getElementById(C);if(A.value==B){A.select();}}

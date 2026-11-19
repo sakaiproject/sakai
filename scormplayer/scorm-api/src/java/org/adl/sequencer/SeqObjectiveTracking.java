@@ -638,7 +638,7 @@ public class SeqObjectiveTracking implements Serializable {
 					setGlobalObjMeasure(objID, 
 					                    mLearnerID,
 					                    mScopeID,
-					                    (new Double(iMeasure)).toString());
+					                    (Double.valueOf(iMeasure)).toString());
 					*/
                 }
 			}

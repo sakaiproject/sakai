@@ -84,7 +84,7 @@ public class EntityTaggingServiceTest {
         Assert.assertNotNull(td);
         Assert.assertNotNull(tdp);
 
-        // Assert.assertEquals(new Long(1), tdp.pNode1.getId());
+        // Assert.assertEquals(Long.valueOf(1), tdp.pNode1.getId());
     }
 
     @Test

@@ -20,11 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Period;
-import net.fortuna.ical4j.model.PeriodList;
 import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.model.TemporalAdapter;
+import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.util.CompatibilityHints;
 import org.sakaiproject.calendar.impl.DailyRecurrenceRule;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
@@ -39,13 +38,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
-import java.util.Date;
+import java.time.temporal.Temporal;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -86,14 +84,13 @@ public class IcalendarReader extends Reader {
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_OUTLOOK_COMPATIBILITY, true); 
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_VALIDATION, true); 
 
-			CalendarBuilder builder = new CalendarBuilder();
-			Calendar calendar = builder.build(stream);
+			Calendar calendar = new CalendarBuilder().build(stream);
 
 			ZoneId calendarZone = null;
 			try {
-				Component vTimeZone = calendar.getComponent(Component.VTIMEZONE);
+				Component vTimeZone = calendar.getComponent(Component.VTIMEZONE).orElse(null);
 				if (vTimeZone != null) {
-					Property tzProperty = vTimeZone.getProperty(Property.TZID);
+					Property tzProperty = vTimeZone.getProperty(Property.TZID).orElse(null);
 					if (tzProperty != null) {
 						calendarTzid = tzProperty.getValue();
 						calendarZone = ZoneId.of(calendarTzid);
@@ -110,66 +107,48 @@ public class IcalendarReader extends Reader {
 				calendarZone = timeService.getLocalTimeZone().toZoneId();
 			}
 
+			ZoneId importZone = calendarZone;
 			int lineNumber = 1;
 			for (Component event : calendar.getComponents(Component.VEVENT)) {
-				Property summary = event.getProperty(Property.SUMMARY);
-				Property start = event.getProperty(Property.DTSTART);
-				Property end = event.getProperty(Property.DTEND);
-				Property location = event.getProperty(Property.LOCATION);
-				Property description = event.getProperty(Property.DESCRIPTION);
-
-				if (summary == null) {
-					log.warn("Defer importing this calendar event as it has no SUMMARY, [{}]", event);
-					continue;
-				}
-
-				if ( start == null || end == null) {
-					log.warn("Defer importing this calendar event as it has no START or END, [{}]", event);
-					continue;
-				}
-
-				if (start.getParameters().contains(Value.DATE)) {
-					// all day event
-					Date startDate = Date.from(LocalDate
-							.parse(start.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
-							.atStartOfDay(calendarZone)
-							.toInstant());
-					Date endDate = Date.from(LocalDate
-							.parse(end.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
-							.atTime(LocalTime.MAX)
-							.atZone(calendarZone)
-							.minusDays(1)
-							.toInstant());
-					Period period = new Period(new DateTime(startDate), new DateTime(endDate));
-
-					processRow(handler,
-							summary.getValue(),
-							description != null ? description.getValue() : "",
-							columnDescriptionArray,
-							location != null ? location.getValue() : "",
-							lineNumber,
-							period);
-					lineNumber++;
-				} else {
-					DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
-					DateTime to = new DateTime(Date.from(ZonedDateTime.now().plusMonths(12).toInstant()));
-					Period range = new Period(from, to);
-
-					PeriodList periods = event.calculateRecurrenceSet(range);
-					for (Period period : periods) {
-						processRow(handler,
-								summary.getValue(),
-								description != null ? description.getValue() : "",
-								columnDescriptionArray,
-								location != null ? location.getValue() : "",
-								lineNumber,
-								period);
-						lineNumber++;
+				try {
+					Property summary = event.getProperty(Property.SUMMARY).orElse(null);
+					DateProperty<?> start = event.<DateProperty<?>>getProperty(Property.DTSTART).orElse(null);
+					if (summary == null || start == null) {
+						log.warn("Skipping calendar event missing SUMMARY or DTSTART: [{}]", event);
+						continue;
 					}
+
+					Property description = event.getProperty(Property.DESCRIPTION).orElse(null);
+					Property location = event.getProperty(Property.LOCATION).orElse(null);
+					ZonedDateTime now = ZonedDateTime.now(importZone);
+					Period<?> range;
+					if (start.getDate() instanceof LocalDate date) {
+						boolean recurring = !event.getProperties(Property.RRULE).isEmpty()
+								|| !event.getProperties(Property.RDATE).isEmpty();
+						// Preserve imports of one-off all-day events outside the recurrence window.
+						// iCal4j determines the event end from DTEND, DURATION, or the one-day default.
+						range = recurring
+								? new Period<>(now.minusMonths(6).toLocalDate(), now.plusMonths(12).toLocalDate())
+								: new Period<>(date, date.plusDays(1));
+					} else {
+						range = new Period<>(now.minusMonths(6), now.plusMonths(12));
+					}
+
+					Set<Period<Temporal>> periods = event.calculateRecurrenceSet(range);
+					for (Period<Temporal> period : periods.stream()
+							.sorted(Comparator.comparing(period -> TemporalAdapter.toLocalTime(period.getStart(), importZone).toInstant()))
+							.toList()) {
+						processRow(handler, summary.getValue(), description != null ? description.getValue() : "",
+								columnDescriptionArray, location != null ? location.getValue() : "",
+								lineNumber++, period, importZone);
+					}
+				} catch (RuntimeException e) {
+					String uid = event.getProperty(Property.UID).map(Property::getValue).orElse("unknown");
+					log.warn("Could not import calendar event with UID [{}]", uid, e);
 				}
 			}
 		} catch (Exception e) {
-			log.warn("The calendaring stream finished abnormally, {}", e.toString());
+			log.warn("Could not read the calendaring stream", e);
 		}
 
 		// tzid of calendar (returns null if it does not exist)
@@ -177,50 +156,49 @@ public class IcalendarReader extends Reader {
 	}
 
 	private void processRow(ReaderImportRowHandler handler, String summary, String description,
-							ColumnHeader[] columnDescriptionArray, String location, int lineNumber, Period period) {
-
-		TemporalAmount amount = period.getDuration();
-		if (amount.getUnits().stream().anyMatch(TemporalUnit::isDurationEstimated)) {
-			log.warn("Estimated duration for event [{}] detected, skipping", summary);
-			return;
-		}
-
-		String[] columns;
-		long durationMinutes = Duration.from(amount).toMinutes();
-
-		// for any event spanning more than a single day we setup a daily frequency using until
-		if (durationMinutes > MINUTES_IN_DAY) {
-			columns = new String[] {
-					summary,
-					description,
-					GenericCalendarImporter.dateISOFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
-					GenericCalendarImporter.timeFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
-					Long.toString(MINUTES_IN_DAY),
-					location,
-					DailyRecurrenceRule.FREQ,
-					"1",
-					GenericCalendarImporter.dateISOFormatter().format(period.getEnd().toInstant().atZone(ZoneId.systemDefault()))
-			};
+			ColumnHeader[] headers, String location, int lineNumber, Period<Temporal> period, ZoneId zone) {
+		boolean allDay = period.getStart() instanceof LocalDate;
+		LocalDate date;
+		LocalTime time;
+		long minutes;
+		String frequency = "";
+		String until = "";
+		if (allDay) {
+			LocalDate start = (LocalDate) period.getStart();
+			LocalDate end = (LocalDate) period.getEnd();
+			if (!end.isAfter(start)) {
+				log.warn("Skipping all-day event [{}] with non-positive date range", summary);
+				return;
+			}
+			date = start;
+			time = LocalTime.MIDNIGHT;
+			minutes = MINUTES_IN_DAY;
+			if (end.isAfter(start.plusDays(1))) {
+				frequency = DailyRecurrenceRule.FREQ;
+				until = GenericCalendarImporter.dateISOFormatter().format(end.minusDays(1));
+			}
 		} else {
-			columns = new String[] {
-					summary,
-					description,
-					GenericCalendarImporter.dateISOFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
-					GenericCalendarImporter.timeFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
-					durationMinutes < 10 ? "0" + durationMinutes : "" + durationMinutes,
-					location,
-					"",
-					"",
-					""
-			};
+			ZonedDateTime start = TemporalAdapter.toLocalTime(period.getStart(), zone);
+			ZonedDateTime end = TemporalAdapter.toLocalTime(period.getEnd(), zone);
+			minutes = Duration.between(start.toInstant(), end.toInstant()).toMinutes();
+			if (minutes <= 0) {
+				log.warn("Skipping timed event [{}] with non-positive duration", summary);
+				return;
+			}
+			date = start.toLocalDate();
+			time = start.toLocalTime();
 		}
 
-        try {
-            handler.handleRow(processLine(columnDescriptionArray, lineNumber, columns));
-        } catch (ImportException e) {
-            log.warn("Could not import period [{}] for event [{}/{}], {}", period, lineNumber, summary, e.toString());
-        }
-    }
+		String[] columns = { summary, description,
+				GenericCalendarImporter.dateISOFormatter().format(date),
+				GenericCalendarImporter.timeFormatter().format(time), Long.toString(minutes), location,
+				frequency, frequency.isEmpty() ? "" : "1", until };
+		try {
+			handler.handleRow(processLine(headers, lineNumber, columns));
+		} catch (ImportException e) {
+			log.warn("Could not import calendar event [{}/{}]", lineNumber, summary, e);
+		}
+	}
 
 	public List<Map<String, Object>> filterEvents(List<Map<String, Object>> events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException {
 		//

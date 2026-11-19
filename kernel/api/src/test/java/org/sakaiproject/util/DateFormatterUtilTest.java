@@ -66,9 +66,9 @@ public class DateFormatterUtilTest {
         Assert.assertEquals(DateFormatterUtil.format(date, "HH:mm:ss", Locale.US), "07:45:00");
         Assert.assertEquals(DateFormatterUtil.format(date, "hh:mm:ss a", Locale.US), "07:45:00 AM");
         Assert.assertEquals(DateFormatterUtil.format(date, "dd/MM/yyyy HH:mm:ss", Locale.UK), "11/06/2016 07:45:00");
-        Assert.assertEquals(DateFormatterUtil.format(date, "some_invented_format", Locale.US), "6/11/16 7:45 AM");
-        Assert.assertEquals(DateFormatterUtil.format(date, "some_invented_format", null), "6/11/16 7:45 AM");
-        Assert.assertEquals(DateFormatterUtil.format(date, "dd/MM/yyyy HH:mm:ss", null), "6/11/16 7:45 AM");
+        Assert.assertEquals(DateFormatterUtil.format(date, "some_invented_format", Locale.US), "6/11/16 7:45\u202FAM");
+        Assert.assertEquals(DateFormatterUtil.format(date, "some_invented_format", null), "6/11/16 7:45\u202FAM");
+        Assert.assertEquals(DateFormatterUtil.format(date, "dd/MM/yyyy HH:mm:ss", null), "6/11/16 7:45\u202FAM");
         Assert.assertNull(DateFormatterUtil.format(null, "dd/MM/yyyy HH:mm:ss", Locale.US));
     }
 

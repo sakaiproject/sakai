@@ -21,8 +21,9 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
+import org.sakaiproject.util.Xml;
+
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Templates;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TemplatesHandler;
@@ -38,14 +39,12 @@ import org.xml.sax.XMLReader;
  */
 public class XSLTTransform {
 
-        private final SAXParserFactory parserFactory;
         private final SAXTransformerFactory transformerFactory;
         private Templates templates;
 
 
         public XSLTTransform() {
-                transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-                parserFactory = SAXParserFactory.newInstance();
+                transformerFactory = (SAXTransformerFactory) Xml.createSecureTransformerFactory();
         }
 
 	/**
@@ -57,11 +56,10 @@ public class XSLTTransform {
 	 *         typically an exception related to parsing the template
 	 */
 	public void setXslt(InputSource xsltResource) throws Exception {
-		parserFactory.setNamespaceAware(true);
 		TemplatesHandler th = transformerFactory.newTemplatesHandler();
 		String systemId = xsltResource.getSystemId();
 		th.setSystemId(systemId);
-		SAXParser parser = parserFactory.newSAXParser();
+		SAXParser parser = Xml.createSecureSAXParser(true);
 		XMLReader xr = parser.getXMLReader();
 		xr.setContentHandler(th);
 		xr.parse(xsltResource);

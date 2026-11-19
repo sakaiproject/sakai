@@ -23,10 +23,13 @@
 package org.sakaiproject.rubrics.api.model;
 
 import java.io.Serializable;
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
 
+import org.hibernate.Length;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -49,9 +52,14 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 @Table(name = "rbc_rating")
 public class Rating implements PersistableEntity<Long>, Serializable {
 
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    @ColumnDefault("0")
+    @JsonIgnore
+    private Long version;
+
     @Id
-    @SequenceGenerator(name="rbc_rat_seq", sequenceName ="rbc_rat_seq")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_rat_seq")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_rat_seq", sequenceName ="rbc_rat_seq"))
     @JsonIgnore
     private Long id;
 
@@ -59,7 +67,7 @@ public class Rating implements PersistableEntity<Long>, Serializable {
     @JacksonXmlProperty(isAttribute = true)
     private String title;
 
-    @Lob
+    @Lob @Column(length = Length.LONG32)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JacksonXmlCData
     private String description;

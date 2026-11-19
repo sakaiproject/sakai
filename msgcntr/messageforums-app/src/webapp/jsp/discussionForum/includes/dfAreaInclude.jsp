@@ -88,7 +88,7 @@ $(document).ready(function() {
                 <h:outputText id="draft_space" value=" -  " rendered="#{forum.forum.draft == 'true'}" styleClass="title"/>
                 <%-- availability marker --%>
                 <h:panelGroup rendered="#{forum.availability == 'false'}" style="margin-right:.5em">
-                    <span class="bi bi-calendar-x" aria-hidden="true"></span>
+                    <span class="bi bi-calendar-week" aria-hidden="true"></span>
                     <span class="sr-only"><h:outputText value="#{msgs.forum_restricted_message}" escape="false" /></span>
                 </h:panelGroup>
                 <%-- locked marker --%>
@@ -237,19 +237,19 @@ $(document).ready(function() {
                     <h:panelGrid columns="1" width="100%" styleClass="specialLink topicBloc" cellpadding="0" cellspacing="0">
                 <h:panelGroup>
                             
-                            <%-- Show warning icon for topics in draft forums instead of regular folder icon --%>
+                            <%-- Show warning icon for topics in draft forums instead of regular topic icon --%>
                             <h:panelGroup rendered="#{forum.forum.draft == 'true'}">
                                 <span class="bi bi-exclamation-triangle topicIcon" style="margin-right:.5em; color: var(--bs-warning);" aria-hidden="true"></span>
                                 <span class="sr-only"><h:outputText value="#{msgs.cdfm_forum_draft_topic_unavailable}" escape="false" /></span>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{forum.forum.draft != 'true'}">
-                                <h:outputText styleClass="bi bi-folder topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages == 0}" escape="false" />
-                                <h:outputText styleClass="bi bi-folder-fill topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages > 0}" escape="false" />
+                                <h:outputText styleClass="bi bi-chat-right-text topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages == 0}" escape="false" />
+                                <h:outputText styleClass="bi bi-chat-right-text-fill topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages > 0}" escape="false" />
                             </h:panelGroup>
                             <h:outputText styleClass="highlight title draftTopic" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
                             <h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}" styleClass="title"/>
                             <h:panelGroup rendered="#{topic.availability == 'false'}" style="margin-right:.5em">
-                                <span class="bi bi-calendar-x" aria-hidden="true"></span>
+                                <span class="bi bi-calendar-week" aria-hidden="true"></span>
                                 <span class="sr-only"><h:outputText value="#{msgs.topic_restricted_message}" escape="false" /></span>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em">

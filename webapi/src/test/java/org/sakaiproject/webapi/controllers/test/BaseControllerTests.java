@@ -18,18 +18,9 @@ package org.sakaiproject.webapi.controllers.test;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 
-import org.springframework.restdocs.mockmvc.UriConfigurer;
-
-import java.net.URI;
-import java.util.Collection;
-
-import org.springframework.restdocs.JUnitRestDocumentation;
-import org.springframework.restdocs.operation.OperationRequest;
-import org.springframework.restdocs.operation.OperationRequestPart;
-import org.springframework.restdocs.operation.Parameters;
-import org.springframework.restdocs.operation.RequestCookie;
-
 import org.junit.Rule;
+import org.springframework.restdocs.JUnitRestDocumentation;
+import org.springframework.restdocs.mockmvc.UriConfigurer;
 
 public abstract class BaseControllerTests {
 

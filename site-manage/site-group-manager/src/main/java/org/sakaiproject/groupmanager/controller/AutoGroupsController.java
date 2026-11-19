@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -37,12 +37,14 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
@@ -119,7 +121,7 @@ public class AutoGroupsController {
     }
 
     @PostMapping(value = "/autogroups/submitStep2")
-    public String submitStep2(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(required=false) String wizardAction) {
+    public String submitStep2(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(value = "wizardAction", required = false) String wizardAction) {
         log.debug("submitStep2() called with values {} and action {}.", autoGroupsForm, wizardAction);
 
         // If the submit was done by a back button or link, redirect to the previous step with the wizard values.
@@ -178,7 +180,7 @@ public class AutoGroupsController {
     }
 
     @PostMapping(value = "/autogroups/submitStep3")
-    public String submitStep3(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(required=false) String wizardAction) {
+    public String submitStep3(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(value = "wizardAction", required = false) String wizardAction) {
         log.debug("submitStep3() called with values {} and action {}.", autoGroupsForm, wizardAction);
 
         // If the submit was done by a back button, redirect to the previous step with the wizard values.
@@ -199,6 +201,9 @@ public class AutoGroupsController {
         // Avoid duplicates
         autoGroupsForm.setSelectedRoleList(autoGroupsForm.getSelectedRoleList().stream().distinct().collect(Collectors.toList()));
         autoGroupsForm.setSelectedSectionList(autoGroupsForm.getSelectedSectionList().stream().distinct().collect(Collectors.toList()));
+
+        autoGroupsForm.setGroupTitleByGroup(sakaiService.cleanGroupTitle(autoGroupsForm.getGroupTitleByGroup()));
+        autoGroupsForm.setGroupTitleByUser(sakaiService.cleanGroupTitle(autoGroupsForm.getGroupTitleByUser()));
 
         // Check the options and perform the validations considering the options
         if (GroupManagerConstants.STRUCTURE_CONFIGURATION_MIXTURE == autoGroupsForm.getStructureConfigurationOption()) {
@@ -381,6 +386,14 @@ public class AutoGroupsController {
             }
         }
 
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap,
+                site.getGroups().stream().map(Group::getTitle).collect(Collectors.toList()));
+        if (cleanedGroups.isEmpty()) {
+            model.addAttribute("splitOptionsError", messageSource.getMessage("groups.error.cleanedTitles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
+            return showStep3(model, autoGroupsForm);
+        }
+        autoGroupsMap = cleanedGroups.get();
+
         // Fill the model attributes.
         model.addAttribute("autoGroupsForm", autoGroupsForm);
         model.addAttribute("autoGroupsMap", autoGroupsMap);
@@ -401,7 +414,7 @@ public class AutoGroupsController {
     }
 
     @PostMapping(value="/autogroups/confirmAutoGroups")
-    public String confirmAutoGroups(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(required=false) String serializedAutoGroupsMap, @RequestParam(required=false) String wizardAction) {
+    public String confirmAutoGroups(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(value = "serializedAutoGroupsMap", required = false) String serializedAutoGroupsMap, @RequestParam(value = "wizardAction", required = false) String wizardAction) {
         log.debug("confirmAutoGroups() called with values {} and action {}.", autoGroupsForm, wizardAction);
 
         // If the submit was done by a back button, redirect to the previous step with the wizard values.
@@ -439,6 +452,14 @@ public class AutoGroupsController {
             log.error("Fatal error deserializing the auto groups map, aborting the process", e);
             return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
         }
+
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap,
+                site.getGroups().stream().map(Group::getTitle).collect(Collectors.toList()));
+        if (cleanedGroups.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    messageSource.getMessage("groups.error.cleanedTitles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
+        }
+        autoGroupsMap = cleanedGroups.get();
 
         for (Entry<String, List<String>> autoGroup : autoGroupsMap.entrySet()) {
             Group newGroup = site.addGroup();

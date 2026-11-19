@@ -183,7 +183,7 @@ public class QuestionPoolTreeImpl
     try
     {
 
-      return getChildList(new Long("0"));
+      return getChildList(Long.valueOf("0"));
     }
     catch(Exception e)
     {
@@ -341,7 +341,7 @@ public class QuestionPoolTreeImpl
 
         if(props.getQuestions() != null)
         {
-          properties.add(new Integer(props.getQuestions().size()).toString());
+          properties.add(Integer.valueOf(props.getQuestions().size()).toString());
         }
         else
         {
@@ -351,7 +351,7 @@ public class QuestionPoolTreeImpl
         if(getChildren(currentPoolId) != null)
         {
           properties.add(
-            new Integer(getChildren(currentPoolId).size()).toString());
+            Integer.valueOf(getChildren(currentPoolId).size()).toString());
         }
         else
         {

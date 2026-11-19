@@ -23,10 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import org.hibernate.SessionFactory;
 import org.junit.Assert;
+import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.MessageHelper;
+import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
@@ -46,9 +52,13 @@ import org.sakaiproject.grading.api.repository.CourseGradeRepository;
 import org.sakaiproject.grading.api.repository.LetterGradePercentMappingRepository;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.impl.GradingServiceImpl;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -73,6 +83,8 @@ import org.springframework.test.util.AopTestUtils;
 @ContextConfiguration(classes = {GradingTestConfiguration.class})
 public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired private SectionAwareness sectionAwareness;
+    @Autowired private SessionFactory sessionFactory;
     @Autowired private CourseGradeRepository courseGradeRepository;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
@@ -109,6 +121,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Before
     public void setup() {
 
+        reset(sectionAwareness);
         reset(sessionManager);
         reset(securityService);
         reset(userDirectoryService);
@@ -143,6 +156,81 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void existingGradebookLookupDoesNotInitializeGradebook() throws Exception {
+        siteId = "lookup-site";
+        Site site = createSiteMock(siteId);
+        org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
+        when(site.getProperties()).thenReturn(properties);
+        assertFalse(gradingService.isGradebookDefined(siteId));
+        assertTrue(gradingService.getExistingGradebookUids(siteId).isEmpty());
+        sessionFactory.getCurrentSession().flush();
+        assertEquals(Long.valueOf(0), sessionFactory.getCurrentSession()
+                .createQuery("select count(g) from Gradebook g", Long.class).uniqueResult());
+
+        Gradebook gradebook = createGradebook();
+        assertTrue(gradingService.isGradebookDefined(siteId));
+        assertEquals(List.of(siteId), gradingService.getExistingGradebookUids(siteId));
+        assertEquals(1, courseGradeRepository.findByGradebook_Id(gradebook.getId()).size());
+    }
+
+    @Test
+    public void existingGradebookLookupDoesNotInitializeGroupGradebooks() throws Exception {
+        siteId = "lookup-group-site";
+        groupId = "lookup-group";
+        Gradebook gradebook = createGroupGradebook();
+        Site site = siteService.getSite(siteId);
+        org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
+        when(properties.getProperty("gradebook_group")).thenReturn("true");
+        when(site.getProperties()).thenReturn(properties);
+        List<ToolConfiguration> placements = List.of(gradebookPlacement(groupId), gradebookPlacement("uninitialized-group"));
+        when(site.getTools("sakai.gradebookng")).thenReturn(placements);
+        assertEquals(List.of(groupId), gradingService.getExistingGradebookUids(siteId));
+        sessionFactory.getCurrentSession().flush();
+        assertEquals(Long.valueOf(1), sessionFactory.getCurrentSession()
+                .createQuery("select count(g) from Gradebook g", Long.class).uniqueResult());
+        assertEquals(1, courseGradeRepository.findByGradebook_Id(gradebook.getId()).size());
+    }
+
+    @Test
+    public void groupModeWithoutGradebookPlacementsDoesNotReturnSiteGradebook() throws Exception {
+        siteId = "lookup-no-placement";
+        createGradebook();
+        Site site = siteService.getSite(siteId);
+        enableGroupGradebooks(site);
+
+        assertTrue(gradingService.getExistingGradebookUids(siteId).isEmpty());
+        assertTrue(gradingService.isGradebookDefined(siteId));
+    }
+
+    @Test
+    public void groupModeUntaggedPlacementUsesExistingSiteGradebook() throws Exception {
+        siteId = "lookup-untagged-placement";
+        createGradebook();
+        Site site = siteService.getSite(siteId);
+        enableGroupGradebooks(site);
+        ToolConfiguration placement = gradebookPlacement(null);
+        when(site.getTools("sakai.gradebookng")).thenReturn(List.of(placement));
+
+        assertEquals(List.of(siteId), gradingService.getExistingGradebookUids(siteId));
+    }
+
+    @Test
+    public void groupModeIncludesUntaggedAndTaggedPlacements() throws Exception {
+        siteId = "lookup-mixed-placements";
+        groupId = "lookup-mixed-group";
+        createGradebook();
+        createGroupGradebook();
+        Site site = siteService.getSite(siteId);
+        enableGroupGradebooks(site);
+        List<ToolConfiguration> placements = List.of(gradebookPlacement(null), gradebookPlacement(groupId),
+                gradebookPlacement("uninitialized-group"));
+        when(site.getTools("sakai.gradebookng")).thenReturn(placements);
+
+        assertEquals(List.of(siteId, groupId), gradingService.getExistingGradebookUids(siteId));
+        assertFalse(gradingService.isGradebookDefined("uninitialized-group"));
+    }
+
+    @Test
     public void addGradebook() {
 
         Gradebook gradebook = createGradebook();
@@ -161,7 +249,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         Gradebook gradebook = createGroupGradebook();
         assertEquals(groupId, gradebook.getUid());
-        assertEquals("Group One", gradebook.getName());
+        assertEquals(MessageHelper.getString("group.gradebook", Locale.ENGLISH) + " One",gradebook.getName());
 
         List<CourseGrade> courseGrades = courseGradeRepository.findByGradebook_Id(gradebook.getId());
         assertEquals(1, courseGrades.size());
@@ -295,6 +383,214 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void categoryLookupDoesNotCreateMissingGradebook() {
+        switchToInstructor();
+        createSiteMock(siteId);
+        assertTrue(gradingService.getCategoryDefinitions(siteId, siteId).isEmpty());
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertEquals(Long.valueOf(0L), sessionFactory.getCurrentSession()
+                .createQuery("select count(g) from Gradebook g where g.uid = :uid", Long.class)
+                .setParameter("uid", siteId).uniqueResult());
+    }
+
+    @Test
+    public void externalUpdatesPreserveKeepDropCategoryPoints() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(gradebook, "second", categoryId, 3D);
+        assertRejectedCancellationUpdate(gradebook, null);
+        assertRejectedCancellationUpdate(gradebook, categoryId);
+    }
+
+    @Test
+    public void externalUpdatesRejectEachDropMode() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 1, 0, 0, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(gradebook, "second", categoryId, 3D);
+        assertRejectedCancellationUpdate(gradebook, categoryId);
+        CategoryDefinition category = gradingService.getCategoryDefinitions(gradebook.getUid(), siteId).get(0);
+        category.setDropHighest(0);
+        category.setDropLowest(1);
+        GradebookInformation settings = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        settings.setCategories(new ArrayList<>(List.of(category)));
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, settings);
+        assertRejectedCancellationUpdate(gradebook, categoryId);
+    }
+
+    @Test
+    public void externalCreationAndUpdatesShareCategoryValidation() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        assertThrows(InvalidCategoryException.class,
+                () -> addCancellationAssessment(gradebook, "second", categoryId, 2D));
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", null, 2D, null, false);
+        assertEquals(Double.valueOf(2D), gradingService.getExternalAssignment(gradebook.getUid(), "first").getPoints());
+        addCancellationAssessment(gradebook, "second", categoryId, 2D);
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", categoryId, 2D, null, false);
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", -1L, 1D, null, false);
+        assertNull(gradingService.getExternalAssignment(gradebook.getUid(), "first").getCategoryId());
+        assertThrows(InvalidCategoryException.class,
+                () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", "new-link", "new-data", "new-title", categoryId, 1D, null, false));
+    }
+
+    @Test
+    public void externalUpdatesAllowOrdinaryAndEqualWeightCategories() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 0, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(gradebook, "second", categoryId, 3D);
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", null, 2D, null, false);
+        CategoryDefinition category = gradingService.getCategoryDefinitions(gradebook.getUid(), siteId).get(0);
+        category.setKeepHighest(2);
+        category.setEqualWeight(true);
+        GradebookInformation settings = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        settings.setCategories(new ArrayList<>(List.of(category)));
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, settings);
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", null, 1D, null, false);
+        assertEquals(Double.valueOf(1D), gradingService.getExternalAssignment(gradebook.getUid(), "first").getPoints());
+    }
+
+    @Test
+    public void externalUpdatesIgnoreRemovedPeersAndRejectInvalidCategories() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(gradebook, "second", categoryId, 3D);
+        gradingService.removeExternalAssignment(gradebook.getUid(), "second", "Samigo");
+        gradingService.updateExternalAssessment(gradebook.getUid(), "first", "old-link", "data", "first", null, 2D, null, false);
+        assertRejectedCancellationUpdate(gradebook, Long.MAX_VALUE);
+        assertThrows(InvalidCategoryException.class,
+                () -> addCancellationAssessment(gradebook, "invalid", Long.MAX_VALUE, 3D));
+        Gradebook other = createGroupGradebook();
+        Long foreignCategoryId = cancellationCategory(other, 0, 0, 0, false);
+        assertRejectedCancellationUpdate(gradebook, foreignCategoryId);
+        GradebookInformation settings = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        settings.setCategories(new ArrayList<>());
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, settings);
+        assertRejectedCancellationUpdate(gradebook, categoryId);
+    }
+
+    @Test
+    public void gradebookPointsMapUsesSelectedCategoryForNewAndEditedAssignments() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        for (String assignmentRef : List.of("", "first")) {
+            Map<String, Double> points = new HashMap<>();
+            gradingService.buildGradebookPointsMap(siteId, siteId, assignmentRef, points, categoryId.toString());
+            assertEquals(Map.of(siteId, 3D), points);
+        }
+        Map<String, Double> points = new HashMap<>();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "first", points, "-1");
+        assertEquals(Map.of(siteId, 3D), points);
+    }
+
+    @Test
+    public void gradebookPointsMapResolvesSelectedCategoriesInEachGradebook() {
+        Gradebook gradebook = createGradebook();
+        Gradebook groupGradebook = createGroupGradebook();
+        Long categoryId = cancellationCategory(gradebook, 1, 0, 0, false);
+        Long groupCategoryId = cancellationCategory(groupGradebook, 0, 1, 0, false);
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        addCancellationAssessment(groupGradebook, "second", groupCategoryId, 5D);
+        Map<String, Double> points = new HashMap<>();
+        String selectedCategories = categoryId + ", " + groupCategoryId;
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, selectedCategories);
+        gradingService.buildGradebookPointsMap(groupId, siteId, "", points, selectedCategories);
+        assertEquals(Map.of(siteId, 3D, groupId, 5D), points);
+    }
+
+    @Test
+    public void gradebookPointsMapAllowsEmptyOrdinaryAndEqualWeightCategories() {
+        Gradebook gradebook = createGradebook();
+        Long categoryId = cancellationCategory(gradebook, 0, 0, 2, false);
+        Map<String, Double> points = new HashMap<>();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, categoryId.toString());
+        assertTrue(points.isEmpty());
+        addCancellationAssessment(gradebook, "first", categoryId, 3D);
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, "-1");
+        assertTrue(points.isEmpty());
+        for (boolean equalWeight : List.of(false, true)) {
+            categoryId = cancellationCategory(gradebook, 0, 0, equalWeight ? 2 : 0, equalWeight);
+            addCancellationAssessment(gradebook, "allowed-" + equalWeight, categoryId, 3D);
+            gradingService.buildGradebookPointsMap(siteId, siteId, "", points, categoryId.toString());
+            assertTrue(points.isEmpty());
+        }
+    }
+
+    @Test
+    public void gradebookPointsMapUsesTheSameCategoryAsSavingForDuplicateSelections() {
+        Gradebook gradebook = createGradebook();
+        addCategories(gradebook);
+        GradebookInformation settings = gradingService.getGradebookInformation(siteId, siteId);
+        List<CategoryDefinition> categories = gradingService.getCategoryDefinitions(siteId, siteId);
+        categories.forEach(category -> category.setKeepHighest(1));
+        settings.setCategoryType(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY);
+        settings.setCategories(categories);
+        gradingService.updateGradebookSettings(siteId, siteId, settings);
+        Long firstCategoryId = categories.get(0).getId();
+        Long secondCategoryId = categories.get(1).getId();
+        addCancellationAssessment(gradebook, "first", firstCategoryId, 3D);
+        addCancellationAssessment(gradebook, "second", secondCategoryId, 5D);
+        String selectedCategories = secondCategoryId + "," + firstCategoryId;
+        assertEquals(firstCategoryId.toString(),
+                gradingService.buildCategoryGradebookMap(List.of(siteId), selectedCategories, siteId).get(siteId));
+        Map<String, Double> points = new HashMap<>();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, selectedCategories);
+        assertEquals(Map.of(siteId, 3D), points);
+
+        // An unrestricted first category must not inherit a later category's restriction.
+        categories.get(0).setKeepHighest(0);
+        gradingService.updateGradebookSettings(siteId, siteId, settings);
+        points.clear();
+        gradingService.buildGradebookPointsMap(siteId, siteId, "", points, selectedCategories);
+        assertTrue(points.isEmpty());
+    }
+
+    private Long cancellationCategory(Gradebook gradebook, int dropHighest, int dropLowest, int keepHighest, boolean equalWeight) {
+        CategoryDefinition category = new CategoryDefinition();
+        category.setName("Quizzes");
+        category.setWeight(1D);
+        category.setExtraCredit(false);
+        category.setEqualWeight(equalWeight);
+        category.setDropHighest(dropHighest);
+        category.setDropLowest(dropLowest);
+        category.setKeepHighest(keepHighest);
+        GradebookInformation settings = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        settings.setCategoryType(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY);
+        settings.setCategories(new ArrayList<>(List.of(category)));
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, settings);
+        return gradingService.getCategoryDefinitions(gradebook.getUid(), siteId).get(0).getId();
+    }
+
+    private void addCancellationAssessment(Gradebook gradebook, String externalId, Long categoryId, Double points) {
+        gradingService.addExternalAssessment(gradebook.getUid(), siteId, externalId, "old-link", externalId,
+                points, null, "Samigo", "data", false, categoryId, null);
+    }
+
+    private void assertRejectedCancellationUpdate(Gradebook gradebook, Long categoryId) {
+        Assignment before = gradingService.getExternalAssignment(gradebook.getUid(), "first");
+        assertThrows(InvalidCategoryException.class,
+                () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", "new-link", "new-data", "new-title", categoryId, 1D, new Date(), true));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Assignment after = gradingService.getExternalAssignment(gradebook.getUid(), "first");
+        assertEquals(before.getPoints(), after.getPoints());
+        assertEquals(before.getCategoryId(), after.getCategoryId());
+        assertEquals(before.getName(), after.getName());
+        assertEquals(before.getExternalData(), after.getExternalData());
+        assertEquals(before.getDueDate(), after.getDueDate());
+        assertEquals(before.getUngraded(), after.getUngraded());
+        GradebookAssignment stored = sessionFactory.getCurrentSession().get(GradebookAssignment.class, after.getId());
+        assertEquals("old-link", stored.getExternalInstructorLink());
+        assertEquals("old-link", stored.getExternalStudentLink());
+    }
+
+    @Test
     public void currentUserHasGradingPerm() {
 
         Gradebook gradebook = createGradebook();
@@ -314,6 +610,24 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         gradingService.removeAssignment(id);
         assertEquals(0, gradingService.getAssignments(gradebook.getUid(), siteId, SortType.SORT_BY_SORTING).size());
+    }
+
+    @Test
+    public void linkedGradebookItemsCanOnlyBeRemovedBySiteImport() {
+        Gradebook gradebook = createGradebook();
+        Long id = createAssignment1(gradebook);
+        org.sakaiproject.grading.api.ExternalAssignmentProvider provider = mock(org.sakaiproject.grading.api.ExternalAssignmentProvider.class);
+        when(provider.getAppKey()).thenReturn("association-test");
+        when(provider.isGradebookItemInUse(eq(gradebook.getUid()), any(Assignment.class))).thenReturn(true);
+        gradingService.registerExternalAssignmentProvider(provider);
+        try {
+            Assert.assertThrows(org.sakaiproject.grading.api.AssessmentInUseException.class, () -> gradingService.removeAssignment(id));
+            assertEquals(1, gradingService.getAssignments(gradebook.getUid(), siteId, SortType.SORT_BY_SORTING).size());
+            gradingService.removeAssignmentsForSiteImport(gradebook.getUid(), siteId);
+            assertTrue(gradingService.getAssignments(gradebook.getUid(), siteId, SortType.SORT_BY_SORTING).isEmpty());
+        } finally {
+            gradingService.unregisterExternalAssignmentProvider(provider.getAppKey());
+        }
     }
 
     @Test
@@ -459,6 +773,40 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         gradingEvents = gradingService.getGradingEvents(user2, id);
         assertEquals(1, gradingEvents.size());
+    }
+
+    @Test
+    public void excuseStudentsWithoutScores() {
+        Gradebook gradebook = createGradebook();
+        Long assignmentId = createAssignment1(gradebook);
+
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user1, null, true);
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user2, "", true);
+
+        for (String studentId : List.of(user1, user2)) {
+            GradeDefinition grade = gradingService.getGradeDefinitionForStudentForItem(
+                    gradebook.getUid(), siteId, assignmentId, studentId);
+            assertTrue(grade.isExcused());
+            assertNull(grade.getGrade());
+            assertEquals(1, gradingService.getGradingEvents(studentId, assignmentId).size());
+        }
+
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user1, null, false);
+        GradeDefinition included = gradingService.getGradeDefinitionForStudentForItem(
+                gradebook.getUid(), siteId, assignmentId, user1);
+        assertFalse(included.isExcused());
+        assertNull(included.getGrade());
+    }
+
+    @Test
+    public void blankUnexcusedScoreDoesNotCreateGradingEvent() {
+        Gradebook gradebook = createGradebook();
+        Long assignmentId = createAssignment1(gradebook);
+
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user1, "", false);
+
+        assertTrue(gradingService.getGradingEvents(user1, assignmentId).isEmpty());
+        assertFalse(gradingService.getIsAssignmentExcused(gradebook.getUid(), assignmentId, user1));
     }
 
     @Test
@@ -706,6 +1054,70 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void getGradesForStudentsForItemIncludesCommentsAndExcuses() {
+        Gradebook gradebook = createGradebook();
+        Long assignmentId = createAssignment1(gradebook);
+        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assignmentId, user1, "3.0", "Feedback");
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user1, "3.0", true);
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, user2, "Comment only");
+
+        List<EnrollmentRecord> enrollments = new ArrayList<>();
+        for (String studentId : List.of(user1, user2, "ungraded")) {
+            org.sakaiproject.section.api.coursemanagement.User student = mock(org.sakaiproject.section.api.coursemanagement.User.class);
+            when(student.getUserUid()).thenReturn(studentId);
+            EnrollmentRecord enrollment = mock(EnrollmentRecord.class);
+            when(enrollment.getUser()).thenReturn(student);
+            enrollments.add(enrollment);
+        }
+        when(sectionAwareness.getSiteMembersInRole(siteId, Role.STUDENT)).thenReturn(enrollments);
+        when(securityService.unlock(instructorUser, GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(true);
+
+        List<GradeDefinition> grades = gradingService.getGradesForStudentsForItem(gradebook.getUid(), siteId,
+                assignmentId, new ArrayList<>(List.of(user1, user2, "ungraded", "not-enrolled")));
+        assertEquals(2, grades.size());
+        Map<String, GradeDefinition> byStudent = new HashMap<>();
+        grades.forEach(grade -> byStudent.put(grade.getStudentUid(), grade));
+        assertEquals("3.0", byStudent.get(user1).getGrade());
+        assertEquals("Feedback", byStudent.get(user1).getGradeComment());
+        assertTrue(byStudent.get(user1).isExcused());
+        assertNull(byStudent.get(user2).getGrade());
+        assertEquals("Comment only", byStudent.get(user2).getGradeComment());
+        assertFalse(byStudent.get(user2).isExcused());
+
+        List<GradeDefinition> filteredGrades = gradingService.getGradesForStudentsForItem(
+                gradebook.getUid(), siteId, assignmentId, new ArrayList<>(List.of(user2)));
+        assertEquals(1, filteredGrades.size());
+        assertEquals(user2, filteredGrades.get(0).getStudentUid());
+        assertEquals("Comment only", filteredGrades.get(0).getGradeComment());
+        assertTrue(gradingService.getGradesForStudentsForItem(
+                gradebook.getUid(), siteId, assignmentId, new ArrayList<>()).isEmpty());
+
+        switchToUser2();
+        assertThrows(GradingSecurityException.class, () -> gradingService.getGradesForStudentsForItem(
+                gradebook.getUid(), siteId, assignmentId, new ArrayList<>(List.of(user1))));
+    }
+
+    @Test
+    public void getCourseGradeForStudentsIncludesCommentPresence() {
+        Gradebook gradebook = createGradebook();
+        Long assignmentId = createAssignment1(gradebook);
+        Long courseGradeId = gradingService.getCourseGradeId(gradebook.getId());
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), courseGradeId, user1, "Course feedback");
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), courseGradeId, user2, " ");
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, "assignment-only", "Item feedback");
+
+        Map<String, CourseGradeTransferBean> grades = gradingService.getCourseGradeForStudents(
+                gradebook.getUid(), siteId, List.of(user1, user2, "assignment-only", "ungraded"), Map.of());
+
+        assertEquals(4, grades.size());
+        assertTrue(grades.get(user1).isHasComment());
+        assertFalse(grades.get(user2).isHasComment());
+        assertFalse(grades.get("assignment-only").isHasComment());
+        assertFalse(grades.get("ungraded").isHasComment());
+        assertTrue(gradingService.getCourseGradeForStudents(gradebook.getUid(), siteId, List.of(), Map.of()).isEmpty());
+    }
+
+    @Test
     public void getGradesWithoutCommentsForStudentsForItems() {
 
         Gradebook gradebook = createGradebook();
@@ -796,6 +1208,22 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
     }
 
+    private void enableGroupGradebooks(Site site) {
+        org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
+        when(properties.getProperty("gradebook_group")).thenReturn("true");
+        when(site.getProperties()).thenReturn(properties);
+    }
+
+    private ToolConfiguration gradebookPlacement(String groupId) {
+        ToolConfiguration placement = mock(ToolConfiguration.class);
+        Properties properties = new Properties();
+        if (groupId != null) {
+            properties.setProperty("gb-group", groupId);
+        }
+        when(placement.getPlacementConfig()).thenReturn(properties);
+        return placement;
+    }
+
     private Gradebook createGradebook() {
 
         switchToInstructor();
@@ -824,6 +1252,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         try {
             when(siteService.getSite(id)).thenReturn(site);
+            when(siteService.getOptionalSite(id)).thenReturn(Optional.of(site));
             when(siteService.siteExists(id)).thenReturn(true);
         } catch (Exception e) {
             Assert.fail("Failed to mock site");

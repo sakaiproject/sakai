@@ -10,8 +10,6 @@
       var sakai = sakai || {};
       sakai.editor = sakai.editor || {};
       sakai.editor.editors = sakai.editor.editors || {};
-      // Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
-      sakai.editor.enableResourceSearch = false;
       sakai.editor.enableSakaiPreview = true;
       sakai.editor.enableSakaiOpenLink = true;
       sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
@@ -22,9 +20,6 @@
   </head>
   <body>
     <div class="portletBody">
-      <script th:inline="javascript">
-          var sakaiSessionId = /*[[${sakaiSessionId}]]*/ null;
-      </script>
       <sakai-rubrics-manager th:attr="site-id=${siteId}, enable-pdf-export=${enablePdfExport} ? 'true' : null, is-super-user=${isSuperUser} ? 'true' : null"></sakai-rubrics-manager>
     </div>
   </body>

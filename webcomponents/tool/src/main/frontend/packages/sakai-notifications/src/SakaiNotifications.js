@@ -190,6 +190,8 @@ export class SakaiNotifications extends SakaiElement {
       this._decorateMessageNotification(decorated);
     } else if (toolEventPrefix === "lessonbuilder") {
       this._decorateLessonsCommentNotification(decorated);
+    } else if (toolEventPrefix === "site") {
+      this._decorateSiteImportNotification(decorated);
     } else if (toolEventPrefix === "test") {
       this._decorateTestNotification(decorated);
     }
@@ -227,7 +229,7 @@ export class SakaiNotifications extends SakaiElement {
 
   _decorateMessageNotification(noti) {
 
-    if (noti.event === "messages.new") {
+    if (noti.event === "messages.new" || noti.event === "messages.reply") {
       noti.title = this._i18n.message_received.replace("{0}", noti.fromDisplayName).replace("{1}", noti.siteTitle);
     } else if (noti.event === "messages.read.receipt") {
       noti.title = this._i18n.message_read.replace("{0}", noti.fromDisplayName).replace("{1}", noti.siteTitle);
@@ -237,6 +239,13 @@ export class SakaiNotifications extends SakaiElement {
   _decorateLessonsCommentNotification(noti) {
 
     noti.title = this._i18n.lessons_comment_posted.replace("{0}", noti.siteTitle);
+  }
+
+  _decorateSiteImportNotification(noti) {
+
+    if (noti.event === "site.import.end") {
+      noti.title = this._i18n.site_import_completed.replace("{0}", () => noti.siteTitle);
+    }
   }
 
   _decorateTestNotification(noti) {

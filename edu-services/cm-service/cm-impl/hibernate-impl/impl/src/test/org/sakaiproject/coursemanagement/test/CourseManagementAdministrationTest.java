@@ -27,6 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.when;
+
+import org.sakaiproject.coursemanagement.impl.exception.PermissionException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,6 +55,15 @@ public class CourseManagementAdministrationTest extends CourseManagementTestBase
 	@Autowired
 	private CourseManagementAdministration cmAdmin;
 	
+    @Test
+    public void testCreateAcademicSessionRequiresPermission() {
+        when(securityService.unlock(CourseManagementService.SECURE_CM_ADMIN,
+                CourseManagementService.ENTITY_CM_ADMIN)).thenReturn(false);
+        Assert.assertThrows(PermissionException.class,
+                () -> cmAdmin.createAcademicSession("denied", "Denied", "Denied", new Date(), new Date()));
+        Assert.assertThrows(IdNotFoundException.class, () -> cm.getAcademicSession("denied"));
+    }
+
 	@Test
 	public void testCreateAcademicSession() throws Exception {
 		cmAdmin.createAcademicSession("as1", "academic session 1", "an academic session", new Date(), new Date());

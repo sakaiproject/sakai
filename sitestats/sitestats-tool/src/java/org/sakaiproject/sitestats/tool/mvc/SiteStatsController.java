@@ -1,0 +1,328 @@
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.sakaiproject.sitestats.tool.mvc;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+
+import lombok.RequiredArgsConstructor;
+
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.sitestats.api.report.ReportDef;
+import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
+import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import org.sakaiproject.sitestats.api.view.SiteStatsServerWideReportIds;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolExportService.ExportResult;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.CopiedReport;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.OverviewResult;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesForm;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesResult;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Controller
+@RequiredArgsConstructor
+public class SiteStatsController {
+
+    private final SiteStatsToolService toolService;
+    private final SiteStatsToolExportService exportService;
+    private final MessageSource messageSource;
+    private final SiteStatsResourceSearchService resourceSearchService;
+
+    @GetMapping({"/", "/index.html"})
+    public String index(RedirectAttributes redirectAttributes) {
+        return toolService.isAdminTool() ? "redirect:/summary" : "redirect:/home";
+    }
+
+    @GetMapping("/summary")
+    public String summary(Model model) {
+        OverviewResult result = toolService.institutionalOverviewWithEndpoints(toolService.currentSiteId());
+        commonModel(model, result.getOverview().getSiteId(), "summary");
+        model.addAttribute("overview", result.getOverview());
+        model.addAttribute("widgetEndpoints", result.getWidgetEndpoints());
+        model.addAttribute("metricEndpoints", result.getMetricEndpoints());
+        model.addAttribute("highlightEndpoints", result.getHighlightEndpoints());
+        model.addAttribute("widgetHighlightsJson", result.getWidgetHighlightsJson());
+        return "admin/summary";
+    }
+
+    @GetMapping("/home")
+    public String overview(@RequestParam(name = "siteId", required = false) String siteId, Model model) {
+        OverviewResult result = toolService.overviewWithEndpoints(siteId);
+        commonModel(model, result.getOverview().getSiteId(), "overview");
+        model.addAttribute("overview", result.getOverview());
+        model.addAttribute("widgetEndpoints", result.getWidgetEndpoints());
+        model.addAttribute("metricEndpoints", result.getMetricEndpoints());
+        model.addAttribute("highlightEndpoints", result.getHighlightEndpoints());
+        model.addAttribute("widgetHighlightsJson", result.getWidgetHighlightsJson());
+        return "overview";
+    }
+
+    @GetMapping("/reports")
+    public String reports(@RequestParam(name = "siteId", required = false) String siteId, Model model) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        commonModel(model, authorizedSiteId, "reports");
+        model.addAttribute("reports", toolService.reports(authorizedSiteId));
+        return "reports/list";
+    }
+
+    @GetMapping("/reports/new")
+    public String newReport(@RequestParam(name = "siteId", required = false) String siteId, Model model) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        SiteStatsReportForm form = toolService.newReportForm();
+        commonReportForm(model, authorizedSiteId, form);
+        return "reports/edit";
+    }
+
+    @GetMapping("/reports/users")
+    @ResponseBody
+    public List<SiteStatsToolService.NamedOption> reportUsers(@RequestParam(name = "siteId", required = false) String siteId,
+            @RequestParam("q") String q) {
+        return toolService.searchReportUsers(siteId, q);
+    }
+
+    @GetMapping(value = "/reports/resources", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<List<SiteStatsResourceSearchService.ResourceOption>> reportResources(
+            @RequestParam(name = "siteId", required = false) String siteId) {
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(resourceSearchService.resources(toolService.reportSite(siteId)));
+    }
+
+    @GetMapping("/reports/{reportId}/edit")
+    public String editReport(@PathVariable("reportId") long reportId, @RequestParam(name = "siteId", required = false) String siteId, Model model) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        SiteStatsReportForm form = toolService.editReportForm(authorizedSiteId, reportId);
+        commonReportForm(model, authorizedSiteId, form);
+        return "reports/edit";
+    }
+
+    @PostMapping("/reports/save")
+    public String saveReport(@RequestParam(name = "siteId", required = false) String siteId, @ModelAttribute SiteStatsReportForm reportForm,
+            @RequestParam("action") String action, Model model, RedirectAttributes redirectAttributes) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        String validationCode = toolService.validateReport(authorizedSiteId, reportForm);
+        if (validationCode != null) {
+            commonReportForm(model, authorizedSiteId, reportForm);
+            model.addAttribute("error", message(validationCode));
+            model.addAttribute("errorCode", validationCode);
+            return "reports/edit";
+        }
+        if ("preview".equals(action)) {
+            String previewId = toolService.previewReport(authorizedSiteId, reportForm);
+            return "redirect:/reports/preview/" + previewId + "?siteId=" + authorizedSiteId;
+        }
+        long reportId = toolService.saveReport(authorizedSiteId, reportForm);
+        redirectAttributes.addFlashAttribute("success", message("report_save_success", reportForm.getTitle()));
+        return "redirect:/reports/" + reportId + "?siteId=" + authorizedSiteId;
+    }
+
+    @PostMapping("/reports/{reportId}/copy")
+    public String copyReport(@PathVariable("reportId") long reportId, @RequestParam(name = "siteId", required = false) String siteId,
+            RedirectAttributes redirectAttributes) {
+        CopiedReport copiedReport = toolService.copyReport(siteId, reportId);
+        redirectAttributes.addFlashAttribute("success", message("report_copy_success"));
+        return "redirect:/reports/" + copiedReport.getReportId() + "?siteId=" + copiedReport.getSiteId();
+    }
+
+    @PostMapping("/reports/{reportId}/delete")
+    public String deleteReport(@PathVariable("reportId") long reportId, @RequestParam(name = "siteId", required = false) String siteId,
+            RedirectAttributes redirectAttributes) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        toolService.deleteReport(authorizedSiteId, reportId);
+        redirectAttributes.addFlashAttribute("success", message("report_delete_success"));
+        return "redirect:/reports?siteId=" + authorizedSiteId;
+    }
+
+    @GetMapping("/reports/{reportId}")
+    public String report(@PathVariable("reportId") long reportId, @RequestParam(name = "siteId", required = false) String siteId, Model model) {
+        ReportDef report = toolService.reportDefinition(siteId, reportId);
+        commonModel(model, report.getSiteId(), "reports");
+        model.addAttribute("report", report);
+        model.addAttribute("reportEndpoint", SiteStatsApiUrls.persistedReport(report.getSiteId(), reportId, reportRequest()));
+        model.addAttribute("preview", false);
+        return "reports/view";
+    }
+
+    @GetMapping("/reports/preview/{previewId}/edit")
+    public String editPreview(@PathVariable("previewId") String previewId, @RequestParam(name = "siteId", required = false) String siteId,
+            Model model) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        commonReportForm(model, authorizedSiteId, toolService.previewReportForm(authorizedSiteId, previewId));
+        return "reports/edit";
+    }
+
+    @GetMapping("/reports/preview/{previewId}")
+    public String preview(@PathVariable("previewId") String previewId, @RequestParam(name = "siteId", required = false) String siteId, Model model) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        ReportDef report = toolService.previewReportDefinition(authorizedSiteId, previewId);
+        commonModel(model, authorizedSiteId, "reports");
+        model.addAttribute("report", report);
+        model.addAttribute("reportEndpoint", SiteStatsApiUrls.previewReport(authorizedSiteId, previewId, reportRequest()));
+        model.addAttribute("previewId", previewId);
+        model.addAttribute("preview", true);
+        return "reports/view";
+    }
+
+    @GetMapping("/reports/{reportId}/export/{format}")
+    public ResponseEntity<byte[]> exportReport(@PathVariable("reportId") long reportId, @PathVariable("format") String format,
+            @RequestParam(name = "siteId", required = false) String siteId) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        return export(exportService.persistedReport(authorizedSiteId, reportId, format));
+    }
+
+    @GetMapping("/reports/preview/{previewId}/export/{format}")
+    public ResponseEntity<byte[]> exportPreview(@PathVariable("previewId") String previewId, @PathVariable("format") String format,
+            @RequestParam(name = "siteId", required = false) String siteId) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        return export(exportService.previewReport(authorizedSiteId, previewId, format));
+    }
+
+    @GetMapping("/preferences")
+    public String preferences(@RequestParam(name = "siteId", required = false) String siteId, Model model) {
+        PreferencesResult result = toolService.preferences(siteId);
+        commonModel(model, result.getSiteId(), "preferences");
+        model.addAttribute("preferencesForm", result.getForm());
+        model.addAttribute("tools", result.getTools());
+        model.addAttribute("defaultGradesThreshold", result.getDefaultGradesThreshold());
+        model.addAttribute("chartTransparencyChoices", Arrays.asList(
+                1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f, 0.1f));
+        return "preferences";
+    }
+
+    @PostMapping("/preferences")
+    public String savePreferences(@RequestParam(name = "siteId", required = false) String siteId,
+            @ModelAttribute PreferencesForm preferencesForm, RedirectAttributes redirectAttributes) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        toolService.savePreferences(authorizedSiteId, preferencesForm);
+        redirectAttributes.addFlashAttribute("success", message("prefs_updated"));
+        return "redirect:/preferences?siteId=" + authorizedSiteId;
+    }
+
+    @GetMapping("/useractivity")
+    public String userActivity(@RequestParam(name = "siteId", required = false) String siteId,
+            @ModelAttribute UserActivityForm userActivityForm, Model model) {
+        SiteStatsToolService.UserActivityResult result = toolService.userActivity(siteId, userActivityForm);
+        commonModel(model, result.getSiteId(), "useractivity");
+        model.addAttribute("activity", result);
+        model.addAttribute("userActivityForm", userActivityForm);
+        return "user-activity";
+    }
+
+    @GetMapping("/useractivity/events/{eventId}")
+    public String userActivityDetails(@PathVariable("eventId") long eventId,
+            @RequestParam(name = "siteId", required = false) String siteId,
+            @ModelAttribute UserActivityForm userActivityForm, Model model) {
+        SiteStatsToolService.EventDetailsResult result = toolService.eventDetails(siteId, eventId);
+        commonModel(model, result.getSiteId(), "useractivity");
+        model.addAttribute("eventDetails", result);
+        model.addAttribute("userActivityForm", userActivityForm);
+        return "user-activity-details";
+    }
+
+    @GetMapping("/admin")
+    public String admin(@RequestParam(name = "search", required = false) String search, @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "page", defaultValue = "1") int page, Model model) {
+        List<Site> sites = toolService.adminSites(search, type, page);
+        commonModel(model, toolService.currentSiteId(), "admin");
+        model.addAttribute("sites", sites);
+        model.addAttribute("siteTypes", toolService.siteTypes());
+        model.addAttribute("search", search);
+        model.addAttribute("type", type);
+        model.addAttribute("page", page);
+        model.addAttribute("lastJobRun", toolService.latestJobRun());
+        return "admin/sites";
+    }
+
+    @GetMapping("/serverwide")
+    public String serverWide(@RequestParam("siteId") String siteId,
+            @RequestParam(name = "reportType", defaultValue = SiteStatsServerWideReportIds.MONTHLY_LOGIN) String reportType, Model model) {
+        if (!SiteStatsServerWideReportIds.isSupported(reportType)) {
+            throw new IllegalArgumentException("Unknown server-wide report");
+        }
+        String authorizedSiteId = toolService.adminSite(siteId);
+        commonModel(model, authorizedSiteId, "serverwide");
+        model.addAttribute("reportType", reportType);
+        model.addAttribute("reportEndpoint", SiteStatsApiUrls.serverWideReport(authorizedSiteId, reportType));
+        return "admin/server-wide";
+    }
+
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<Void> forbidden() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Void> notFound() {
+        return ResponseEntity.notFound().build();
+    }
+
+    private void commonReportForm(Model model, String siteId, SiteStatsReportForm form) {
+        commonModel(model, siteId, "reports");
+        SiteStatsToolService.ReportEditorOptions editorOptions = toolService.reportEditorOptions(
+                siteId, form.getWhoUserIds());
+        toolService.prepareReportForm(form, editorOptions);
+        model.addAttribute("reportForm", form);
+        model.addAttribute("editorOptions", editorOptions);
+        model.addAttribute("selectedResourcesJson", toolService.selectedResourcesJson(siteId, form));
+    }
+
+    private void commonModel(Model model, String siteId, String activeMenu) {
+        model.addAttribute("siteId", siteId);
+        model.addAttribute("activeMenu", activeMenu);
+        boolean adminTool = toolService.isAdminTool();
+        model.addAttribute("adminTool", adminTool);
+        model.addAttribute("toolMenuAvailable", adminTool || toolService.canViewAllSiteStats(siteId));
+        model.addAttribute("userActivityAvailable", !adminTool && toolService.canViewUserActivity(siteId));
+    }
+
+    private SiteStatsReportRequest reportRequest() {
+        SiteStatsReportRequest request = new SiteStatsReportRequest();
+        request.setIncludeTable(true);
+        request.setIncludeChart(true);
+        return request;
+    }
+
+    private ResponseEntity<byte[]> export(ExportResult exportResult) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(exportResult.getMediaType());
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename(exportResult.getFilename(), StandardCharsets.UTF_8)
+                .build());
+        return new ResponseEntity<byte[]>(exportResult.getBody(), headers, HttpStatus.OK);
+    }
+
+    private String message(String code, Object... arguments) {
+        return messageSource.getMessage(code, arguments, code, LocaleContextHolder.getLocale());
+    }
+}

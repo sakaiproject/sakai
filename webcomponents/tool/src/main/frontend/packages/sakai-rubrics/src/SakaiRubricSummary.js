@@ -146,8 +146,8 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
           ${this._allEvaluations.map(e => html`
             <tr>
               <td class="rubrics-summary-table-cell rubrics-summary-table-cell-wide nameColumn">${e.sortName}</td>
-              ${e.criterionOutcomes.map(o => html`
-              <td class="rubrics-summary-table-cell rubrics-summary-table-cell point-cell-${o.criterionId}" >${o.points}</td>
+              ${this._criteria.map(c => html`
+              <td class="rubrics-summary-table-cell point-cell-${c.id}">${e.criterionOutcomes.find(o => o.criterionId === c.id)?.points ?? 0}</td>
               `)}
               <td class="rubrics-summary-table-cell rubrics-summary-average-cell point-cell-score" >${e.score}</td>
             </tr>
@@ -185,7 +185,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
       .then(rubric => {
 
         this._rubric = rubric;
-        this._criteria = this._rubric.criteria;
+        this._criteria = this._rubric.criteria.filter(criterion => !this.isCriterionGroup(criterion));
       })
       .catch (error => console.error(error));
   }

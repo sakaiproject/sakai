@@ -31,11 +31,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.faces.model.SelectItemGroup;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.model.SelectItemGroup;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -1066,7 +1066,7 @@ public class ItemBean
         if (list!=null) {
             // add additional answer bean
             int currentsize = list.size();
-            int newlength = currentsize+ new Integer(newvalue).intValue();
+            int newlength = currentsize+ Integer.valueOf(newvalue).intValue();
             if (newlength<=26){
                 for (int i=currentsize; i<newlength; i++){
                     AnswerBean answerbean = new AnswerBean();

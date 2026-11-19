@@ -62,7 +62,7 @@
             </div>
             <div class="block">
               <label for="joinableSetNumOfMembers" class="form-control-label" th:text="#{groups.joinableset.maxmembers}">Max members:</label>
-              <a class="si si-info-circle" tabindex="0" data-bs-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="data-bs-content=''+#{groups.joinableset.maxmembers.info}+''"></a>
+              <a class="si si-info-circle joinableset-popover" tabindex="0" data-bs-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="aria-label=#{groups.more.info}, data-bs-content=''+#{groups.joinableset.maxmembers.info}+''"></a>
             </div>
             <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="1" max="999" class="form-control"/>
           </div>
@@ -73,7 +73,7 @@
               <input id="groupJoinableShowAllUsers" class="form-check-input" type="checkbox" th:field="*{groupJoinableShowAllUsers}" th:checked="${groupForm.groupJoinableShowAllUsers}"/>
               <span th:text="#{groups.joinableset.show.all}">Show all site participants, even if they already joined a group of this joinable set</span>
             </label>
-            <a class="si si-info-circle" tabindex="0" data-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="data-bs-content=''+#{groups.joinableset.show.all.info}+''"></a>
+            <a class="si si-info-circle joinableset-popover" tabindex="0" data-bs-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="aria-label=#{groups.more.info}, data-bs-content=''+#{groups.joinableset.show.all.info}+''"></a>
           </div>
         </div>
       </div>
@@ -91,9 +91,15 @@
           <div class="col-sm-8">
             <label for="groupMembers" class="form-control-label block" th:text="#{groups.assigned.members}">Assigned Members</label>
             <select name="groupMembers" th:field="*{groupMembers}" id="groupMembers" class="form-control" multiple="multiple">
-              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
-              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
-              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${selectableMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
+              <optgroup th:if="${!siteRoleList.isEmpty()}" th:label="#{groups.picker.roles}">
+                <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
+              </optgroup>
+              <optgroup th:if="${!sectionList.isEmpty()}" th:label="#{groups.picker.sections}">
+                <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
+              </optgroup>
+              <optgroup th:if="${!selectableMemberList.isEmpty()}" th:label="#{groups.picker.members}">
+                <option th:attr="data-name=${siteMember.displayName},data-username=${siteMember.eid}" th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${selectableMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
+              </optgroup>
             </select>
           </div>
       </div>
@@ -104,6 +110,7 @@
       </div>
     </form>
   </div>
+  <script type="module" src="/webcomponents/bundles/user-picker.js"></script>
   <script th:replace="~{fragments/javascript :: groupJs}" />
 </body>
 </html>

@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="test-drawer.xsl" ?>
+<?oxygen RNGSchema="file:libraries.rng" type="xml"?>
+<libraries>
+  <library id="logos">
+    <uri>kupudrawers/logos.xml</uri>
+    <title>Logo's</title>
+    <src>kupudrawers/logos.xml</src>
+    <icon>kupuimages/kupulibrary.png</icon>
+  </library>
+  <library id="kupubuttons">
+    <uri>kupudrawers/kupubuttons.xml</uri>
+    <title>Kupu buttons</title>
+    <src>kupudrawers/kupubuttons.xml</src>
+    <icon>kupuimages/kupulibrary.png</icon>
+  </library>
+  <library id="allimages">
+    <uri>kupudrawers/allimages.xml</uri>
+    <title>All images</title>
+    <src>kupudrawers/allimages.xml</src>
+    <icon>kupuimages/kupulibrary.png</icon>
+  </library>
+</libraries>

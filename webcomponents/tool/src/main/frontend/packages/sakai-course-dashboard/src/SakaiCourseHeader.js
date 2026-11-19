@@ -20,7 +20,7 @@ export class SakaiCourseHeader extends SakaiElement {
   _imageEdited(e) {
 
     this.dispatchEvent(new CustomEvent("image-edited", { detail: e.detail, bubbles: true }));
-    this.querySelector("image-editor-launcher").close();
+    this.querySelector("image-editor-launcher")?.close();
   }
 
   shouldUpdate() {
@@ -30,13 +30,15 @@ export class SakaiCourseHeader extends SakaiElement {
   render() {
 
     return html`
-      <div id="container">
-        <div>
-          <img src="${this.site.image}" class="w-100" />
-          ${this.editing ? html`
-          <image-editor-launcher image-url="${this.site.image}" @image-edited=${this._imageEdited}></image-editor-launcher>
-          ` : nothing}
-        </div>
+      <div id="container" class="course-dashboard-header-media">
+        <img src="${this.site.image}"
+            alt="${this.site.title || ""}"
+            class="course-dashboard-header-image" />
+        ${this.editing ? html`
+          <div class="course-dashboard-header-edit">
+            <image-editor-launcher image-url="${this.site.image}" @image-edited=${this._imageEdited}></image-editor-launcher>
+          </div>
+        ` : nothing}
       </div>
     `;
   }

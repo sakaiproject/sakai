@@ -138,6 +138,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         Site site1 = mock(Site.class);
         when(site1.getId()).thenReturn(site1Id);
         when(site1.getTitle()).thenReturn(site1Title);
+        when(portalService.getSiteDisplayTitle(site1)).thenReturn(site1Title);
         when(siteService.getSite(site1Id)).thenReturn(site1);
         String site1ChannelRef = "/main/" + site1Id;
         when(announcementService.channelReference(site1Id, SiteService.MAIN_CONTAINER)).thenReturn(site1ChannelRef);
@@ -145,6 +146,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         var site2 = mock(Site.class);
         when(site2.getId()).thenReturn(site2Id);
         when(site2.getTitle()).thenReturn(site2Title);
+        when(portalService.getSiteDisplayTitle(site2)).thenReturn(site2Title);
         when(siteService.getSite(site2Id)).thenReturn(site2);
         var site2ChannelRef = "/main/" + site2Id;
         when(announcementService.channelReference(site2Id, SiteService.MAIN_CONTAINER)).thenReturn(site2ChannelRef);
@@ -188,6 +190,13 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.announcements[1].url", is(url2)))
             .andExpect(jsonPath("$.announcements[1].date", is(releaseDate2.toEpochMilli())))
             .andDo(document("get-user-announcements"));
+
+        when(portalService.getSiteDisplayTitle(site1)).thenReturn("Site 1 short description");
+
+        mockMvc.perform(get("/users/me/announcements"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.announcements[0].siteTitle", is("Site 1 short description")))
+            .andExpect(jsonPath("$.announcements[1].siteTitle", is(site2Title)));
     }
 
     @Test

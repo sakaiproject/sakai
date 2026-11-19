@@ -21,9 +21,9 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
 
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.RetakeAssessmentBean;
@@ -51,7 +51,7 @@ public class ConfirmRetakeAssessmentListener implements ActionListener {
 		PublishedAssessmentService pubService = new PublishedAssessmentService();
 
 		String publishedAssessmentId = ContextUtil.lookupParam("publishedAssessmentId");
-		Long pubId = new Long(publishedAssessmentId);
+		Long pubId = Long.valueOf(publishedAssessmentId);
 		String agentIdString = ContextUtil.lookupParam("agentIdString");
 		AgentFacade agent = new AgentFacade(agentIdString);
 		String studentName = agent.getDisplayName();

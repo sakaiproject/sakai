@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.web.WebData;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -31,10 +30,10 @@ public class WebResolvedRefTransformer
 	/**
 	 * Transforms WebData for presentation to the user
 	 * @param data the data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(WebData data, ResourceLoader rl)
+	public static List<EventDetail> transform(WebData data, LocalizedMessages rl)
 	{
 		String page = data.pageName;
 		if (data.toolName.isPresent())

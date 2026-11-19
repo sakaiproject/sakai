@@ -115,7 +115,7 @@
             name="org.sakaiproject.component.common.edu.person.SakaiPersonImpl"
             discriminator-value="SP">
 
-            <property name="notes" column="NOTES" type="materialized_clob" length="75000" />
+            <property name="notes" column="NOTES" type="materialized_clob" length="2147483647" />
             <property name="locked" column="locked" type="boolean" />
             <property name="phoneticPronunciation" column="PHONETIC_PRONUNCIATION" length="255" />
             <property name="pronouns" column="PRONOUNS" length="255" />

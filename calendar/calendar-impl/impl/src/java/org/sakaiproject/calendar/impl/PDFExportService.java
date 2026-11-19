@@ -15,15 +15,13 @@
  */
 package org.sakaiproject.calendar.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.time.Instant;
@@ -49,9 +47,7 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
-import org.xml.sax.SAXException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fop.apps.FOPException;
@@ -60,8 +56,6 @@ import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
 import org.apache.fop.apps.MimeConstants;
 // Removed unused configuration imports
-import org.apache.xmlgraphics.io.Resource;
-import org.apache.xmlgraphics.io.ResourceResolver;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -171,7 +165,7 @@ public class PDFExportService {
         this.timeService = timeService;
         this.rb = rb;
 
-        transformerFactory = TransformerFactory.newInstance();
+        transformerFactory = Xml.createSecureTransformerFactory();
         transformerFactory.setURIResolver(new MyURIResolver(getClass().getClassLoader()));
         
         // Create a FOP factory with system fonts (auto-detect)
@@ -203,7 +197,7 @@ public class PDFExportService {
 
         try {
             InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
-            StreamSource source = new StreamSource(in);
+            Source source = Xml.createSecureSource(in);
             Transformer transformer = transformerFactory.newTransformer(source);
             Source src = new DOMSource(doc);
 
@@ -1329,7 +1323,7 @@ public class PDFExportService {
          **/
         public Source resolve( String href, String base ) throws TransformerException {
             InputStream in = classLoader.getResourceAsStream(href);
-            return (Source)(new StreamSource(in));
+            return (Source)(Xml.createSecureSource(in));
         }
 
     }

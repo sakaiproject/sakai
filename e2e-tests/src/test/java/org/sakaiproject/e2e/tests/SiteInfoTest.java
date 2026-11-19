@@ -19,6 +19,8 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,15 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class SiteInfoTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
+
+    @Test
+    void canCreateProjectThroughWorksiteSetup() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createSiteThroughUi("instructor1", List.of("sakai.announcements"), "project");
+        sakai.gotoPath(siteUrl);
+        sakai.toolClick("Announcements");
+        assertThat(page.locator("body")).containsText("Announcements");
+    }
 
     @Test
     void canOpenManageGroupsHelper() {
@@ -42,7 +53,7 @@ class SiteInfoTest extends SakaiUiTestBase {
             .first();
         assertThat(manageGroups).isVisible();
         manageGroups.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("body")).containsText(Pattern.compile("Group List|No groups", Pattern.CASE_INSENSITIVE));
@@ -52,17 +63,168 @@ class SiteInfoTest extends SakaiUiTestBase {
             .first();
         assertThat(createGroup).isVisible();
         createGroup.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("#creategroup-form")).isVisible();
         assertThat(page.locator("#groupTitle")).isVisible();
-        assertThat(page.locator("#groupMembers")).isVisible();
+        assertThat(page.locator("sakai-user-picker").getByRole(AriaRole.COMBOBOX)).isVisible();
+    }
+
+    @Test
+    void canCleanJoinableSetTitles() {
+        sakai.login("instructor1");
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
+            .first().click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool a[href$='/joinableset']").click();
+
+        sakai.waitForPortalFocus();
+        page.locator("#groupTitle").fill("<em></em>");
+        page.locator("#groupNumber").fill("1");
+        page.locator("#groupMaxMembers").fill("5");
+        page.locator("#groupTitle").press("End");
+        page.locator("#create-joinableset-submit-button").click();
+        assertThat(page.locator(".portletBody:has(#createnewjoinableset-form) .sak-banner-error")).hasText("You must provide a set title.");
+
+        sakai.waitForPortalFocus();
+        page.locator("#groupTitle").fill("<em>Planning & Review</em>");
+        page.locator("#groupNumber").fill("1");
+        page.locator("#groupMaxMembers").fill("5");
+        page.locator("#groupTitle").press("End");
+        page.locator("#create-joinableset-submit-button").click();
+        assertThat(page.locator("#group-manager-form")).isVisible();
+        assertThat(page.locator("#group-manager-form")).containsText("Planning & Review 1");
+        assertThat(page.locator("#group-manager-form")).not().containsText("<em>Planning & Review</em>");
+
+        page.locator(".navIntraTool a[href$='/joinableset']").click();
+        sakai.waitForPortalFocus();
+        page.locator("#groupTitle").fill("<strong>Planning & Review</strong>");
+        page.locator("#groupNumber").fill("1");
+        page.locator("#groupMaxMembers").fill("5");
+        page.locator("#groupTitle").press("End");
+        page.locator("#create-joinableset-submit-button").click();
+        assertThat(page.locator(".portletBody:has(#createnewjoinableset-form) .sak-banner-error"))
+            .hasText("The set name has been used already. Please choose a different one.");
+    }
+
+    @Test
+    void canCleanSingleGroupTitles() {
+        sakai.login("instructor1");
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
+            .first().click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool a[href$='/group']").click();
+        assertThat(page.locator("sakai-user-picker").getByRole(AriaRole.COMBOBOX)).isVisible();
+        sakai.waitForPortalFocus();
+        page.locator("#groupTitle").pressSequentially("<em>Workshop</em>");
+        Locator picker = page.locator("sakai-user-picker");
+        picker.getByRole(AriaRole.COMBOBOX).click();
+        picker.getByRole(AriaRole.OPTION).first().click();
+        picker.getByRole(AriaRole.COMBOBOX).press("Escape");
+        page.locator("#create-group-submit-button").click();
+
+        assertThat(page.locator("#group-manager-form a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Workshop$")))).isVisible();
+        assertThat(page.locator("#group-manager-form")).not().containsText("<em>Workshop</em>");
+    }
+
+    @Test
+    void canAddParticipantWithThymeleafWizard() {
+        sakai.login("instructor1");
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+
+        Locator addParticipants = page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add Participants$", Pattern.CASE_INSENSITIVE)))
+            .first();
+        assertThat(addParticipants).isVisible();
+        addParticipants.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        assertNoTemplateRenderingError();
+        assertThat(page.locator("#participant-helper")).isVisible();
+        assertThat(page.locator("nav[aria-label=\"Add participants progress\"] .breadcrumb-item").last()).hasText("Finish");
+        page.locator("#officialAccountParticipant").fill("instructor1");
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        Locator existingParticipantMessage = page.locator("#participant-helper .sak-banner-warn")
+                .filter(new Locator.FilterOptions().setHasText("instructor1"));
+        assertThat(existingParticipantMessage).containsText("instructor1");
+        assertThat(existingParticipantMessage).not().containsText("[Ljava.lang.Object;");
+        page.locator("#officialAccountParticipant").fill("instructor1\nstudent0011\nstudent0011");
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        assertThat(existingParticipantMessage).isVisible();
+        assertThat(existingParticipantMessage).containsText("instructor1");
+        assertThat(page.locator("#participant-helper")).not()
+                .containsText("You may continue adding the other participants by following the directions below.");
+
+        page.locator("#different-role").check(new Locator.CheckOptions().setForce(true));
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#participant-helper .sak-banner-error")).isVisible();
+        assertThat(page.locator("#participant-role-0")).hasValue("");
+
+        page.locator("#same-role").check(new Locator.CheckOptions().setForce(true));
+        Locator sameRole = page.locator("input[name=\"sameRoleChoice\"][value=\"maintain\"]");
+        assertThat(sameRole).isVisible();
+        sameRole.check(new Locator.CheckOptions().setForce(true));
+        assertThat(page.locator("#same-role-participants")).not().isVisible();
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        Locator sendEmail = page.locator("#send-email");
+        assertThat(sendEmail).isVisible();
+        sendEmail.check(new Locator.CheckOptions().setForce(true));
+        page.locator("#participant-helper form button")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE)))
+            .click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#send-email")).isChecked();
+
+        Locator dontSend = page.locator("#dont-send-email");
+        dontSend.check(new Locator.CheckOptions().setForce(true));
+        assertThat(page.locator("#participant-helper")).containsText("student0011");
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        assertNoTemplateRenderingError();
+        assertThat(page.locator("body")).containsText("Manage Participants");
+        assertThat(page.locator("body")).containsText("student0011");
+    }
+
+    @Test
+    void canCancelParticipantWizard() {
+        sakai.login("instructor1");
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+
+        Locator addParticipants = page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add Participants$", Pattern.CASE_INSENSITIVE)))
+            .first();
+        addParticipants.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        page.locator("#participant-helper button")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Cancel$", Pattern.CASE_INSENSITIVE)))
+            .click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        assertThat(page.locator("body")).containsText(Pattern.compile("Site Information|Site Info", Pattern.CASE_INSENSITIVE));
     }
 
     private String ensureCourseUrl() {
         if (sakaiUrl == null || sakaiUrl.isBlank()) {
-            sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.announcements"));
+            sakaiUrl = sakai.createProject("instructor1", List.of("sakai\\.announcements"));
         }
         return sakaiUrl;
     }

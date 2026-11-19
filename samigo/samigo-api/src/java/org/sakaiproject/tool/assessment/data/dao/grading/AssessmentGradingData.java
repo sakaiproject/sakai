@@ -251,7 +251,7 @@ public class AssessmentGradingData implements java.io.Serializable
 	public void setTotalAutoScore(Double totalAutoScore) {
 		if (totalAutoScore != null) {
 			if (totalAutoScore.doubleValue() < 0) {
-				this.totalAutoScore = new Double("0");
+				this.totalAutoScore = Double.valueOf("0");
 			} else {
 				this.totalAutoScore = totalAutoScore;
 			}
@@ -274,7 +274,7 @@ public class AssessmentGradingData implements java.io.Serializable
 		 * double total = 0; if (this.totalAutoScore != null) total +=
 		 * this.totalAutoScore.doubleValue(); if (this.totalOverrideScore !=
 		 * null) total += this.totalOverrideScore.doubleValue(); this.finalScore
-		 * = new Double(total); }
+		 * = Double.valueOf(total); }
 		 * 
 		 * // remove rounding , SAK-2848 // Round to the nearest 1/10th. if
 		 * (this.finalScore !=null ){ double alignment =

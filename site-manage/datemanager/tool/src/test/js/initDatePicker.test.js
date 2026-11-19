@@ -1,0 +1,435 @@
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Unit tests for the PURE date logic in initDatePicker.js. The logic is intentionally timezone-agnostic
+// (wall-clock only; Sakai resolves the zone server-side via UserTimeService), so these tests assert on
+// wall-clock values, never on epoch instants. To prove the timezone independence, npm test runs this
+// whole file twice: once under TZ=UTC and once under TZ=Europe/Stockholm, a DST-observing zone (see
+// package.json) - every assertion must hold in both. DOM/jQuery glue (fill, apply, collapse, attach)
+// is intentionally not covered here - see README.md. Run: npm test
+
+const { test } = require("node:test");
+const assert = require("node:assert/strict");
+const { loadDtmn } = require("./loadDtmn");
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const WALL = "YYYY-MM-DDTHH:mm:ss";
+
+const { DTMN, moment } = loadDtmn();
+// Build a moment from a wall-clock string the same way the tool does (strict, no timezone).
+const mom = (s) => moment(s, ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DD"], true);
+
+// ---------------------------------------------------------------------------
+// parseInputDateValue - the regression guard for the timezone-offset bug.
+// ---------------------------------------------------------------------------
+
+test("parseInputDateValue strips a positive offset and keeps the wall-clock time", () => {
+  const d = DTMN.parseInputDateValue("2026-09-01T09:00:00+02:00", true);
+  assert.ok(d.isValid());
+  assert.equal(d.hours(), 9);
+  assert.equal(d.minutes(), 0);
+  assert.equal(d.format("YYYY-MM-DDTHH:mm:ss"), "2026-09-01T09:00:00");
+});
+
+test("parseInputDateValue strips a negative offset", () => {
+  const d = DTMN.parseInputDateValue("2026-09-01T09:00:00-05:00", true);
+  assert.ok(d.isValid());
+  assert.equal(d.format("YYYY-MM-DDTHH:mm:ss"), "2026-09-01T09:00:00");
+});
+
+test("parseInputDateValue strips a Z suffix", () => {
+  const d = DTMN.parseInputDateValue("2026-09-01T09:00:00Z", true);
+  assert.ok(d.isValid());
+  assert.equal(d.format("YYYY-MM-DDTHH:mm:ss"), "2026-09-01T09:00:00");
+});
+
+test("parseInputDateValue with useTime=false yields a valid date-only moment from a datetime+offset", () => {
+  // Gradebook columns are date-only, but localDatePicker still stores a full datetime+offset.
+  const d = DTMN.parseInputDateValue("2026-09-01T00:00:00+02:00", false);
+  assert.ok(d.isValid());
+  assert.equal(d.format("YYYY-MM-DD"), "2026-09-01");
+});
+
+test("parseInputDateValue still parses a value that has no offset", () => {
+  const d = DTMN.parseInputDateValue("2026-09-01T09:00:00", true);
+  assert.ok(d.isValid());
+  assert.equal(d.format("YYYY-MM-DDTHH:mm:ss"), "2026-09-01T09:00:00");
+});
+
+test("parseInputDateValue returns an invalid moment for an empty value", () => {
+  assert.equal(DTMN.parseInputDateValue("", true).isValid(), false);
+});
+
+test("documents the bug: parseDatePickerInputValue (strict, no offset token) rejects the offset string", () => {
+  // This is exactly why parseInputDateValue exists: the raw strict parser cannot read the
+  // localDatePicker hidden value, which is what made every apply silently no-op.
+  const raw = DTMN.parseDatePickerInputValue("2026-09-01T09:00:00+02:00", true);
+  assert.equal(raw.isValid(), false);
+  // ...and the wrapper fixes it.
+  assert.equal(DTMN.parseInputDateValue("2026-09-01T09:00:00+02:00", true).isValid(), true);
+});
+
+// ---------------------------------------------------------------------------
+// Wall-clock fidelity: parse then format must not shift the value (no timezone math).
+// ---------------------------------------------------------------------------
+
+test("datetime round-trips through parse and the hidden/visible formatters", () => {
+  const parsed = DTMN.parseDatePickerInputValue("2026-09-01T09:30:00", true);
+  assert.equal(DTMN.getHiddenDateValue(parsed, true), "2026-09-01T09:30:00");
+  assert.equal(DTMN.getDatePickerInputValue(parsed, true), "2026-09-01T09:30");
+});
+
+test("date-only round-trips through parse and the formatters", () => {
+  const parsed = DTMN.parseDatePickerInputValue("2026-09-01", false);
+  assert.equal(DTMN.getHiddenDateValue(parsed, false), "2026-09-01");
+  assert.equal(DTMN.getDatePickerInputValue(parsed, false), "2026-09-01");
+});
+
+// ---------------------------------------------------------------------------
+// snapToSourceWeekday - keep each item's own weekday + clock time, move by whole days (<= 3).
+// ---------------------------------------------------------------------------
+
+test("snapToSourceWeekday lands on the source weekday nearest the target, carrying source's time", () => {
+  const source = mom("2026-09-14T09:30:15"); // a Monday
+  const target = mom("2026-09-16T00:00:00"); // a Wednesday, 2 days later
+  const result = DTMN.snapToSourceWeekday(target, source);
+
+  assert.equal(result.day(), source.day());
+  assert.equal(result.hours(), 9);
+  assert.equal(result.minutes(), 30);
+  assert.equal(result.seconds(), 15);
+  assert.equal(result.format("YYYY-MM-DD"), "2026-09-14");
+});
+
+test("snapToSourceWeekday never moves more than 3 days and preserves the weekday for all combos", () => {
+  const monday = mom("2026-09-14T00:00:00");
+  for (let t = 0; t < 7; t++) {
+    const target = monday.clone().add(t, "days");
+    for (let s = 0; s < 7; s++) {
+      const source = monday.clone().add(s, "days").hours(8).minutes(5).seconds(0);
+      const result = DTMN.snapToSourceWeekday(target, source);
+
+      assert.equal(result.day(), source.day(), `weekday preserved (t=${t}, s=${s})`);
+      assert.equal(result.hours(), 8);
+      assert.equal(result.minutes(), 5);
+
+      const dayShift = Math.round(
+        (result.clone().startOf("day").valueOf() - target.clone().startOf("day").valueOf()) / DAY_MS
+      );
+      assert.ok(dayShift >= -3 && dayShift <= 3, `within +/-3 days (t=${t}, s=${s}, shift=${dayShift})`);
+    }
+  }
+});
+
+test("snapToSourceWeekday keeps same-weekday items a whole number of weeks apart", () => {
+  const source = mom("2026-09-16T10:00:00"); // Wednesday
+  const target1 = mom("2026-09-14T00:00:00"); // Monday
+  const target2 = target1.clone().add(14, "days"); // Monday, two weeks on
+
+  const r1 = DTMN.snapToSourceWeekday(target1, source);
+  const r2 = DTMN.snapToSourceWeekday(target2, source);
+
+  const diffDays = Math.round((r2.startOf("day").valueOf() - r1.startOf("day").valueOf()) / DAY_MS);
+  assert.equal(diffDays % 7, 0);
+});
+
+// ---------------------------------------------------------------------------
+// computeFittedDate - the extracted Smart Shift per-cell mapping.
+// ---------------------------------------------------------------------------
+
+const anchors = () => ({ first: mom("2026-07-01T00:00:00"), last: mom("2026-09-19T00:00:00") });
+
+test("computeFittedDate maps the earliest cell exactly onto the new first date", () => {
+  const a = anchors();
+  const result = DTMN.computeFittedDate(1000, 1000, 1000, a, false, null);
+  assert.equal(result.format(WALL), a.first.format(WALL));
+});
+
+test("computeFittedDate maps the latest cell exactly onto the new last date", () => {
+  const a = anchors();
+  const result = DTMN.computeFittedDate(2000, 1000, 1000, a, false, null);
+  assert.equal(result.format(WALL), a.last.format(WALL));
+});
+
+test("computeFittedDate collapses everything onto the new first date when the old span is zero", () => {
+  const a = anchors();
+  const result = DTMN.computeFittedDate(5000, 5000, 0, a, false, null);
+  assert.equal(result.format(WALL), a.first.format(WALL));
+});
+
+test("computeFittedDate places a middle cell proportionally when snap is off", () => {
+  const a = anchors();
+  const result = DTMN.computeFittedDate(1500, 1000, 1000, a, false, null);
+  // the wall-clock midpoint of Jul 1 -> Sep 19 (80 days)
+  assert.equal(result.format(WALL), "2026-08-10T00:00:00");
+});
+
+test("computeFittedDate snaps a middle cell to the source weekday, staying near the proportional target", () => {
+  const a = anchors();
+  const source = mom("2026-08-12T13:00:00"); // arbitrary mid-term Wednesday
+  const result = DTMN.computeFittedDate(1500, 1000, 1000, a, true, source);
+
+  assert.equal(result.day(), source.day());
+  const firstMs = DTMN.wallClockMs(a.first);
+  const proportionalMs = firstMs + (DTMN.wallClockMs(a.last) - firstMs) / 2;
+  const shiftDays = Math.abs(DTMN.wallClockMs(result) - proportionalMs) / DAY_MS;
+  assert.ok(shiftDays <= 3.5, `snap stays within ~half a week of the proportional target (shift=${shiftDays})`);
+});
+
+test("computeFittedDate: the LATEST date wins the end anchor regardless of column role", () => {
+  // This is the behaviour that confused us during manual testing: an assignment's open date that
+  // happened to be later than its due/accept dates correctly received the new LAST date.
+  const a = anchors();
+  const openIsLatest = DTMN.computeFittedDate(1000, 100, 900, a, false, null);
+  assert.equal(openIsLatest.format(WALL), a.last.format(WALL));
+});
+
+// ---------------------------------------------------------------------------
+// DST independence - fitting is wall-clock math, so the result must be the same clock time in
+// every browser timezone. These scenarios straddle the European DST transitions (2026-03-29 and
+// 2026-10-25); under the Europe/Stockholm run they fail against epoch-instant interpolation.
+// ---------------------------------------------------------------------------
+
+test("computeFittedDate keeps the wall-clock midpoint when the OLD range crosses a DST change", () => {
+  // Maintainer repro: midpoint of Mar 1 -> Apr 1 09:00 fitted into May 1 -> Jun 1 09:00 must be
+  // exactly May 16 21:00, not 21:30, regardless of the browser timezone.
+  const a = { first: mom("2026-05-01T09:00:00"), last: mom("2026-06-01T09:00:00") };
+  const oldStart = DTMN.wallClockMs(mom("2026-03-01T09:00:00"));
+  const oldSpan = DTMN.wallClockMs(mom("2026-04-01T09:00:00")) - oldStart;
+  const mid = DTMN.wallClockMs(mom("2026-03-16T21:00:00")); // wall-clock midpoint of the old range
+
+  const result = DTMN.computeFittedDate(mid, oldStart, oldSpan, a, false, null);
+
+  assert.equal(result.format(WALL), "2026-05-16T21:00:00");
+});
+
+test("computeFittedDate can land in a clock time that does not exist locally (spring-forward gap)", () => {
+  // 02:30 on 2026-03-29 does not exist in Europe/Stockholm; wall-clock fitting must still be able
+  // to produce it instead of letting the browser zone shift it.
+  const a = { first: mom("2026-03-28T02:30:00"), last: mom("2026-03-30T02:30:00") };
+  const result = DTMN.computeFittedDate(1, 0, 2, a, false, null); // frac 0.5 -> the midpoint
+
+  assert.equal(result.format(WALL), "2026-03-29T02:30:00");
+});
+
+// ---------------------------------------------------------------------------
+// computeRowFittedDates - per-row snap guard: snapping must never reorder an item's own dates
+// (the server rejects due-before-open on save) or leave the new term window.
+// ---------------------------------------------------------------------------
+
+const rowCell = (m) => ({ current: m, currentMs: DTMN.wallClockMs(m) });
+
+test("computeRowFittedDates falls back to proportional when snapping would invert open/due under compression", () => {
+  // 16-week course squeezed into 4 weeks: open Fri 09:00 / due the following Mon 17:00 snap to
+  // their own weekdays independently, which used to yield due BEFORE open for every such item -
+  // an unsaveable state. The row must fall back to proportional placement instead.
+  const a = { first: mom("2026-09-01T00:00:00"), last: mom("2026-09-28T00:00:00") }; // 4 weeks
+  const oldStart = DTMN.wallClockMs(mom("2026-01-05T00:00:00"));
+  const oldSpan = DTMN.wallClockMs(mom("2026-04-27T00:00:00")) - oldStart; // ~16 weeks
+  const open = rowCell(mom("2026-03-06T09:00:00")); // Friday
+  const due = rowCell(mom("2026-03-09T17:00:00")); // the following Monday
+
+  // premise: independent per-cell snapping really does invert this pair
+  const cellSnappedOpen = DTMN.computeFittedDate(open.currentMs, oldStart, oldSpan, a, true, open.current);
+  const cellSnappedDue = DTMN.computeFittedDate(due.currentMs, oldStart, oldSpan, a, true, due.current);
+  assert.ok(DTMN.wallClockMs(cellSnappedOpen) > DTMN.wallClockMs(cellSnappedDue), "scenario must trigger the inversion hazard");
+
+  const out = DTMN.computeRowFittedDates([open, due], oldStart, oldSpan, a, true);
+
+  assert.ok(DTMN.wallClockMs(out[0]) <= DTMN.wallClockMs(out[1]), "open must not pass due");
+  assert.ok(DTMN.wallClockMs(out[0]) >= DTMN.wallClockMs(a.first), "stays inside the new window (start)");
+  assert.ok(DTMN.wallClockMs(out[1]) <= DTMN.wallClockMs(a.last), "stays inside the new window (end)");
+});
+
+test("computeRowFittedDates keeps weekday snapping on a same-length rollover", () => {
+  // fall -> spring, identical length: snapping is safe, so it must stay active and both cells
+  // keep their weekday and clock time.
+  const oldStart = DTMN.wallClockMs(mom("2026-09-07T00:00:00")); // Monday
+  const oldSpan = DTMN.wallClockMs(mom("2026-12-28T00:00:00")) - oldStart; // 112 days
+  const a = { first: mom("2027-01-04T00:00:00"), last: mom("2027-04-26T00:00:00") }; // 112 days
+  const open = rowCell(mom("2026-10-09T09:00:00")); // Friday
+  const due = rowCell(mom("2026-10-12T17:00:00")); // Monday
+
+  const out = DTMN.computeRowFittedDates([open, due], oldStart, oldSpan, a, true);
+
+  assert.equal(out[0].day(), 5, "open keeps its Friday");
+  assert.equal(out[0].hours(), 9);
+  assert.equal(out[1].day(), 1, "due keeps its Monday");
+  assert.equal(out[1].hours(), 17);
+  assert.ok(DTMN.wallClockMs(out[0]) < DTMN.wallClockMs(out[1]), "row order preserved");
+});
+
+test("computeRowFittedDates without snap returns the plain proportional placement", () => {
+  const a = anchors();
+  const cell = rowCell(mom("2026-08-12T13:00:00"));
+  const out = DTMN.computeRowFittedDates([cell], 1000, 1000, a, false);
+  assert.equal(
+    out[0].format(WALL),
+    DTMN.computeFittedDate(cell.currentMs, 1000, 1000, a, false, null).format(WALL)
+  );
+});
+
+test("computeRowFittedDates keeps exact wall-clock times when the NEW term crosses a DST change", () => {
+  // Old term sits entirely inside European summer time; the new term spans the fall-back on
+  // 2026-10-25. Equal 56-day spans mean each cell keeps its day-offset and clock time exactly -
+  // epoch-instant interpolation would smear these by the transition hour under the Stockholm run.
+  const oldStart = DTMN.wallClockMs(mom("2026-07-06T00:00:00")); // Monday
+  const oldSpan = DTMN.wallClockMs(mom("2026-08-31T00:00:00")) - oldStart; // 56 days
+  const a = { first: mom("2026-10-05T00:00:00"), last: mom("2026-11-30T00:00:00") }; // 56 days
+  const open = rowCell(mom("2026-07-31T09:00:00")); // Friday
+  const due = rowCell(mom("2026-08-03T17:00:00")); // Monday
+
+  const out = DTMN.computeRowFittedDates([open, due], oldStart, oldSpan, a, false);
+
+  assert.equal(out[0].format(WALL), "2026-10-30T09:00:00");
+  assert.equal(out[1].format(WALL), "2026-11-02T17:00:00");
+});
+
+// ---------------------------------------------------------------------------
+// computeDayDiff - the date-difference helper feeding the shift field.
+// ---------------------------------------------------------------------------
+
+test("computeDayDiff returns signed whole days between two dates", () => {
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-06"), mom("2026-01-20")), 14);
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-20"), mom("2026-01-06")), -14);
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-06"), mom("2026-01-06")), 0);
+});
+
+test("computeDayDiff counts calendar days, ignoring time of day", () => {
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-06T23:00:00"), mom("2026-01-07T01:00:00")), 1);
+});
+
+test("computeDayDiff counts whole days across a month boundary", () => {
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-25"), mom("2026-02-05")), 11);
+});
+
+// ---------------------------------------------------------------------------
+// applyDateDiff - the term start pickers feeding the shift field live.
+// ---------------------------------------------------------------------------
+
+// applyDateDiff only reads/writes DTMN-held element handles, so a fresh DTMN with plain object
+// stand-ins exercises the wiring without a DOM.
+function diffFixture(fromValue, toValue, shiftValue) {
+  const { DTMN: dtmn } = loadDtmn();
+  dtmn.diffFromHidden = { value: fromValue };
+  dtmn.diffToHidden = { value: toValue };
+  dtmn.diffResult = { textContent: "", dataset: { template: "{0} day(s)" } };
+  dtmn.shiftInput = { value: shiftValue };
+  dtmn.validateCalls = 0;
+  dtmn.validateShiftInput = () => { dtmn.validateCalls++; };
+  return dtmn;
+}
+
+test("applyDateDiff loads the day count into the shift field and shows the result", () => {
+  const dtmn = diffFixture("2026-01-06", "2026-03-31", "");
+  dtmn.applyDateDiff();
+  assert.equal(dtmn.shiftInput.value, 84);
+  assert.equal(dtmn.diffResult.textContent, "84 day(s)");
+  assert.equal(dtmn.validateCalls, 1);
+});
+
+test("applyDateDiff leaves the shift field alone while a date is missing", () => {
+  const dtmn = diffFixture("2026-01-06", "", "12");
+  dtmn.applyDateDiff();
+  assert.equal(dtmn.shiftInput.value, "12");
+  assert.equal(dtmn.diffResult.textContent, "");
+  assert.equal(dtmn.validateCalls, 0);
+});
+
+test("applyDateDiff shows but does not load a span beyond the shifter's +/-9999 day limit", () => {
+  const dtmn = diffFixture("1990-01-01", "2026-01-01", "12");
+  dtmn.applyDateDiff();
+  assert.equal(dtmn.shiftInput.value, "12");
+  assert.ok(dtmn.diffResult.textContent.length > 0);
+  assert.equal(dtmn.validateCalls, 0);
+});
+
+// ---------------------------------------------------------------------------
+// computePreviewRange - the whole-month span behind the calendar preview's Overview view.
+// ---------------------------------------------------------------------------
+
+test("computePreviewRange covers first to last event in whole months", () => {
+  const range = DTMN.computePreviewRange([
+    { start: "2026-01-15" },
+    { start: "2026-03-02" },
+    { start: "2026-02-10" },
+  ]);
+  assert.equal(range.earliest, "2026-01-15");
+  assert.equal(range.start, "2026-01-01");
+  assert.equal(range.end, "2026-04-01");
+});
+
+test("computePreviewRange of a single date spans exactly that month", () => {
+  const range = DTMN.computePreviewRange([{ start: "2026-06-20" }]);
+  assert.equal(range.start, "2026-06-01");
+  assert.equal(range.end, "2026-07-01");
+});
+
+test("computePreviewRange clamps very long spans to a year", () => {
+  const range = DTMN.computePreviewRange([
+    { start: "2026-01-15" },
+    { start: "2029-05-01" },
+  ]);
+  assert.equal(range.start, "2026-01-01");
+  assert.equal(range.end, "2027-01-01");
+});
+
+test("computePreviewRange returns null with no events", () => {
+  assert.equal(DTMN.computePreviewRange([]), null);
+});
+
+// ---------------------------------------------------------------------------
+// formatTemplate - placeholder substitution for banner/button templates.
+// ---------------------------------------------------------------------------
+
+test("formatTemplate substitutes indexed placeholders, including repeats", () => {
+  assert.equal(DTMN.formatTemplate("Shifted {0} date(s) in {1} tool(s).", [39, 7]),
+    "Shifted 39 date(s) in 7 tool(s).");
+  assert.equal(DTMN.formatTemplate("{0} and {0} again, then {1}", ["a", "b"]),
+    "a and a again, then b");
+});
+
+// ---------------------------------------------------------------------------
+// previewEventTextColor - accessible text on the calendar preview markers.
+// ---------------------------------------------------------------------------
+
+// WCAG relative-luminance contrast ratio, computed independently of the implementation.
+const contrast = (hexA, hexB) => {
+  const lum = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    const lin = (c) => {
+      const s = c / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  };
+  const [hi, lo] = [lum(hexA), lum(hexB)].sort((a, b) => b - a);
+  return (hi + 0.05) / (lo + 0.05);
+};
+
+test("previewEventTextColor keeps white text on dark fills and switches to black on light ones", () => {
+  assert.equal(DTMN.previewEventTextColor("#6f42c1"), "#ffffff");
+  assert.equal(DTMN.previewEventTextColor("#0dcaf0"), "#000000");
+  assert.equal(DTMN.previewEventTextColor("#20c997"), "#000000");
+  assert.equal(DTMN.previewEventTextColor("#fd7e14"), "#000000");
+});
+
+test("every preview tool color meets WCAG AA (4.5:1) with its chosen text color", () => {
+  for (const [tool, fill] of Object.entries(DTMN.previewToolColors)) {
+    const text = DTMN.previewEventTextColor(fill);
+    assert.ok(contrast(fill, text) >= 4.5, `${tool} ${fill} with ${text} text is below 4.5:1`);
+  }
+});

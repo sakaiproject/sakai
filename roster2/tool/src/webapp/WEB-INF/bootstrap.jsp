@@ -72,9 +72,9 @@
 
         <script>includeLatestJQuery("roster");</script>
         <script>includeWebjarLibrary("handlebars");</script>
-        <script>includeWebjarLibrary("select2");</script>
         <script src="/sakai-roster2-tool/templates.js${portalCDNQuery}"></script>
         <script type="module">
+            import "/webcomponents/bundles/user-picker.js${portalCDNQuery}";
             import {loadRoster} from "/sakai-roster2-tool/js/roster.js${portalCDNQuery}";
             loadRoster();
         </script>

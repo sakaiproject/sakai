@@ -8,7 +8,13 @@
 			description="Display the system message of the day">
 
 		<configuration name="days" value="1000" />
-		<configuration name="items" value="1" />
+		<!-- No practical cap on the number of MOTD messages: when motd.carousel.enabled
+		     is on, the admin controls the rotating carousel by publishing/drafting
+		     messages, not by a fixed item count (SynopticMessageAction overrides this
+		     back down to 1 while the carousel is off, its default). SynopticMessageAction
+		     also defaults "items" to 3 when unset, so it has to be set explicitly here
+		     rather than removed. -->
+		<configuration name="items" value="200" />
 		<configuration name="length" value="50000" />
 		<configuration name="show-subject" value="false" />
 		<configuration name="show-newlines" value="true" />
@@ -17,6 +23,10 @@
 		<configuration name="message-service" value="org.sakaiproject.announcement.api.AnnouncementService" type="final" />
 		<configuration name="reset.button" value="false" type="final" />
 		<configuration name="help.id" value="sakai.motd" type="final" />
+		<!-- The Options link lets any viewer reconfigure days/items/length/show-subject,
+		     which doesn't make sense for a single, globally-shared MOTD channel - those
+		     are already set with sensible defaults above. -->
+		<configuration name="hide.options" value="true" type="final" />
 
 	</tool>
 

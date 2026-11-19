@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;
-import org.opensearch.search.SearchHits;
 import org.opensearch.search.aggregations.bucket.terms.Terms;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
@@ -49,32 +48,43 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
         this.response = response;
         this.filter = filter;
         results = new ArrayList<>();
+
+        Terms facet = facetOfReturnedHits(searchTerms, elasticSearchService, searchIndexBuilder, facetName);
+        int i = 0;
+        for (SearchHit hit : response.getHits()) {
+            ElasticSearchResult result = new ElasticSearchResult(hit, facet, searchIndexBuilder, searchTerms);
+            result.setIndex(i++);
+            results.add(filter.filter(result));
+        }
+    }
+
+    /**
+     * The search's own facet spans every match, including sites the user can't access, so when it has any terms they
+     * are counted again over just the returned hits. The default mapping has no facet field, so this normally costs
+     * no second query.
+     */
+    private Terms facetOfReturnedHits(String searchTerms, ElasticSearchService elasticSearchService, ElasticSearchIndexBuilder searchIndexBuilder, String facetName) {
+        if (!searchIndexBuilder.getUseFacetting()) {
+            return null;
+        }
+        Terms facet = response.getAggregations().get(facetName);
+        if (facet == null || facet.getBuckets().isEmpty()) {
+            return facet;
+        }
         List<String> references = new ArrayList<>();
-
-        SearchHits hits = response.getHits();
-        if (hits.getTotalHits().value > 0) {
-            for (SearchHit hit : hits) {
-                references.add(searchIndexBuilder.getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit));
-            }
-
-            SearchResponse highlightedResponse;
-            try {
-                highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<>(), new ArrayList(), 0, references.size(), references, searchIndexBuilder.getName());
-            } catch (Exception e) {
-                log.error("problem running hightlighted and facetted search: {}", e);
-                return;
-            }
-
-            int i = 0;
-            for (SearchHit hit : highlightedResponse.getHits()) {
-                Terms facet = null;
-                if (searchIndexBuilder.getUseFacetting()) {
-                    facet = highlightedResponse.getAggregations().get(facetName);
-                }
-                ElasticSearchResult result = new ElasticSearchResult(hit, facet, searchIndexBuilder, searchTerms);
-                result.setIndex(i++);
-                results.add(filter.filter(result));
-            }
+        for (SearchHit hit : response.getHits()) {
+            references.add(searchIndexBuilder.getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit));
+        }
+        // without references the query below wouldn't be limited to anything
+        if (references.isEmpty()) {
+            return null;
+        }
+        try {
+            return elasticSearchService.search(searchTerms, new ArrayList<>(), new ArrayList<>(), 0, references.size(), references, searchIndexBuilder.getName())
+                    .getAggregations().get(facetName);
+        } catch (Exception e) {
+            log.warn("Could not limit search facets to the returned results for [{}]: {}", searchTerms, e.toString());
+            return null;
         }
     }
 

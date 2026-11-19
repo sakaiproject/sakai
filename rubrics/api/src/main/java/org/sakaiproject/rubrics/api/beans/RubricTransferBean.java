@@ -16,6 +16,9 @@ package org.sakaiproject.rubrics.api.beans;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -29,16 +32,21 @@ import lombok.NoArgsConstructor;
 public class RubricTransferBean {
 
     private Long id;
+    private Long version;
     private Instant created;
     private String creatorDisplayName;
     private String creatorId;
     private List<CriterionTransferBean> criteria = new ArrayList<>();
     private Boolean draft;
+    private Boolean associated;
     private String formattedCreatedDate;
     private String formattedModifiedDate;
     private Boolean locked;
+    private Map<String, Set<String>> lockedBy = new LinkedHashMap<>();
     private Double maxPoints;
     private Instant modified;
+    private String lastModifiedBy;
+    private String lastModifiedByDisplayName;
     private String ownerId;
     private Boolean shared;
     private String siteTitle;
@@ -50,6 +58,7 @@ public class RubricTransferBean {
 
         Objects.requireNonNull(rubric, "rubric must not be null in constructor");
         id = rubric.getId();
+        version = rubric.getVersion();
         created = rubric.getCreated();
         creatorId = rubric.getCreatorId();
         criteria = rubric.getCriteria().stream()
@@ -57,9 +66,11 @@ public class RubricTransferBean {
                 .map(CriterionTransferBean::new)
                 .collect(Collectors.toList());
         draft = rubric.getDraft();
+        associated = rubric.getAssociations().stream().anyMatch(association -> Boolean.TRUE.equals(association.getActive()));
         locked = rubric.getLocked();
         maxPoints = rubric.getMaxPoints();
         modified = rubric.getModified();
+        lastModifiedBy = rubric.getLastModifiedBy();
         ownerId = rubric.getOwnerId();
         shared = rubric.getShared();
         title = rubric.getTitle();

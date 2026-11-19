@@ -16,7 +16,7 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lessonbuildertool.SimplePage;

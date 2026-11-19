@@ -24,21 +24,34 @@ package org.sakaiproject.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadSizeException;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import org.sakaiproject.cluster.api.ClusterNode;
@@ -50,7 +63,6 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ClosingException;
-import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
@@ -78,6 +90,8 @@ public class RequestFilter implements Filter
 	public static final String ATTR_FILTERED = "sakai.filtered";
 	/** The request attribute name (and value) used to indicated that file uploads have been parsed. */
 	public static final String ATTR_UPLOADS_DONE = "sakai.uploads.done";
+	/** All accepted uploaded files, including repeated field names (DiskFileItem[]). */
+	public static final String ATTR_UPLOAD_FILES = "sakai.upload.files";
 	/** The request attribute name (and value) used to indicated that character encoding has been set. */
 	public static final String ATTR_CHARACTER_ENCODING_DONE = "sakai.character.encoding.done";
 	/** The request attribute name used to indicated that the *response* has been redirected. */
@@ -238,9 +252,6 @@ public class RequestFilter implements Filter
 
 	/** The servlet context for the filter. */
 	protected ServletContext m_servletContext = null;
-	
-	/** Is this a Terracotta clustered environment? */
-	protected boolean TERRACOTTA_CLUSTER = false;
 
 	/** Allow setting the cookie in a request parameter */
 	protected boolean m_sessionParamAllow = false;
@@ -254,13 +265,11 @@ public class RequestFilter implements Filter
     private ThreadLocalManager threadLocalManager;
     private SessionManager sessionManager;
     private ServerConfigurationService serverConfigurationService;
-	private RebuildBreakdownService rebuildBreakdownService;
 
 	public RequestFilter() {
 		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
 		sessionManager = ComponentManager.get(SessionManager.class);
 		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-		rebuildBreakdownService = ComponentManager.get(RebuildBreakdownService.class);
 	}
 
 	/** Set the HttpOnly attribute on the cookie */
@@ -377,7 +386,7 @@ public class RequestFilter implements Filter
 		boolean cleared = false;
 
 		// keep track of temp files with this request that need to be deleted on the way out
-		List<FileItem> tempFiles = new ArrayList<FileItem>();
+		List<DiskFileItem> tempFiles = new ArrayList<DiskFileItem>();
 
 		try
 		{
@@ -486,39 +495,25 @@ public class RequestFilter implements Filter
 						threadLocalManager.set(ServerConfigurationService.CURRENT_PORTAL_PATH, "/" + m_contextId);
 					}
 
-					// Only synchronize on session for Terracotta. See KNL-218, KNL-75.
-					if (TERRACOTTA_CLUSTER) {
-						synchronized(s) {
-							try {
-								// Pass control on to the next filter or the servlet
-								chain.doFilter(req, resp);
-
-								// post-process response
-								postProcessResponse(s, req, resp);
-							} finally {
-								// Tomcat may only set these attributes once form parameters are parsed downstream.
-								surfaceTomcatParameterParseFailure(req);
-							}
-						}
-					} else {
-						// Pass control on to the next filter or the servlet
+					// Pass control on to the next filter or the servlet
+					try {
 						try {
-							try {
-								chain.doFilter(req, resp);
+							chain.doFilter(req, resp);
 
-								// post-process response
-								postProcessResponse(s, req, resp);
-							} finally {
-								// Tomcat may only set these attributes once form parameters are parsed downstream.
-								surfaceTomcatParameterParseFailure(req);
-							}
-						} catch (Exception e) {
-							log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
-									log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
-							log.debug("Unhandled exception request diagnostics: hasQuery={}",
-									req.getQueryString() != null && !req.getQueryString().isEmpty());
-							if (log.isDebugEnabled()) throw e;
+							// post-process response
+							postProcessResponse(s, req, resp);
+						} finally {
+							// Tomcat may only set these attributes once form parameters are parsed downstream.
+							surfaceTomcatParameterParseFailure(req);
 						}
+					} catch (Exception e) {
+						log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
+								log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
+						if (log.isDebugEnabled()) {
+							log.debug("Unhandled exception request diagnostics: hasQuery={}",
+								req.getQueryString() != null && !req.getQueryString().isEmpty());
+						}
+						throw e;
 					}
 
 					// Output client cookie if requested to do so
@@ -713,11 +708,15 @@ public class RequestFilter implements Filter
 	 * @param tempFiles
 	 *        The file items to delete.
 	 */
-	protected void deleteTempFiles(List<FileItem> tempFiles)
+	protected void deleteTempFiles(List<DiskFileItem> tempFiles)
 	{
-		for (FileItem item : tempFiles)
+		for (DiskFileItem item : tempFiles)
 		{
-			item.delete();
+			try {
+				item.delete();
+			} catch (IOException e) {
+				log.warn("Unable to delete temp upload file: " + item.getName(), e.toString());
+			}
 		}
 	}
 
@@ -750,7 +749,7 @@ public class RequestFilter implements Filter
 		contentExceptions = serverConfigurationService.getStrings("content.chsexception.urlprefixes");
 		if (contentExceptions == null) {
 			// add in default exceptions here, if desired
-			contentExceptions = new String[] { "/access/calendar/", "/access/citation/export_ris_sel/", "/access/citation/export_ris_all/" };
+			contentExceptions = new String[] { "/access/calendar/" };
 		}
 
 		// capture the servlet context for later user
@@ -874,9 +873,6 @@ public class RequestFilter implements Filter
 			m_uploadMaxPerFile = true;
 		}
 
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
-
 		// retrieve the configured cookie name, if any
 		if (System.getProperty(SAKAI_COOKIE_PROP) != null)
 		{
@@ -941,10 +937,10 @@ public class RequestFilter implements Filter
 	 *         file upload. Parses the files using Apache commons-fileuplaod. Exposes the results through a wrapped request. Files
 	 *         are available like: fileItem = (FileItem) request.getAttribute("myHtmlFileUploadId");
 	 */
-	protected HttpServletRequest handleFileUpload(HttpServletRequest req, HttpServletResponse resp, List<FileItem> tempFiles)
+	protected HttpServletRequest handleFileUpload(HttpServletRequest req, HttpServletResponse resp, List<DiskFileItem> tempFiles)
 			throws ServletException, UnsupportedEncodingException
 	{
-		if (!m_uploadEnabled || !ServletFileUpload.isMultipartContent(req) || req.getAttribute(ATTR_UPLOADS_DONE) != null)
+		if (!m_uploadEnabled || !JakartaServletFileUpload.isMultipartContent(req) || req.getAttribute(ATTR_UPLOADS_DONE) != null)
 		{
 			return req;
 		}
@@ -959,18 +955,18 @@ public class RequestFilter implements Filter
 		// parse using commons-fileupload
 
 		// Create a factory for disk-based file items
-		DiskFileItemFactory factory = new DiskFileItemFactory();
+		DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
 
 		// set the factory parameters: the temp dir and the keep-in-memory-if-smaller threshold
-		if (m_uploadTempDir != null) factory.setRepository(new File(m_uploadTempDir));
-		if (m_uploadThreshold > 0) factory.setSizeThreshold(m_uploadThreshold);
+		if (m_uploadTempDir != null) factory = DiskFileItemFactory.builder().setPath(m_uploadTempDir).get();
+		if (m_uploadThreshold > 0) factory = DiskFileItemFactory.builder().setBufferSize(m_uploadThreshold).get();
 
 		// Create a new file upload handler
-		ServletFileUpload upload = new ServletFileUpload(factory);
+		JakartaServletFileUpload<DiskFileItem, DiskFileItemFactory> upload = new JakartaServletFileUpload<>(factory);
 
 		// set the encoding
 		String encoding = req.getCharacterEncoding();
-		if (encoding != null && encoding.length() > 0) upload.setHeaderEncoding(encoding);
+		if (encoding != null && encoding.length() > 0) upload.setHeaderCharset(Charset.forName(encoding));
 
 		// set the max upload size
 		long uploadMax = -1;
@@ -998,22 +994,28 @@ public class RequestFilter implements Filter
 			// - Total typical overhead: ~1KB, but use 64KB margin for safety with large files
 			long margin = 64L * 1024L; // 64KB margin for multipart overhead
 
-			upload.setSizeMax(uploadMax + margin);
-			upload.setFileSizeMax(uploadMax + margin);
+			upload.setMaxSize(uploadMax + margin);
+			upload.setMaxFileSize(uploadMax + margin);
 		}
 
 		try
 		{
 			// parse multipart encoded parameters
 			boolean uploadOk = true;
+			List<DiskFileItem> uploadedFiles = new ArrayList<>();
 			List list = upload.parseRequest(req);
 			for (int i = 0; i < list.size(); i++)
 			{
-				FileItem item = (FileItem) list.get(i);
+				DiskFileItem item = (DiskFileItem) list.get(i);
 
 				if (item.isFormField())
 				{
-					String str = item.getString(encoding);
+					String str = "";
+					try {
+						str = item.getString(Charset.forName(encoding));
+					} catch (IOException e) {
+						log.info("Unable to read form field value: " + item.getFieldName(), e.toString());
+					}
 
 					Object obj = map.get(item.getFieldName());
 					if (obj == null)
@@ -1057,16 +1059,18 @@ public class RequestFilter implements Filter
 
 						req.setAttribute("upload.status", "size_limit_exceeded");
 						// TODO: for 1.2 commons-fileupload, switch this to a FileSizeLimitExceededException
-						req.setAttribute("upload.exception", new FileUploadBase.SizeLimitExceededException("", item.getSize(),
-								uploadMax));
+						req.setAttribute("upload.exception", new FileUploadSizeException("", uploadMax, item.getSize()));
 						req.setAttribute("upload.limit", Long.valueOf((uploadMax / 1024L) / 1024L));
 					}
 					else
 					{
 						req.setAttribute(item.getFieldName(), item);
+						uploadedFiles.add(item);
 					}
 				}
 			}
+
+			req.setAttribute(ATTR_UPLOAD_FILES, uploadedFiles.toArray(new DiskFileItem[0]));
 
 			// unless we had an upload file that exceeded max, set the upload status to "ok"
 			if (uploadOk)
@@ -1074,15 +1078,15 @@ public class RequestFilter implements Filter
 				req.setAttribute("upload.status", "ok");
 			}
 		}
-		catch (FileUploadBase.SizeLimitExceededException ex)
+		catch (FileUploadSizeException ex)
 		{
-			log.info("Upload size limit exceeded: " + ((upload.getSizeMax() / 1024L) / 1024L));
+			log.info("Upload size limit exceeded: " + ((upload.getMaxSize() / 1024L) / 1024L));
 
 			// DON'T throw an exception, instead note the exception
 			// so that the tool down-the-line can handle the problem
 			req.setAttribute("upload.status", "size_limit_exceeded");
 			req.setAttribute("upload.exception", ex);
-			req.setAttribute("upload.limit", Long.valueOf((upload.getSizeMax() / 1024L) / 1024L));
+			req.setAttribute("upload.limit", Long.valueOf((upload.getMaxSize() / 1024L) / 1024L));
 		}
 		// TODO: put in for commons-fileupload 1.2
 		// catch (FileUploadBase.FileSizeLimitExceededException ex)
@@ -1093,7 +1097,7 @@ public class RequestFilter implements Filter
 		// // so that the tool down-the-line can handle the problem
 		// req.setAttribute("upload.status", "size_limit_exceeded");
 		// req.setAttribute("upload.exception", ex);
-		// req.setAttribute("upload.limit", new Long((upload.getFileSizeMax() / 1024L) / 1024L));
+		// req.setAttribute("upload.limit", Long.valueOf((upload.getFileSizeMax() / 1024L) / 1024L));
 		// }
 		catch (FileUploadException ex)
 		{
@@ -1199,7 +1203,7 @@ public class RequestFilter implements Filter
 				}
 				if (log.isDebugEnabled())
 				{
-					log.debug("assureSession found sessionId in cookie: " + sessionId);
+					log.debug("Found session ID in request");
 				}
 
 				// find the session
@@ -1220,18 +1224,6 @@ public class RequestFilter implements Filter
 				s.setActive();
 			}
 		}
-		if (s == null && sessionId != null) {
-			// check to see if this session has already been built.  If not, rebuild
-
-			if (rebuildBreakdownService != null) {
-				s = sessionManager.startSession(sessionId);
-				if (!rebuildBreakdownService.rebuildSession(s)) {
-					s.invalidate();
-					s = null;
-				}
-			}
-		}
-
 		// if missing, make one
 		if (s == null)
 		{
@@ -1403,20 +1395,6 @@ public class RequestFilter implements Filter
 	 */
 	protected void postProcessResponse(Session s, HttpServletRequest req, HttpServletResponse res)
 	{
-		if (rebuildBreakdownService != null) {
-		    rebuildBreakdownService.storeSession(s, req);
-		}
-	}
-
-	/**
-	 * isSessionClusteringEnabled() checks if session information is clustered.
-	 * Clustering can be either through Terracotta clustering or through
-	 * RebuildBreakdownService session clustering
-	 * @return true if sessionClustering is enabled
-	 */
-	private boolean isSessionClusteringEnabled()
-	{
-	    return TERRACOTTA_CLUSTER || rebuildBreakdownService != null && rebuildBreakdownService.isSessionHandlingEnabled();
 	}
 
 	/**
@@ -1439,11 +1417,10 @@ public class RequestFilter implements Filter
 			{
 				if (cookies[i].getName().equals(name))
 				{
-					// If this is NOT a terracotta cluster environment
-					// and the suffix passed in to this method is not null
+					// If the suffix passed in to this method is not null
 					// then only match the cookie if the end of the cookie
 					// value is equal to the suffix passed in.
-					if (isSessionClusteringEnabled() || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))
+					if ((suffix == null) || cookies[i].getValue().endsWith(suffix))
 					{
 						return cookies[i];
 					}
@@ -1477,21 +1454,19 @@ public class RequestFilter implements Filter
 	
 	protected void addCookie(HttpServletRequest req, HttpServletResponse res, Cookie cookie) {
 
-		if (!m_cookieHttpOnly) {
-			// Use the standard servlet mechanism for setting the cookie
+		if (!m_cookieHttpOnly && (m_cookieSameSite == null || m_cookieSameSite.isEmpty())) {
+			// Use the standard servlet mechanism when neither attribute is configured
 			res.addCookie(cookie);
-		} else {
-			// Set the cookie manually
-
-			StringBuffer sb = new StringBuffer();
-
-			ServerCookie.appendCookieValue(sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
-					cookie.getPath(), cookie.getDomain(), cookie.getComment(),
-					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite, req.getHeader("user-agent"));
-
-			res.addHeader("Set-Cookie", sb.toString());
+			return;
 		}
-		return;
+
+		StringBuffer sb = new StringBuffer();
+
+		ServerCookie.appendCookieValue(sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
+				cookie.getPath(), cookie.getDomain(), cookie.getComment(),
+				cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite, req.getHeader("user-agent"));
+
+		res.addHeader("Set-Cookie", sb.toString());
 	}
 
 	/**

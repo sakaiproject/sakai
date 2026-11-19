@@ -36,8 +36,10 @@
     if (!alert) {
       return;
     }
+    alert.classList.remove("d-none");
     alert.classList.toggle("sak-banner-info", success);
     alert.classList.toggle("sak-banner-error", !success);
+    alert.classList.toggle("sak-banner-warn", false);
     alert.textContent = message;
   };
 

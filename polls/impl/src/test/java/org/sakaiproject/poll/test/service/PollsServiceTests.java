@@ -23,12 +23,14 @@ package org.sakaiproject.poll.test.service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
@@ -45,11 +47,14 @@ import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.impl.service.PollsServiceImpl;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -74,7 +79,11 @@ public class PollsServiceTests {
     @Autowired private SiteService siteService;
     @Autowired private SessionManager sessionManager;
     @Autowired private FormattedText formattedText;
+    @Autowired private LocaleService localeService;
     @Autowired private UserTimeService userTimeService;
+
+    /** Backs the mocked {@code pollsBundle}, so tests can pick which locale's real translations it resolves. */
+    private final AtomicReference<Locale> pollsBundleLocale = new AtomicReference<>(Locale.ROOT);
 
     @Before
     public void onSetUp() {
@@ -87,6 +96,12 @@ public class PollsServiceTests {
         Mockito.when(etsOptionDeleted.getString("message5")).thenReturn("and place a new vote for the poll.");
         ((PollsServiceImpl) AopTestUtils.getTargetObject(pollsService)).setOptionDeletedBundle(etsOptionDeleted);
 
+        pollsBundleLocale.set(Locale.ROOT);
+        ResourceLoader pollsBundle = Mockito.mock(ResourceLoader.class);
+        Mockito.when(pollsBundle.getString(Mockito.anyString())).thenAnswer(invocation ->
+            ResourceBundle.getBundle("bundle.polls", pollsBundleLocale.get()).getString(invocation.getArgument(0)));
+        ((PollsServiceImpl) AopTestUtils.getTargetObject(pollsService)).setPollsBundle(pollsBundle);
+
         Mockito.when(siteService.siteReference(LOCATION1_ID)).thenReturn(LOCATION1_REF);
 
         Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
@@ -98,6 +113,16 @@ public class PollsServiceTests {
         Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
                .thenAnswer(inv -> inv.getArgument(0));
         Mockito.when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
+
+        Site mockSite = Mockito.mock(Site.class);
+        Group g1 = Mockito.mock(Group.class);
+        Mockito.when(g1.getId()).thenReturn("g1");
+        Mockito.when(g1.getTitle()).thenReturn("Group 1");
+        Mockito.when(mockSite.getGroups()).thenReturn(List.of(g1));
+        try {
+            Mockito.doReturn(mockSite).when(siteService).getSite(LOCATION1_ID);
+        } catch (IdUnusedException e) {}
     }
 
     private String createPoll(String ownerId, String siteId) {
@@ -513,6 +538,10 @@ public class PollsServiceTests {
         pollsService.saveVote(vote1);
         pollsService.saveVote(vote2);
 
+        Option otherOption = poll.get().getOptions().get(1);
+        Vote otherVote = createVoteForOption(otherOption);
+        pollsService.saveVote(otherVote);
+
         // Reload option to ensure proper relationship
         Optional<Poll> reloaded = pollsService.getPollById(pollId);
         Option reloadedOption = reloaded.get().getOptions().stream()
@@ -520,7 +549,8 @@ public class PollsServiceTests {
             .findFirst().get();
 
         List<Vote> votes = pollsService.getAllVotesForOption(reloadedOption);
-        Assert.assertTrue(votes.size() >= 2);
+        Assert.assertEquals(2, votes.size());
+        Assert.assertTrue(votes.stream().allMatch(vote -> optionId.equals(vote.getOption().getId())));
     }
 
     @Test
@@ -534,6 +564,27 @@ public class PollsServiceTests {
 
         java.util.Map<String, List<Vote>> votesMap = pollsService.getVotesForUser(USER, null);
         Assert.assertFalse(votesMap.isEmpty());
+    }
+
+    @Test
+    public void testGetVotesForUserFiltersByPollIds() {
+        String pollId = createPoll(USER, LOCATION1_ID);
+        String otherPollId = createPoll(USER, LOCATION1_ID);
+        Poll poll = pollsService.getPollById(pollId).get();
+        Poll otherPoll = pollsService.getPollById(otherPollId).get();
+
+        Vote vote = createVoteForOption(poll.getOptions().get(0));
+        pollsService.saveVote(vote);
+        pollsService.saveVote(createVoteForOption(otherPoll.getOptions().get(0)));
+        Vote otherUserVote = createVoteForOption(poll.getOptions().get(0));
+        otherUserVote.setUserId(USER_NO_ACCEESS);
+        pollsService.saveVote(otherUserVote);
+
+        java.util.Map<String, List<Vote>> votesMap = pollsService.getVotesForUser(USER, new String[] {pollId});
+        Assert.assertEquals(Set.of(pollId), votesMap.keySet());
+        Assert.assertEquals(1, votesMap.get(pollId).size());
+        Assert.assertEquals(vote.getId(), votesMap.get(pollId).get(0).getId());
+        Assert.assertTrue(pollsService.getVotesForUser(USER, new String[] {"missing-poll"}).isEmpty());
     }
 
     @Test
@@ -714,16 +765,19 @@ public class PollsServiceTests {
 
     // ========== Bulk Import Tests ==========
 
-    private static final Function<String, String> ENGLISH_IMPORT_HEADERS = PollImportCsvFormat::defaultEnglishHeader;
-
     private String importCsvHeader(int optionColumnCount) {
-        return PollImportCsvFormat.formatHeaderRow(ENGLISH_IMPORT_HEADERS, optionColumnCount);
+        StringBuilder header = new StringBuilder("Question,Description,Access,Groups,Opening date,Opening time,"
+            + "Closing date,Closing time,Minimum options,Maximum options,Results visibility");
+        for (int option = 1; option <= optionColumnCount; option++) {
+            header.append(",Option ").append(option);
+        }
+        return header.toString();
     }
 
     @Test
     public void testImportPollsFromCsvCreatesPolls() {
         String csv = importCsvHeader(3) + "\n"
-            + "What is your favorite color?,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Blue,Green,Red\n";
+            + "What is your favorite color?,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Blue,Green,Red\n";
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -738,12 +792,13 @@ public class PollsServiceTests {
     @Test
     public void testImportPollsFromCsvRejectsInvalidCsv() {
         String csv = importCsvHeader(2) + "\n"
-            + "Question?,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,OnlyOneOption\n";
+            + "Question?,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,OnlyOneOption\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
-        Assert.assertEquals(PollImportError.WRONG_FORMAT, exception.getError());
+        Assert.assertEquals(PollImportError.TOO_FEW_OPTIONS, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
     }
 
     @Test
@@ -761,7 +816,7 @@ public class PollsServiceTests {
     @Test
     public void testImportPollsFromCsvHandlesQuotedDescriptionWithCommas() {
         String csv = importCsvHeader(2) + "\n"
-            + "Question with quoted description?,\"This, description, has, commas\",2026-06-01,09:00,2026-06-02,17:00,1,1,1,Opt1,Opt2\n";
+            + "Question with quoted description?,\"This, description, has, commas\",site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Opt1,Opt2\n";
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -775,30 +830,109 @@ public class PollsServiceTests {
     @Test
     public void testImportPollsFromCsvRejectsInvalidDates() {
         String csv = importCsvHeader(2) + "\n"
-            + "Q?,,06/01/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+            + "Q?,,site,,32/13/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
         Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "32/13/2026" }, exception.getMessageArgs());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsClosingDateBeforeOpeningDate() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Q?,,site,,2026-06-02,09:00,2026-06-01,17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_DATE_ORDER, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvReportsRowNumberOfFailingRowInBatch() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Valid question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,A,B\n"
+            + "Q?,,site,,32/13/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
+        Assert.assertEquals(3, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidAccessValue() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Q?,,publico,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_ACCESS, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "publico" }, exception.getMessageArgs());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsMissingQuestion() {
+        String csv = importCsvHeader(2) + "\n"
+            + ",,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.MISSING_QUESTION, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidNumber() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Q?,,site,,2026-06-01,09:00,2026-06-02,17:00,uno,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_NUMBER, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "uno" }, exception.getMessageArgs());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidDisplayResult() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Q?,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,9,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_DISPLAY_RESULT, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "9" }, exception.getMessageArgs());
     }
 
     @Test
     public void testImportPollsFromCsvRejectsInvalidLimits() {
         String csv = importCsvHeader(3) + "\n"
-            + "Q?,,2026-06-01,09:00,2026-06-02,17:00,5,1,1,One,Two,Three\n";
+            + "Q?,,site,,2026-06-01,09:00,2026-06-02,17:00,5,1,1,One,Two,Three\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
         Assert.assertEquals(PollImportError.INVALID_LIMITS, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
     }
 
     @Test
     public void testImportPollsFromCsvCreatesMultiplePolls() {
         String csv = importCsvHeader(2) + "\n"
-            + "Bulk import Q1,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,A,B\n"
-            + "Bulk import Q2,,2026-07-01,09:00,2026-07-02,17:00,1,1,1,X,Y\n";
+            + "Bulk import Q1,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,A,B\n"
+            + "Bulk import Q2,,site,,2026-07-01,09:00,2026-07-02,17:00,1,1,1,X,Y\n";
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -810,7 +944,7 @@ public class PollsServiceTests {
     @Test
     public void testImportPollsFromCsvImportsPollNamedQuestion() {
         String csv = importCsvHeader(2) + "\n"
-            + "Question,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Yes,No\n";
+            + "Question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Yes,No\n";
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -820,8 +954,9 @@ public class PollsServiceTests {
 
     @Test
     public void testImportSampleCsvCreatesImportablePoll() {
-        String csv = PollImportCsvFormat.buildSampleCsv(
-            PollImportCsvFormat.buildColumnHeaders(ENGLISH_IMPORT_HEADERS));
+        // Locale.ROOT, not Locale.US: bundle.polls has no en/en_US variant, so requesting Locale.US would
+        // fall back to the JVM's default locale (e.g. es-ES under the "ES locale" CI matrix) before root.
+        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", Locale.ROOT)::getString);
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -831,12 +966,170 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvRejectsMissingHeaderRow() {
-        String csv = "Bulk import Q1,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,A,B\n";
+        String csv = "Bulk import Q1,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,A,B\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
-        Assert.assertEquals(PollImportError.WRONG_FORMAT, exception.getError());
+        Assert.assertEquals(PollImportError.INVALID_HEADER, exception.getError());
+        Assert.assertEquals(1, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvHandlesSemicolonDelimiterOnCommaDecimalLocale() {
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
+        String csv = importCsvHeader(2).replace(',', ';') + "\n"
+            + "Semicolon delimited question;\"Description; with a separator\";site;;01/06/26;09:00;02/06/2026;17:00;1;1;1;One;Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Semicolon delimited question".equals(p.getText())).findFirst().orElseThrow();
+        Assert.assertEquals("Description; with a separator", saved.getDescription());
+        Assert.assertEquals(Instant.parse("2026-06-01T09:00:00Z"), saved.getVoteOpen());
+        Assert.assertEquals(Instant.parse("2026-06-02T17:00:00Z"), saved.getVoteClose());
+    }
+
+    @Test
+    public void testImportPollsFromCsvHandlesSemicolonDelimiterOnCommaPreferringLocale() {
+        // Default @Before locale is Locale.US (comma-preferring): the account's locale doesn't
+        // guarantee the delimiter of a file built with another tool/locale, so ';' must still work.
+        String csv = importCsvHeader(2).replace(',', ';') + "\n"
+            + "Semicolon file on comma locale;\"Description; with a separator\";site;;2026-06-01;09:00;2026-06-02;17:00;1;1;1;One;Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Semicolon file on comma locale".equals(p.getText())).findFirst().orElseThrow();
+        Assert.assertEquals("Description; with a separator", saved.getDescription());
+        Assert.assertEquals(Instant.parse("2026-06-01T09:00:00Z"), saved.getVoteOpen());
+        Assert.assertEquals(Instant.parse("2026-06-02T17:00:00Z"), saved.getVoteClose());
+    }
+
+    @Test
+    public void testImportPollsFromCsvFallsBackToCommaDelimiterWhenFileIsCommaDelimited() {
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
+        String csv = importCsvHeader(2) + "\n"
+            + "Comma delimited question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Assert.assertTrue(pollsService.findAllPolls(LOCATION1_ID).stream()
+            .anyMatch(p -> "Comma delimited question".equals(p.getText())));
+    }
+
+    @Test
+    public void testImportPollsFromCsvExpandsTwoDigitYearsAcrossLocales() {
+        for (Locale locale : List.of(Locale.UK, Locale.FRANCE, Locale.forLanguageTag("pt-BR"))) {
+            Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(locale);
+            String question = "Localized years " + locale;
+            String csv = importCsvHeader(2) + "\n"
+                + question + ",,site,,01/06/26,09:00,02/06/2026,17:00,1,1,1,One,Two\n";
+
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+            Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+                .filter(p -> question.equals(p.getText())).findFirst().orElseThrow();
+            Assert.assertEquals(locale.toString(), Instant.parse("2026-06-01T09:00:00Z"), saved.getVoteOpen());
+            Assert.assertEquals(locale.toString(), Instant.parse("2026-06-02T17:00:00Z"), saved.getVoteClose());
+        }
+    }
+
+    @Test
+    public void testImportLocalizedSampleCsvCreatesImportablePoll() {
+        Locale spanish = Locale.forLanguageTag("es");
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
+        // The header validation path resolves labels through pollsBundle, so point its mock at the same
+        // Spanish translations used to build the sample, then assert those real translations round-trip.
+        pollsBundleLocale.set(spanish);
+        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", spanish)::getString)
+            .replace("What is your favorite color?", "Localized sample poll");
+        Assert.assertTrue(csv.startsWith("Pregunta;Descripción;"));
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Localized sample poll".equals(p.getText())).findFirst().orElseThrow();
+        Assert.assertEquals(Instant.parse("2026-05-29T09:00:00Z"), saved.getVoteOpen());
+        Assert.assertEquals(Instant.parse("2026-05-30T17:00:00Z"), saved.getVoteClose());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidLocalizedDateWithoutRetryingDelimiter() {
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
+        String csv = importCsvHeader(2).replace(',', ';') + "\n"
+            + "Invalid localized date;;site;;30/02/26;09:00;01/03/26;17:00;1;1;1;One;Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER));
+
+        Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "30/02/26" }, exception.getMessageArgs());
+    }
+
+    @Test
+    public void testImportPollsFromCsvHandlesAccessAndGroupIds() {
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+
+        String csv = importCsvHeader(2) + "\n"
+            + "Import access poll - valid group,Bulk import details,group,Group 1,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Yes,No\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Import access poll - valid group".equals(p.getText()))
+            .findFirst()
+            .orElseThrow();
+        Assert.assertNotNull(saved);
+        Assert.assertEquals(Poll.Access.GROUP, saved.getTypeOfAccess());
+        Assert.assertTrue(saved.getGroupIds().contains("g1"));
+    }
+
+    @Test
+    public void testSavePollRejectsInvalidGroupIds() {
+        Poll poll = new Poll();
+        poll.setCreationDate(Instant.now());
+        poll.setVoteOpen(Instant.now());
+        poll.setVoteClose(Instant.now().plus(1, ChronoUnit.DAYS));
+        poll.setDescription("this is some text");
+        poll.setText("group poll");
+        poll.setOwner(USER);
+        poll.setSiteId(LOCATION1_ID);
+        poll.setTypeOfAccess(Poll.Access.GROUP);
+        poll.setGroupIds(Set.of("foreign-group-id"));
+
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+        Assert.assertThrows(IllegalArgumentException.class, () -> pollsService.savePoll(poll));
+    }
+
+    @Test
+    public void testImportPollsFromCsvFailsWhenSomeGroupsMissing() {
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+
+        String csv = importCsvHeader(2) + "\n"
+            + "Import access poll - partial group,Bulk import details,group,\"Group 1,Missing Group\",2026-06-01,09:00,2026-06-02,17:00,1,1,1,Yes,No\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_GROUPS, exception.getError());
+        // "Group 1" resolves fine and must not be reported as missing alongside "Missing Group"
+        Assert.assertArrayEquals(new Object[] { "Missing Group" }, exception.getMessageArgs());
+    }
+
+    @Test
+    public void testImportPollsFromCsvFailsWhenGroupMissing() {
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+
+        String csv = importCsvHeader(2) + "\n"
+            + "Import access poll - missing group,Bulk import details,group,missing group,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Yes,No\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_GROUPS, exception.getError());
+        Assert.assertArrayEquals(new Object[] { "missing group" }, exception.getMessageArgs());
     }
 
     // ========== Helper Methods ==========

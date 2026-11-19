@@ -30,8 +30,8 @@ import java.util.Stack;
 import java.util.Properties;
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ import org.json.simple.JSONObject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -87,6 +87,8 @@ import org.tsugi.lti.LTIUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.tsugi.util.Base64DoubleUrlEncodeSafe;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 @SuppressWarnings("deprecation")
 @Slf4j
 public class LTISecurityServiceImpl implements EntityProducer {
@@ -94,12 +96,23 @@ public class LTISecurityServiceImpl implements EntityProducer {
 
 	private static ResourceLoader rb = new ResourceLoader("basicltisvc");
 	
-	@Setter private FormattedText formattedText;
-	@Setter private SiteService siteService;
-	@Setter private ToolManager toolManager;
-	@Setter private SessionManager sessionManager;
-	@Setter private EntityManager entityManager;
-	@Setter private SecurityService securityService;
+	@Autowired
+	private FormattedText formattedText;
+
+	@Autowired
+	private SiteService siteService;
+
+	@Autowired
+	private ToolManager toolManager;
+
+	@Autowired
+	private SessionManager sessionManager;
+
+	@Autowired
+	private EntityManager entityManager;
+
+	@Autowired
+	private SecurityService securityService;
 
 	public static final String REFERENCE_ROOT="/lti";
 	public static final String REFERENCE_ROOT_LEGACY="/basiclti";
@@ -418,7 +431,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 						throw new EntityNotDefinedException("Could not load tool");
 					}
 
-					tool = ltiService.getToolDao(toolKey, ref.getContext());
+					tool = ltiService.getTool(toolKey, ref.getContext());
 					if (tool == null ) {
 						throw new EntityNotDefinedException("Could not load tool");
 					}
@@ -459,7 +472,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 						throw new EntityNotDefinedException("Could not load content item");
 					}
 
-					content = ltiService.getContentDao(contentKey,ref.getContext());
+					content = ltiService.getContent(contentKey,ref.getContext());
 					if (content == null ) {
 						throw new EntityNotDefinedException("Could not load content item");
 					}
@@ -746,7 +759,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 				}
 
 				// Export the LTI Content Items
-				List<Map<String,Object>> contents = ltiService.getContentsDao(null, null, 0, 0, siteId, false);
+				List<Map<String,Object>> contents = ltiService.getContents(null, null, 0, 0, siteId, false);
 				for (Map<String,Object> contentItem : contents) {
 					// Legacy circa 2022
 					LTIContentArchiveBean ltiContentArchiveBean = new LTIContentArchiveBean(contentItem);

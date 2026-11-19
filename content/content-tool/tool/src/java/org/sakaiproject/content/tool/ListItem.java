@@ -21,6 +21,8 @@
 
 package org.sakaiproject.content.tool;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -46,7 +48,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -438,19 +439,6 @@ public class ListItem
 	protected boolean useRetractDate;
 
 	protected Time retractDate;
-	public boolean useConditionalRelease = false;
-	private String submittedFunctionName;
-	private String submittedResourceFilter = "";
-	private String selectedConditionKey;
-	private String conditionArgument;
-	private String conditionAssignmentPoints;
-
-	private String notificationId;
-	private Collection<String> accessControlList;
-
-	protected boolean numberFieldIsInvalid;
-	protected boolean numberFieldIsOutOfRange;
-	
 	protected String description;
 	protected String copyrightInfo = "";
 	protected String copyrightStatus;
@@ -471,6 +459,8 @@ public class ListItem
 	private Boolean allowHtmlInlineInherited;
 
 	protected String quota;
+	private boolean quotaIsInvalid;
+	private String submittedQuotaInGigabytes;
 
 	protected boolean nameIsMissing = false;
 
@@ -494,14 +484,6 @@ public class ListItem
 
 	private org.sakaiproject.content.api.ContentHostingService contentService;
 	
-	public String getConditionAssignmentPoints() {
-		return conditionAssignmentPoints;
-	}
-	
-	public void setConditionAssignmentPoints(String conditionAssignmentPoints) {
-		this.conditionAssignmentPoints = conditionAssignmentPoints;
-	}
-
 	/**
 	 * @param entity
 	 */
@@ -577,9 +559,6 @@ public class ListItem
 			}
 		}
 		this.description = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
-		this.useConditionalRelease = Boolean.parseBoolean(props.getProperty(ConditionService.PROP_CONDITIONAL_RELEASE));
-		this.notificationId = props.getProperty(ConditionService.PROP_CONDITIONAL_NOTIFICATION_ID);
-		this.accessControlList = props.getPropertyList(ContentHostingService.CONDITIONAL_ACCESS_LIST);
 
 		
 		if(this.isDropbox)
@@ -612,13 +591,6 @@ public class ListItem
 			}			
 		}
 		
-		this.useConditionalRelease = Boolean.parseBoolean(props.getProperty(ConditionService.PROP_CONDITIONAL_RELEASE));
-		this.notificationId = props.getProperty(ConditionService.PROP_CONDITIONAL_NOTIFICATION_ID);
-		this.accessControlList = props.getPropertyList(ContentHostingService.CONDITIONAL_ACCESS_LIST);
-		//this.submittedFunctionName = props.getProperty(ContentHostingService.PROP_SUBMITTED_FUNCTION_NAME);
-		//this.submittedResourceFilter = props.getProperty(ContentHostingService.PROP_SUBMITTED_RESOURCE_FILTER);
-		//this.selectedConditionKey = props.getProperty(ContentHostingService.PROP_SELECTED_CONDITION_KEY);
-		//this.conditionArgument = props.getProperty(ContentHostingService.PROP_CONDITIONAL_RELEASE_ARGUMENT);
 
 		
 		this.permissions = new TreeSet<ContentPermissions>();
@@ -1553,80 +1525,6 @@ public class ListItem
 			this.retractDate = null;
 		}
 		
-		String selectedConditionValue = params.get("selectCondition" + index);
-		if (selectedConditionValue == null) return;
-		String[] conditionTokens = selectedConditionValue.split("\\|");
-		int selectedIndex = Integer.valueOf(conditionTokens[0]);
-		if ((selectedIndex == 9) || (selectedIndex == 10)) {
-			this.conditionArgument = params.get("assignment_grade" + index);
-			Double argument = null;
-			try {
-				argument = Double.valueOf(this.conditionArgument);
-			} catch (NumberFormatException nfe) {
-				this.numberFieldIsInvalid = true;
-				//Not much we can do if its not a number
-				return;
-			}
-			
-			String submittedResourceFilter = params.get("selectResource" + index);
-			// the number of grade points are tagging along for the ride. chop this off.
-			String[] resourceTokens = submittedResourceFilter.split("/");
-			this.conditionAssignmentPoints = resourceTokens[4];
-			Double assignmentPoints = Double.valueOf(conditionAssignmentPoints);
-			if ((argument > assignmentPoints) || (argument < 0)) {
-				this.numberFieldIsOutOfRange = true;
-			}
-		}
-
-		
-	}
-	
-	public String getConditionArgument() {
-		return conditionArgument;
-	}
-
-	public void setConditionArgument(String conditionArgument) {
-		this.conditionArgument = conditionArgument;
-	}
-
-	public boolean isUseConditionalRelease() {
-		return useConditionalRelease;
-	}
-
-	public void setUseConditionalRelease(boolean useConditionalRelease) {
-		this.useConditionalRelease = useConditionalRelease;
-	}
-
-	public String getSubmittedFunctionName() {
-		return submittedFunctionName;
-	}
-
-	public void setSubmittedFunctionName(String submittedFunctionName) {
-		this.submittedFunctionName = submittedFunctionName;
-	}
-
-	public String getSubmittedResourceFilter() {
-		return submittedResourceFilter;
-	}
-
-	public void setSubmittedResourceFilter(String submittedResourceFilter) {
-		this.submittedResourceFilter = submittedResourceFilter;
-	}
-
-	public String getSelectedConditionKey() {
-		return selectedConditionKey;
-	}
-
-	public void setSelectedConditionKey(String selectedConditionKey) {
-		this.selectedConditionKey = selectedConditionKey;
-	}
-
-	public String getNotificationId() {
-		return notificationId;
-	}
-
-	public void setNotificationId(String notificationId) {
-		this.notificationId = notificationId;
 	}
 
 	protected void captureDescription(ParameterParser params, String index) 
@@ -1730,6 +1628,8 @@ public class ListItem
 
 	protected void captureQuota(ParameterParser params, String index) 
 	{
+		this.quotaIsInvalid = false;
+		this.submittedQuotaInGigabytes = null;
 		String setQuota = params.getString("setQuota" + index);
 		if(setQuota != null)
 		{
@@ -1737,9 +1637,41 @@ public class ListItem
 			if(this.hasQuota)
 			{
 				String quota = params.getString("quota" + index);
-				if(quota != null && quota.trim().matches("^\\d+$"))
+				this.submittedQuotaInGigabytes = quota;
+				// Keep the exact stored KB quota when its rounded GB display is unchanged.
+				if (this.quota != null && quota != null && quota.trim().equals(getQuotaInGigabytes()))
 				{
-					this.quota = quota.trim();
+					return;
+				}
+				if(quota != null && !quota.isBlank())
+				{
+					try
+					{
+						BigDecimal gigabytes = new BigDecimal(quota.trim());
+						BigDecimal kilobytes = gigabytes.multiply(BigDecimal.valueOf(1024L * 1024L));
+						if (kilobytes.signum() < 0 || kilobytes.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)
+						{
+							this.quotaIsInvalid = true;
+						}
+						else
+						{
+							// Round GB up to two decimal places before converting to whole KB.
+							BigDecimal roundedGigabytes = gigabytes.signum() == 0 ? BigDecimal.ZERO
+									: gigabytes.max(BigDecimal.valueOf(1L, 2)).setScale(2, RoundingMode.CEILING);
+							this.quota = Long.toString(roundedGigabytes.multiply(BigDecimal.valueOf(1024L * 1024L))
+									.setScale(0, RoundingMode.CEILING).longValueExact());
+						}
+					}
+					catch (NumberFormatException | ArithmeticException e)
+					{
+						this.quotaIsInvalid = true;
+						log.warn("Cannot set quota for {}: a number in GB within the supported range is required", this.id);
+					}
+				}
+				else
+				{
+					this.quotaIsInvalid = true;
+					log.warn("Cannot set quota for {}: a non-negative number in GB is required", this.id);
 				}
 			}
 			else
@@ -3340,7 +3272,6 @@ public class ListItem
 		setDisplayNameOnEntity(props);
 		setDescriptionOnEntity(props);
 		//setCopyrightOnEntity(props);
-		setConditionalReleaseOnEntity(props);
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(props, edit);
 		setQuotaOnEntity(props);
@@ -3455,17 +3386,6 @@ public class ListItem
 		edit.setAvailability(hidden, releaseDate, retractDate);
 	}
 	
-	protected void setConditionalReleaseOnEntity(ResourcePropertiesEdit props) 
-	{
-		props.addProperty(ConditionService.PROP_CONDITIONAL_RELEASE, Boolean.toString(this.useConditionalRelease));
-		props.addProperty(ConditionService.PROP_CONDITIONAL_NOTIFICATION_ID, this.notificationId);
-		props.removeProperty(ContentHostingService.CONDITIONAL_ACCESS_LIST);
-		if (this.accessControlList != null) {
-			for (String id : this.accessControlList) {
-				props.addPropertyToList(ContentHostingService.CONDITIONAL_ACCESS_LIST, id);
-			}
-		}
-	}
 
 	protected void setAccessOnEntity(GroupAwareEdit edit) 
 	{
@@ -3544,7 +3464,6 @@ public class ListItem
 		setCHHMountpoint(props);
 		setDisplayNameOnEntity(props);
 		setDescriptionOnEntity(props);
-		setConditionalReleaseOnEntity(props);
 
 		(new CopyrightDelegate()).setCopyrightOnEntity(props, this);
 
@@ -3642,6 +3561,22 @@ public class ListItem
 	public boolean hasQuota() 
 	{
 		return hasQuota;
+	}
+
+	public String getQuotaInGigabytes()
+	{
+		if (quotaIsInvalid)
+		{
+			return submittedQuotaInGigabytes;
+		}
+		if (quota == null)
+		{
+			return null;
+		}
+		BigDecimal gigabytes = new BigDecimal(quota).divide(BigDecimal.valueOf(1024L * 1024L));
+		BigDecimal rounded = gigabytes.setScale(2, RoundingMode.HALF_UP);
+		// Existing positive quotas smaller than 0.01 GB must not display as unlimited (0).
+		return (gigabytes.signum() > 0 ? rounded.max(BigDecimal.valueOf(1L, 2)) : rounded).stripTrailingZeros().toPlainString();
 	}
 
 	public String getQuota() 
@@ -3808,6 +3743,10 @@ public class ListItem
 	public List<String> checkRequiredProperties()
     {
 		List<String> alerts = new ArrayList<String>();
+		if (quotaIsInvalid)
+		{
+			alerts.add(trb.getString("edit.quota.invalid"));
+		}
 		String name = getName();
 		if(name == null || name.trim().equals(""))
 		{
@@ -4530,6 +4469,19 @@ public class ListItem
         } else {
             props.removeProperty(ResourceProperties.PROP_SECURED);
         }
+    }
+
+    public boolean isLocked()
+    {
+        if(contentService == null)
+        {
+            contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
+        }
+        if(this.id == null)
+        {
+            return false;
+        }
+        return contentService.isLocked(this.id);
     }
 
 }

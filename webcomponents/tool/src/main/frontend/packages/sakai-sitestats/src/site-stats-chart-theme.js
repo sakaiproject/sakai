@@ -51,6 +51,14 @@ export function siteStatsChartColors(count, alpha = 0.82, theme = SITE_STATS_CHA
   return colors;
 }
 
+export function siteStatsChartColor(token, alpha = 0.82, theme = SITE_STATS_CHART_FALLBACK_THEME) {
+
+  const palette = theme.palette?.length ? theme.palette : SITE_STATS_CHART_FALLBACK_THEME.palette;
+  const index = { info: 0, success: 1, warning: 2, danger: 5, muted: 6 }[token];
+  if (index == null) return undefined;
+  return colorWithAlpha(palette[index % palette.length], alpha);
+}
+
 export function siteStatsChartThemeSignature(theme = SITE_STATS_CHART_FALLBACK_THEME) {
 
   return [

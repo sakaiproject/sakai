@@ -42,6 +42,7 @@ import org.osid.assessment.AssessmentException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
@@ -182,27 +183,16 @@ public class AssessmentFacade extends AssessmentBaseFacade
   }
 
   public AssessmentFacade(AssessmentIfc data) {
-    try {
-      // assessment(org.osid.assessment.Assessment) is a protected properties
-      // in AssessmentBaseFacade
-      //assessment.updateData(this.data);
-      super.setData(data);
-    }
-    catch (AssessmentException ex) {
-      throw new DataFacadeException(ex.getMessage());
-    }
-    // super class does not have assessmentTemplateId nor sectionSet and AssessmentAttachemntSet,
-    // so we need to set it here
-    this.assessmentTemplateId = data.getAssessmentTemplateId();
-    this.assessmentAttachmentSet = data.getAssessmentAttachmentSet();
-    // sectionSet is a set of SectionFacade
-    this.sectionSet = new HashSet();
-    Set dataSet = data.getSectionSet();
-    Iterator iter = dataSet.iterator();
-    while (iter.hasNext()){
-      SectionData s = (SectionData)iter.next();
-      this.sectionSet.add(new SectionFacade(s));
-    }
+    updateData(data);
+  }
+
+  @Override
+  public void setData(AssessmentBaseIfc data) throws AssessmentException {
+    super.setData(data);
+    this.data = (AssessmentIfc) data;
+    this.assessmentTemplateId = this.data.getAssessmentTemplateId();
+    this.assessmentAttachmentSet = this.data.getAssessmentAttachmentSet();
+    getSectionSet();
   }
 
   public Long getAssessmentId(){

@@ -40,12 +40,12 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +57,7 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
@@ -225,6 +226,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
+    @Autowired(required = false) private SimplePageToolDao simplePageToolDao;
     @Autowired private SiteNeighbourhoodService siteNeighbourhoodService;
     @Autowired private SiteService siteService;
     @Autowired private ThreadLocalManager threadLocalManager;
@@ -319,7 +321,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         portalContext = config.getInitParameter("portal.context");
         if (StringUtils.isBlank(portalContext)) portalContext = DEFAULT_PORTAL_CONTEXT;
 
-        siteHelper = new PortalSiteHelperImpl(this, serverConfigurationService.getBoolean(PROP_USE_PAGE_ALIAS, false));
+        siteHelper = new PortalSiteHelperImpl(this, serverConfigurationService.getBoolean(PROP_USE_PAGE_ALIAS, false), simplePageToolDao);
 
         basicAuth = new BasicAuth();
         basicAuth.init();
@@ -1198,7 +1200,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         headJs.append("sakai.locale.userLanguage = '").append(MESSAGES.getLocale().getLanguage()).append("';\n");
         headJs.append("sakai.locale.userLocale = '").append(MESSAGES.getLocale().toString()).append("';\n");
         headJs.append("sakai.editor.collectionId = '").append(portalService.getBrowserCollectionId(placement)).append("';\n");
-        headJs.append("sakai.editor.enableResourceSearch = ").append(EditorConfiguration.enableResourceSearch()).append(";\n");
         if (contentItemUrl != null) {
             headJs.append("sakai.editor.contentItemUrl = '").append(contentItemUrl).append("';\n");
         } else {
@@ -1224,7 +1225,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         if (site != null && mathJaxEnabled) {
             if (StringUtils.isNotBlank(mathJaxPath)) {
-                if (BooleanUtils.toBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED))) {
+                if (site.getProperties().getBooleanProperty(Site.PROP_SITE_MATHJAX_ALLOWED, true)) {
                     // In order to get MathJax to work on the site, the config and source has to be added to the header.
                     Element config = new Element("script");
                     Element srcPath = new Element("script");

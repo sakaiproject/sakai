@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.tsugi.lti.objects.POXEnvelopeRequest;
 import org.tsugi.lti.objects.POXRequestBody;
@@ -125,7 +125,6 @@ public class POXRequestHandler {
         if (oauth_body_hash == null) {
             errorMessage = "Did not find oauth_body_hash";
             log.info("{}", errorMessage);
-            log.debug("Authorization header: {}", header);
             return;
         }
 

@@ -20,11 +20,12 @@ import java.util.Optional;
 
 import org.hibernate.Session;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.sakaiproject.portal.api.model.PinnedSite;
 import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
@@ -74,6 +75,24 @@ public class PinnedSiteRepositoryImpl extends SpringCrudRepositoryImpl<PinnedSit
 
         // max() over no rows yields a null result.
         return Optional.ofNullable(session.createQuery(query).uniqueResult());
+    }
+
+    @Override
+    @Transactional
+    public void updatePositions(String userId, List<String> siteIds) {
+        if (siteIds.isEmpty()) return;
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<PinnedSite> update = cb.createCriteriaUpdate(PinnedSite.class);
+        Root<PinnedSite> pin = update.from(PinnedSite.class);
+        CriteriaBuilder.Case<Integer> positions = cb.selectCase();
+        for (int i = 0; i < siteIds.size(); i++) {
+            positions.when(cb.equal(pin.get("siteId"), siteIds.get(i)), i);
+        }
+        update.set(pin.<Integer>get("position"), positions.otherwise(pin.get("position")));
+        update.where(cb.equal(pin.get("userId"), userId), pin.get("siteId").in(siteIds));
+        session.createQuery(update).executeUpdate();
     }
 
     @Override

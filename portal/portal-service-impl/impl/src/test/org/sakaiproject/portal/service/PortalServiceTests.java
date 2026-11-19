@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Observer;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,6 +56,11 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,6 +71,7 @@ public class PortalServiceTests extends SakaiTests {
 
     @Autowired private PinnedSiteRepository pinnedSiteRepository;
     @Autowired private PortalService portalService;
+    @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private PreferencesService preferencesService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -78,6 +86,197 @@ public class PortalServiceTests extends SakaiTests {
     @Before
     public void setup() {
         super.setup();
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES))
+            .thenReturn(PortalServiceImpl.DEFAULT_MAX_PINNED_SITES);
+        when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(false);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void testReorderPinnedSitesWithAnOlderTransactionSnapshot() {
+        String userId = "stale-reorder";
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        TransactionTemplate independent = new TransactionTemplate(transactionManager);
+        independent.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        portalService.savePinnedSites(userId, List.of("A", "B", "C"));
+        try {
+            transaction.executeWithoutResult(status -> {
+                // Both reorders start with A=0, B=1, C=2. Commit one while the other retains that snapshot.
+                pinnedSiteRepository.findByUserIdOrderByPosition(userId);
+                independent.executeWithoutResult(other -> portalService.reorderPinnedSites(userId, List.of("B", "A", "C")));
+                portalService.reorderPinnedSites(userId, List.of("A", "C", "B"));
+            });
+            Assert.assertEquals(List.of("A", "C", "B"), portalService.getPinnedSites(userId));
+            transaction.executeWithoutResult(status -> Assert.assertEquals(List.of(0, 1, 2),
+                pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+                    .map(PinnedSite::getPosition).toList()));
+        } finally {
+            portalService.reorderPinnedSites(userId, List.of());
+        }
+    }
+
+    @Test
+    public void testReorderPinnedSitesKeepsExistingRows() {
+        assertReorderPinnedSitesKeepsExistingRows(false);
+    }
+
+    @Test
+    public void testReorderPinnedSitesKeepsExistingRowsNewestFirst() {
+        assertReorderPinnedSitesKeepsExistingRows(true);
+    }
+
+    private void assertReorderPinnedSitesKeepsExistingRows(boolean newestFirst) {
+        when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(newestFirst);
+        portalService.savePinnedSites(user1, List.of("site1", "site2", "site3"));
+        portalService.addPinnedSite(user1, "unpinned", false);
+        Long site1RowId = pinnedSiteRepository.findByUserIdAndSiteId(user1, "site1").orElseThrow().getId();
+        Long site2RowId = pinnedSiteRepository.findByUserIdAndSiteId(user1, "site2").orElseThrow().getId();
+        Long unpinnedRowId = pinnedSiteRepository.findByUserIdAndSiteId(user1, "unpinned").orElseThrow().getId();
+
+        portalService.reorderPinnedSites(user1, List.of("site2", "site1"));
+        Assert.assertEquals(List.of("site2", "site1"), portalService.getPinnedSites(user1));
+        Assert.assertEquals(site1RowId, pinnedSiteRepository.findByUserIdAndSiteId(user1, "site1").orElseThrow().getId());
+        Assert.assertEquals(site2RowId, pinnedSiteRepository.findByUserIdAndSiteId(user1, "site2").orElseThrow().getId());
+        Assert.assertFalse(pinnedSiteRepository.findByUserIdAndSiteId(user1, "site3").isPresent());
+        Assert.assertEquals(List.of("unpinned"), portalService.getUnpinnedSites(user1));
+
+        portalService.reorderPinnedSites(user1, List.of("site2", "site1"));
+        Assert.assertEquals(site2RowId, pinnedSiteRepository.findByUserIdAndSiteId(user1, "site2").orElseThrow().getId());
+        portalService.reorderPinnedSites(user1, List.of("unpinned", "new-site"));
+        Assert.assertEquals(List.of("unpinned", "new-site"), portalService.getPinnedSites(user1));
+        Assert.assertEquals(unpinnedRowId, pinnedSiteRepository.findByUserIdAndSiteId(user1, "unpinned").orElseThrow().getId());
+        Assert.assertTrue(portalService.getUnpinnedSites(user1).isEmpty());
+        portalService.reorderPinnedSites(user1, List.of());
+        Assert.assertTrue(portalService.getPinnedSites(user1).isEmpty());
+    }
+
+    @Test
+    public void testSiteDisplayTitle() {
+        when(site1.getTitle()).thenReturn("Site title");
+        when(site1.getShortDescription()).thenReturn("Site short description");
+        when(preferencesService.getSiteTitleDisplayPreference()).thenReturn(PreferencesService.USE_SITE_TITLE);
+        Assert.assertEquals("Site title", portalService.getSiteDisplayTitle(site1));
+
+        when(preferencesService.getSiteTitleDisplayPreference()).thenReturn(PreferencesService.USE_SITE_DESCRIPTION);
+        Assert.assertEquals("Site short description", portalService.getSiteDisplayTitle(site1));
+
+        for (String description : new String[] {null, "", "  "}) {
+            when(site1.getShortDescription()).thenReturn(description);
+            Assert.assertEquals("Site title", portalService.getSiteDisplayTitle(site1));
+        }
+    }
+
+    @Test
+    public void testSavePinnedSitesCap() {
+        List<String> siteIds = IntStream.rangeClosed(1, 21)
+            .mapToObj(i -> "site" + i).collect(Collectors.toList());
+        portalService.savePinnedSites(user1, siteIds);
+        Assert.assertEquals(siteIds.subList(0, 20), portalService.getPinnedSites(user1));
+
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(2);
+        when(siteService.isSpecialSite("special")).thenReturn(true);
+        when(siteService.isUserSite("~user1")).thenReturn(true);
+        portalService.savePinnedSites(user1, List.of("special", "~user1", "site1", "site1", "site2", "site3"));
+        Assert.assertEquals(List.of("site1", "site2"), portalService.getPinnedSites(user1));
+        Assert.assertTrue(portalService.getUnpinnedSites(user1).contains("site3"));
+    }
+
+    @Test
+    public void testAddAndReorderPinnedSitesCap() {
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(2);
+        when(siteService.isSpecialSite("special")).thenReturn(true);
+        portalService.addPinnedSite(user1, "special", true);
+        Assert.assertFalse(pinnedSiteRepository.findByUserIdAndSiteId(user1, "special").isPresent());
+        portalService.addPinnedSite(user1, "site1", true);
+        portalService.addPinnedSite(user1, "site2", true);
+        portalService.addPinnedSite(user1, "site3", true);
+        Assert.assertEquals(List.of("site1", "site2"), portalService.getPinnedSites(user1));
+
+        // An existing pin remains valid at the cap, and unpinning frees a slot.
+        portalService.addPinnedSite(user1, "site2", true);
+        portalService.addPinnedSite(user1, "site1", false);
+        portalService.addPinnedSite(user1, "site3", true);
+        Assert.assertEquals(List.of("site2", "site3"), portalService.getPinnedSites(user1));
+
+        when(siteService.isUserSite("~user1")).thenReturn(true);
+        portalService.reorderPinnedSites(user1, List.of("~user1", "site3", "site2", "site1"));
+        Assert.assertEquals(List.of("site3", "site2"), portalService.getPinnedSites(user1));
+        when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(true);
+        portalService.reorderPinnedSites(user1, List.of("site2", "site3", "site1"));
+        Assert.assertEquals(List.of("site2", "site3"), portalService.getPinnedSites(user1));
+    }
+
+    @Test
+    public void testSyncPinsNewestSitesIntoAvailableSlots() throws IdUnusedException, PermissionException {
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(2);
+        when(securityService.isSuperUser(user1)).thenReturn(false);
+        ResourceProperties properties = new BaseResourceProperties();
+        properties.addPropertyToList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY, "excluded");
+        Preferences preferences = createMockPreferences(user1, PreferencesService.SITENAV_PREFS_KEY, properties);
+        when(preferencesService.getPreferences(user1)).thenReturn(preferences);
+
+        // SiteService returns member sites newest first. Ineligible sites must not use a slot.
+        List<String> siteIds = List.of("special", "excluded", "unpinned", "newest", "older", "existing");
+        Member member = createMockMember(user1, true);
+        for (String siteId : siteIds) {
+            Site site = mock(Site.class);
+            when(site.getMember(user1)).thenReturn(member);
+            when(siteService.getSiteVisit(siteId)).thenReturn(site);
+        }
+        when(siteService.isSpecialSite("special")).thenReturn(true);
+        when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null))
+            .thenReturn(siteIds);
+        portalService.addPinnedSite(user1, "existing", true);
+        portalService.addPinnedSite(user1, "unpinned", false);
+
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("existing", "newest"), portalService.getPinnedSites(user1));
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("existing", "newest"), portalService.getPinnedSites(user1));
+
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(0);
+        portalService.syncUserSitesWithPortalNav(user1);
+        portalService.addPinnedSite(user1, "older", true);
+        Assert.assertTrue(portalService.getPinnedSites(user1).isEmpty());
+    }
+
+    @Test
+    public void testSyncPinsNewestSitesAtTop() throws IdUnusedException, PermissionException {
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(4);
+        when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(true);
+        when(securityService.isSuperUser(user1)).thenReturn(false);
+        Preferences preferences = createMockPreferences(user1, PreferencesService.SITENAV_PREFS_KEY, new BaseResourceProperties());
+        when(preferencesService.getPreferences(user1)).thenReturn(preferences);
+
+        List<String> siteIds = List.of("unpinned", "newest", "newer", "older", "existing2", "existing1");
+        Member member = createMockMember(user1, true);
+        for (String siteId : siteIds) {
+            Site site = mock(Site.class);
+            when(site.getMember(user1)).thenReturn(member);
+            when(siteService.getSiteVisit(siteId)).thenReturn(site);
+        }
+        when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null))
+            .thenReturn(siteIds);
+        portalService.addPinnedSite(user1, "existing1", true);
+        portalService.addPinnedSite(user1, "existing2", true);
+        portalService.addPinnedSite(user1, "unpinned", false);
+
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("newest", "newer", "existing2", "existing1"), portalService.getPinnedSites(user1));
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("newest", "newer", "existing2", "existing1"), portalService.getPinnedSites(user1));
+        Assert.assertEquals(List.of("unpinned"), portalService.getUnpinnedSites(user1));
+
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(3);
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("newest", "newer", "existing2"), portalService.getPinnedSites(user1));
+        Assert.assertEquals(List.of("unpinned"), portalService.getUnpinnedSites(user1));
+        Assert.assertFalse(pinnedSiteRepository.findByUserIdAndSiteId(user1, "existing1").isPresent());
+
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(5);
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("older", "existing1", "newest", "newer", "existing2"), portalService.getPinnedSites(user1));
+        Assert.assertEquals(List.of("unpinned"), portalService.getUnpinnedSites(user1));
     }
 
     @Test

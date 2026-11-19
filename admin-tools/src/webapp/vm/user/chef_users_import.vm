@@ -27,7 +27,7 @@
 		<form name="importForm" action="#toolForm("$action")" method="post">
 			
 			#set ($size = 0)
-			#if (!$importedUsers.isEmpty())
+			#if ($importedUsers && !$importedUsers.isEmpty())
 				#set ($size =  $importedUsers.size())
 			#end
 			

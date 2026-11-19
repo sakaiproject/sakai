@@ -36,9 +36,10 @@ public interface EmailNotificationManager {
     
   /**
    * Save emailnotification for a user
-   * @param emailnotification to save
+   * @param emailoption to save
+   * @return the saved notification with its persistent identity and version
    */
-  public void saveEmailNotification(EmailNotification emailoption);
+  public EmailNotification saveEmailNotification(EmailNotification emailoption);
 
   
   /**

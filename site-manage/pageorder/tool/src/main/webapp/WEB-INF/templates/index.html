@@ -6,12 +6,11 @@
   <link href="/library/skin/tool_base.css" rel="stylesheet" media="all">
   <link href="/library/skin/default-skin/tool.css" rel="stylesheet" media="all">
   <script src="/library/js/headscripts.js"></script>
-  <link th:href="@{/content/css/tool-order.css}" rel="stylesheet">
   <script th:src="@{/content/js/tool-order.js}" defer></script>
 </head>
 <body>
   <main id="tool-order-app"
-        class="portletBody tool-order"
+        class="portletBody tool-order sakai-reorder"
         th:attr="data-order-url=@{/api/order},
                  data-reset-url=@{/api/reset-order},
                  data-saving-message=#{status_saving},
@@ -22,44 +21,37 @@
                  data-menu-lock=#{menu_lock_page},
                  data-menu-unlock=#{menu_enable_page},
                  data-remove-confirm-template=#{remove_tool_confirm('\_\_TITLE\_\_')}">
-    <div class="tool-order-heading">
-      <div>
-        <h1 th:text="#{page_title}">Tool Order</h1>
-        <p class="tool-order-site-title" th:text="${siteTitle}">Site title</p>
-      </div>
-      <form th:action="@{/done}" method="post">
-        <button type="submit" class="btn btn-primary" th:text="#{done}">Done</button>
-      </form>
+    <div class="page-header">
+      <h1 th:text="#{page_title}">Tool Order</h1>
     </div>
 
-    <div id="tool-order-alert" class="sak-banner-info" role="status" aria-live="polite">
-      <span th:text="#{welcome}">Changes are saved immediately.</span>
+    <div class="instruction" th:text="#{welcome}">
+      Changes are saved immediately. Drag tools to reorder them, or use the move buttons on each row.
     </div>
+
+    <button type="button"
+            class="btn btn-transparent btn-sm"
+            data-action="reset-order"
+            th:if="${siteOrdered}"
+            th:attr="data-confirm=#{reset_order_confirm}">
+      <span class="bi bi-arrow-counterclockwise" aria-hidden="true"></span>
+      <span th:text="#{reset}">Reset</span>
+    </button>
+
+    <div id="tool-order-alert" class="sak-banner-info d-none" role="status" aria-live="polite"></div>
 
     <div class="sak-banner-warn">
-      <span th:text="#{warning}">Warning message</span>
+      <span th:text="#{warning}">Making tools invisible does not prevent access to the tool items through direct links. To prevent all access, lock the tool.</span>
     </div>
     <div class="sak-banner-warn">
       <span th:text="#{warn_lockResources}">Resources warning</span>
     </div>
 
-    <div class="tool-order-list-header">
-      <h2 th:text="#{curr_pages}">Current Tools</h2>
-      <button type="button"
-              class="btn btn-outline-secondary btn-sm"
-              data-action="reset-order"
-              th:if="${siteOrdered}"
-              th:attr="data-confirm=#{reset_order_confirm}">
-        <span class="bi bi-arrow-counterclockwise" aria-hidden="true"></span>
-        <span th:text="#{reset}">Reset</span>
-      </button>
-    </div>
-
     <ul id="tool-order-list"
-        class="list-group tool-order-list"
+        class="list-group sakai-reorder-list tool-order-list"
         th:if="${!#lists.isEmpty(pages)}"
         th:attr="data-reorder-allowed=${reorderAllowed}">
-      <li class="list-group-item tool-order-row"
+      <li class="list-group-item tool-order-row sakai-reorder-row"
           th:each="page : ${pages}"
           th:id="|tool-order-row-${page.id}|"
           th:attr="data-page-id=${page.id},
@@ -69,10 +61,10 @@
                    data-delete-url=@{/api/pages/{pageId}/delete(pageId=${page.id})},
                    data-title=${page.title},
                    data-remove-confirm=#{remove_tool_confirm(${page.title})}">
-        <div class="tool-order-row-main">
-          <div class="tool-order-move-controls" th:if="${reorderAllowed}">
+        <div class="sakai-reorder-row-main">
+          <div class="sakai-reorder-move-controls" th:if="${reorderAllowed}">
             <button type="button"
-                    class="btn btn-icon tool-order-drag-handle"
+                    class="btn btn-icon sakai-reorder-drag-handle"
                     data-action="drag-handle"
                     draggable="true"
                     th:title="#{drag_tool}"
@@ -97,7 +89,7 @@
             </button>
           </div>
 
-          <div class="tool-order-row-content">
+          <div class="sakai-reorder-row-content">
             <span th:class="${page.toolIconClass}" aria-hidden="true"></span>
 
             <div class="tool-order-title-block">
@@ -127,7 +119,7 @@
                            th:value="${page.webContentUrl}">
                   </div>
                 </div>
-                <div class="tool-order-edit-actions">
+                <div class="sakai-reorder-row-actions">
                   <button type="submit"
                           class="btn btn-primary btn-sm"
                           th:title="#{save_tool_title}">
@@ -146,7 +138,7 @@
             </div>
           </div>
 
-          <div class="tool-order-row-actions">
+          <div class="sakai-reorder-row-actions">
             <button type="button"
                     class="btn btn-icon"
                     data-action="edit"
@@ -190,6 +182,12 @@
     <p class="tool-order-empty" th:if="${#lists.isEmpty(pages)}" th:text="#{empty_tools}">
       There are no tools to order in this site.
     </p>
+
+    <div class="act">
+      <form class="tool-order-done-form" th:action="@{/done}" method="post">
+        <button type="submit" class="btn btn-primary" th:text="#{done}">Done</button>
+      </form>
+    </div>
   </main>
 </body>
 </html>

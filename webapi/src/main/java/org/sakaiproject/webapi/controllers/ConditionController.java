@@ -52,12 +52,12 @@ public class ConditionController extends AbstractSakaiApiController {
 
 
     @GetMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Condition> getCondition(@PathVariable String siteId, @PathVariable String conditionId) {
+    public ResponseEntity<Condition> getCondition(@PathVariable("siteId") String siteId, @PathVariable("conditionId") String conditionId) {
         checkSakaiSession();
         checkSite(siteId);
 
         if (StringUtils.isNotBlank(conditionId)) {
-            Condition condition = conditionService.getCondition(conditionId);
+            Condition condition = conditionService.getConditionForSite(siteId, conditionId);
             if (condition != null) {
                 return ResponseEntity.ok(condition);
             }
@@ -67,8 +67,8 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/conditions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Condition>> getConditions(@PathVariable String siteId,
-                @RequestParam Optional<String> toolId, @RequestParam Optional<String> itemId) {
+    public ResponseEntity<List<Condition>> getConditions(@PathVariable("siteId") String siteId,
+                @RequestParam("toolId") Optional<String> toolId, @RequestParam("itemId") Optional<String> itemId) {
         checkSakaiSession();
         checkSite(siteId);
 
@@ -87,7 +87,7 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/conditions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Condition> createCondition(@PathVariable String siteId, @RequestBody Condition condition) {
+    public ResponseEntity<Condition> createCondition(@PathVariable("siteId") String siteId, @RequestBody Condition condition) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
 
@@ -96,7 +96,7 @@ public class ConditionController extends AbstractSakaiApiController {
         }
 
         if (condition != null && StringUtils.isBlank(condition.getId())) {
-            Condition savedCondition = conditionService.saveCondition(condition);
+            Condition savedCondition = conditionService.saveConditionForSite(siteId, condition);
 
             if (savedCondition != null) {
                 return ResponseEntity.ok(savedCondition);
@@ -107,7 +107,7 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/conditions/bulk", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Set<Condition>> createConditions(@PathVariable String siteId, @RequestBody Set<Condition> conditions) {
+    public ResponseEntity<Set<Condition>> createConditions(@PathVariable("siteId") String siteId, @RequestBody Set<Condition> conditions) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
 
@@ -122,14 +122,14 @@ public class ConditionController extends AbstractSakaiApiController {
         }
 
         Set<Condition> savedConditions = conditions.stream()
-                .map(conditionService::saveCondition)
+                .map(condition -> conditionService.saveConditionForSite(siteId, condition))
                 .collect(Collectors.toSet());
 
         return ResponseEntity.ok(savedConditions);
     }
 
     @PutMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Condition> updateCondition(@PathVariable String siteId, @PathVariable String conditionId,
+    public ResponseEntity<Condition> updateCondition(@PathVariable("siteId") String siteId, @PathVariable("conditionId") String conditionId,
             @RequestBody Condition condition) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
@@ -138,11 +138,11 @@ public class ConditionController extends AbstractSakaiApiController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Condition existingCondition = conditionService.getCondition(conditionId);
+        Condition existingCondition = conditionService.getConditionForSite(siteId, conditionId);
         log.debug("existingCondition {}", existingCondition);
 
         if (existingCondition != null && StringUtils.equals(condition.getId(), conditionId)) {
-            Condition updatedCondition = conditionService.saveCondition(condition);
+            Condition updatedCondition = conditionService.saveConditionForSite(siteId, condition);
             log.debug("updatedCondition {}", updatedCondition);
 
             if (updatedCondition != null) {
@@ -154,7 +154,7 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @DeleteMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> deleteCondition(@PathVariable String siteId, @PathVariable String conditionId) {
+    public ResponseEntity<String> deleteCondition(@PathVariable("siteId") String siteId, @PathVariable("conditionId") String conditionId) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
 
@@ -162,7 +162,7 @@ public class ConditionController extends AbstractSakaiApiController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        boolean success = StringUtils.isNotBlank(conditionId) && conditionService.deleteCondition(conditionId);
+        boolean success = StringUtils.isNotBlank(conditionId) && conditionService.deleteConditionForSite(siteId, conditionId);
 
         return success ? ResponseEntity.ok(conditionId) : ResponseEntity.badRequest().build();
     }

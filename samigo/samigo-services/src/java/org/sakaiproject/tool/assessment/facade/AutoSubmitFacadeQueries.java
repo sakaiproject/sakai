@@ -18,15 +18,18 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -34,10 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Transactional
-public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements AutoSubmitFacadeQueriesAPI
+public class AutoSubmitFacadeQueries implements AutoSubmitFacadeQueriesAPI
 {
+	@Setter private SessionFactory sessionFactory;
+
 	@Override
-	public boolean processAttempt(AssessmentGradingData adata, boolean updateGrades, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
+	public boolean processAttempt(AssessmentGradingData adata, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
 			Date currentTime, String lastAgentId, Long lastPublishedAssessmentId, Map<Long, Set<PublishedSectionData>> sectionSetMap)
 	{
 		boolean autoSubmitCurrent = false;
@@ -120,9 +125,7 @@ public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements Auto
 
 		if (autoSubmitCurrent) {
 			GradingService gs = new GradingService();
-			if (updateGrades) {
-				gs.notifyGradebookByScoringType(adata, assessment); // this may throw runtime exceptions triggering a rollback
-			}
+			gs.notifyGradebookByScoringType(adata, assessment); // this may throw runtime exceptions triggering a rollback
 
 			// if we get this far, the processing of this attempt was successful so it is now safe to
 			// update the log and email the student (triggered by the same method)

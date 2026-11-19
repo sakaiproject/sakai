@@ -17,47 +17,70 @@ package org.sakaiproject.condition.impl.persistence;
 
 import java.util.List;
 
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.condition.api.persistence.ConditionRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 public class ConditionRepositoryImpl extends BasicSerializableRepository<Condition, String> implements ConditionRepository {
 
 
     @Override
     public Condition findConditionForId(String conditionId) {
-        return (Condition) startCriteriaQuery()
-                .add(Restrictions.eq("id", conditionId))
-                .uniqueResult();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Condition> query = cb.createQuery(Condition.class);
+        Root<Condition> root = query.from(Condition.class);
+
+        query.select(root).where(cb.equal(root.get("id"), conditionId));
+
+        return sessionFactory.getCurrentSession().createQuery(query).uniqueResult();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<Condition> findConditionsForSite(String siteId) {
-        return startCriteriaQuery()
-                .add(Restrictions.eq("siteId", siteId))
-                .list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Condition> query = cb.createQuery(Condition.class);
+
+        Root<Condition> root = query.from(Condition.class);
+        query.select(root).where(cb.equal(root.get("siteId"), siteId));
+
+        return sessionFactory.getCurrentSession().createQuery(query).getResultList();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<Condition> findConditionsForItem(String siteId, String toolId, String itemId) {
-        return startCriteriaQuery()
-                .add(Restrictions.eq("siteId", siteId))
-                .add(Restrictions.eq("toolId", toolId))
-                .add(Restrictions.eq("itemId", itemId))
-                .list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Condition> query = cb.createQuery(Condition.class);
+        Root<Condition> root = query.from(Condition.class);
+
+        query.select(root).where(
+            cb.equal(root.get("siteId"), siteId),
+            cb.equal(root.get("toolId"), toolId),
+            cb.equal(root.get("itemId"), itemId)
+        );
+
+        return sessionFactory.getCurrentSession().createQuery(query).getResultList();
     }
 
     @Override
     public Condition findRootConditionForItem(String siteId, String toolId, String itemId) {
-        return (Condition) startCriteriaQuery()
-                .add(Restrictions.eq("siteId", siteId))
-                .add(Restrictions.eq("toolId", toolId))
-                .add(Restrictions.eq("itemId", itemId))
-                .add(Restrictions.eq("type", ConditionType.ROOT))
-                .uniqueResult();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Condition> query = cb.createQuery(Condition.class);
+        Root<Condition> root = query.from(Condition.class);
+
+        query.select(root).where(
+            cb.equal(root.get("siteId"), siteId),
+            cb.equal(root.get("toolId"), toolId),
+            cb.equal(root.get("itemId"), itemId),
+            cb.equal(root.get("type"), ConditionType.ROOT)
+        );
+
+        return sessionFactory.getCurrentSession().createQuery(query).uniqueResult();
     }
 }

@@ -1,10 +1,9 @@
 # Sakai Web Components
 
-This module hosts a set of web components which are in use across several Sakai tools. We're using a
-combination of **[Lerna](https://lerna.js.org/)** and
-**[NPM Workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)** to manage the monorepo -
-check out the configurations in tool/src/main/frontend. All the package dependencies are managed
-by Lerna and are hosted in the top level node\_modules directory, not in each individual package.
+This module hosts web components used across several Sakai tools.
+npm workspaces manages the packages listed in `tool/src/main/frontend/package.json` and links the local
+components during installation. Run `npm ci` from `tool/src/main/frontend` to install dependencies for
+all components.
 
 **[Web Test Runner](https://modern-web.dev/docs/test-runner/overview/)** is used for testing and
 test files are hosted in each package's **test** directory. Most of the tests make use of
@@ -43,3 +42,22 @@ then write the code. That way you'll write nicer components for the end users si
 Coverage is intentionally omitted from our testing setup, as it's debatable
 if, as developers, we should be focusing on coverage metrics. We should instead be focusing on the
 most commong pathways our users will be taking through our component, and edge cases later.
+
+# Shared tool components
+
+The portal's `base.js` bundle registers the following Lit components. Tool pages that load
+the gradebook selector separately can use `bundles/gradebook-item-selector.js`.
+
+| Component | Package | Integration |
+| --- | --- | --- |
+| `sakai-timer-bar` | `sakai-timer-bar` | Samigo countdown; posts `SAVE` and `END` messages with the timer's `id` to the parent window. |
+| `sakai-gradebook-item-selector` | `sakai-gradebook-item-selector` | Searches gradebook items/categories and allows one selection per gradebook. `input-id` names the host form's comma-separated hidden input. The `change` event contains `detail.value`, the selected items. |
+| `sakai-condition-editor`, `sakai-condition-picker` | `sakai-conditions` | Lessons score conditions and AND/OR prerequisite trees. Context changes reload the data through the existing conditions API. |
+| `sakai-dynamic-rubric` | `sakai-rubrics` | Samigo ad hoc criteria and evaluation. `cancel()` restores saved selections; `release()` returns a promise for the evaluation save. |
+
+Translations for these components live in `bundle/src/main/bundle`. All reactive internal
+state stays in the components; criterion changes use events instead of mutating a parent's model.
+
+Build the frontend bundles before running `SharedToolComponentsTest` in `e2e-tests`.
+That Playwright test loads the production bundles with tool markup and HTTP fixtures to check
+form values, condition persistence, rubric recalculation navigation, and timer messages.

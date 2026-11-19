@@ -21,6 +21,9 @@
 
 package org.sakaiproject.user.impl;
 
+import java.util.Locale;
+
+import org.apache.commons.codec.digest.DigestUtils;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
@@ -33,6 +36,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.IPAddrUtil;
+import org.sakaiproject.util.WebDavEvidence;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +51,7 @@ public class UserAuthnComponent implements AuthenticationManager {
 
     @Setter protected UserDirectoryService userDirectoryService;
     @Setter protected AuthenticationCache authenticationCache;
+    @Setter protected PasswordLoginBackoff passwordLoginBackoff;
 
 
     public void init() {
@@ -67,18 +72,36 @@ public class UserAuthnComponent implements AuthenticationManager {
                 throw new AuthenticationException("Invalid Login: Either identifier or password empty.");
             }
 
-            // Check the cache. If repeat authentication failures are being throttled,
-            // an immediate AuthenticationException might be thrown here.
-            Authentication rv = authenticationCache.getAuthentication(evidence.getIdentifier(), evidence.getPassword());
-            if (rv != null) {
-                return rv;
+            String accountKey = passwordLoginKey(evidence.getIdentifier());
+            passwordLoginBackoff.check(accountKey);
+            boolean webDav = evidence instanceof WebDavEvidence;
+            Authentication cached = null;
+            if (webDav) {
+                try {
+                    cached = authenticationCache.getAuthentication(evidence.getIdentifier(), evidence.getPassword());
+                } catch (AuthenticationException ex) {
+                    // Repeated cached failures consume the same allowance as new guesses.
+                    passwordLoginBackoff.reserve(accountKey);
+                    throw ex;
+                }
             }
-
-            // the evidence id must match a defined User
-            User user = userDirectoryService.authenticate(evidence.getIdentifier(), evidence.getPassword());
-            if (user == null) {
-                authenticationCache.putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
-                throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
+            User user;
+            if (cached == null) {
+                passwordLoginBackoff.reserve(accountKey);
+                user = userDirectoryService.authenticate(evidence.getIdentifier(), evidence.getPassword());
+                if (user == null) {
+                    if (webDav) {
+                        authenticationCache.putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
+                    }
+                    throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
+                }
+            } else {
+                try {
+                    user = userDirectoryService.getUser(cached.getUid());
+                } catch (UserNotDefinedException ex) {
+                    authenticationCache.removeAuthentification(evidence.getIdentifier());
+                    throw new AuthenticationException("Invalid Login: User no longer exists.", ex);
+                }
             }
 
             // Check to see if the user account is disabled
@@ -93,11 +116,16 @@ public class UserAuthnComponent implements AuthenticationManager {
                 throw new AuthenticationException("Authentication refused: The user may only authenticate from whitelisted addresses");
             }
 
-            rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
+            Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 
-            // Cache the authentication.
-            authenticationCache.putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
+            if (webDav) {
+                authenticationCache.putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
+            }
 
+            if (cached == null) {
+                // Only verified passwords clear history; cached WebDAV hits would reset it on every request.
+                passwordLoginBackoff.clear(accountKey);
+            }
             return rv;
         } else if (e instanceof ExternalTrustedEvidence) {
             ExternalTrustedEvidence evidence = (ExternalTrustedEvidence) e;
@@ -124,5 +152,17 @@ public class UserAuthnComponent implements AuthenticationManager {
         } else {
             throw new AuthenticationUnknownException(e.toString());
         }
+    }
+
+    private String passwordLoginKey(String identifier) {
+        String key;
+        try {
+            // Local account spelling/case variants must share the same allowance.
+            key = "user:" + userDirectoryService.getUserByEid(identifier).getId();
+        } catch (UserNotDefinedException e) {
+            // Unknown identifiers receive the same policy; hash keys to bound their size.
+            key = "login:" + identifier.trim().toLowerCase(Locale.ROOT);
+        }
+        return DigestUtils.sha256Hex(key);
     }
 }

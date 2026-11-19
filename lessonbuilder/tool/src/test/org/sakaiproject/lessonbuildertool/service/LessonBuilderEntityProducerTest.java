@@ -68,11 +68,15 @@ public class LessonBuilderEntityProducerTest {
     @Mock
     private SiteService siteService;
 
+    @Mock
+    private RemovedPageService removedPageService;
+
     @Before
     public void setUp() {
         producer = new LessonBuilderEntityProducer();
         producer.setSimplePageToolDao(dao);
         producer.setSiteService(siteService);
+        producer.setRemovedPageService(removedPageService);
     }
 
     @Test
@@ -132,6 +136,14 @@ public class LessonBuilderEntityProducerTest {
     public void testParseEntityReferenceSite() {
         assertTrue(producer.parseEntityReference("/lessonbuilder/site/siteId", ref));
         Mockito.verify(ref).set("sakai:lessonbuilder", "site", "/site/siteId", null, "/site/siteId");
+    }
+
+    @Test
+    public void deleteOrphanPagesReportsServiceResult() {
+        when(removedPageService.deleteAllRemovedPages("siteId"))
+                .thenReturn(new RemovedPageService.DeleteResult(RemovedPageService.OperationStatus.INVALID, 0));
+
+        assertEquals("status=INVALID, deletedCount=0", producer.deleteOrphanPages("siteId"));
     }
 
     /**

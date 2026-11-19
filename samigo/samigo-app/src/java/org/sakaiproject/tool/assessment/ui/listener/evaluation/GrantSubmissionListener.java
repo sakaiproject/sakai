@@ -26,9 +26,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,7 +74,7 @@ public class GrantSubmissionListener
 	// delivery.setSubmissionsRemaining(delivery.getSubmissionsRemaining() + 1);
 
 	String gradingIdParam = ContextUtil.lookupParam("gradingData");
-	Long gradingId = new Long(gradingIdParam);
+	Long gradingId = Long.valueOf(gradingIdParam);
 	String publishedAssessmentId = ContextUtil.lookupParam("publishedId");
 
 	GradingService gradingService = new GradingService();

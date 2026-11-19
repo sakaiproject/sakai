@@ -26,7 +26,7 @@ export class SakaiProfile extends SakaiShadowElement {
 
     const siteId = getSiteId();
     const uid = this.userId?.trim() || "blank";
-    this._imageUrl = `/api/users/${uid}/profile/image/${siteId ? `?siteId=${siteId}` : ""}`;
+    this._imageUrl = `/api/users/${uid}/profile/image${siteId ? `?siteId=${siteId}` : ""}`;
   }
 
   fetchProfileData() {

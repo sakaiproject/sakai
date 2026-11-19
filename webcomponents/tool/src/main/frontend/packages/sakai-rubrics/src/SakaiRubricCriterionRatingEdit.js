@@ -72,6 +72,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close_dialog}"></button>
             </div>
             <div class="modal-body">
+              ${this.renderSaveError()}
               <div class="d-flex">
                 <div class="">
                   <label class="label-rubrics form-label" for="rating-title-edit-${this.rating.id}">${this._i18n.rating_title}</label>
@@ -83,11 +84,11 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
                 </div>
                 <div class="ms-auto points ${this.isLocked ? "d-none" : ""}">
                   <label class="label-rubrics form-label" for="rating-points-${this.rating.id}">${this._i18n.points}</label>
-                  <input type="number"
+                  <input type="text" inputmode="decimal" required
                       id="rating-points-${this.rating.id}"
                       class="form-control hide-input-arrows"
                       name="quantity"
-                      .value=${this.rating.points}
+                      .value=${this.rating.points.toLocaleString(this.locale, { useGrouping: false, numberingSystem: "latn" })}
                       min="${ifDefined(this.minpoints)}"
                       max="${ifDefined(this.maxpoints)}">
                 </div>
@@ -117,7 +118,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   resetFields() {
 
     document.getElementById(`rating-title-edit-${this.rating.id}`).value = this.rating.title;
-    document.getElementById(`rating-points-${this.rating.id}`).value = this.rating.points;
+    document.getElementById(`rating-points-${this.rating.id}`).value = this.rating.points.toLocaleString(this.locale, { useGrouping: false, numberingSystem: "latn" });
     document.getElementById(`rating-description-${this.rating.id}`).value = this.rating.description;
   }
 
@@ -131,15 +132,31 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     e.stopPropagation();
 
-    this.rating.title = document.getElementById(`rating-title-edit-${this.rating.id}`).value;
+    const pointsInput = this.renderRoot.querySelector(`#rating-points-${this.rating.id}`);
+    // Accept the Sakai locale's decimal separator, retaining native number/range validation.
+    const decimalSeparator = (1.1).toLocaleString(this.locale, { numberingSystem: "latn" }).charAt(1);
+    const numberInput = document.createElement("input");
+    numberInput.type = "number";
+    numberInput.required = true;
+    numberInput.step = "any";
+    numberInput.min = pointsInput.getAttribute("min") ?? "";
+    numberInput.max = pointsInput.getAttribute("max") ?? "";
+    numberInput.value = pointsInput.value.trim().replace(decimalSeparator, ".");
+    pointsInput.setCustomValidity(numberInput.validity.valueMissing || numberInput.validity.badInput
+      ? this.tr("rating_points_required") : numberInput.validationMessage);
+    if (!this.isLocked && !pointsInput.reportValidity()) {
+      return;
+    }
+
+    this.rating.title = this.renderRoot.querySelector(`#rating-title-edit-${this.rating.id}`).value;
 
     if (!this.isLocked) {
 
-      const points = parseFloat(document.getElementById(`rating-points-${this.rating.id}`).value);
+      const points = numberInput.valueAsNumber;
       // Check points value. Blank breaks things.
       if (isFinite(points)) {
         // Round user input to two digits.
-        this.rating.points = points.toFixed(2);
+        this.rating.points = Number(points.toFixed(2));
       } // Else, previous saved score or default one will be used.
     }
 
@@ -151,7 +168,11 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     this.requestUpdate();
     this.dispatchEvent(new CustomEvent("save-rating", { detail: { rating: this.rating, criterionId: this.criterionId } }));
 
-    bootstrap.Modal.getInstance(this.querySelector(`#edit-criterion-rating-${this.rating.id}`)).hide();
+  }
+
+  saved() {
+    this._saveError = null;
+    bootstrap.Modal.getInstance(this.renderRoot.querySelector(`#edit-criterion-rating-${this.rating.id}`))?.hide();
   }
 
   deleteRating(e) {

@@ -26,19 +26,18 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
-import javax.faces.model.SelectItem;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
+import jakarta.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -68,8 +67,6 @@ public class SaveAssessmentSettingsListener
 {
 
 	private GradingService gradingService;
-  //private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  //private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
 
   public SaveAssessmentSettingsListener()
   {
@@ -155,6 +152,12 @@ public class SaveAssessmentSettingsListener
 
 	boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
 	boolean isReleaseToSelectedGroups = assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
+	String siteId = assessmentSettings.getCurrentSiteId();
+	String defaultToGradebook = assessmentSettings.getToDefaultGradebook();
+
+	if (SavePublishedSettingsListener.addSelectedGradebookValidationError(context, defaultToGradebook, assessmentSettings.getGradebookName(), siteId, gradingService)) {
+		error = true;
+	}
 
 	if (isGradebookGroupEnabled && !isReleaseToSelectedGroups) {
 		error = true;
@@ -173,9 +176,6 @@ public class SaveAssessmentSettingsListener
     	}
     	else {
 			List<String> groupList = Arrays.asList(groupsAuthorized);
-
-			String siteId = assessmentSettings.getCurrentSiteId();
-			String defaultToGradebook = assessmentSettings.getToDefaultGradebook();
 
 			if (defaultToGradebook != null && isGradebookGroupEnabled) {
 				if (defaultToGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
@@ -196,16 +196,18 @@ public class SaveAssessmentSettingsListener
 					}
 				} else if (defaultToGradebook.equals(EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
 					String gradebookName = assessmentSettings.getGradebookName();
-					List<String> gradebookList = Arrays.asList(gradebookName.split(","));
+					if (StringUtils.isNotBlank(gradebookName)) {
+						List<String> gradebookList = Arrays.asList(gradebookName.split(","));
 
-					boolean areItemsInGroups =
-						gradingService.checkMultiSelectorList(siteId, groupList != null ? groupList : new ArrayList<>(), gradebookList, false);
+						boolean areItemsInGroups =
+							gradingService.checkMultiSelectorList(siteId, groupList != null ? groupList : new ArrayList<>(), gradebookList, false);
 
-					if (!areItemsInGroups) {
-						error = true;
-						String itemsInGroups = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","multi_gradebook.items.error");
+						if (!areItemsInGroups) {
+							error = true;
+							String itemsInGroups = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","multi_gradebook.items.error");
 
-						context.addMessage(null,new FacesMessage(itemsInGroups));
+							context.addMessage(null,new FacesMessage(itemsInGroups));
+						}
 					}
 				}
 			}
@@ -307,8 +309,8 @@ public class SaveAssessmentSettingsListener
 		if (!scoreThresholdError) {
 			String submittedScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
 			try {
-				Double doubleInput = new Double(submittedScoreThreshold);
-				if(doubleInput.compareTo(new Double("0.0")) == -1 || doubleInput.compareTo(new Double("100.0")) == 1){
+				Double doubleInput = Double.valueOf(submittedScoreThreshold);
+				if(doubleInput.compareTo(Double.valueOf("0.0")) == -1 || doubleInput.compareTo(Double.valueOf("100.0")) == 1){
 					throw new Exception();
 				}
 			} catch(Exception ex) {

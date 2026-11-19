@@ -27,8 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -342,7 +342,7 @@ public class AttachmentHandler implements Serializable {
 				attach.setResourceId(resourceId);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
-				attach.setFileSize(new Long("" + fileSizeInKB((int)cr.getContentLength())));//2Gb??
+				attach.setFileSize(Long.valueOf("" + fileSizeInKB((int)cr.getContentLength())));//2Gb??
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {

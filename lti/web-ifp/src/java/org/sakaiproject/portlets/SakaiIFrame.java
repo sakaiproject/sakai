@@ -39,7 +39,7 @@ import javax.portlet.PortletSession;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -250,7 +250,7 @@ public class SakaiIFrame extends GenericPortlet {
 		final boolean isSuperUser = SecurityService.isSuperUser();
 
 		// Look up the content item, bypassing authz checks
-		Map<String, Object> content = m_ltiService.getContentDao(contentId);
+		Map<String, Object> content = m_ltiService.getContent(contentId);
 		if ( content == null ) return null;
 		Long tool_id = getLongNull(content.get("tool_id"));
 
@@ -261,14 +261,14 @@ public class SakaiIFrame extends GenericPortlet {
 
 		// If this is an admin action, create a new copy of the tool
 		if ( tool == null && isSuperUser ) {
-			tool = m_ltiService.getToolDao(tool_id, null, true);
+			tool = m_ltiService.getTool(tool_id, null, true);
 			if (tool != null) {
 				// Clean up the tool before attempting to duplicate it
 				tool.remove(LTIService.LTI_CREATED_AT);
 				tool.remove(LTIService.LTI_UPDATED_AT);
 				tool.put(LTIService.LTI_SITE_ID, siteId);
 
-				Object retval = m_ltiService.insertToolDao(tool, siteId, true, true);
+				Object retval = m_ltiService.insertTool(tool, siteId, true, true);
 				if (retval instanceof String) {
 					log.error("Unable to create new tool id: {}, site: {}", tool_id, siteId);
 					return null;
@@ -276,7 +276,7 @@ public class SakaiIFrame extends GenericPortlet {
 				else if (retval instanceof Long){
 					// Load the newly-duplicated lti_tool
 					tool_id = (long) retval;
-					tool = m_ltiService.getToolDao(tool_id, null, true);
+					tool = m_ltiService.getTool(tool_id, null, true);
 					log.info("Copied tool_id {} into site {}", tool_id, siteId);
 				}
 				else {
@@ -305,7 +305,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 		// The current user may not be a maintainer in the current site, but we want to still be able to
 		// correct the source on the LTI tool
-		Object retval = m_ltiService.insertContentDao(props, siteId, (isSuperUser || m_ltiService.isAdmin(siteId)), true);
+		Object retval = m_ltiService.insertContent(props, siteId, (isSuperUser || m_ltiService.isAdmin(siteId)), true);
 		if ( retval == null || retval instanceof String ) {
 			log.error("Unable to insert LTILinkItem tool={} placement={}",tool_id,placement.getId());
 			placement.getPlacementConfig().setProperty(SOURCE,"");
@@ -457,7 +457,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 			String id = request.getParameter(LTIService.LTI_ID);
 			String toolIdStr = request.getParameter(LTIService.LTI_TOOL_ID);
-			Long toolId = NumberUtils.toLong(toolIdStr, new Long(-1));
+			Long toolId = NumberUtils.toLong(toolIdStr, Long.valueOf(-1));
 
 			if ( doChoose != null && id == null ) {
 				if ( toolId < 1 ) {
@@ -525,9 +525,6 @@ public class SakaiIFrame extends GenericPortlet {
 			response.setPortletMode(PortletMode.VIEW);
 		}
 
-	/** Valid digits for custom height from user input **/
-	protected static final String VALID_DIGITS = "0123456789";
-
 	/* Parse the source URL to extract the content identifier */
 	private Long getContentIdFromSource(String source)
 	{
@@ -538,7 +535,7 @@ public class SakaiIFrame extends GenericPortlet {
 		if ( pos < source.length() ) {
 			String sContentId = source.substring(pos);
 			try {
-				Long key = new Long(sContentId);
+				Long key = Long.valueOf(sContentId);
 				return key;
 			} catch (Exception e) {
 				return null;
@@ -547,31 +544,15 @@ public class SakaiIFrame extends GenericPortlet {
 		return null;
 	}
 
-	/**
-	 * Check if the string from user input contains any characters other than digits
-	 * 
-	 * @param height
-	 *        String from user input
-	 * @return True if all are digits. Or False if any is not digit.
-	 */
-	private boolean checkDigits(String height)
-	{
-		for (int i = 0; i < height.length(); i++)
-		{
-			if (VALID_DIGITS.indexOf(height.charAt(i)) == -1) return false;
-		}
-		return true;
-	}
-
 	private Long getLongNull(Object key) {
 		if (key == null) return null;
 
 		if (key instanceof Number)
-			return new Long(((Number) key).longValue());
+			return Long.valueOf(((Number) key).longValue());
 
 		if (key instanceof String) {
 			try {
-				return new Long((String) key);
+				return Long.valueOf((String) key);
 			} catch (Exception e) {
 				return null;
 			}

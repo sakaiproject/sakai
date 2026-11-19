@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
@@ -29,7 +29,7 @@ import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
 import org.apache.commons.configuration2.plist.XMLPropertyListConfiguration;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.webapi.beans.SebValidationBean;
+import org.sakaiproject.webapi.security.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -90,7 +91,7 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
     private ContentHostingService contentHostingService;
 
     @PutMapping(value = "/sites/{siteId}/assessments/published/{publishedAssessmentId}/sebValidation", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> setSebValidation(@PathVariable String siteId, @PathVariable Long publishedAssessmentId,
+    public ResponseEntity<HttpStatus> setSebValidation(@PathVariable("siteId") String siteId, @PathVariable("publishedAssessmentId") Long publishedAssessmentId,
             @RequestBody SebValidationBean sebValidation) {
         Session session = checkSakaiSession();
         String userId = session.getUserId();
@@ -111,9 +112,10 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
         }
     }
 
+    @PublicApi("SEB bootstrap download is required before login and uses the sentinel site any.")
     @GetMapping(value = "/sites/{siteId}/assessments/published/{publishedAssessmentId}/sebConfig")
-    public ResponseEntity<?> getSebConfig(@PathVariable String siteId, @PathVariable String publishedAssessmentId,
-            @RequestParam(defaultValue = "false") boolean launch, HttpServletRequest request) {
+    public ResponseEntity<?> getSebConfig(@PathVariable("siteId") String siteId, @PathVariable("publishedAssessmentId") String publishedAssessmentId,
+            @RequestParam(name = "launch", defaultValue = "false") boolean launch, HttpServletRequest request) {
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
         PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
@@ -198,7 +200,7 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/assessments/new/sebConfig", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> setSebConfig(@PathVariable String siteId, @RequestAttribute("file") FileItem file, HttpServletRequest request) {
+    public ResponseEntity<String> setSebConfig(@PathVariable("siteId") String siteId, @RequestAttribute("file") FileItem file, HttpServletRequest request) {
         Session session = checkSakaiSession();
 
         checkSite(siteId);

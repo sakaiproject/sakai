@@ -22,17 +22,18 @@ import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.EntityBuilder;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.entity.EntityBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.Timeout;
 import org.sakaiproject.contentreview.urkund.UrkundSubmission;
 
 /**
@@ -45,8 +46,8 @@ public class UrkundAPIUtil {
 			String ret = null;
 			
 			RequestConfig.Builder requestBuilder = RequestConfig.custom();
-			requestBuilder = requestBuilder.setConnectTimeout(timeout);
-			requestBuilder = requestBuilder.setConnectionRequestTimeout(timeout);
+			requestBuilder = requestBuilder.setConnectTimeout(Timeout.ofMilliseconds(timeout));
+			requestBuilder = requestBuilder.setConnectionRequestTimeout(Timeout.ofMilliseconds(timeout));
 			
 			HttpClientBuilder builder = HttpClientBuilder.create();     
 			builder.setDefaultRequestConfig(requestBuilder.build());
@@ -74,15 +75,15 @@ public class UrkundAPIUtil {
 				httppost.addHeader("x-urkund-message", submission.getMessage());
 				//------------------------------------------------------------
 
-				HttpResponse response = httpClient.execute(httppost);
-				HttpEntity resEntity = response.getEntity();
-
-				if (resEntity != null) {
-					ret = EntityUtils.toString(resEntity);
-					EntityUtils.consume(resEntity);
+				try (CloseableHttpResponse response = httpClient.execute(httppost)) {
+					HttpEntity resEntity = response.getEntity();
+					if (resEntity != null) {
+						ret = EntityUtils.toString(resEntity);
+						EntityUtils.consume(resEntity);
+					}
 				}
 
-			} catch (IOException e) {
+			} catch (IOException | ParseException e) {
 				log.error("ERROR uploading File : ", e);
 			}
 			
@@ -93,8 +94,8 @@ public class UrkundAPIUtil {
 	public static String getFileInfo(String baseUrl, String externalId, String receiverAddress, String urkundUsername, String urkundPassword, int timeout){
 		String ret = null;
 		RequestConfig.Builder requestBuilder = RequestConfig.custom();
-		requestBuilder = requestBuilder.setConnectTimeout(timeout);
-		requestBuilder = requestBuilder.setConnectionRequestTimeout(timeout);
+		requestBuilder = requestBuilder.setConnectTimeout(Timeout.ofMilliseconds(timeout));
+		requestBuilder = requestBuilder.setConnectionRequestTimeout(Timeout.ofMilliseconds(timeout));
 		
 		HttpClientBuilder builder = HttpClientBuilder.create();     
 		builder.setDefaultRequestConfig(requestBuilder.build());
@@ -109,22 +110,22 @@ public class UrkundAPIUtil {
 			httpget.addHeader("Accept", "application/json");
 			//------------------------------------------------------------
 			
-			HttpResponse response = httpClient.execute(httpget);
-			HttpEntity resEntity = response.getEntity();
-
-			if (resEntity != null) {
-				ret = EntityUtils.toString(resEntity);
-				EntityUtils.consume(resEntity);
+			try (CloseableHttpResponse response = httpClient.execute(httpget)) {
+				HttpEntity resEntity = response.getEntity();
+				if (resEntity != null) {
+					ret = EntityUtils.toString(resEntity);
+					EntityUtils.consume(resEntity);
+				}
 			}
 			
-		} catch (IOException e) {
+		} catch (IOException | ParseException e) {
 			log.error("ERROR getting File Info : ", e);
 		}
 		return ret;
 	}
 	
 
-	private static void addAuthorization(HttpRequestBase request, String user, String pwd) {
+	private static void addAuthorization(HttpUriRequestBase request, String user, String pwd) {
 		try {
 			//String authHeaderStr = String.format("Basic %s", new String(Base64.encodeBase64(String.format("%s:%s", user, pwd).getBytes()), "UTF-8"));
 			String authHeaderStr = String.format("Basic %s", new String(Base64.getEncoder().encode(String.format("%s:%s", user, pwd).getBytes("UTF-8"))));

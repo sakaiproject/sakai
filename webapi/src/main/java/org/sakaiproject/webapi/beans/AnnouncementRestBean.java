@@ -39,11 +39,11 @@ public class AnnouncementRestBean {
     private long date;
     private boolean highlighted;
 
-    public AnnouncementRestBean(Site site, AnnouncementMessage am, String url) {
+    public AnnouncementRestBean(Site site, String siteTitle, AnnouncementMessage am, String url) {
 
         id = am.getId();
         siteId = site.getId();
-        siteTitle = site.getTitle();
+        this.siteTitle = siteTitle;
         subject = am.getAnnouncementHeader().getSubject();
         author = am.getAnnouncementHeader().getFrom().getDisplayName();
         date = am.getAnnouncementHeader().getInstant().toEpochMilli();

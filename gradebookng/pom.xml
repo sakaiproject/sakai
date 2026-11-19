@@ -9,12 +9,12 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>26-SNAPSHOT</version>
+		<version>27-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>9.22.0</wicket.version>
+		<wicket.version>10.9.1</wicket.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>

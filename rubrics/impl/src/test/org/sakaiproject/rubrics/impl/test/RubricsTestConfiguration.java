@@ -17,6 +17,7 @@ package org.sakaiproject.rubrics.impl.test;
 
 import lombok.Getter;
 import org.hibernate.SessionFactory;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
@@ -29,6 +30,7 @@ import org.sakaiproject.rubrics.impl.repository.CriterionRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.EvaluationRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.RatingRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.RubricRepositoryImpl;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
@@ -59,6 +61,11 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.rubrics")
     @Getter
     protected AdditionalHibernateMappings additionalHibernateMappings;
+
+    @Bean(name = "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService")
+    public AssignmentPeerAssessmentService assignmentPeerAssessmentService() {
+        return mock(AssignmentPeerAssessmentService.class);
+    }
 
     @Bean(name="org.sakaiproject.rubrics.api.repository.CriterionRepository")
     public CriterionRepository criterionRepository(SessionFactory sessionFactory) {
@@ -110,6 +117,8 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
         FormattedText formattedText = mock(FormattedText.class);
         when(formattedText.processFormattedText(anyString(), isNull(), any(FormattedText.Level.class)))
             .thenAnswer(invocation -> invocation.getArgument(0));
+        when(formattedText.stripUnsupportedCharacters(anyString()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(formattedText.stripHtmlFromText(anyString(), anyBoolean()))
             .thenAnswer(invocation -> invocation.getArgument(0));
         return formattedText;
@@ -128,5 +137,10 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "PersistenceService")
     public PersistenceService assessmentPersistenceService() {
         return mock(PersistenceService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchIndexBuilder")
+    public SearchIndexBuilder searchIndexBuilder() {
+        return mock(SearchIndexBuilder.class);
     }
 }

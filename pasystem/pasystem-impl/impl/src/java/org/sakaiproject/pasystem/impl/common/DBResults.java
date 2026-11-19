@@ -48,8 +48,9 @@ public class DBResults implements Iterable<ResultSet>, Iterator<ResultSet>, Auto
 
     @Override
     public void close() throws SQLException {
-        resultSet.close();
-        originalStatement.close();
+        try (PreparedStatement statement = originalStatement) {
+            resultSet.close();
+        }
     }
 
     @Override

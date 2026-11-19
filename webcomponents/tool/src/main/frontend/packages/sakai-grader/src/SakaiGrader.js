@@ -500,16 +500,33 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   /**
    * Submit the data, optionally releasing based on a data attribute
    */
-  _save(e) {
+  async _save(e) {
+
+    if (this._saving) return;
 
     const release = e.target ? e.target.dataset.release : false;
     const formData = this._getFormData();
 
     if (formData.valid) {
       formData.set("gradeOption", release ? "return" : "retract");
-      this._submitGradingData(formData, e.bannerTimout);
-      const rubricGrading = this.querySelector("sakai-rubric-grading");
-      rubricGrading && (release ? rubricGrading.release() : rubricGrading.save());
+
+      const submissionId = this._submission.id;
+      this._saving = true;
+      this.inert = true;
+      try {
+        const rubricGrading = this.querySelector("sakai-rubric-grading");
+        if (rubricGrading) await (release ? rubricGrading.release() : rubricGrading.save());
+        if (this._submission.id === submissionId) {
+          await this._submitGradingData(formData, e.bannerTimout);
+        }
+      } catch (error) {
+        console.error("Failed to save rubric before grading submit", error);
+        this._saveFailed = true;
+        setTimeout(() => this._saveFailed = false, 2000);
+      } finally {
+        this._saving = false;
+        this.inert = false;
+      }
     }
   }
 
@@ -517,7 +534,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this._saving = true;
 
-    fetch("/direct/assignment/setGrade.json", {
+    return fetch("/direct/assignment/setGrade.json", {
       method: "POST",
       cache: "no-cache",
       body: formData
@@ -564,6 +581,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     if (this.privateNotesEditor) {
       this.privateNotesEditor.setData(this._submission.privateNotes, () => this.privateNotesEditor.resetDirty());
+    }
+
+    // Cancel any rubric changes
+    const rubricGrading = this.querySelector("sakai-rubric-grading");
+    if (rubricGrading && rubricGrading.cancel) {
+      rubricGrading.cancel();
     }
 
     this.modified = false;
@@ -614,6 +637,14 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   _toStudentList(e) {
 
     e.preventDefault();
+    if (this.modified) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel(false);
+    }
+
     location.href = this.userListUrl;
   }
 

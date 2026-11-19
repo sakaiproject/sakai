@@ -15,11 +15,14 @@
  */
 package org.sakaiproject.tool.assessment.services.assessment;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,10 +35,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.Stack;
 import java.util.TreeSet;
-import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -53,6 +54,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
@@ -72,7 +75,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
@@ -85,6 +89,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.MergeConfig;
+import org.sakaiproject.util.Zip;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -395,8 +400,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         for (int i=0; i<assessments.getLength(); ++i) {
             Element element = (Element) assessments.item(i);
             String id = element.getAttribute("id");
-            String path = qtiPath + ARCHIVED_ELEMENT + id + ".xml";
             try {
+                String path = Zip.resolveContainedPath(Path.of(qtiPath).getParent(), Path.of(qtiPath), ARCHIVED_ELEMENT + id + ".xml").toString();
                 AssessmentIfc assessment = qtiService.createImportedAssessment(path, QTI_VERSION,  siteId, mcx);
                 results.append(getLabel() + " imported assessment '" + assessment.getTitle() + "'\n");            
             } catch (Throwable t) {
@@ -448,7 +453,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                 log.debug("found {} published assessments in site: {}", publishedAssessmentList.size(), toContext);
                 for (PublishedAssessmentData publishedAssessment : publishedAssessmentList) {
                     log.debug("removing published assessment id = {}", publishedAssessment.getPublishedAssessmentId());
-                    publishedAssessmentService.removeAssessment(publishedAssessment.getPublishedAssessmentId().toString(), "remove");
+                    publishedAssessmentService.removeAssessmentAndExternalGradebookItem(
+                            publishedAssessment.getPublishedAssessmentId().toString(), toContext);
                 }
 			}
 		} catch (Exception e) {
@@ -464,8 +470,46 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		updateEntityReferencesInternal(toContext, transversalMap, mcx);
 	}
 
+	/**
+	 * Remap TO_SELECTED_GRADEBOOK item ids using {@code gb/oldId → gb/newId} from the shared transversal map.
+	 * Existing target-site ids are preserved, including assessments outside this transfer. Any id
+	 * confirmed absent in the target site is dropped; if none remain, reset to
+	 * NOT_TO_GRADEBOOK.
+	 */
+	void remapGradebookAssociations(String toContext, Map<String, String> transversalMap) {
+		AssessmentService service = new AssessmentService();
+		List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
+		GradingService gradingService = ComponentManager.get(GradingService.class);
+
+		for (AssessmentData assessment : assessmentList) {
+			AssessmentFacade assessmentFacade = service.getAssessment(assessment.getAssessmentId().toString());
+			if (assessmentFacade == null || assessmentFacade.getEvaluationModel() == null) {
+				continue;
+			}
+			EvaluationModelIfc evaluation = assessmentFacade.getEvaluationModel();
+			if (!EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+				continue;
+			}
+
+			String originalIds = assessmentFacade.getAssessmentToGradebookNameMetaData();
+			String remappedIds = GradebookAssociationHelper.remapItemIds(originalIds, transversalMap, toContext, gradingService);
+			if (remappedIds.equals(StringUtils.defaultString(originalIds))) {
+				continue;
+			}
+			if (StringUtils.isBlank(remappedIds) && StringUtils.isNotBlank(originalIds)) {
+				evaluation.setToGradeBook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
+			}
+			assessmentFacade.updateAssessmentToGradebookNameMetaData(remappedIds);
+			service.saveAssessment(assessmentFacade);
+			log.debug("Updated TO_SELECTED gradebook ids for assessment {} in site {} from [{}] to [{}]",
+					assessmentFacade.getAssessmentId(), toContext, originalIds, remappedIds);
+		}
+	}
+
 	// Internal, usable in either transferCopyEntities or merge()
 	public void updateEntityReferencesInternal(String toContext, Map<String, String> transversalMap, MergeConfig mcx){
+		remapGradebookAssociations(toContext, transversalMap);
+
 		if (mcx != null || (transversalMap != null && !transversalMap.isEmpty()) ) {
 			Set<Entry<String, String>> entrySet = transversalMap.entrySet();
 
@@ -612,7 +656,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			// Pools used in assessments in the site
 			log.info("Exporting question pools used in site {}", siteId);
 			for (String poolId : questionPoolIds) {
-				targetPools.add(questionPoolService.getPool(new Long(poolId), null));
+				targetPools.add(questionPoolService.getPool(Long.valueOf(poolId), null));
 			}
 
 			// Export each pool
@@ -644,7 +688,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 				for (Object itemObj : pool.getQuestionPoolItems()) {
 				    try {
-
 					QuestionPoolItemData item = (QuestionPoolItemData)itemObj;
 					Document qpItem = qtiService.getExportedItem(String.valueOf(item.getItemId()), QTI_VERSION);
 					NodeList nodes = qpItem.getChildNodes();
@@ -697,7 +740,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				File file = new File(xmlPath);
 				writer = new FileWriter(file);
 
-				TransformerFactory tFactory = TransformerFactory.newInstance();
+				TransformerFactory tFactory = Xml.createSecureTransformerFactory();
 				Transformer transformer = tFactory.newTransformer();
 
 				DOMSource source = new DOMSource(doc);

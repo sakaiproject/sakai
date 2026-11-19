@@ -28,8 +28,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.junit.Test;
@@ -86,6 +86,24 @@ import static org.mockito.Mockito.*;
  *
  */
 public class MySessionTest extends BaseSessionComponentTest {
+
+	@Test
+	public void testStringRepresentationDoesNotExposeAuthenticationId() {
+		String sessionId = "authentication-session-marker";
+		Session session = sessionComponent.startSession(sessionId);
+		session.setUserId("user-marker");
+		session.setUserEid("eid-marker");
+		session.setAttribute("sakai.csrf.token", "csrf-marker");
+		session.setAttribute("sakai.locale." + sessionId, "locale-marker");
+
+		String description = session.toString();
+		assertFalse(description.contains(sessionId));
+		assertFalse(description.contains("csrf-marker"));
+		assertFalse(description.contains("locale-marker"));
+		assertTrue(description.contains("user-marker"));
+		assertEquals(sessionId, session.getId());
+		assertEquals("csrf-marker", session.getAttribute("sakai.csrf.token"));
+	}
 
 	@Test
 	public void testCreatedInExpectedState() throws Exception {
@@ -461,73 +479,6 @@ public class MySessionTest extends BaseSessionComponentTest {
 	}
 
 	@Test
-	public void testNonPortableAttributesStoreAndRetrieve() {
-		MySession session = createSession();
-		String value = "VALUE";
-		System.setProperty("sakai.cluster.terracotta","true");
-		session.setAttribute("SESSION_KEY", value);
-		System.setProperty("sakai.cluster.terracotta","false");
-		session.setAttribute("SESSION_KEY_2", value);
-		assertEquals(value,session.getAttribute("SESSION_KEY"));
-		assertEquals(value,session.getAttribute("SESSION_KEY_2"));
-	}
-
-	@Test
-	public void testNonPortableBindNotifiesValueIfIsSessionBindingListener() {
-		MySession session = createSession();
-		System.setProperty("sakai.cluster.terracotta","true");
-		ListeningAttribValue attribValue = new ListeningAttribValue();
-		session.bind("SESSION_KEY", attribValue);
-		assertEquals(1, attribValue.sessionValueBoundInvokedWith.size());
-		SessionBindingEvent event = attribValue.sessionValueBoundInvokedWith.get(0);
-		assertEventState(event, "SESSION_KEY", session, attribValue);
-		System.setProperty("sakai.cluster.terracotta","false");
-	}
-
-	@Test
-	public void testNonPortableUnbindNotifiesValueIfIsSessionBindingListener() {
-		MySession session = createSession();
-		System.setProperty("sakai.cluster.terracotta","true");
-		ListeningAttribValue attribValue = new ListeningAttribValue();
-		session.unBind("SESSION_KEY", attribValue);
-		assertEquals(1, attribValue.sessionValueUnboundInvokedWith.size());
-		SessionBindingEvent event = attribValue.sessionValueUnboundInvokedWith.get(0);
-		assertEventState(event, "SESSION_KEY", session, attribValue);
-		System.setProperty("sakai.cluster.terracotta","false");
-	}
-
-	@Test
-	public void testNonPortableRemoveAttributeReleasesAttributeAndFiresUnbind() {
-		System.setProperty("sakai.cluster.terracotta","true");
-		MyTestableSession session = createSession();
-		allowToolCheck("simple.unit.test");
-		final String sessionAttribKey = "SESSION_ATTRIB_KEY";
-		final ListeningAttribValue sessionAttribValue = 
-			setNewListeningAttribValue(session, sessionAttribKey);
-		session.removeAttribute(sessionAttribKey);
-		assertNull(session.getAttribute(sessionAttribKey));
-		assertHasNoAttributes(session);
-		assertEquals(new HashMap<String,Object>() {{
-			put(sessionAttribKey, sessionAttribValue);
-		}}, session.unbindInvokedWith);
-		System.setProperty("sakai.cluster.terracotta","false");
-	}
-
-	@Test
-	public void testNonPortableClearUnbindsAttributes() {
-		final MyTestableSession session = createSession();
-		System.setProperty("sakai.cluster.terracotta","true");
-		allowToolCheck("simple.unit.test");
-		allowPlacementCheck("sakai-context-1");
-		doTestSessionClear(session, new Runnable() {
-			public void run() {
-				session.clear();
-			}
-		});
-		System.setProperty("sakai.cluster.terracotta","false");
-	}
-
-	@Test
 	public void testConcurrentInvalidation() {
 		final MyTestableSession session = createSession();
 		Collection<ListeningAttribValue> attribValues =
@@ -684,7 +635,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 
 		public MyTestableSession(SessionComponent outer, String sessionId, ThreadLocalManager threadLocalManager,
 				IdManager idManager, SessionAttributeListener sessionListener,  NonPortableSession nps) {
-			super(outer, sessionId, threadLocalManager, idManager, outer, sessionListener, outer.getInactiveInterval(),nps,new MutableLong(System.currentTimeMillis()), null);
+			super(outer, sessionId, threadLocalManager, idManager, outer, sessionListener, outer.getInactiveInterval(),nps,new MutableLong(System.currentTimeMillis()));
 		}
 
 		@Override

@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.importer.impl;
 
+import org.sakaiproject.util.Xml;
+
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -38,8 +40,8 @@ public class XPathHelperTest {
 	
 	@Before
 	public void setUp() {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
+			DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory(false);
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			String testDoc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<foo>\r\n\t<bar baz=\"abc\" bang=\"first\">\r\n\t\t<a>0</a>\r\n\t\t<b>1</b>\r\n\t\t<c>2</c>\r\n\t</bar>\r\n\t<bar baz=\"def\" bang=\"second\">\r\n\t\t<a>0</a>\r\n\t\t<b>1</b>\r\n\t\t<c>2</c>\r\n\t</bar>\r\n</foo>";
 			this.document = builder.parse(new InputSource(new StringReader(testDoc)));

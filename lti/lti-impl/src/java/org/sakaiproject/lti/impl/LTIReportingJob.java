@@ -36,6 +36,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This Reports on new instances of an LTI tool in a site.
@@ -45,8 +46,13 @@ public class LTIReportingJob implements Job {
 
     protected static final ResourceLoader rb = new ResourceLoader("email");
 
+	@Autowired
     private LTIService ltiService;
+
+	@Autowired
     private SiteService siteService;
+
+	@Autowired
     private EmailService emailService;
 
     @Override
@@ -62,7 +68,7 @@ public class LTIReportingJob implements Job {
         String from = context.getMergedJobDataMap().getString("from");
 
 
-        Map<String, Object> tool = ltiService.getToolDao(toolId, null);
+        Map<String, Object> tool = ltiService.getTool(toolId, null);
         if (tool == null) {
             log.warn("Failed to find LTI tool for {}", toolId);
             return;
@@ -75,7 +81,7 @@ public class LTIReportingJob implements Job {
         String fromDate = sqlDf.format(Date.from(instant));
 
         String search = "tool_id:"+ "#exact#"+ toolId+ "#&#"+ "created_at:"+ "#date#>"+ fromDate ;
-        List<Map<String, Object>> contents = ltiService.getContentsDao(search, null, 0, 0, null);
+        List<Map<String, Object>> contents = ltiService.getContents(search, null, 0, 0, null);
         DateFormat df = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT, rb.getLocale());
 
         boolean sendEmail = false;

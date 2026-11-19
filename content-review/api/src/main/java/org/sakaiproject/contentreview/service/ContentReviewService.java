@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -400,8 +400,9 @@ public interface ContentReviewService {
 	/**
 	 * Sets date for the user's last agreement to the EULA to current date
 	 * @param userId
+	 * @return true if the agreement was saved, false otherwise
 	 */
-	public void updateUserEULATimestamp(String userId);
+	public boolean updateUserEULATimestamp(String userId);
 	
 	/**
 	 * 

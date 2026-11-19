@@ -24,7 +24,6 @@ package org.sakaiproject.importer.impl.translators;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,6 +35,7 @@ import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.Assessment;
 import org.sakaiproject.importer.impl.XPathHelper;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.Zip;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -71,16 +71,7 @@ public class CCQTITranslator implements IMSResourceTranslator {
 		assessment.setVersion("1.2"); // Default to QTI 1.2 for Canvas
 		
 		try {
-			// Securely resolve and validate the QTI file path
-			Path archiveBase = Paths.get(archiveBasePath).normalize();
-			Path resolvedPath = archiveBase.resolve(href).normalize();
-			
-			// Prevent path traversal by ensuring resolved path is within archive base
-			if (!resolvedPath.startsWith(archiveBase)) {
-				log.warn("Path traversal attempt detected: {} resolves to {} which is outside {}", 
-					href, resolvedPath, archiveBase);
-				return null;
-			}
+			Path resolvedPath = Zip.resolveContainedPath(Path.of(archiveBasePath), href);
 			
 			DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory();
 			DocumentBuilder builder = factory.newDocumentBuilder();

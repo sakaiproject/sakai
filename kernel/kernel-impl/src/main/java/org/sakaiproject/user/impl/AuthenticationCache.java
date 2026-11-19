@@ -23,17 +23,16 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.security.SecureRandom;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
+
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 
 /**
@@ -42,8 +41,8 @@ import org.sakaiproject.user.api.AuthenticationException;
  * To ease the overhead, this class checks a size-limited timing-out cache
  * of one-way encrypted successful authentication IDs and passwords.
  * <p>
- * There's nothing DAV-specific about this class, and it's also independent of
- * any Sakai classes other than the "Authentication" user ID and EID holder.
+ * Only WebDAV authentication uses this cache. Account restrictions are still
+ * checked on every request by the authentication manager.
  * 
  * We salt password so precomputed dictionaries can't be used against a dump of the
  * authentication cache.
@@ -53,28 +52,23 @@ import org.sakaiproject.user.api.AuthenticationException;
 @Slf4j
 public class AuthenticationCache {
     @Setter
-    private MemoryService memoryService;
-    private Cache<String, AuthenticationRecord> authCache = null;
-    /**
-     * List of algorithms to attempt to use, best ones should come first.
-     */
-    private final List<String> algorithms = Arrays.asList("SHA2","SHA1");
-    private final Random saltGenerator = new Random();
-    private final int saltLength = 8;
+    private CacheManager cacheManager;
+    private Cache authCache = null;
+    private static final int SALT_LENGTH = 16;
+    private final SecureRandom saltGenerator = new SecureRandom();
 
     public void init() {
         log.info("INIT");
-        authCache = memoryService.getCache("org.sakaiproject.user.api.AuthenticationManager");
+        authCache = cacheManager.getCache("org.sakaiproject.user.api.AuthenticationManager");
     }
 
     public void destroy() {
-        if (authCache != null) authCache.close();
     }
 
 	/**
 	* The central cache object, should be injected
 	*/
-	public void setAuthCache(Cache<String, AuthenticationRecord> authCache) {
+	public void setAuthCache(Cache authCache) {
 		this.authCache = authCache;
 		if (log.isDebugEnabled() && (authCache != null)) log.debug("authCache ");
 	}
@@ -82,9 +76,9 @@ public class AuthenticationCache {
 	public Authentication getAuthentication(String authenticationId, String password)
 			throws AuthenticationException {
 		Authentication auth = null;
-		AuthenticationRecord record = authCache.get(authenticationId);
+		AuthenticationRecord record = authCache.get(authenticationId, AuthenticationRecord.class);
 		if (record != null) {
-			byte[] salt = new byte[saltLength];
+			byte[] salt = new byte[SALT_LENGTH];
 			System.arraycopy(record.encodedPassword, 0, salt, 0, salt.length);
 			byte[] encodedPassword = getEncrypted(password, salt);
 			if (MessageDigest.isEqual(record.encodedPassword, encodedPassword)) {
@@ -99,7 +93,7 @@ public class AuthenticationCache {
 				// Since the passwords didn't match, we're no longer getting repeats,
 				// and so the record should be removed.
                 log.debug("getAuthentication: record for authenticationId={} failed password check", authenticationId);
-				authCache.remove(authenticationId);
+				authCache.evict(authenticationId);
 			}
 		}
 		return auth;
@@ -115,16 +109,16 @@ public class AuthenticationCache {
 
 	
 	public void removeAuthentification(String authentificationId) {
-		authCache.remove(authentificationId);
+		authCache.evict(authentificationId);
 	}
-	
+
 	protected void putAuthenticationRecord(String authenticationId, String password,
 			Authentication authentication) {
-		if (authCache.containsKey(authenticationId)) {
+		if (authCache.get(authenticationId, AuthenticationRecord.class) != null) {
 			// Don't indefinitely renew the cached record -- we want to force
 			// real authentication after the timeout.
 		} else {
-			byte[] salt = new byte[saltLength];
+			byte[] salt = new byte[SALT_LENGTH];
 			saltGenerator.nextBytes(salt);
 			byte[] encrypted = getEncrypted(password, salt);
 			authCache.put(authenticationId,
@@ -133,22 +127,17 @@ public class AuthenticationCache {
 	}
 
 	private byte[] getEncrypted(String plaintext, byte[] salt) {
-		Exception lastException = null;
-		for (String algorithm : algorithms) {
-			try {
-				MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
-				messageDigest.update(salt);
-				messageDigest.update(plaintext.getBytes(StandardCharsets.UTF_8));
-				byte[] encrypted = messageDigest.digest();
-				byte[] saltEncrypted = new byte[salt.length+ encrypted.length];
-				System.arraycopy(salt, 0, saltEncrypted, 0, salt.length);
-				System.arraycopy(encrypted, 0, saltEncrypted, salt.length, encrypted.length);
-				return saltEncrypted;
-			} catch (NoSuchAlgorithmException e) {
-				lastException = e;
-			}
-        }
-		throw new RuntimeException(lastException);
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+			messageDigest.update(salt);
+			byte[] encrypted = messageDigest.digest(plaintext.getBytes(StandardCharsets.UTF_8));
+			byte[] saltEncrypted = new byte[salt.length + encrypted.length];
+			System.arraycopy(salt, 0, saltEncrypted, 0, salt.length);
+			System.arraycopy(encrypted, 0, saltEncrypted, salt.length, encrypted.length);
+			return saltEncrypted;
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("SHA-256 is required for authentication caching", e);
+		}
 	}
 
 	static class AuthenticationRecord implements Serializable {

@@ -18,6 +18,7 @@ export class SakaiRubric extends RubricsElement {
 
     _shareIcon: { state: true },
     _weightedIcon: { state: true },
+    _savingWeighted: { state: true },
     _totalWeight: { state: true },
     _validWeight: { state: true },
     _maxPoints: { state: true },
@@ -95,6 +96,7 @@ export class SakaiRubric extends RubricsElement {
   render() {
 
     return html`
+      ${this.renderSaveError()}
       <div class="rubric-title">
         <div>
           <button type="button"
@@ -147,16 +149,17 @@ export class SakaiRubric extends RubricsElement {
 
         <div class="d-none d-sm-block rubric-site-title">${this.rubric.siteTitle}</div>
         <div class="d-none d-sm-block rubric-creator-name">${this.rubric.creatorDisplayName}</div>
+        <div class="d-none d-sm-block rubric-last-modified-by">${this.rubric.lastModifiedByDisplayName || this.tr("unknown_user")}</div>
         <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
           ${!this.rubric.locked ? html`
             <div class="action-container">
               <button type="button"
-                  class="btn btn-sm ${(this.rubric.draft && this.rubric.weighted && !this._validWeight) ? "disabled" : ""} draft"
+                  class="btn btn-sm ${(this.rubric.draft && this.rubric.weighted && !this._validWeight) ? "disabled" : ""} ${!this.rubric.draft && this.rubric.associated ? "text-muted" : ""} draft"
+                  aria-disabled="${!this.rubric.draft && this.rubric.associated ? "true" : "false"}"
                   title="${this.draftLabel}"
                   aria-label="${this.draftLabel}"
-                  @keyup=${this.openEditWithKeyboard}
                   @click=${this.draftChange}>
                 <span class="fa ${this.draftIcon}" aria-hidden="true"></span>
               </button>
@@ -164,9 +167,9 @@ export class SakaiRubric extends RubricsElement {
             <div class="action-container">
               <button type="button"
                   class="btn btn-sm weighted"
+                  ?disabled=${this._savingWeighted}
                   title="${this.weightLabel}"
                   aria-label="${this.weightLabel}"
-                  @keyup=${this.openEditWithKeyboard}
                   @click=${this.weightedChange}>
                 <span class="fa ${this._weightedIcon}" aria-hidden="true"></span>
               </button>
@@ -177,7 +180,6 @@ export class SakaiRubric extends RubricsElement {
                 class="btn btn-sm share"
                 title="${this.tr(this.shareTitleKey, [ this.rubric.title ])}"
                 aria-label="${this.tr(this.shareTitleKey, [ this.rubric.title ])}"
-                @keyup=${this.openEditWithKeyboard}
                 @click=${this.sharingChange}>
               <span class="fa ${this._shareIcon}" aria-hidden="true"></span>
             </button>
@@ -187,7 +189,6 @@ export class SakaiRubric extends RubricsElement {
                 class="btn btn-sm clone"
                 title="${this.tr("copy")} ${this.rubric.title}"
                 aria-label="${this.tr("copy")} ${this.rubric.title}"
-                @keyup=${this.openEditWithKeyboard}
                 @click=${this.cloneRubric}>
               <span class="fa fa-copy" aria-hidden="true"></span>
             </button>
@@ -211,6 +212,26 @@ export class SakaiRubric extends RubricsElement {
             </div>`
           : nothing}
         </div>
+        ${this.rubric.locked ? html`
+          <details class="rubric-usage">
+            <summary><span>${this.tr("locked_usage")}</span></summary>
+            <p class="rubric-usage-help">${this.tr("locked_usage_help")}</p>
+            ${Object.keys(this.rubric.lockedBy || {}).length ? html`
+              <dl class="rubric-usage-groups">
+                ${Object.entries(this.rubric.lockedBy).map(([ toolId, titles ]) => html`
+                  <dt>
+                    ${this._i18n[`locked_tool_${toolId}`] || this.tr("locked_tool_other")}
+                  </dt>
+                  <dd>
+                    <ul class="rubric-usage-items ${titles.length === 1 ? "list-unstyled" : ""}">
+                      ${titles.map(title => html`<li>${title}</li>`)}
+                    </ul>
+                  </dd>
+                `)}
+              </dl>
+            ` : html`<p class="rubric-usage-unavailable">${this.tr("locked_usage_unavailable")}</p>`}
+          </details>
+        ` : nothing}
       </div>
 
       <div class="collapse" id="rubric-collapse-${this.rubric.id}">
@@ -244,60 +265,47 @@ export class SakaiRubric extends RubricsElement {
     this.dispatchEvent(new CustomEvent("clone-rubric", { detail: this.rubric, bubbles: true, composed: true }));
   }
 
+  patchRubric(patch) {
+    return this.enqueueMutation(async () => {
+      const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
+      const response = await fetch(url, {
+        ...this.updateRubricOptions,
+        headers: { ...this.updateRubricOptions.headers, "If-Match": `"${this.rubric.version}"` },
+        body: JSON.stringify(patch),
+      });
+      return this.readSaveResponse(response);
+    });
+  }
+
+  criterionWeightPatch() {
+    return this.rubric.criteria.flatMap((criterion, index) => [
+      { op: "test", path: `/criteria/${index}/id`, value: criterion.id },
+      { op: "replace", path: `/criteria/${index}/weight`, value: criterion.weight },
+    ]);
+  }
+
   updateRubricTitle(e) {
 
-    this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/title", "value": e.detail } ]);
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
+    this.patchRubric([ { op: "replace", path: "/title", value: e.detail } ])
+      .then(() => {
+        e.target.saved();
         this.rubric.title = e.detail;
         this.rubric.new = false;
         this.requestUpdate();
         this.updateOtherItems();
         this.dispatchEvent(new SharingChangeEvent());
-      } else {
-        throw new Error("Network error while updating rubric title");
-      }
-    })
-    .catch (error => console.error(error));
+      }).catch(error => e.target.reportSaveError(error));
   }
 
   saveCriterionWeights() {
-
-    const all = Promise.all(this.rubric.criteria.map(cr => {
-
-      this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weight", "value": cr.weight } ]);
-
-      const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}/criteria/${cr.id}`;
-
-      return fetch(url, this.updateRubricOptions)
-        .then(r => {
-
-          if (!r.ok) {
-            throw new Error(`Network error while setting criterion weight for ${cr.id}`);
-          }
-        });
-    }));
-
-    all.then(() => {
-
+    const save = this.patchRubric(this.criterionWeightPatch());
+    save.then(() => {
       this.dispatchEvent(new SharingChangeEvent());
-
-      const successBanner = this.querySelector(".sak-banner-success");
-      successBanner.classList.remove("d-none");
-
-      setTimeout(() => successBanner.classList.add("d-none"), 5000);
-    }).catch(() => {
-
-      const errorBanner = this.querySelector(".sak-banner-error");
-      errorBanner.classList.remove("d-none");
-
-      setTimeout(() => errorBanner.classList.add("d-none"), 5000);
-    });
-
-    return all;
+      const banner = this.renderRoot.querySelector(".sak-banner-success");
+      banner?.classList.remove("d-none");
+      setTimeout(() => banner?.classList.add("d-none"), 5000);
+    }).catch(error => this.reportSaveError(error));
+    return save;
   }
 
   handleCriterionWeightChange(e) {
@@ -341,69 +349,63 @@ export class SakaiRubric extends RubricsElement {
 
     // Draft mode can't be turned off if the total weight doesn't match 100%,
     // this way (+css) also prevents the rubric to be toggled when pressing the disabled button.
-    if (this.rubric.draft && this.rubric.weighted && !this._validWeight) {
+    if ((!this.rubric.draft && this.rubric.associated)
+        || (this.rubric.draft && this.rubric.weighted && !this._validWeight)) {
       return;
     }
-    this.rubric.draft = !this.rubric.draft;
+    const previousDraft = this.rubric.draft;
+    this.rubric.draft = !previousDraft;
 
-    this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/draft", "value": this.rubric.draft } ]);
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
-        this.saveCriterionWeights();
-        this.handleDraftBtn();
-        this.requestUpdate();
-      }
+    this.patchRubric([
+      { op: "replace", path: "/draft", value: this.rubric.draft },
+      ...this.criterionWeightPatch(),
+    ]).then(() => {
+      this.handleDraftBtn();
+      this.requestUpdate();
+    }).catch(error => {
+      this.rubric.draft = previousDraft;
+      this.handleDraftBtn();
+      this.reportSaveError(error);
+      this.requestUpdate();
     });
   }
 
-  weightedChange(e) {
-
+  weightedChange() {
+    if (this._savingWeighted) { return; }
+    this._savingWeighted = true;
+    const previousWeighted = this.rubric.weighted;
+    const previousWeights = this.rubric.criteria.map(criterion => criterion.weight);
     this.rubric.weighted = !this.rubric.weighted;
     if (this.rubric.weighted) {
-      this.rubric.criteria.forEach(cr => cr.weight = 0);
-      //Try to get first criterion, that is not a criterion group
-      const firstCriterion = this.rubric.criteria.find(criteria => criteria.ratings?.length > 0);
-      if (firstCriterion) {
-        //Set weight of first criterion to 100 (%)
-        firstCriterion.weight = 100;
-        this.saveCriterionWeights(e);
+      if (!this.rubric.criteria.some(criterion => criterion.weight !== 0)) {
+        // Initialize weights only when none have been configured.
+        const firstCriterion = this.rubric.criteria.find(criterion => criterion.ratings?.length > 0);
+        if (firstCriterion) { firstCriterion.weight = 100; }
       }
-      this.handleRefreshTotalWeight();
     }
-
-    this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weighted", "value": this.rubric.weighted } ]);
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
-        this.handleWeightBtn();
-        this.requestUpdate();
-      }
-    });
+    this.handleRefreshTotalWeight();
+    this.patchRubric([
+      { op: "replace", path: "/weighted", value: this.rubric.weighted },
+      ...this.criterionWeightPatch(),
+    ]).then(() => {
+      this.handleWeightBtn();
+      this.requestUpdate();
+    }).catch(error => {
+      this.rubric.weighted = previousWeighted;
+      this.rubric.criteria.forEach((criterion, index) => criterion.weight = previousWeights[index]);
+      this.handleRefreshTotalWeight();
+      this.reportSaveError(error);
+      this.requestUpdate();
+    }).finally(() => this._savingWeighted = false);
   }
 
   sharingChange() {
-
-
     this.rubric.shared = !this.rubric.shared;
-
-    this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/shared", "value": this.rubric.shared } ]);
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
+    this.patchRubric([ { op: "replace", path: "/shared", value: this.rubric.shared } ])
+      .then(() => {
         this.dispatchEvent(new SharingChangeEvent());
         this.handleShareBtn();
-      } else {
-        throw new Error("Network error while updating rubric");
-      }
-    })
-    .catch (error => console.error(error));
+      }).catch(error => this.reportSaveError(error));
   }
 
   handleDraftBtn() {
@@ -421,7 +423,9 @@ export class SakaiRubric extends RubricsElement {
       }
     } else {
       this.draftIcon = "fa-eye";
-      if (this.rubric.weighted) {
+      if (this.rubric.associated) {
+        this.draftLabel = this.tr("draft_in_use");
+      } else if (this.rubric.weighted) {
         this.draftLabel = this.tr("draft_turn_on") + this.tr("draft_save_weights");
       } else {
         this.draftLabel = this.tr("draft_turn_on");
@@ -468,31 +472,11 @@ export class SakaiRubric extends RubricsElement {
     sakaiRubricPdf && sakaiRubricPdf.requestUpdate();
   }
 
-  openEditWithKeyboard(e) {
-
-    const spaceBarKeyCode = (e.keyCode == 32);
-
-    if (spaceBarKeyCode && e.target.classList.contains("weighted")) {
-      this.weightedChange(e);
-    }
-
-    if (spaceBarKeyCode && e.target.classList.contains("share")) {
-      this.sharingChange(e);
-    }
-
-    if (spaceBarKeyCode && e.target.classList.contains("clone")) {
-      this.cloneRubric(e);
-    }
-
-    if (spaceBarKeyCode && e.target.classList.contains("draft")) {
-      this.draftChange(e);
-    }
-  }
 
   // SAK-47640 - Get the maximum and minimum possible grade of the whole rubric,
   // multiplying the max-min rating points of each criterion by the criterion weight, and adding them up
   getMaxPoints(criterions) {
-    return this.getPoints(criterions, Math.max);
+    return this.getPoints(criterions, (...points) => Math.max(0, ...points));
   }
 
   getMinPoints(criterions) {
@@ -507,7 +491,7 @@ export class SakaiRubric extends RubricsElement {
     .filter(criterion => criterion.ratings.length > 0)
     .forEach(criterion => {
       totalPoints += minOrMax(...criterion.ratings.map(rating => {
-        return rating.points * (criterion.weight / 100);
+        return rating.points * (this.rubric.weighted ? criterion.weight / 100 : 1);
       }));
     });
     return parseFloat(totalPoints).toLocaleString(this.locale);

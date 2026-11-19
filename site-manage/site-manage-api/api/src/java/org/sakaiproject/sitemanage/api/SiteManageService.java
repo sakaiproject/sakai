@@ -52,6 +52,17 @@ public interface SiteManageService {
     void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, boolean cleanup);
 
     /**
+     * Queue the same background replace-import as Site Info with every destination tool
+     * and its advertised transfer options selected. Finish saving the new site and its
+     * realm before calling; do not save the site again after the import is queued.
+     *
+     * @param fromSiteId source site id
+     * @param site destination site, with its copied placements already saved
+     * @return true if queued, false if an import is already running or the executor rejects it
+     */
+    boolean importAllToolsIntoSiteThread(String fromSiteId, Site site);
+
+    /**
      * Copy tool content from old site
      *
      * @param oSiteId        source (old) site id

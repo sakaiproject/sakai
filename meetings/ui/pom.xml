@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.meetings</groupId>
         <artifactId>meetings</artifactId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>org.sakaiproject.meetings</groupId>
@@ -21,8 +21,8 @@
     <dependencies>
         <!-- we are running a webapp in a servlet container so we need the servlet API -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
     </dependencies>
 

@@ -106,7 +106,7 @@ public interface PreferencesService extends EntityProducer
 	boolean allowUpdate(String id);
 
 	/**
-	 * Add a new set of preferences with this id. Must commit(), remove() or cancel() when done.
+	 * Prepare a new set of preferences with this id. Changes are persisted by commit().
 	 * 
 	 * @param id
 	 *        The preferences id.
@@ -119,17 +119,20 @@ public interface PreferencesService extends EntityProducer
 	PreferencesEdit add(String id) throws PermissionException, IdUsedException;
 
 	/**
-	 * Edit preferences with automatic commit/cancel handling.
+	 * Apply the callback once, with automatic commit/cancel handling.
+	 * A concurrent modification causes the save to fail; the callback is not retried.
 	 *
 	 * @param userId The user ID whose preferences are being edited
 	 * @param editFunction A function that performs the actual preference modifications
-	 * @return true if the edit was successful and committed, false if there was an error
+	 * @return true if the edit was successful and committed, false if there was an error or a concurrent modification
 	 * @throws IllegalArgumentException if userId is null or empty
 	 */
 	boolean applyEditWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction);
 
     /**
-	 * Get a locked Preferences object for editing. Must commit(), cancel() or remove() when done.
+	 * Get a detached Preferences object for editing. Must commit(), cancel() or remove() when done.
+	 * The legacy InUseException and IdUnusedException declarations remain for callers that catch them;
+	 * this implementation detects concurrent edits at commit and creates missing preferences on demand.
 	 * 
 	 * @param id
 	 *        The preferences id.
@@ -137,22 +140,24 @@ public interface PreferencesService extends EntityProducer
 	 * @exception PermissionException
 	 *            if the current user does not have permission to edit these preferences.
 	 * @exception InUseException
-	 *            if the preferences object is locked by someone else.
+	 *            retained for compatibility; concurrent writes are detected when committing.
 	 * @exception IdUnusedException
-	 *            if there is not preferences object with this id.
+	 *            retained for compatibility; missing preferences produce a new unsaved edit.
 	 */
 	PreferencesEdit edit(String id) throws PermissionException, InUseException, IdUnusedException;
 
 	/**
-	 * Commit the changes made to a PreferencesEdit object, and release the lock. The PreferencesEdit is disabled, and not to be used after this call.
+	 * Commit the changes made to a PreferencesEdit object, checking its version for concurrent writes.
+	 * A stale edit fails with {@link PreferencesConflictException}. The PreferencesEdit is disabled after
+	 * this call, including when the write fails.
 	 * 
 	 * @param edit
 	 *        The PreferencesEdit object to commit.
 	 */
-	void commit(PreferencesEdit edit);
+	void commit(PreferencesEdit edit) throws PreferencesConflictException;
 
 	/**
-	 * Cancel the changes made to a PreferencesEdit object, and release the lock. The PreferencesEdit is disabled, and not to be used after this call.
+	 * Discard the changes made to a PreferencesEdit object. The PreferencesEdit is disabled after this call.
 	 * 
 	 * @param edit
 	 *        The PreferencesEdit object to commit.
@@ -160,12 +165,14 @@ public interface PreferencesService extends EntityProducer
 	void cancel(PreferencesEdit edit);
 
 	/**
-	 * Remove this PreferencesEdit - it must be locked from edit(). The PreferencesEdit is disabled, and not to be used after this call.
+	 * Remove the preferences represented by this edit, checking its version for concurrent writes.
+	 * A stale edit fails with {@link PreferencesConflictException}. The PreferencesEdit is disabled after
+	 * this call, including when the write fails.
 	 * 
 	 * @param edit
 	 *        The PreferencesEdit object to remove.
 	 */
-	void remove(PreferencesEdit edit);
+	void remove(PreferencesEdit edit) throws PreferencesConflictException;
 
 	/**
 	 * Get user's preferred locale (or the default locale if not set)

@@ -20,7 +20,7 @@
 	<property name="type" type="integer" not-null="true" />
 	<property name="sakaiId" type="string" length="250" />
 	<property name="name" type="string" length="255" />
-	<property name="html" type="materialized_clob" length="200000" />
+	<property name="html" type="materialized_clob" length="2147483647" />
 	<property name="description" type="materialized_clob" />
 	<property name="height" type="string" length="8" />
 	<property name="width" type="string" length="8" />

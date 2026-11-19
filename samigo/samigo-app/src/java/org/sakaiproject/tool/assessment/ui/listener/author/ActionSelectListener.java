@@ -21,10 +21,10 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import javax.faces.component.UICommand;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
+import jakarta.faces.component.UICommand;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -176,6 +176,7 @@ public class ActionSelectListener implements ActionListener {
 		}
 		else if ("preview_published".equals(action)) {
 			delivery.setActionString("previewAssessment");
+			delivery.setFromPrint(false);
 			author.setIsEditPendingAssessmentFlow(false);
 			person.setPreviewFromPage("author");
 			BeginDeliveryActionListener beginDeliveryActionListener = new BeginDeliveryActionListener();

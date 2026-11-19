@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:panel>
+    <form class="attendanceStatusForm" wicket:id="attendanceRecord">
+        <span class="status-group-container">
+            <wicket:container wicket:id="attendance-record-status-group">
+                <span wicket:id="status-radios" class="div-table-col">
+                        <input type="radio" class="sr-only" wicket:id="record-status" />
+                        <label wicket:id="record-status-name" hidden class="record-status-name" />
+                        <label wicket:id="record-status-name-raw" hidden />
+                        <label wicket:id="record-status-name-normal" class="record-status-name-normal" />
+                        <label class="statusClickBox" wicket:id="record-status-box"/>
+                </span>
+            </wicket:container>
+            <span class="div-table-col" wicket:id="comment-container">
+            <div class="commentToggle">
+                <span wicket:id="no-comment">
+                    <span class="fa fa-comment-o fa-2x" aria-hidden="true"></span>
+                    <span class="sr-only"><wicket:message key="attendance.icon.record.form.no_comment"/></span>
+                </span>
+                <span wicket:id="yes-comment">
+                    <span class="fa fa-comment fa-2x" aria-hidden="true"></span>
+                    <span class="sr-only"><wicket:message key="attendance.icon.record.form.yes_comment"/></span>
+                </span>
+            </div>
+            <div class="addComment" style="display:none;">
+                <h3><span wicket:id="add-header" /></h3>
+                <textarea wicket:id="comment" />
+                <input type="submit" wicket:id="save-comment" wicket:message="value:button.save" class="saveComment"/>
+                <span class="cancelAddComment"><wicket:message key="attendance.record.form.cancel" /></span>
+            </div>
+            <script type="text/javascript">
+                $("div.commentToggle").unbind().click(function(){
+                    if($(this).next(".addComment").is(":visible")){
+                        $(this).next(".addComment").slideUp("fast");
+                    } else {
+                        $(".addComment").hide();
+                        $(this).next(".addComment").slideDown("fast");
+                    }
+                });
+                $("span.cancelAddComment").unbind().click(function(){
+                    $(this).parent("div").slideUp();
+                });
+            </script>
+        </span>
+        </span>
+    </form>
+    <div wicket:id="no-record" class="noRecord"><wicket:message key="attendance.no.record"/></div>
+</wicket:panel>
+</body>
+</html>

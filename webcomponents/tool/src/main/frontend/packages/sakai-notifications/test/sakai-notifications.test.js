@@ -30,6 +30,29 @@ describe("sakai-notifications tests", () => {
   }
 
 
+  it ("renders replies as received messages", async () => {
+
+    setRoutes([ {
+      event: "messages.reply",
+      from: "student",
+      fromDisplayName: "Student Example",
+      siteTitle: "Biology 101",
+      id: "reply-notification",
+      title: "Re: Question",
+      url: "http://example.com/messages/2",
+    } ]);
+
+    const el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+    await el.loadNotifications();
+    await elementUpdated(el);
+
+    expect(el.querySelector(".toast-body").textContent).to.contain("Student Example sent you a message");
+    expect(el.querySelector(".toast-body a").getAttribute("href")).to.equal("http://example.com/messages/2");
+    expect(el.notifications[0].title).to.equal("Re: Question");
+  });
+
   it ("renders correctly", async () => {
 
     window.Notification = { permission: "granted" };
@@ -115,6 +138,39 @@ describe("sakai-notifications tests", () => {
     const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const siteTitleOccurrences = (decoratedTitle.match(new RegExp(escapeRe(assignmentNotification.siteTitle), "g")) || []).length;
     expect(siteTitleOccurrences).to.equal(1);
+  });
+
+  it ("decorates site import completion notifications", async () => {
+
+    window.Notification = { permission: "granted" };
+
+    const siteImportNotification = {
+      event: "site.import.end",
+      from: "instructor1",
+      fromDisplayName: "Instructor Example",
+      formattedEventDate: "15 Oct, 2025",
+      id: "noti-site-import",
+      siteTitle: "Biology 101",
+      title: "Biology 101",
+      url: "http://example.com/portal/site/site-1",
+    };
+
+    setRoutes([siteImportNotification]);
+
+    const el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await el.loadNotifications();
+    await waitUntil(() => el._filteredNotifications.get("site")?.length);
+    await elementUpdated(el);
+
+    expect(el._filteredNotifications.get("site")[0].title).to.equal('Import completed for "Biology 101"');
+
+    const siteAccordion = document.getElementById("site-accordion");
+    expect(siteAccordion).to.exist;
+    expect(siteAccordion.querySelectorAll("li.toast").length).to.equal(1);
   });
 
   it ("skips user photo fetch when notification has no fromUser", async () => {

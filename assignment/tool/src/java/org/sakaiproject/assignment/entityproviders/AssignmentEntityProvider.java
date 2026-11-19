@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.Data;
 import lombok.Getter;
@@ -41,7 +41,7 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 
 import org.apache.commons.lang3.Strings;
 import org.sakaiproject.assignment.api.AssignmentConstants;
@@ -1110,7 +1110,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
                 for (Map<String, Object> submission : submissionMaps) {
-                    if (!submission.containsKey("userSubmission")) continue;
                     String ltiSubmissionLaunch = null;
 
                     try {
@@ -1624,7 +1623,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
         if (canGrade(assignment)) {
-            rv = assignment.getSubmissions().stream().map(ss -> {
+            rv = assignment.getSubmissions().stream()
+                .filter(ss -> ss.getSubmitters().stream().anyMatch(submitter -> activeSubmitters.contains(submitter.getSubmitter())))
+                .map(ss -> {
                 try {
                     return new SimpleSubmission(ss, new SimpleAssignment(assignment), activeSubmitters);
                 } catch (Exception e) {
@@ -1948,7 +1949,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.access = a.getTypeOfAccess().toString();
             this.instructions = a.getInstructions();
             if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                this.maxGradePoint = assignmentService.getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint());
+                this.maxGradePoint = assignmentService.getGradeDisplay(
+                    Integer.toString(a.getMaxGradePoint()), a.getTypeOfGrade(), a.getScaleFactor());
             }
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
@@ -2039,7 +2041,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (hydrate) {
                 if (canGrade(a) && a.getSubmissions().stream().findAny().isPresent()) {
                     this.submissions = new ArrayList<>();
-                    this.submissions = a.getSubmissions().stream().map(ss -> {
+                    this.submissions = a.getSubmissions().stream()
+                        .filter(ss -> ss.getSubmitters().stream().anyMatch(submitter -> activeSubmitters.contains(submitter.getSubmitter())))
+                        .map(ss -> {
                         try {
                             return new SimpleSubmission(ss, this, activeSubmitters);
                         } catch (Exception e) {

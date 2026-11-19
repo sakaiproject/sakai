@@ -67,17 +67,14 @@ class GradebookUpdateUngraded {
     const modalElement = this.buildConfirmationModal();
     if (!modalElement) return;
     
-    document.body.appendChild(modalElement);
+    const parentModal = this.content.closest('.gb-modal-dialog');
+    parentModal.appendChild(modalElement);
 
     // Configure Bootstrap modal with nested modal options
     const modal = new bootstrap.Modal(modalElement, {
       backdrop: 'static', // Prevent clicking outside to close when nested
       keyboard: true // Allow escape key
     });
-    
-    // Store reference to parent modal
-    const parentModal = this.content.closest('.wicket-modal');
-    const parentBootstrapModal = parentModal ? bootstrap.Modal.getInstance(parentModal) : null;
     
     modalElement.addEventListener('hidden.bs.modal', () => {
       modalElement.remove();

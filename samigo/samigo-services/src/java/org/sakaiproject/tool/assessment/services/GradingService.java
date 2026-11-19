@@ -60,9 +60,18 @@ import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
 import org.jsoup.Jsoup;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
@@ -84,16 +93,20 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.CellValue;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
+import org.sakaiproject.tool.assessment.facade.ExportSection;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
+import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
@@ -163,16 +176,6 @@ public class GradingService
   
   private static final String NBSP = "&#160;";
 
-  @Getter @Setter
-  private List<String> texts;
-  @Getter @Setter
-  private HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<String, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<String, String>();
   private static final int MAX_ERROR_TRIES = 100;
 	  
   /**
@@ -809,6 +812,16 @@ public class GradingService
     }
   }
 
+  public Map<Long, Set<ItemGradingData>> getItemGradingSets(Collection<Long> assessmentGradingIds) {
+    try {
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
+          .getItemGradingSets(assessmentGradingIds);
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
+    }
+  }
+
   public Map<Long, AssessmentGradingData> getAssessmentGradingByItemGradingId(String publishedAssessmentId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
@@ -958,6 +971,7 @@ public class GradingService
       Long itemId = (long)0;
       Long previousItemId = (long)0;
       int calcQuestionAnswerSequence = 1; // sequence of answers for CALCULATED_QUESTION
+      Map<Integer, String> calculatedAnswersMap = new HashMap<>();
       boolean imageMapAlreadyOk = true;
       boolean neededAllOk = false;
       for(ItemGradingData itemGrading: tempItemGradinglist){
@@ -1018,11 +1032,19 @@ public class GradingService
         		}
         	}
         }
+
+        if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId()) && calcQuestionAnswerSequence == 1) {
+        	calculatedAnswersMap = new HashMap<>();
+        	LinkedHashMap<String, String> calculatedAnswersMapValues = new LinkedHashMap<>();
+        	LinkedHashMap<String, String> calculatedGlobalAnswersMapValues = new LinkedHashMap<>();
+        	LinkedHashMap<String, String> calculatedMainVariablesWithValues = new LinkedHashMap<>();
+        	extractCalcQAnswersArray(calculatedAnswersMap, calculatedAnswersMapValues, calculatedGlobalAnswersMapValues, calculatedMainVariablesWithValues, item, data.getAssessmentGradingId(), agent);
+        }
         
         // note that totalItems & fibAnswersMap would be modified by the following method
         try {
         	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                               totalItems, fibEmiAnswersMap, emiScoresMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence);
+                               totalItems, fibEmiAnswersMap, emiScoresMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence, calculatedAnswersMap);
         }
         catch (FinFormatException e) {
         	log.warn("Fin Format Exception while processing response. ", e);
@@ -1276,7 +1298,7 @@ public class GradingService
       double totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore(totalAutoScore);
      
-      if (Double.compare((totalAutoScore + data.getTotalOverrideScore()), new Double("0"))<0){
+      if (Double.compare((totalAutoScore + data.getTotalOverrideScore()), Double.valueOf("0"))<0){
     	  data.setFinalScore( Double.valueOf("0"));
       }else{
     	  data.setFinalScore(totalAutoScore + data.getTotalOverrideScore());
@@ -1385,7 +1407,7 @@ public class GradingService
                                        Long itemType, Map publishedItemTextHash, 
                                        Map totalItems, Map fibAnswersMap, Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap,
                                        Map publishedAnswerHash, boolean regrade,
-                                       int calcQuestionAnswerSequence) throws FinFormatException {
+                                       int calcQuestionAnswerSequence, Map<Integer, String> calculatedAnswersMap) throws FinFormatException {
     //double score = (double) 0;
     double initScore;
     double autoScore = (double) 0;
@@ -1431,7 +1453,7 @@ public class GradingService
 
               if (initialScore.compareTo(BigDecimal.ZERO) == 1){
                   automaticScore = initialScore.divide(new BigDecimal(correctAnswers), MathContext.DECIMAL128);
-              } else{
+              } else if (correctAnswers > 0) {
                   automaticScore = new BigDecimal(getTotalCorrectScore(itemGrading, publishedAnswerHash))
                       .divide(new BigDecimal(correctAnswers), MathContext.DECIMAL128);
                   automaticScore = automaticScore.multiply(new BigDecimal(-1.0d), MathContext.DECIMAL128);
@@ -1490,7 +1512,6 @@ public class GradingService
       case 11: // FIN
     	  try {
     	      if (type == 15) {  // CALCULATED_QUESTION
-	              Map<Integer, String> calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item, calcQuestionAnswerSequence);
 	              int numAnswers = calculatedAnswersMap.size();
 	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (double) numAnswers;
 	          } else {
@@ -1672,16 +1693,10 @@ public class GradingService
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
-    org.sakaiproject.grading.api.GradingService gradingService = null;
-    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-    if (integrated)
-    {
-      gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-        getBean("org.sakaiproject.grading.api.GradingService");
-    }
+    org.sakaiproject.grading.api.GradingService gradingService = ComponentManager.get(org.sakaiproject.grading.api.GradingService.class);
 
     GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+      (GradebookServiceHelper) ComponentManager.get("gradebookServiceHelper");
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
@@ -1698,30 +1713,61 @@ public class GradingService
     		if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(toGradebook))
     			gbsHelper.updateExternalAssessmentScore(data, gradingService);
     		else if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
-          if (gbsHelper.isGradebookGroupEnabled(gradingService)) {
-            String gradebookItemString = pub.getAssessmentToGradebookNameMetaData();
+          String gradebookItemString = pub.getAssessmentToGradebookNameMetaData();
+          List<String> gradebookItemList = GradebookAssociationHelper.parseItemIds(gradebookItemString);
+          if (gradebookItemList.isEmpty()) {
+            log.warn("Skipping gradebook sync for publishedAssessmentId {}: TO_SELECTED with blank/missing TO_GRADEBOOK_ID",
+                pub.getPublishedAssessmentId());
+            retryCount = 0;
+            break;
+          }
 
-            if (gradebookItemString != null && !StringUtils.isBlank(gradebookItemString)) {
-              List<String> gradebookItemList = Arrays.asList(gradebookItemString.split(","));
+          // Use assessment site id — AgentFacade has no site in Quartz/autosubmit
+          boolean isGradebookGroupEnabled = gradingService != null
+              && StringUtils.isNotBlank(currentSiteId)
+              && gradingService.isGradebookGroupEnabled(currentSiteId);
 
+          if (isGradebookGroupEnabled) {
               for (String gradebookItem : gradebookItemList) {
-                gbsHelper.updateExternalAssessmentScore(data, gradingService, Long.parseLong(gradebookItem));
+                try {
+                  gbsHelper.updateExternalAssessmentScore(data, gradingService, Long.parseLong(gradebookItem));
+                } catch (NumberFormatException nfe) {
+                  log.warn("Skipping non-numeric gradebook item id '{}' for publishedAssessmentId {}",
+                      gradebookItem, pub.getPublishedAssessmentId());
+                } catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
+                  log.warn("Skipping missing gradebook item id '{}' for publishedAssessmentId {}: {}",
+                      gradebookItem, pub.getPublishedAssessmentId(), ante.getMessage());
+                }
               }
-            }
           } else {
-            Long gradebookItemId = Long.valueOf(pub.getAssessmentToGradebookNameMetaData());
-            gbsHelper.updateExternalAssessmentScore(data, gradingService, gradebookItemId);
+            try {
+              Long gradebookItemId = Long.valueOf(gradebookItemList.get(0));
+              gbsHelper.updateExternalAssessmentScore(data, gradingService, gradebookItemId);
+            } catch (NumberFormatException nfe) {
+              log.warn("Skipping gradebook sync for publishedAssessmentId {}: non-numeric TO_GRADEBOOK_ID '{}'",
+                  pub.getPublishedAssessmentId(), gradebookItemString);
+              retryCount = 0;
+              break;
+            } catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
+              log.warn("Skipping gradebook sync for publishedAssessmentId {}: missing item '{}': {}",
+                  pub.getPublishedAssessmentId(), gradebookItemString, ante.getMessage());
+              retryCount = 0;
+              break;
+            }
           }
     		}
     		retryCount = 0;
     	}
       catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
     	  log.warn("problem sending grades to gradebook: {}", ante.getMessage());
-          if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
+          if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
+            log.warn("Gradebook item missing for TO_SELECTED publishedAssessmentId {}; skipping sync", pub.getPublishedAssessmentId());
+            retryCount = 0;
+          } else if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
         	  retryCount = retry(retryCount, ante, pub, true);
           }
           else {
-        	  // Otherwise, do the same exeption handling as others
+        	  // Otherwise, do the same exception handling as others
         	  retryCount = retry(retryCount, ante, pub, false);
           }
       }
@@ -2132,36 +2178,25 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	 }
 	 
 	 ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
-	 
-	 List answerArray = (List) itemTextIfc.getAnswerArray();
-	 AnswerIfc answerIfc= (AnswerIfc) answerArray.get(0); 
-	 
-	 try{
-		 String area = answerIfc.getText();
-		 Integer areax1=Integer.valueOf(area.substring(area.indexOf("\"x1\":")+5,area.indexOf(",", area.indexOf("\"x1\":"))));
-		 Integer areay1=Integer.valueOf(area.substring(area.indexOf("\"y1\":")+5,area.indexOf(",", area.indexOf("\"y1\":"))));
-		 Integer areax2=Integer.valueOf(area.substring(area.indexOf("\"x2\":")+5,area.indexOf(",", area.indexOf("\"x2\":"))));
-		 Integer areay2=Integer.valueOf(area.substring(area.indexOf("\"y2\":")+5,area.indexOf("}", area.indexOf("\"y2\":"))));
-		 
-		 String point = data.getAnswerText();
-		 Integer pointx=Integer.valueOf(point.substring(point.indexOf("\"x\":")+4,point.indexOf(",", point.indexOf("\"x\":"))));
-		 Integer pointy=Integer.valueOf(point.substring(point.indexOf("\"y\":")+4,point.indexOf("}", point.indexOf("\"y\":"))));
-		
-				 
-		 if (((pointx>=areax1)&&(pointx<=areax2))&&((pointy>=areay1)&&(pointy<=areay2))) {
-			 totalScore=answerScore;
-			 data.setIsCorrect(Boolean.TRUE);
-		 }else{
-			 totalScore=0;
-		 }
-	}catch(Exception ex){
-		 totalScore=0;
+	 if (itemTextIfc == null || itemTextIfc.getAnswerArray() == null || itemTextIfc.getAnswerArray().isEmpty()) {
+		 return 0;
 	 }
-	 	  
-    
+	 AnswerIfc answerIfc = (AnswerIfc) itemTextIfc.getAnswerArray().get(0);
+	 if (answerIfc == null) {
+		 return 0;
+	 }
+
+	 Optional<ImageMapCoordinates.Region> region = ImageMapCoordinates.parseRegion(answerIfc.getText());
+	 Optional<ImageMapCoordinates.Point> point = ImageMapCoordinates.parseStudentPoint(data.getAnswerText());
+	 if (region.isPresent() && point.isPresent() && region.get().contains(point.get().getClickX(), point.get().getClickY())) {
+		 totalScore = answerScore;
+		 data.setIsCorrect(Boolean.TRUE);
+	 } else {
+		 totalScore = 0;
+	 }
+
     return totalScore;
   }
-  
 
   /**
    * Validate a students numeric answer 
@@ -2622,6 +2657,37 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return results;
   }
   
+  /**
+   * Restrict displayed counts to the grading roster without changing assessment availability.
+   */
+  public void setDisplayedCountsForGradingRoster(List<PublishedAssessmentFacade> assessments, String siteId,
+      Map<Long, Map<String, Integer>> submissionCounts, Map<Long, Map<String, Long>> inProgressCounts) {
+    if (PersistenceService.getInstance().getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, siteId)) {
+      return;
+    }
+
+    SectionAwareServiceHelper service = (SectionAwareServiceHelper) ComponentManager.get("sectionAwareServiceHelper");
+    String userId = AgentFacade.getAgentString();
+    List<EnrollmentRecord> siteEnrollments = service.getAllGroupsReleaseEnrollments(siteId, userId, null);
+    for (PublishedAssessmentFacade assessment : assessments) {
+      if (assessment.getReleaseTo() == null || assessment.getReleaseTo().contains(AssessmentAccessControlIfc.ANONYMOUS_USERS)) {
+        continue;
+      }
+      Long assessmentId = assessment.getPublishedAssessmentId();
+      List<EnrollmentRecord> enrollments = AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(assessment.getReleaseTo())
+          ? service.getGroupReleaseEnrollments(siteId, userId, assessmentId.toString()) : siteEnrollments;
+      Set<String> studentIds = enrollments.stream()
+          .map(enrollment -> enrollment.getUser().getUserUid()).collect(Collectors.toSet());
+      Map<String, Integer> submitted = submissionCounts.getOrDefault(assessmentId, Collections.emptyMap());
+      Map<String, Long> inProgress = inProgressCounts.getOrDefault(assessmentId, Collections.emptyMap());
+      assessment.setSubmittedCount((int) studentIds.stream()
+          .filter(studentId -> submitted.getOrDefault(studentId, 0) > 0).count());
+      assessment.setInProgressCount((int) studentIds.stream()
+          .filter(studentId -> inProgress.getOrDefault(studentId, 0L) > 0).count());
+    }
+  }
+
   public Map<Long, Map<String, Integer>> getSiteSubmissionCountHash(String siteId) {
 	    Map<Long, Map<String, Integer>> results = new HashMap<>();
 	    try {
@@ -2761,20 +2827,24 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param useridMap
    * @param responseCommentString
    * @param isOneSelectionType
-   * @return a list of responses or null if there are none
+   * @return a Map keyed by {@link ExportSection}, never null and always containing both HEADER and ROWS
+   *         keys; an empty single-row HEADER and empty ROWS if the data could not be retrieved
    */
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean isOneSelectionType) {
-	  List list = null;
+  public Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map<String, EnrollmentRecord> useridMap, String responseCommentString, boolean isOneSelectionType) {
 	    try {
-	    	list = PersistenceService.getInstance().
+	    	Map<ExportSection, List<List<CellValue<?>>>> result = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, isOneSelectionType);
+	    	if (result != null) {
+	    		return result;
+	    	}
+	    	log.warn("No export responses data for published assessment [{}], exporting headers only", publishedAssessmentId);
 	    } catch (Exception e) {
 	      log.error(e.getMessage(), e);
 	    }
-	    return list;
+	    return Map.of(ExportSection.HEADER, List.of(List.of()), ExportSection.ROWS, List.of());
   }
 
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+  public Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map<String, EnrollmentRecord> useridMap, String responseCommentString) {
     return this.getExportResponsesData(publishedAssessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, false);
   }
   
@@ -2788,11 +2858,55 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   public void removeAssessmentGradingData(AssessmentGradingData data) {
-	  try {
-		  PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
-	  } catch (Exception e) {
-		  log.error("Exception thrown from removeAssessmentGradingData", e);
-	  }
+      try {
+          PersistenceService persistenceService = PersistenceService.getInstance();
+          AssessmentGradingData submission = persistenceService.getAssessmentGradingFacadeQueries().load(data.getAssessmentGradingId(), false);
+          String siteId = AgentFacade.getCurrentSiteId();
+          checkSubmissionRemovalAllowed(submission, siteId);
+          Set<String> evaluatedItemIds = submission.getItemGradingSet().stream()
+                  .map(item -> submission.getAssessmentGradingId() + "." + item.getPublishedItemId())
+                  .collect(Collectors.toSet());
+          ComponentManager.get(RubricsService.class).deleteEvaluationsForToolAndEvaluatedItems(
+                  RubricsConstants.RBCS_TOOL_SAMIGO, evaluatedItemIds, siteId);
+          // Keep the submission available for retry if rubric cleanup fails.
+          persistenceService.getAssessmentGradingFacadeQueries().removeAssessmentGradingData(submission);
+      } catch (RuntimeException e) {
+          log.warn("Could not remove assessment submission {} and its rubric evaluations", data.getAssessmentGradingId(), e);
+          throw e;
+      }
+  }
+
+  private void checkSubmissionRemovalAllowed(AssessmentGradingData submission, String siteId) {
+      String userId = ComponentManager.get(SessionManager.class).getCurrentSessionUserId();
+      PersistenceService persistenceService = PersistenceService.getInstance();
+      if (StringUtils.isBlank(userId) || StringUtils.isBlank(siteId) || submission == null
+              || !siteId.equals(persistenceService.getPublishedAssessmentFacadeQueries()
+                      .getPublishedAssessmentOwner(submission.getPublishedAssessmentId().toString()))) {
+          throw new SecurityException("You must be authorized to remove the assessment submission in this site");
+      }
+      SecurityService securityService = ComponentManager.get(SecurityService.class);
+      SiteService siteService = ComponentManager.get(SiteService.class);
+      String siteRef = siteService.siteReference(siteId);
+      boolean canGrade = securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, siteRef)
+              || (securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_OWN, siteRef)
+                  && userId.equals(persistenceService.getPublishedAssessmentFacadeQueries()
+                          .loadPublishedAssessment(submission.getPublishedAssessmentId()).getCreatedBy()));
+      if (!canGrade) {
+          throw new SecurityException("You must be authorized to grade the assessment");
+      }
+      try {
+          String restrictionKey = "samigo.removeSubmission.restricted";
+          ResourceProperties properties = siteService.getSite(siteId).getProperties();
+          String siteRestriction = properties == null ? "" : StringUtils.trimToEmpty(properties.getProperty(restrictionKey));
+          boolean restricted = siteRestriction.isEmpty()
+                  ? ComponentManager.get(ServerConfigurationService.class).getBoolean(restrictionKey, false)
+                  : Boolean.parseBoolean(siteRestriction);
+          if (restricted && !securityService.unlock("site.upd", siteService.siteReference("!admin"))) {
+              throw new SecurityException("Assessment submission removal is restricted to administrators");
+          }
+      } catch (IdUnusedException e) {
+          throw new IllegalArgumentException("No site for assessment submission " + submission.getAssessmentGradingId(), e);
+      }
   }
 
   public boolean getHasGradingData(Long publishedAssessmentId) {
@@ -2804,21 +2918,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      log.error(e.getMessage(), e);
 	    }
 	    return hasGradingData;
-  }
-
-
-  /**
-   * CALCULATED_QUESTION
-   * @param itemGrading
-   * @param item
-   * @return map of calc answers
-   */
-  private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item, int calcQuestionAnswerSequence ) {
-      // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
-      if (calcQuestionAnswerSequence == 1) {
-          extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
-      }
-      return answersMap;
   }
 
   /**
@@ -3215,11 +3314,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       List<String> instructionSegments = new ArrayList<>(0);
       List<String> correctFeedbackSegments = new ArrayList<>(0);
       List<String> incorrectFeedbackSegments = new ArrayList<>(0);
-
-      answerList.clear();
-      answerListValues.clear();
-      globalanswersMapValues.clear();
-      mainvariablesWithValues.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {

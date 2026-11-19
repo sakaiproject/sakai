@@ -77,7 +77,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * Sends reminder emails to all students who have not submitted an assignment

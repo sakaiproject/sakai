@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="${errorTitle}">SiteStats error</title>
+  <th:block th:utext="${sakaiHtmlHead}"></th:block>
+</head>
+<body>
+<main class="portletBody container-fluid">
+  <h1 class="h3" th:text="${errorTitle}">SiteStats error</h1>
+  <div class="sak-banner-error" role="alert" th:text="${error}">
+    The operation could not be completed. Try again.
+  </div>
+</main>
+</body>
+</html>

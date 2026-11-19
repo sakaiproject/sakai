@@ -45,7 +45,7 @@ function startTutorial(opts) {
 }
 
 function checkAndStartTutorialIfRedirected() {
-    if (sessionStorage.getItem(sakai.triggerTutorial) === 'true' && window.location.pathname === '/portal') {
+    if (sessionStorage.getItem(sakai.triggerTutorial) === 'true') {
         startTutorial({});
     }
 }

@@ -14,6 +14,7 @@
 package org.sakaiproject.webapi.beans;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 
@@ -24,13 +25,16 @@ public class DashboardRestBean {
     private String motd;
     private String title;
     private List<String> widgets;
-    private Boolean editable;
-    private List<String> widgetLayout;
+    private Boolean layoutEditable;
+    private Boolean siteEditable;
+    private List<DashboardWidgetTile> widgetLayout;
     private String overview;
     private String programme;
-    private Integer template = 1;
+    /** full | wide | narrow — width of the overview/image hero relative to widgets. */
+    private String heroWidth = "wide";
+    /** Whether the course image is shown in the hero. */
+    private Boolean showImage = Boolean.TRUE;
     private String image;
-    private String courseTemplate1ThumbnailUrl;
-    private String courseTemplate2ThumbnailUrl;
-    private String courseTemplate3ThumbnailUrl;
+    private Boolean gradesRevealOnClick = Boolean.TRUE;
+    private Map<String, Map<String, Object>> widgetFilters;
 }

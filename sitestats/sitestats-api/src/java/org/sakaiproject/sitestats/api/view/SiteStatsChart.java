@@ -28,5 +28,8 @@ public class SiteStatsChart implements Serializable {
 	private boolean threeDimensional;
 	private float transparency = 1.0f;
 	private boolean itemLabelsVisible = true;
+	private boolean compact;
+	private boolean stacked;
+	private boolean horizontal;
 	private List<SiteStatsChartDataset> datasets = new ArrayList<SiteStatsChartDataset>();
 }

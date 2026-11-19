@@ -17,7 +17,7 @@
           init-method="init"
           destroy-method="destroy"
           lazy-init="true">
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
         <property name="dbMessageBundleService">
             <bean class="org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl"
                   init-method="init"

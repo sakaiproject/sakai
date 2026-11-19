@@ -30,7 +30,6 @@ import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -658,10 +657,8 @@ public class GradebookPage extends BasePage {
 
 		final String version = PortalUtils.getCDNQuery();
 
-		// tablesorted used by student grade summary
-		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter')", null));
-		response.render(
-				JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.bootstrap.min.css')", null));
+		// DataTables is used by the student grade summary.
+		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('datatables')", null));
 
 		//Feedback reminder for instructors
 		response.render(
@@ -739,8 +736,8 @@ public class GradebookPage extends BasePage {
 
 	
 	private static class CloseOnESCBehavior extends AbstractDefaultAjaxBehavior {
-        private final ModalWindow modal;
-        public CloseOnESCBehavior(ModalWindow modal) {
+        private final GbModalWindow modal;
+        public CloseOnESCBehavior(GbModalWindow modal) {
             this.modal = modal;
         }    
         @Override

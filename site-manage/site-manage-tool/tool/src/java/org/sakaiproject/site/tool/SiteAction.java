@@ -18,10 +18,13 @@ package org.sakaiproject.site.tool;
 import static org.sakaiproject.site.util.SiteConstants.*;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -64,9 +67,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -143,11 +146,8 @@ import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.rubrics.api.RubricsService;
-import org.sakaiproject.scoringservice.api.ScoringAgent;
-import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -815,9 +815,7 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String GB_GROUP_PROPERTY = "gb-group";
 
-	private Cache m_userSiteCache;
 	private ImportService importService;
-	private List prefLocales;
 	private Locale dateFormattingLocale;
 	private String libraryPath;
 	private String moreInfoPath;
@@ -839,7 +837,7 @@ public class SiteAction extends PagedResourceActionII {
 	private LTIService ltiService;
 	private LinkMigrationHelper linkMigrationHelper;
 	private LocaleService localeService;
-	private MemoryService memoryService;
+	private CacheManager cacheManager;
 	private PreferencesService preferencesService;
 	private PrivacyManager privacyManager;
 	private PublishingSiteScheduleService publishingSiteScheduleService;
@@ -880,7 +878,7 @@ public class SiteAction extends PagedResourceActionII {
 		linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
 		localeService = ComponentManager.get(LocaleService.class);
 		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		memoryService = ComponentManager.get(MemoryService.class);
+		cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
 		preferencesService = ComponentManager.get(PreferencesService.class);
 		privacyManager = ComponentManager.get(PrivacyManager.class);
 		publishingSiteScheduleService = ComponentManager.get(PublishingSiteScheduleService.class);
@@ -908,7 +906,6 @@ public class SiteAction extends PagedResourceActionII {
 
 		importService = org.sakaiproject.importer.cover.ImportService.getInstance();
 		dateFormattingLocale = rb.getLocale();
-		prefLocales = new ArrayList<>();
 
 		SITE_DEFAULT_LIST = serverConfigurationService.getString("site.types");
 		DEFAULT_SITE_TYPE_SAK_PROP = serverConfigurationService.getString("site.types.defaultType", null);
@@ -917,9 +914,10 @@ public class SiteAction extends PagedResourceActionII {
 		PRIVATE_SITE_TYPES_SAK_PROP = serverConfigurationService.getStrings("site.types.privateOnly");
 
 		showOrphanedMembers = serverConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
-		m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.siteService.userSiteCache");
-		memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.enabled");
-		memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.instances");
+		if (cacheManager != null) {
+			org.springframework.cache.Cache gradebookGroupEnabledCacheOnInit = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
+			if (gradebookGroupEnabledCacheOnInit != null) gradebookGroupEnabledCacheOnInit.clear();
+		}
 
 		defaultPublishType = serverConfigurationService.getString("site.setup.publish.default", SITE_PUBLISH_TYPE_MANUAL);
 		if (!StringUtils.equalsAny(defaultPublishType, SITE_PUBLISH_TYPE_AUTO, SITE_PUBLISH_TYPE_SCHEDULED, SITE_PUBLISH_TYPE_MANUAL)) {
@@ -1859,12 +1857,12 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("import", state.getAttribute(STATE_IMPORT));
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put(MathJaxEnabler.CONTEXT_MATHJAX_HELP_URL, MathJaxEnabler.HELP_URL);
+			MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);
 			if (site != null)
 			{
 				// Add the menus to vm
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 
-				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
 				SubNavEnabler.addToContext(context, site);
 				MicrosoftSynchronizationEnabler.addToContext(context, site, state);
 				context.put("SiteTitle", site.getTitle());
@@ -1878,6 +1876,8 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("homeToolId", TOOL_ID_HOME);
 			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
+			context.put(STATE_TOOL_REGISTRATION_SELECTED_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST));
+			multipleToolIntoContext(context, state, index);
 			
 			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
 			
@@ -3420,18 +3420,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("duplicatedName", state.getAttribute(SITE_DUPLICATED_NAME));
 			}
 			context.put( CONTEXT_IS_ADMIN, securityService.isSuperUser() );
-			// Add option to also copy ScoringComponent associations
-			ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService"); 
-			ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
-			if (scoringAgent != null && scoringAgent.isEnabled(site.getId(), null)) {
-				// check to see if the site has any associated ScoringComponents to duplicate
-				List components = scoringAgent.getScoringComponents(site.getId());
-				if (components != null && !components.isEmpty()) {
-					context.put("scoringAgentOption", Boolean.TRUE);
-					context.put("scoringAgentName", scoringAgent.getName());
-				}
-			}
-			
 			// SAK-20797 - display checkboxes only if sitespecific value exists
 			long quota = getSiteSpecificQuota(site);
 			if (quota > 0) {
@@ -4247,7 +4235,7 @@ public class SiteAction extends PagedResourceActionII {
 			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<>();
 			// Find the tools that exist in the site, this should only be done if we already have a site.
 			if (site != null) {
-				List<Map<String, Object>> contents = ltiService.getContentsDao(null, null, 0, 0, site.getId(), ltiService.isAdmin(site.getId()));
+				List<Map<String, Object>> contents = ltiService.getContents(null, null, 0, 0, site.getId(), ltiService.isAdmin(site.getId()));
 				for (Map<String, Object> content : contents) {
 					String ltiToolId = content.get(LTIService.LTI_TOOL_ID).toString();
 					String ltiSiteId = StringUtils.trimToNull((String) content.get(LTIService.LTI_SITE_ID));
@@ -4715,8 +4703,9 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		// Check if the user has appropriate permissions
-		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+		// Same permissions MenuBuilder uses to show the Manage Groups entry
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		if (!siteService.allowUpdateSite(siteId) && !siteService.allowUpdateGroupMembership(siteId)) {
 			addAlert(state, rb.getString("java.notaccess"));
 			return;
 		}
@@ -4850,6 +4839,11 @@ public class SiteAction extends PagedResourceActionII {
 	public void doUpload_Mtrl_Frm_File(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		List allzipList = new Vector();
 		List finalzipList = new Vector();
@@ -5065,23 +5059,33 @@ public class SiteAction extends PagedResourceActionII {
 		fnlList.addAll(directList);
 	 	log.info("about to import {} top level items", fnlList.size());
 	 	log.info("the importDataSource is {}", importDataSource.getClass().getName());
-		if (importDataSource instanceof SakaiArchive) {
-		 	log.info("our data source is a Sakai format");
-			((SakaiArchive) importDataSource).buildSourceFolder(fnlList);
-		 	log.info("source folder is {}", ((SakaiArchive) importDataSource).getSourceFolder());
-			archiveService.merge(((SakaiArchive) importDataSource).getSourceFolder(), siteId, null);
-		} else {
-			importService.doImportItems(importDataSource
-					.getItemsForCategories(fnlList), siteId);
-		}
-		// remove attributes
-		state.removeAttribute(ALL_ZIP_IMPORT_SITES);
-		state.removeAttribute(DIRECT_ZIP_IMPORT_SITES);
-		state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
-		state.removeAttribute(SESSION_CONTEXT_ID);
-		state.removeAttribute(IMPORT_DATA_SOURCE);
-
-		state.setAttribute(STATE_TEMPLATE_INDEX, "48");
+        boolean imported = false;
+        try {
+            if (importDataSource instanceof SakaiArchive) {
+                ((SakaiArchive) importDataSource).buildSourceFolder(fnlList);
+                archiveService.merge(((SakaiArchive) importDataSource).getSourceFolder(), siteId, null);
+            } else {
+                importService.doImportItems(importDataSource.getItemsForCategories(fnlList), siteId);
+            }
+            imported = true;
+        } catch (UncheckedIOException e) {
+            log.warn("Unable to import archive into site {}", siteId, e);
+            addAlert(state, rb.getString("importFile.invalidfile"));
+        } finally {
+            try {
+                importDataSource.cleanup();
+            } finally {
+                state.removeAttribute(ALL_ZIP_IMPORT_SITES);
+                state.removeAttribute(DIRECT_ZIP_IMPORT_SITES);
+                state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
+                state.removeAttribute(SESSION_CONTEXT_ID);
+                state.removeAttribute(IMPORT_DATA_SOURCE);
+                if (!imported) {
+                    state.removeAttribute(FINAL_ZIP_IMPORT_SITES);
+                }
+                state.setAttribute(STATE_TEMPLATE_INDEX, imported ? "48" : "45");
+            }
+        }
 
 	} // doSave_MtrlSite
 
@@ -6604,6 +6608,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		toolGroup.put(defaultGroupName, combinedList);
 	}
 	
+	// Show Dashboard first while preserving the order of the remaining tools.
+	for (List<MyTool> tools : toolGroup.values()) {
+		tools.sort(Comparator.comparing(tool -> !"sakai.dashboard".equals(tool.getId())));
+	}
+
 	if (checkHome) {
 		// Home page should be auto-selected
 		state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.TRUE);
@@ -6614,6 +6623,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// If this is a new site add these selected tools as the default
 		List<String> selectedTools = toolGroup.values().stream().flatMap(list -> list.stream().filter(MyTool::getSelected).map(MyTool::getId)).collect(Collectors.toList());
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, selectedTools);
+		toolRegistrationSelectedList = selectedTools;
+	}
+	// siteToolsIntoState already recorded the site's current tools. Apply that
+	// onto the catalog so Manage Tools checkboxes render as checked.
+	if (toolRegistrationSelectedList != null) {
+		for (List<MyTool> tools : toolGroup.values()) {
+			for (MyTool tool : tools) {
+				if (toolRegistrationSelectedList.contains(tool.getId())) {
+					tool.selected = true;
+				}
+			}
+		}
 	}
 	return toolGroup;
 }
@@ -6729,7 +6750,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 			}
 		}
-		log.debug(groupName + ": loaded " + new Integer(toolsInGroup.size()).toString() + " tools");
+		log.debug(groupName + ": loaded " + Integer.valueOf(toolsInGroup.size()).toString() + " tools");
 		return toolsInGroup;
 		
 	}
@@ -7966,6 +7987,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// template
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        cleanupUploadedArchive(state);
 		removeAddClassContext(state);
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 		
@@ -8575,8 +8597,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	public void doMenu_siteInfo_manageParticipants(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		// Check if the user has appropriate permissions
-		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+		// Same permissions the participant list is built for: site.viewRoster alone gets a
+		// read-only list, editing still requires site.upd.site.mbrshp (see doUpdate_participant)
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		if (!siteService.allowUpdateSite(siteId) && !siteService.allowViewRoster(siteId)
+				&& !siteService.allowUpdateSiteMembership(siteId)) {
 			addAlert(state, rb.getString("java.notaccess"));
 			return;
 		}
@@ -9622,12 +9647,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				}
 				authzGroupService.save(realmEdit);
 
-				// SAK-41181
-				usersDeleted.stream().map(ud -> ud.substring(4)).collect(Collectors.toList()).forEach(ud -> {
-					log.debug("Removing user uuid {} from the user site cache", ud);
-					m_userSiteCache.remove(ud);
-				});
-				
+				// SAK-41181 used to evict removed users' entries from a "user site list" cache
+				// here (m_userSiteCache, keyed under
+				// "org.sakaiproject.site.api.siteService.userSiteCache"), but that was never the
+				// same cache instance BaseSiteService actually reads from (USER_SITE_CACHE,
+				// "org.sakaiproject.site.api.SiteService.userSiteCache" - note the capitalization
+				// difference) and was never populated either, so it was a no-op against an empty,
+				// unrelated cache. BaseSiteService's own update() observer already documents this
+				// exact "membership drop" case as an accepted gap covered by the visit-denied path
+				// and TTL expiry (see comment above BaseSiteService.update()'s event switch), not
+				// something that needs an explicit eviction here.
+
 				// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
 				// but seems to be a better solution than call this multiple time for every update
 				if (!userAuditList.isEmpty())
@@ -10437,12 +10467,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								String oldSiteId = (String) state
 										.getAttribute(STATE_SITE_INSTANCE_ID);
 
-								// Retrieve the source site reference to be used in the EventTrackingService
-								// notification of the start/end of a site duplication.
-								String sourceSiteRef = null;
+								// Verify the source still exists before creating the destination.
 								try {
-									Site sourceSite = siteService.getSite(oldSiteId);
-									sourceSiteRef = sourceSite.getReference();
+									siteService.getSite(oldSiteId);
 
 								} catch (IdUnusedException e) {
 									log.warn(this + ".actionForTemplate; case29: invalid source siteId: "+oldSiteId);
@@ -10551,9 +10578,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										}
 									}
 
-									// An event for starting the "duplicate site" action
-									eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
-
 									// get the new site icon url
 									if (site.getIconUrl() != null)
 									{
@@ -10575,7 +10599,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 												ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
 												resourceProperties.addProperty(
 														ResourceProperties.PROP_COLLECTION_BODY_QUOTA,
-														new Long(oldSiteQuota)
+														Long.valueOf(oldSiteQuota)
 																.toString());
 												contentHostingService.commitCollection(col);
 
@@ -10588,22 +10612,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									}
 
 									try {
-										siteService.save(site);
-
-										// Remove tools and pages that may not be duplicated
+										// Finish site and realm setup before the shared import worker starts.
 										removeToolsNotForDuplication(site);
-
-										// import tool content
-										siteManageService.importToolContent(oldSiteId, site, false);
-
-										String transferScoringData = params.getString("selectScoringData");
-										if(transferScoringData != null && transferScoringData.equals("transferScoringData")) {
-											ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService");
-											ScoringAgent agent = scoringService.getDefaultScoringAgent();
-											if (agent != null && agent.isEnabled(oldSiteId, null)) {
-												agent.transferScoringComponentAssociations(oldSiteId, site.getId());
-											}
-										}
 
 										String siteType = site.getType();
 										if (siteTypeUtil.isCourseSite(siteType)) {
@@ -10627,7 +10637,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 											}
 										}
 
-										// save again
+										// Save the final title, term, properties, and placements before queueing.
 										siteService.save(site);
 										state.setAttribute(STATE_DUPE_SITE_STATUS_ID, site.getId());
 										state.setAttribute(STATE_DUPE_SITE_URL, site.getUrl());
@@ -10649,10 +10659,24 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 											log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
 										}
 									} catch (IdUnusedException e) {
-										log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: IdUnusedException when saving " + newSiteId);
+										log.warn("Cannot save new site {} before importing from {}", newSiteId, oldSiteId, e);
+										addAlert(state, rb.getString("java.siteinval"));
 									} catch (PermissionException e) {
-										log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: PermissionException when saving " + newSiteId);
+										log.warn("Cannot save new site {} before importing from {}", newSiteId, oldSiteId, e);
+										addAlert(state, rb.getString("java.notaccess"));
 									}
+
+									if (state.getAttribute(STATE_MESSAGE) != null) {
+										deleteTempDupSiteOnError(site);
+										return;
+									}
+
+									if (!siteManageService.importAllToolsIntoSiteThread(oldSiteId, site)) {
+										addAlert(state, rb.getString("java.import.existing"));
+										deleteTempDupSiteOnError(site);
+										return;
+									}
+									state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
 
 									scheduleTopRefresh();
 
@@ -10661,8 +10685,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 									state.setAttribute(SITE_DUPLICATED, Boolean.TRUE);
 
-									// An event for ending the "duplicate site" action
-									eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 								}
 							} catch (IdInvalidException e) {
 								addAlert(state, rb.getString("java.siteinval"));
@@ -11836,11 +11858,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 				}
 
-				if (memoryService != null) {
-					Cache gradebookGroupEnabledCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.enabled");
-					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
+				if (cacheManager != null) {
+					org.springframework.cache.Cache gradebookGroupEnabledCache = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
 					if (gradebookGroupEnabledCache != null) gradebookGroupEnabledCache.clear();
-					if (gradebookGroupInstancesCache != null) gradebookGroupInstancesCache.clear();
 				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
 				hasSiteInfo = true;
@@ -15996,19 +16016,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	
 	/**
-	 * @return Returns the prefLocales
+	 * Return the configured locales without sharing a mutable list between requests.
 	 */
 	public List<Locale> getPrefLocales()
 	{
-		// Initialize list of supported locales, if necessary
-		if (prefLocales.size() == 0) {
-			Locale[] localeArray = serverConfigurationService.getSakaiLocales();
-			// Add to prefLocales list
-			for (int i = 0; i < localeArray.length; i++) {
-				prefLocales.add(localeArray[i]);
-			}
-		}
-		return prefLocales;
+		return Arrays.asList(serverConfigurationService.getSakaiLocales());
 	}
 
 	// SAK-20797
@@ -16152,55 +16164,38 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * Handles uploading an archive file as part of the site creation workflow
 	 * @param data
 	 */
-	public void doUploadArchive(RunData data)
-	{	
-		ParameterParser params = data.getParameters();
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-	
-		//get params
-		FileItem fi = data.getParameters().getFileItem ("importFile");
-		
-		//get uploaded file into a location we can process
-		String archiveUnzipBase = serverConfigurationService.getString("archive.storage.path", FileUtils.getTempDirectoryPath());
-	
-		//convert inputstream into actual file so we can unzip it
-		String zipFilePath = archiveUnzipBase + File.separator + fi.getFileName();
-		
-		//rudimentary check that the file is a zip file
-		if(!StringUtils.endsWith(fi.getFileName(), ".zip")){
-			addAlert(state, rb.getString("archive.createsite.failedupload"));
-			return;
-		}
-		
-		
-		
-		File tempZipFile = new File(zipFilePath);
-		if(tempZipFile.exists()) {
-			tempZipFile.delete();
-		}
-		
-		FileOutputStream fileOutputStream = null;
-		try {
-			fileOutputStream = new FileOutputStream(tempZipFile);
-			//copy contents into this file
-			IOUtils.copyLarge(fi.getInputStream(), fileOutputStream);
-			
-			//set path into state so we can process it later
-			state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
-			state.setAttribute(STATE_UPLOADED_ARCHIVE_NAME, tempZipFile.getName());
-			
-		} catch (Exception e) {
-			log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
-			addAlert(state, rb.getString("archive.createsite.failedupload"));
-		}
-		finally {
-			IOUtils.closeQuietly(fileOutputStream);
-		}
-		
-		//go to confirm screen
-		state.setAttribute(STATE_TEMPLATE_INDEX, "10");
-	}
-	
+    public void doUploadArchive(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        if (!siteService.allowImportArchiveSite()) {
+            addAlert(state, rb.getString("java.notaccess"));
+            return;
+        }
+
+        FileItem fi = data.getParameters().getFileItem("importFile");
+        if (fi == null || !StringUtils.endsWith(fi.getFileName(), ".zip")) {
+            addAlert(state, rb.getString("archive.createsite.failedupload"));
+            return;
+        }
+
+        String archiveUnzipBase = serverConfigurationService.getString("archive.storage.path", FileUtils.getTempDirectoryPath());
+        try {
+            File tempZipFile = File.createTempFile("sakai-site-archive-", ".zip", new File(archiveUnzipBase));
+            try (InputStream in = fi.getInputStream(); OutputStream out = new FileOutputStream(tempZipFile)) {
+                IOUtils.copyLarge(in, out);
+            } catch (IOException e) {
+                Files.deleteIfExists(tempZipFile.toPath());
+                throw e;
+            }
+            cleanupUploadedArchive(state);
+            state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
+            state.setAttribute(STATE_UPLOADED_ARCHIVE_NAME, new File(fi.getFileName().replace('\\', '/')).getName());
+            state.setAttribute(STATE_TEMPLATE_INDEX, "10");
+        } catch (IOException e) {
+            log.warn("Unable to store uploaded site archive", e);
+            addAlert(state, rb.getString("archive.createsite.failedupload"));
+        }
+    }
+
 	/**
 	 * Handles merging an uploaded archive into the newly created site
 	 * This is done after the site has been created in the site creation workflow
@@ -16208,25 +16203,37 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param siteId
 	 * @param state
 	 */
-	private void doMergeArchiveIntoNewSite(String siteId, SessionState state) {	
-		
-		String currentUserId = userDirectoryService.getCurrentUser().getId();
-		
-		try {
-		
-			String archivePath = (String)state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
-			
-			//merge the zip into our new site
-			//we ignore the return because its not very useful. See ArchiveService for more details
-			archiveService.mergeFromZip(archivePath, siteId, currentUserId);
-			
-		} catch (Exception e) {
-			log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
-			addAlert(state, rb.getString("archive.createsite.failedmerge"));
-		}
-		
-	}
-	
+    private void doMergeArchiveIntoNewSite(String siteId, SessionState state) {
+        try {
+            if (!siteService.allowImportArchiveSite()) {
+                addAlert(state, rb.getString("java.notaccess"));
+                return;
+            }
+            String archivePath = (String) state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
+            String currentUserId = userDirectoryService.getCurrentUser().getId();
+            archiveService.mergeFromZip(archivePath, siteId, currentUserId);
+        } catch (Exception e) {
+            log.warn("Unable to merge uploaded archive into site {}", siteId, e);
+            addAlert(state, rb.getString("archive.createsite.failedmerge"));
+        } finally {
+            cleanupUploadedArchive(state);
+        }
+    }
+
+    private void cleanupUploadedArchive(SessionState state) {
+        String archivePath = (String) state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
+        try {
+            if (archivePath != null) {
+                Files.deleteIfExists(java.nio.file.Path.of(archivePath));
+            }
+        } catch (IOException | java.nio.file.InvalidPathException e) {
+            log.warn("Unable to remove uploaded site archive {}", archivePath, e);
+        } finally {
+            state.removeAttribute(STATE_UPLOADED_ARCHIVE_PATH);
+            state.removeAttribute(STATE_UPLOADED_ARCHIVE_NAME);
+        }
+    }
+
 	/**
 	 * Get the list of tools that are in a list of sites that are available for import.
 	 * 

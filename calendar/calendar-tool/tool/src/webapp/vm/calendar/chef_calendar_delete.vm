@@ -46,7 +46,7 @@
 		#if ($!groupRange && !($!groupRange == ""))
 		<tr>
 			<th>$tlang.getString("groups")</th>
-			<td>$!groupRange</td>
+			<td>$formattedText.escapeHtml($!groupRange)</td>
 		</tr>
 		#end
 		<tr>

@@ -22,17 +22,20 @@
 
 package org.sakaiproject.rubrics.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Version;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.hibernate.Length;
+import org.hibernate.annotations.ColumnDefault;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -50,9 +53,14 @@ import lombok.ToString;
 @ToString()
 public class ReturnedCriterionOutcome implements PersistableEntity<Long>, Serializable {
 
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    @ColumnDefault("0")
+    @JsonIgnore
+    private Long version;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_ret_crit_out_seq")
-    @SequenceGenerator(name="rbc_crit_out_seq", sequenceName = "rbc_ret_crit_out_seq")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_crit_out_seq", sequenceName = "rbc_ret_crit_out_seq"))
     private Long id;
 
     @Column(name = "criterion_id")
@@ -68,7 +76,7 @@ public class ReturnedCriterionOutcome implements PersistableEntity<Long>, Serial
     private Double points;
 
     @Lob
-    @Column(length = 65535)
+    @Column(length = Length.LONG32)
     private String comments;
 
     public ReturnedCriterionOutcome(CriterionOutcome outcome) {

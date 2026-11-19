@@ -296,6 +296,23 @@ function proceedBasedOnManagement(management) {
 	}
 }
 
+// JSF here cannot render a search type or a placeholder, so the roster search gets them here.
+// Enter searches (see submitSearchText); emptying a search the page was loaded with clears it.
+function setupRosterSearch(fieldId, prompt, clearButtonId) {
+	var field = document.getElementById(fieldId);
+	if (!field) {
+		return;
+	}
+	field.type = "search";
+	field.placeholder = prompt;
+	var applied = field.value;
+	field.addEventListener("input", function () {
+		if (applied && !field.value) {
+			document.getElementById(clearButtonId).click();
+		}
+	});
+}
+
 function submitSearchText(event) {
 	var charCode = event.charCode;
 	if (event.keyCode === 13) {

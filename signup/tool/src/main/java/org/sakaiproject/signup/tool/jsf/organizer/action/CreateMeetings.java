@@ -247,6 +247,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		for (int i = 0; i <= numOfRecurs; i++) {
 			SignupMeeting beta = new SignupMeeting();
 			beta = prepareDeepCopy(this.signupMeeting, i * intervalOfRecurs);
+			beta.setCurrentSiteId(siteId);
 			calendar.setTime(this.signupMeeting.getStartTime());
 			sday = calendar.get(Calendar.DATE) + i * intervalOfRecurs;
 			calendar.set(Calendar.DATE, sday);

@@ -22,84 +22,187 @@
 
 package org.sakaiproject.tags.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.I18n;
 import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tags.api.TagAssociation;
 import org.sakaiproject.tags.api.TagAssociationRepository;
 import org.sakaiproject.tags.api.TagCollection;
-import org.sakaiproject.tags.api.TagCollections;
+import org.sakaiproject.tags.api.TagCollectionRepository;
+import org.sakaiproject.tags.api.TagRepository;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.TagServiceException;
-import org.sakaiproject.tags.api.Tags;
 import org.sakaiproject.tags.impl.common.SakaiI18n;
+import org.sakaiproject.tool.api.SessionManager;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
- * The implementation of the Tags Service service.  Provides system initialization
- * and access to the Tags Service and sub-services.
+ * Coordinates tag persistence, associations, import metadata, and events in one transaction.
  */
 @Slf4j
+@Transactional(readOnly = true)
 public class TagServiceImpl implements TagService {
 
-    private static final String TAGSERVICE_AUTODDL_PROPERTY =  "tagservice.auto.ddl";
-    private static final String SAKAI_AUTODDL_PROPERTY =  "auto.ddl";
-    private static final String SAKAI_DB_VENDOR_PROPERTY =  "vendor@org.sakaiproject.db.api.SqlService";
     private static final String TAGSERVICE_MAXPAGESIZE =  "tagservice.maxpagesize";
     private static final String TAGSERVICE_ENABLED =  "tagservice.enabled";
     private static final Boolean TAGSERVICE_ENABLED_DEFAULT_VALUE =  true;
     private static final int TAGSERVICE_MAXPAGESIZE_DEFAULT_VALUE = 200;
     private static final int TAG_MAX_LABEL = 255;
 
-    @Getter @Setter private SqlService sqlService;
-    @Getter @Setter private FunctionManager functionManager;
-    @Getter @Setter private ServerConfigurationService serverConfigurationService;
-    @Getter @Setter private TagAssociationRepository tagAssociationRepository;
+    @Setter private FunctionManager functionManager;
+    @Setter private SecurityService securityService;
+    @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private TagAssociationRepository tagAssociationRepository;
 
-    //At this moment we will leave the template cache, but I feel the service doesn't need it.
-    @Getter @Setter private TagCollections tagCollections;
-    @Getter @Setter private Tags tags;
+    @Setter private TagRepository tagRepository;
+    @Setter private TagCollectionRepository tagCollectionRepository;
+    @Setter private SessionManager sessionManager;
+    @Setter private EventTrackingService eventTrackingService;
 
     @Override
     public void init() {
-        if (serverConfigurationService.getBoolean(SAKAI_AUTODDL_PROPERTY, false) || serverConfigurationService.getBoolean(TAGSERVICE_AUTODDL_PROPERTY, false)) {
-            runDBMigration(serverConfigurationService.getString(SAKAI_DB_VENDOR_PROPERTY));
-        }
         functionManager.registerFunction(TAGSERVICE_MANAGE_PERMISSION);
     }
 
     @Override
-    public void destroy() {
+    public List<TagSummary> getTagsForSite(String siteId) {
+        if (StringUtils.isBlank(siteId)) {
+            throw new IllegalArgumentException("Site ID must not be blank");
+        }
+        return tagRepository.findAvailableInSite(siteId);
     }
 
     @Override
-    public void saveTagAssociation(String itemId, String tagId) {
+    public List<TagCollection> getTagCollectionsForSite(String siteId) {
+        return tagCollectionRepository.findAvailableInSite(siteId).stream()
+            .map(collection -> collection.toBuilder().build()).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean canManageCollection(String siteId, String collectionId) {
+        if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())) {
+            return false;
+        }
+        return tagCollectionRepository.findById(collectionId)
+            .map(collection -> securityService.isSuperUser() || (StringUtils.isNotBlank(siteId)
+                && siteId.equals(collection.getSiteId())
+                && securityService.unlock(TAGSERVICE_MANAGE_PERMISSION, SiteService.REFERENCE_ROOT + "/" + siteId)))
+            .orElse(false);
+    }
+
+    @Override
+    public void checkCollectionAccess(String siteId, String collectionId) {
+        TagCollection collection = tagCollectionRepository.findById(collectionId)
+            .orElseThrow(() -> new TagServiceException("No collection with id " + collectionId));
+        if (!securityService.isSuperUser() && !Objects.equals(siteId, collection.getSiteId())
+                && collection.getSiteId() != null) {
+            throw new SecurityException("Collection is not available in site " + siteId);
+        }
+    }
+
+    private void checkCollectionManagement(String siteId, String collectionId) {
+        if (!canManageCollection(siteId, collectionId)) {
+            throw new SecurityException("Current user cannot manage collection " + collectionId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public String saveTagCollection(String siteId, TagCollection collection) {
+        if (collection.getTagCollectionId() == null) {
+            if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+                    || (!securityService.isSuperUser()
+                    && (StringUtils.isBlank(siteId) || "!admin".equals(siteId) || !securityService.unlock(TAGSERVICE_MANAGE_PERMISSION,
+                        SiteService.REFERENCE_ROOT + "/" + siteId)))) {
+                throw new SecurityException("Current user cannot create collections in site " + siteId);
+            }
+            // The Admin Workspace creates global collections; course/project tools create local ones.
+            String scope = "!admin".equals(siteId) ? null : siteId;
+            return createTagCollection(collection.toBuilder().siteId(scope).build());
+        }
+        checkCollectionManagement(siteId, collection.getTagCollectionId());
+        updateTagCollection(collection);
+        return collection.getTagCollectionId();
+    }
+
+    private void checkCollectionName(String scope, TagCollection collection) {
+        boolean duplicate = tagCollectionRepository.findAvailableInSite(scope).stream()
+            .anyMatch(existing -> Objects.equals(scope, existing.getSiteId())
+                && Objects.equals(existing.getName(), collection.getName())
+                && !Objects.equals(existing.getTagCollectionId(), collection.getTagCollectionId()));
+        if (duplicate) {
+            throw new IllegalArgumentException("Collection name already exists in this scope");
+        }
+    }
+
+    @Override
+    @Transactional
+    public String saveTag(String siteId, Tag tag) {
+        checkCollectionManagement(siteId, tag.getTagCollectionId());
+        if (tag.getTagId() == null) {
+            return createTag(tag);
+        }
+        Tag original = getTag(tag.getTagId()).orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
+        checkCollectionManagement(siteId, original.getTagCollectionId());
+        updateTag(tag);
+        return tag.getTagId();
+    }
+
+    @Override
+    @Transactional
+    public void deleteTag(String siteId, String tagId) {
+        Tag tag = getTag(tagId).orElseThrow(() -> new TagServiceException("No tag with id " + tagId));
+        checkCollectionManagement(siteId, tag.getTagCollectionId());
+        deleteTag(tagId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteTagCollection(String siteId, String collectionId) {
+        checkCollectionManagement(siteId, collectionId);
+        deleteTagCollection(collectionId);
+    }
+
+    @Override
+    @Transactional
+    public void associateExistingTag(String itemId, String tagId) {
+        if (!tagRepository.existsById(tagId)) {
+            throw new TagServiceException("No tag with id " + tagId);
+        }
         TagAssociation tagAssociation = new TagAssociation();
         tagAssociation.setItemId(itemId);
         tagAssociation.setTagId(tagId);
-        tagAssociationRepository.newTagAssociation(tagAssociation);
+        tagAssociationRepository.save(tagAssociation);
     }
 
     @Override
     public List<Tag> getTagsByExactLabel(String label, String collectionId) {
-        return tags.getTagsByExactLabel(label, collectionId);
+        return withCollectionNames(tagRepository.findByLabel(label, collectionId));
     }
 
     @Override
@@ -108,53 +211,45 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId) {//if we turn Tag object to jpa we could add a foreign key to the association and retrieve them directly
-        List<String> tagIds = getTagAssociationIds(collectionId, itemId);
-        List<Tag> associatedTags = new ArrayList<>();
-        for (String tagId : tagIds) {
-            Tag t = tags.getForId(tagId).orElse(null);
-            if (t != null) {
-                associatedTags.add(t);
-            } else {
-                log.warn("Associated tag with id {} does not exist anymore" + tagId);
-            }
-        }
-        return associatedTags;
+    public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId) {
+        return withCollectionNames(tagRepository.findAssociatedTags(collectionId, itemId));
     }
 
     @Override
+    @Transactional
     public List<Tag> duplicateTags(String targetCollectionId, boolean isSite, Collection<String> tagIds, String targetItemId) {
         List<Tag> duplicatedTags = new ArrayList<>();
 
-        // create collection if it doesn't exist
-        TagCollection col = tagCollections.getForId(targetCollectionId).orElse(null);
-        if (col == null) {
-            I18n i18n = getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
-            String description = i18n.t("user_collection");
-            if (isSite) {
-                description = i18n.tFormatted("site_collection", targetCollectionId);
-            }
-            col = new TagCollection(targetCollectionId, targetCollectionId, description, null, 0L, null, null, null, 0L, Boolean.FALSE, Boolean.FALSE, 0L, 0L);
-            tagCollections.createTagCollection(col);
-        }
+        ensureCollectionExists(targetCollectionId, isSite);
 
         for (String tagId : tagIds) {
-            Tag tag = tags.getForId(tagId).orElse(null);
+            Tag tag = getTag(tagId).orElse(null);
             if (tag == null) {
                 log.warn("Tag with id {} does not exist anymore", tagId);
                 continue;
             }
 
-            Tag duplicatedTag = new Tag(null, targetCollectionId, tag.getTagLabel(), tag.getDescription(), null,
-                    0L, null, 0L, null, null, Boolean.FALSE, 0L,
-                    Boolean.FALSE, 0L, null, null, null, null, null);
-            String id = tags.createTag(duplicatedTag);
+            boolean global = getTagCollection(tag.getTagCollectionId())
+                .map(collection -> collection.getSiteId() == null).orElse(false);
+            if (global) {
+                duplicatedTags.add(tag);
+                if (targetItemId != null) {
+                    associateExistingTag(targetItemId, tag.getTagId());
+                }
+                continue;
+            }
+            Tag duplicatedTag = Tag.builder()
+                .tagCollectionId(targetCollectionId)
+                .tagLabel(tag.getTagLabel())
+                .description(tag.getDescription())
+                .build();
+            String id = createTag(duplicatedTag);
             duplicatedTag.setTagId(id);
 
             duplicatedTags.add(duplicatedTag);
 
             if (targetItemId != null) {
-                saveTagAssociation(targetItemId, duplicatedTag.getTagId());
+                associateExistingTag(targetItemId, duplicatedTag.getTagId());
             }
         }
 
@@ -162,52 +257,62 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite) {
-        // create collection if it doesn't exist
-        TagCollection col = tagCollections.getForId(collectionId).orElse(null);
-        if (col == null) {
-            I18n i18n = getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
-            String description = i18n.t("user_collection");
-            if (isSite) {
-                description = i18n.tFormatted("site_collection", collectionId);
-            }
-            col = new TagCollection(collectionId, collectionId, description, null, 0L, null, null, null, 0L, Boolean.FALSE, Boolean.FALSE, 0L, 0L);
-            tagCollections.createTagCollection(col);
+    @Transactional
+    public String createAndAssociateTag(String collectionId, String itemId, String label, boolean isSite) {
+        if (StringUtils.isEmpty(label)) {
+            throw new IllegalArgumentException("Tag label must not be empty");
         }
+        ensureCollectionExists(collectionId, isSite);
+        Tag tag = Tag.builder().tagCollectionId(collectionId)
+            .tagLabel(StringUtils.left(label, TAG_MAX_LABEL)).build();
+        String tagId = createTag(tag);
+        associateExistingTag(itemId, tagId);
+        return tagId;
+    }
 
-        // obtain previous asociations
+    @Override
+    @Transactional
+    public void updateTagAssociations(String collectionId, String itemId, Collection<String> selections, boolean isSite) {
+        ensureCollectionExists(collectionId, isSite);
         List<String> oldAssociationIds = getTagAssociationIds(collectionId, itemId);
-        for (String tagId : tagIds) {
-            // skip if already associated or empty
-            if (StringUtils.isEmpty(tagId) || oldAssociationIds.contains(tagId)) {
+        for (String selection : selections) {
+            if (StringUtils.isEmpty(selection) || oldAssociationIds.contains(selection)) {
                 continue;
             }
-            // we cut the tag
-            if (tagId.length() > TAG_MAX_LABEL) {
-                tagId = tagId.substring(0, TAG_MAX_LABEL);
+            String value = StringUtils.left(selection, TAG_MAX_LABEL);
+            // Interpret mixed UI input here; the explicit operations never guess its meaning.
+            if (tagRepository.existsById(value)) {
+                Tag selected = tagRepository.findById(value).get();
+                TagCollection selectedCollection = tagCollectionRepository.findById(selected.getTagCollectionId())
+                    .orElseThrow(() -> new SecurityException("Tag collection is unavailable: " + selected.getTagCollectionId()));
+                if (!Objects.equals(selected.getTagCollectionId(), collectionId) && selectedCollection.getSiteId() != null
+                        && !Objects.equals(selectedCollection.getSiteId(), isSite ? collectionId : "~" + collectionId)) {
+                    throw new SecurityException("Tag is not available in this collection context");
+                }
+                associateExistingTag(itemId, value);
+            } else {
+                createAndAssociateTag(collectionId, itemId, value, isSite);
             }
-            // new association, check tag exists
-            Tag t = tags.getForId(tagId).orElse(null);
-            if (t == null) {
-                
-                t = new Tag(null, collectionId, tagId, null, null,
-                        0L, null, 0L, null, null, Boolean.FALSE, 0L,
-                        Boolean.FALSE, 0L, null, null, null, null, null);
-                String id = tags.createTag(t);
-                t.setTagId(id);
-            }
-
-            // save tag association
-            saveTagAssociation(itemId, t.getTagId());
         }
-
-        // remove deselected
-        oldAssociationIds.removeAll(tagIds);
+        oldAssociationIds.removeAll(selections);
         for (String oldId : oldAssociationIds) {
-            TagAssociation ta = tagAssociationRepository.findTagAssociationByItemIdAndTagId(itemId, oldId);
-            tagAssociationRepository.deleteTagAssociation(ta.getId());
+            TagAssociation association = tagAssociationRepository.findTagAssociationByItemIdAndTagId(itemId, oldId);
+            tagAssociationRepository.delete(association);
         }
-    
+    }
+
+    private void ensureCollectionExists(String collectionId, boolean isSite) {
+        if (tagCollectionRepository.existsById(collectionId)) {
+            return;
+        }
+        I18n i18n = getI18n(getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
+        String description = isSite ? i18n.tFormatted("site_collection", collectionId) : i18n.t("user_collection");
+        createTagCollection(TagCollection.builder()
+            .tagCollectionId(collectionId)
+            .siteId(isSite ? collectionId : "~" + collectionId)
+            .name(collectionId)
+            .description(description)
+            .build());
     }
 
     @Override
@@ -224,53 +329,327 @@ public class TagServiceImpl implements TagService {
         return serverConfigurationService.getBoolean(TAGSERVICE_ENABLED, TAGSERVICE_ENABLED_DEFAULT_VALUE);
     }
 
-    private void runDBMigration(final String vendor) {
-        String migrationFile = "db/migration/" + vendor + ".sql";
-        InputStream is = TagServiceImpl.class.getClassLoader().getResourceAsStream(migrationFile);
+    @Override
+    public List<Tag> getTags() {
+        return withCollectionNames(tagRepository.findAllOrdered());
+    }
 
-        if (is == null) {
-            throw new TagServiceException("Failed to find migration file: " + migrationFile);
+    @Override
+    public Optional<Tag> getTag(String id) {
+        return tagRepository.findById(id).map(tag -> withCollectionNames(Collections.singletonList(tag)).get(0));
+    }
+
+    @Override
+    public List<Tag> getTagsInCollection(String collectionId) {
+        return getTagsPaginatedInCollection(1, Integer.MAX_VALUE, collectionId);
+    }
+
+    @Override
+    public List<Tag> getTagsPaginatedInCollection(int pageNum, int pageSize, String collectionId) {
+        return withCollectionNames(tagRepository.findByCollection(collectionId, offset(pageNum, pageSize), pageSize));
+    }
+
+    @Override
+    public List<Tag> getTagsByPartialLabel(String label) {
+        return withCollectionNames(tagRepository.findByPartialLabel(label));
+    }
+
+    @Override
+    public List<Tag> getTagsByPrefixInLabel(String label) {
+        return getTagsPaginatedByPrefixInLabel(1, Integer.MAX_VALUE, label);
+    }
+
+    @Override
+    public List<Tag> getTagsPaginatedByPrefixInLabel(int pageNum, int pageSize, String label) {
+        return withCollectionNames(tagRepository.findByPrefix(label, offset(pageNum, pageSize), pageSize));
+    }
+
+    @Override
+    public int getTotalTagsInCollection(String collectionId) {
+        return Math.toIntExact(tagRepository.countByCollection(collectionId));
+    }
+
+    @Override
+    public int getTotalTagsByPrefixInLabel(String label) {
+        return Math.toIntExact(tagRepository.countByPrefix(label));
+    }
+
+    @Override
+    public Optional<Tag> getTagForExternalIdAndCollection(String externalId, String collectionId) {
+        return tagRepository.findByExternalId(externalId, collectionId).map(tag -> withCollectionNames(Collections.singletonList(tag)).get(0));
+    }
+
+    @Override
+    public List<TagCollection> getTagCollections() {
+        return getTagCollectionsPaginated(1, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public List<TagCollection> getTagCollectionsPaginated(int pageNum, int pageSize) {
+        return tagCollectionRepository.findAllOrdered(offset(pageNum, pageSize), pageSize);
+    }
+
+    @Override
+    public int getTotalTagCollections() {
+        return Math.toIntExact(tagCollectionRepository.count());
+    }
+
+    @Override
+    public Optional<TagCollection> getTagCollection(String id) {
+        return tagCollectionRepository.findById(id);
+    }
+
+    @Override
+    public Optional<TagCollection> getTagCollectionForName(String name) {
+        return tagCollectionRepository.findByName(name);
+    }
+
+    @Override
+    public Optional<TagCollection> getTagCollectionForExternalSourceName(String name) {
+        return tagCollectionRepository.findByExternalSourceName(name);
+    }
+
+    @Override
+    @Transactional
+    public List<Tag> createSiteTags(String siteId, String tool, List<Tag> tags) {
+        if (StringUtils.isBlank(siteId)) {
+            throw new IllegalArgumentException("Site ID must not be blank");
         }
+        String permission;
+        switch (StringUtils.defaultString(tool)) {
+            case "conversations": permission = "conversations.tag.create"; break;
+            case TOOL_ASSIGNMENTS:
+            case TOOL_PRIVATE_MESSAGES:
+            case "samigo": permission = TAGSERVICE_MANAGE_PERMISSION; break;
+            default: throw new IllegalArgumentException("Unsupported tagging tool: " + tool);
+        }
+        if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+                || !securityService.unlock(permission, SiteService.REFERENCE_ROOT + "/" + siteId)) {
+            throw new SecurityException("Current user cannot create tags in site " + siteId);
+        }
+        if (tags == null || tags.stream().anyMatch(tag -> validateTag(tag).hasErrors()
+                || StringUtils.isNotBlank(tag.getTagId()))) {
+            throw new IllegalArgumentException("New tags must have no ID and a label between 1 and 255 characters");
+        }
+        if (tags.isEmpty()) {
+            return Collections.emptyList();
+        }
+        ensureCollectionExists(siteId, true);
+        List<Tag> created = new ArrayList<>();
+        for (Tag input : tags) {
+            Tag tag = Tag.builder().tagCollectionId(siteId).tagLabel(input.getTagLabel())
+                .description(input.getDescription()).build();
+            tag.setTagId(createTag(tag));
+            created.add(tag);
+        }
+        return created;
+    }
 
-        InputStreamReader migrationInput = new InputStreamReader(is);
+    @Override
+    public Errors validateTag(Tag tag) {
+        Errors errors = new Errors();
+        if (tag == null || StringUtils.isBlank(tag.getTagLabel())) {
+            errors.addError("tagLabel", "tag_label_required");
+        } else if (tag.getTagLabel().length() > TAG_MAX_LABEL) {
+            errors.addError("tagLabel", "tag_label_too_long");
+        }
+        return errors;
+    }
 
-        try {
-            Connection db = sqlService.borrowConnection();
-
-            try {
-                for (String sql : parseMigrationFile(migrationInput)) {
-                    try {
-                        PreparedStatement ps = db.prepareStatement(sql);
-                        ps.execute();
-                        ps.close();
-                    } catch (SQLException e) {
-                        log.warn("runDBMigration: " + e + "(sql: " + sql + ")");
-                    }
-                }
-            } catch (IOException e) {
-                throw new TagServiceException("Failed to read migration file: " + migrationFile, e);
-            } finally {
-                sqlService.returnConnection(db);
-
-                try {
-                    migrationInput.close();
-                } catch (IOException e) {}
-            }
-        } catch (SQLException e) {
-            throw new TagServiceException("Database migration failed", e);
+    private void requireValidTag(Tag tag) {
+        Errors errors = validateTag(tag);
+        if (errors.hasErrors()) {
+            throw new IllegalArgumentException("Invalid tag: " + errors.toMap());
         }
     }
 
-    private String[] parseMigrationFile(InputStreamReader migrationInput) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        char[] buf = new char[4096];
+    @Override
+    @Transactional
+    public String createTag(Tag tag) {
+        requireValidTag(tag);
+        requireTagCollection(tag.getTagCollectionId());
+        tag.setTagId(null);
+        tag.setCreatedBy(sessionManager.getCurrentSessionUserId());
+        tag.setCreationDate(Instant.now().toEpochMilli());
+        tag.setLastModifiedBy(tag.getCreatedBy());
+        tag.setLastModificationDate(tag.getCreationDate());
+        tag = tagRepository.save(tag);
+        postAfterCommit("tags.new.tag", "/tags/" + tag.getTagId());
+        return tag.getTagId();
+    }
 
-        int len;
-        while ((len = migrationInput.read(buf)) > 0) {
-            sb.append(buf, 0, len);
+    @Override
+    @Transactional
+    public String createTagCollection(TagCollection collection) {
+        if (StringUtils.isBlank(collection.getName())) {
+            throw new IllegalArgumentException("Collection name must not be blank");
         }
+        checkCollectionName(collection.getSiteId(), collection);
+        collection.setExternalSourceName(StringUtils.trimToNull(collection.getExternalSourceName()));
+        if (collection.getTagCollectionId() == null) {
+            collection.setTagCollectionId(UUID.randomUUID().toString());
+        }
+        collection.setCreatedBy(sessionManager.getCurrentSessionUserId());
+        collection.setCreationDate(Instant.now().toEpochMilli());
+        collection.setLastModifiedBy(collection.getCreatedBy());
+        collection.setLastModificationDate(collection.getCreationDate());
+        tagCollectionRepository.create(collection);
+        postAfterCommit("tags.new.collection", "/tagcollections/" + collection.getTagCollectionId());
+        return collection.getTagCollectionId();
+    }
 
-        return sb.toString().replace("\n", " ").split(";\\s*");
+    @Override
+    @Transactional
+    public void updateTag(Tag tag) {
+        requireValidTag(tag);
+        Tag original = tagRepository.findById(tag.getTagId())
+            .orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
+        requireTagCollection(tag.getTagCollectionId());
+        boolean generateEvent = hasContentChanges(tag, original);
+        original.setTagCollectionId(tag.getTagCollectionId());
+        original.setTagLabel(tag.getTagLabel());
+        original.setDescription(tag.getDescription());
+        original.setExternalId(tag.getExternalId());
+        original.setAlternativeLabels(tag.getAlternativeLabels());
+        original.setExternalCreation(tag.getExternalCreation());
+        original.setExternalCreationDate(tag.getExternalCreationDate());
+        original.setExternalUpdate(tag.getExternalUpdate());
+        original.setLastUpdateDateInExternalSystem(tag.getLastUpdateDateInExternalSystem());
+        original.setParentId(tag.getParentId());
+        original.setExternalHierarchyCode(tag.getExternalHierarchyCode());
+        original.setExternalType(tag.getExternalType());
+        original.setData(tag.getData());
+        // Importers use this timestamp even for otherwise unchanged tags.
+        original.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
+        original.setLastModificationDate(Instant.now().toEpochMilli());
+        if (generateEvent) {
+            postAfterCommit("tags.update.tag", "/tags/" + tag.getTagId());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateTagCollection(TagCollection collection) {
+        if (StringUtils.isBlank(collection.getName())) {
+            throw new IllegalArgumentException("Collection name must not be blank");
+        }
+        TagCollection original = tagCollectionRepository.findById(collection.getTagCollectionId())
+            .orElseThrow(() -> new TagServiceException("No collection with id " + collection.getTagCollectionId()));
+        checkCollectionName(original.getSiteId(), collection);
+        collection.setExternalSourceName(StringUtils.trimToNull(collection.getExternalSourceName()));
+        boolean generateEvent = hasContentChanges(collection, original);
+        original.setName(collection.getName());
+        original.setDescription(collection.getDescription());
+        original.setExternalSourceName(collection.getExternalSourceName());
+        original.setExternalSourceDescription(collection.getExternalSourceDescription());
+        original.setExternalUpdate(collection.getExternalUpdate());
+        original.setExternalCreation(collection.getExternalCreation());
+        original.setLastSynchronizationDate(collection.getLastSynchronizationDate());
+        original.setLastUpdateDateInExternalSystem(collection.getLastUpdateDateInExternalSystem());
+        original.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
+        original.setLastModificationDate(Instant.now().toEpochMilli());
+        if (generateEvent) {
+            postAfterCommit("tags.update.collection", "/tagcollections/" + collection.getTagCollectionId());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteTag(String id) {
+        tagRepository.findById(id).ifPresent(tag -> {
+            tagAssociationRepository.deleteByTagId(id);
+            tagRepository.delete(tag);
+            postAfterCommit("tags.delete.tag", "/tags/" + id);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void deleteTagCollection(String id) {
+        tagCollectionRepository.findById(id).ifPresent(collection -> {
+            for (Tag tag : tagRepository.findByCollection(id, 0, Integer.MAX_VALUE)) {
+                tagAssociationRepository.deleteByTagId(tag.getTagId());
+                tagRepository.delete(tag);
+            }
+            tagCollectionRepository.delete(collection);
+            postAfterCommit("tags.delete.collection", "/tagcollections/" + id);
+        });
+    }
+
+    @Override
+    @Transactional
+    public List<String> deleteTagsOlderThanDateFromCollection(String collectionId, long timestamp) {
+        return deleteTags(tagRepository.findOlderThan(collectionId, timestamp));
+    }
+
+    @Override
+    @Transactional
+    public List<String> deleteTagFromExternalCollection(String externalId, String collectionId) {
+        return deleteTags(tagRepository.findAllByExternalId(externalId, collectionId));
+    }
+
+    private List<String> deleteTags(List<Tag> tags) {
+        List<String> ids = new ArrayList<>();
+        for (Tag tag : tags) {
+            ids.add(tag.getTagId());
+            deleteTag(tag.getTagId());
+        }
+        return ids;
+    }
+
+    private void requireTagCollection(String id) {
+        if (id == null || !tagCollectionRepository.existsById(id)) {
+            throw new TagServiceException("No collection with id " + id);
+        }
+    }
+
+    private int offset(int pageNum, int pageSize) {
+        if (pageNum < 1 || pageSize < 1) {
+            throw new IllegalArgumentException("Page number and size must be positive");
+        }
+        return Math.multiplyExact(pageNum - 1, pageSize);
+    }
+
+    private List<Tag> withCollectionNames(List<Tag> tags) {
+        Map<String, String> collectionNames = new HashMap<>();
+        for (TagCollection collection : tagCollectionRepository.findAllByIds(tags.stream()
+                .map(Tag::getTagCollectionId).distinct().collect(Collectors.toList()))) {
+            collectionNames.put(collection.getTagCollectionId(), collection.getName());
+        }
+        for (Tag tag : tags) {
+            tag.setCollectionName(collectionNames.get(tag.getTagCollectionId()));
+        }
+        return tags;
+    }
+
+    private void postAfterCommit(String name, String reference) {
+        Event event = eventTrackingService.newEvent(name, reference, true);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                eventTrackingService.post(event);
+            }
+        });
+    }
+
+    // These comparisons control events only; Hibernate detects persistence changes.
+    private boolean hasContentChanges(Tag proposed, Tag original) {
+        return !Objects.equals(proposed.getTagCollectionId(), original.getTagCollectionId())
+                || !Objects.equals(proposed.getTagLabel(), original.getTagLabel())
+                || !Objects.equals(proposed.getDescription(), original.getDescription())
+                || !Objects.equals(proposed.getExternalId(), original.getExternalId())
+                || !Objects.equals(proposed.getAlternativeLabels(), original.getAlternativeLabels())
+                || !Objects.equals(proposed.getParentId(), original.getParentId())
+                || !Objects.equals(proposed.getExternalHierarchyCode(), original.getExternalHierarchyCode())
+                || !Objects.equals(proposed.getExternalType(), original.getExternalType())
+                || !Objects.equals(proposed.getData(), original.getData());
+    }
+
+    private boolean hasContentChanges(TagCollection proposed, TagCollection original) {
+        return !Objects.equals(proposed.getName(), original.getName())
+                || !Objects.equals(proposed.getDescription(), original.getDescription())
+                || !Objects.equals(proposed.getExternalSourceName(), original.getExternalSourceName())
+                || !Objects.equals(proposed.getExternalSourceDescription(), original.getExternalSourceDescription());
     }
 
 }

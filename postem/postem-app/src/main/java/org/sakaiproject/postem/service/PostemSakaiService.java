@@ -28,7 +28,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -509,7 +509,7 @@ public class PostemSakaiService  {
             }
             if (null == usr || usr.equals("")) {
                 usersAreValid = null;
-                blankRows.add(new Integer(row));
+                blankRows.add(Integer.valueOf(row));
             } else if (null == siteMembers || (null != siteMembers && !siteMembers.contains(getUserDefined(usr)))) {
                 usersAreValid = null;
                 invalidUsernames.add(usr);

@@ -11,7 +11,11 @@ export {
 
 export const widgetIds = [ "announcements", "forums", "grades", "tasks", "status", "picker" ];
 
-export const layout1 = ["announcements", "forums", "grades"];
+export const layout1 = [
+  { id: "announcements", w: 1, h: 1 },
+  { id: "forums", w: 1, h: 1 },
+  { id: "grades", w: 1, h: 1 },
+];
 
 export const userId = "adrian";
 export const siteUrl = "/sites/1";

@@ -119,7 +119,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
     	
         data.setPublishedItemId(parent.getItemData().getItemId());
         data.setPublishedItemTextId(itemText.getId());
-        data.setPublishedAnswerId(new Long(newresp));
+        data.setPublishedAnswerId(Long.valueOf(newresp));
         
         log.debug("After setting the data>>ItemId>>itemTextId+newresp "+ data.getPublishedItemId()+data.getPublishedItemTextId()+data.getPublishedAnswerId()+"\n");
     	items = parent.getItemGradingDataArray();

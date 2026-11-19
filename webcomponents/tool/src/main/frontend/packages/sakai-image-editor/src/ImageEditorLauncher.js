@@ -18,7 +18,7 @@ export class ImageEditorLauncher extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this.imageUrl;
+    return this.imageUrl && this._i18n;
   }
 
   render() {

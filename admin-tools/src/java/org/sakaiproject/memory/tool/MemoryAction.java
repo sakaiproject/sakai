@@ -30,7 +30,7 @@ import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.memory.cover.MemoryServiceLocator;
+import org.sakaiproject.ignite.api.CacheAdminService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -46,11 +46,13 @@ public class MemoryAction extends VelocityPortletPaneledAction
 	private static ResourceLoader rb = new ResourceLoader("memory");
 	/** Kernel api **/
 	private SecurityService securityService;
-	
-	
+	private CacheAdminService cacheAdminService;
+
+
 	public MemoryAction() {
 		super();
 		securityService = ComponentManager.get(SecurityService.class);
+		cacheAdminService = ComponentManager.get(CacheAdminService.class);
 	}
 	/**
 	 * build the context
@@ -69,8 +71,7 @@ public class MemoryAction extends VelocityPortletPaneledAction
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
 
 		// put the current available memory into the context
-		context.put("memory", Long.toString(MemoryServiceLocator.getInstance()
-				.getAvailableMemory()));
+		context.put("memory", Long.toString(cacheAdminService.getAvailableMemory()));
 
 		// status, if there
 		if (state.getAttribute("status") != null)
@@ -92,7 +93,7 @@ public class MemoryAction extends VelocityPortletPaneledAction
 
 		try
 		{
-			MemoryServiceLocator.getInstance().resetCachers();
+			cacheAdminService.clearAllCaches();
 		}
 		catch (SecurityException e)
 		{
@@ -111,7 +112,7 @@ public class MemoryAction extends VelocityPortletPaneledAction
 
 		try
 		{
-			MemoryServiceLocator.getInstance().evictExpiredMembers();
+			cacheAdminService.evictExpiredMembers();
 		}
 		catch (SecurityException e)
 		{
@@ -127,8 +128,7 @@ public class MemoryAction extends VelocityPortletPaneledAction
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		state.setAttribute("status", MemoryServiceLocator.getInstance()
-				.getStatus());
+		state.setAttribute("status", cacheAdminService.getStatus());
 
 	} // doReset
 

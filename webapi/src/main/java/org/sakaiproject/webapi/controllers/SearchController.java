@@ -41,11 +41,11 @@ public class SearchController extends AbstractSakaiApiController {
 
 	@GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SearchRestBean>> search(
-            @RequestParam String terms,
-            @RequestParam(required = false) String site,
-            @RequestParam(required = false) String tool,
-            @RequestParam(defaultValue = "0") Integer start,
-            @RequestParam(defaultValue = "10") Integer limit) {
+            @RequestParam("terms") String terms,
+            @RequestParam(name = "site", required = false) String site,
+            @RequestParam(name = "tool", required = false) String tool,
+            @RequestParam(name = "start", defaultValue = "0") Integer start,
+            @RequestParam(name = "limit", defaultValue = "10") Integer limit) {
 
 		Session session = checkSakaiSession();
 
@@ -67,7 +67,7 @@ public class SearchController extends AbstractSakaiApiController {
 	}
 
 	@GetMapping(value = "/search/suggestions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<String>> suggestions(@RequestParam String terms) {
+    public ResponseEntity<List<String>> suggestions(@RequestParam("terms") String terms) {
         return ResponseEntity.ok(Arrays.asList(searchService.getSearchSuggestions(terms, null, true)));
     }
 }

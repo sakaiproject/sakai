@@ -120,7 +120,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 			questionCount++;
 			Set correctAnswerIDs = importableQuestion.getCorrectAnswerIDs();
 			itemFacade = new ItemFacade();
-			itemFacade.setTypeId(new Long(importableQuestion.getQuestionType()));
+			itemFacade.setTypeId(Long.valueOf(importableQuestion.getQuestionType()));
 			textSet = new HashSet();
 			questionTextString = contextualizeUrls(importableQuestion.getQuestionText(), siteId);
 			if (importableQuestion.getQuestionType() == SamigoPoolHandler.MATCHING) {
@@ -141,10 +141,10 @@ public class SamigoPoolHandler implements HandlesImportable {
 						answer = new Answer();
 						answer.setItem(itemFacade.getData());
 						answer.setItemText(text);
-						answer.setSequence(new Long(choiceIndex));
+						answer.setSequence(Long.valueOf(choiceIndex));
 						choiceIndex++;
 						// set label A, B, C, D, etc. on answer based on its sequence number
-						answer.setLabel(new Character((char)(64 + choiceIndex)).toString());
+						answer.setLabel(Character.valueOf((char)(64 + choiceIndex)).toString());
 						answer.setText(contextualizeUrls(importableChoice.getAnswerText(), siteId));
 						answer.setIsCorrect(Boolean.valueOf(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
 						answerSet.add(answer);
@@ -156,7 +156,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 			} else {
 			
 				text = new ItemText();
-				text.setSequence(new Long(1));
+				text.setSequence(Long.valueOf(1));
 				text.setText(questionTextString);
 				
 				answerSet = new HashSet();
@@ -171,9 +171,9 @@ public class SamigoPoolHandler implements HandlesImportable {
 					answer = new Answer();
 					answer.setItem(itemFacade.getData());
 					answer.setItemText(text);
-					answer.setSequence(new Long(importableAnswer.getPosition()));
+					answer.setSequence(Long.valueOf(importableAnswer.getPosition()));
 					// set label A, B, C, D, etc. on answer based on its sequence number
-					answer.setLabel(new Character((char)(64 + importableAnswer.getPosition())).toString());
+					answer.setLabel(Character.valueOf((char)(64 + importableAnswer.getPosition())).toString());
 					
 					if (importableQuestion.getQuestionType() == SamigoPoolHandler.TRUE_FALSE) {
 						// Samigo only understands True/False answers in lower case
@@ -192,7 +192,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 						Matcher matcher = pattern.matcher(questionTextString);
 						if (matcher.find()) questionTextString = questionTextString.replaceFirst(matcher.group(),"{}");
 						text.setText(questionTextString);
-						answer.setSequence(new Long(1));
+						answer.setSequence(Long.valueOf(1));
 					} else {
 						answer.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					}

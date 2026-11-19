@@ -154,9 +154,9 @@ class RangeAndGroupsDelegate
 			try {
 				Assignment assignment = assignmentService.getAssignment(assignmentId);
 				if (assignment.getIsGroup()) {
-					// If this assignment has any group submissions, ensure the group id is not removed
+					// If a group has submission or grading work, ensure its id is not removed
 					// from the list. The html form will not submit disabled fields, so it can happen.
-					assignment.getSubmissions().stream().filter(as -> as.getUserSubmission()).forEach(as -> {
+					assignment.getSubmissions().stream().filter(assignmentService::hasSubmissionWork).forEach(as -> {
 
 						if (!groupChoice.contains(as.getGroupId())) {
 							groupChoice.add(as.getGroupId());

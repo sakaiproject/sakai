@@ -30,12 +30,12 @@ import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.impl.AuthenticationCache;
-import org.sakaiproject.util.IdPwEvidence;
+import org.sakaiproject.util.WebDavEvidence;
 
 @Slf4j
 public class AuthenticationCacheTest extends SakaiKernelTestBase {
 	private static String[] USER_DATA_1 = {"localonly1user", null, "First", "Last1", "local1@edu", "local1password"};
-	private static IdPwEvidence USER_EVIDENCE_1 = new IdPwEvidence(USER_DATA_1[0], USER_DATA_1[5], null);
+	private static WebDavEvidence USER_EVIDENCE_1 = new WebDavEvidence(USER_DATA_1[0], USER_DATA_1[5], null);
 	private static String[] USER_DATA_2 = {"localonly2user", null, "First", "Last2", "local2@edu", "local2password"};
 	private AuthenticationManager authenticationManager;
 	private AuthenticationCache authenticationCache;
@@ -93,7 +93,7 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 		Assert.assertTrue(authentication.getEid().equals(USER_DATA_1[0]));
 
 		// Test authentication failure throttle.
-		IdPwEvidence badEvidence = new IdPwEvidence(USER_DATA_1[0], "Not the password", null);
+		WebDavEvidence badEvidence = new WebDavEvidence(USER_DATA_1[0], "Not the password", null);
 		try {
 			authenticationManager.authenticate(badEvidence);
 			Assert.fail();

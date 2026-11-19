@@ -38,8 +38,8 @@ public interface ExtendedTimeQueriesAPI {
     String ENTRY_ID                         = "entryId";
     String ASSESSMENT_ID                    = "assessmentId";
     String PUBLISHED_ID                     = "publishedId";
-    String USER_ID                          = "userId";
-    String GROUP                            = "groupId";
+    String USER_ID                          = "user";
+    String GROUP                            = "group";
 
     /**
      * Gets an extended-time entry by its id.

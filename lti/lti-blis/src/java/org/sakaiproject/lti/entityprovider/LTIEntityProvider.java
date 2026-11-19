@@ -16,6 +16,7 @@
 package org.sakaiproject.lti.entityprovider;
 
 import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 
 import lombok.Setter;
@@ -30,10 +31,12 @@ import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityParameters;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 
 import org.tsugi.lti.LTIUtil;
 
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiToolLinkPage;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
@@ -76,7 +79,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		int [] paging = parsePaging(params);
 
 		// Search is not yet safely implemented
-                List<Map<String,Object>> tools = ltiService.getToolsDao(null, (String)params.get("order"),
+                List<Map<String,Object>> tools = ltiService.getTools(null, (String)params.get("order"),
 			paging[0], paging[1], siteId, inAdmin);
 		adjustList(tools, inAdmin, siteId, "tool");
 		LTIListEntity retval = new LTIListEntity (tools);
@@ -85,14 +88,14 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 
         @EntityCustomAction(action = "tool", viewKey = "")
         public Map<String,Object> handleTool(EntityView view) {
-                String siteId = view.getPathSegment(2);
-                String toolId = view.getPathSegment(3);
-		getSiteById(siteId);
-		requireMemberUser(siteId);
-		boolean inAdmin = inAdmin(siteId);
-                Map<String,Object> tool = ltiService.getToolDao(new Long(toolId), siteId, inAdmin);
-		adjustMap(tool, inAdmin, siteId, "tool");
-                return tool;
+            String siteId = view.getPathSegment(2);
+            String toolId = view.getPathSegment(3);
+            getSiteById(siteId);
+		    requireMemberUser(siteId);
+		    boolean inAdmin = inAdmin(siteId);
+            Map<String,Object> tool = ltiService.getTool(Long.valueOf(toolId), siteId);
+		    adjustMap(tool, inAdmin, siteId, "tool");
+            return tool;
         }
 
         @EntityCustomAction(action = "contents", viewKey = EntityView.VIEW_SHOW)
@@ -105,23 +108,61 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		int [] paging = parsePaging(params);
 
 		// Search is not yet safely implemented
-                List<Map<String,Object>> contents = ltiService.getContentsDao(null, (String)params.get("order"),
+                List<Map<String,Object>> contents = ltiService.getContents(null, (String)params.get("order"),
 			paging[0], paging[1], siteId, inAdmin);
 		adjustList(contents, inAdmin, siteId, "content");
 		LTIListEntity retval = new LTIListEntity (contents);
                 return retval;
         }
 
+	/** DataTables server-side endpoint: /direct/lti/{siteId}/toolLinks.json. */
+	@EntityCustomAction(action = "toolLinks", viewKey = EntityView.VIEW_SHOW)
+	public ActionReturn handleToolLinks(EntityView view, Map<String, Object> params) {
+		getLoggedInUserReference();
+		String siteId = view.getEntityReference().getId();
+		int draw = Integer.parseInt(toolLinksParameter(params, "draw", "0"));
+		int start = Integer.parseInt(toolLinksParameter(params, "start", "0"));
+		int length = Integer.parseInt(toolLinksParameter(params, "length", "50"));
+		int orderColumn = Integer.parseInt(toolLinksParameter(params, "order[0][column]", "0"));
+		String direction = toolLinksParameter(params, "order[0][dir]", "asc");
+		if (draw < 0 || orderColumn < 0 || orderColumn > 6 || !("asc".equals(direction) || "desc".equals(direction))) {
+			throw new IllegalArgumentException("Invalid Tool Links draw or order");
+		}
+		String sortField = toolLinksParameter(params, "columns[" + orderColumn + "][name]", "title");
+		Map<String, String> filters = new HashMap<>();
+		for (int column = 0; column < 7; column++) {
+			String field = toolLinksParameter(params, "columns[" + column + "][name]", null);
+			String value = toolLinksParameter(params, "columns[" + column + "][search][value]", null);
+			if (field != null && value != null && !value.isEmpty()) {
+				filters.put(field, value);
+			}
+		}
+		String toolId = toolLinksParameter(params, "toolId", null);
+		LtiToolLinkPage page = ltiService.getToolLinks(siteId,
+				toolId == null || toolId.isEmpty() ? null : Long.valueOf(toolId), start, length,
+				sortField, "asc".equals(direction), filters);
+		return new ActionReturn(Map.of("draw", draw, "recordsTotal", page.getTotal(),
+				"recordsFiltered", page.getFiltered(), "data", page.getLinks()),
+				Map.of("Cache-Control", "no-store"), Formats.JSON);
+	}
+
+	private String toolLinksParameter(Map<String, Object> params, String name, String defaultValue) {
+		Object value = params.get(name);
+		if (value == null) return defaultValue;
+		if (value instanceof String) return (String) value;
+		throw new IllegalArgumentException("Tool Links parameter must have one value: " + name);
+	}
+
         @EntityCustomAction(action = "content", viewKey = "")
         public Map<String,Object> handleContent(EntityView view) {
-                String siteId = view.getPathSegment(2);
-                String contentId = view.getPathSegment(3);
-		getSiteById(siteId);
-		requireMemberUser(siteId);
-		boolean inAdmin = inAdmin(siteId);
-                Map<String,Object> content = ltiService.getContentDao(new Long(contentId), siteId, inAdmin);
-		adjustMap(content, inAdmin, siteId, "content");
-                return content;
+            String siteId = view.getPathSegment(2);
+            String contentId = view.getPathSegment(3);
+		    getSiteById(siteId);
+		    requireMemberUser(siteId);
+		    boolean inAdmin = inAdmin(siteId);
+            Map<String,Object> content = ltiService.getContent(Long.valueOf(contentId), siteId);
+		    adjustMap(content, inAdmin, siteId, "content");
+            return content;
         }
 
 	/**
@@ -140,7 +181,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		requireMemberUser(siteId);
 		boolean inAdmin = inAdmin(siteId);
 
-		Map<String,Object> toolSite = ltiService.getToolSiteDao(Long.valueOf(toolSiteId), siteId);
+		Map<String,Object> toolSite = ltiService.getToolSiteById(Long.valueOf(toolSiteId), siteId);
 		adjustMap(toolSite, inAdmin, siteId, "toolSite");
 		return toolSite;
 	}
@@ -162,7 +203,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		boolean inAdmin = inAdmin(siteId);
 		int [] paging = parsePaging(params);
 
-		List<Map<String,Object>> toolSites = ltiService.getToolSitesDao(null, (String)params.get("order"),
+		List<Map<String,Object>> toolSites = ltiService.getToolSites(null, (String)params.get("order"),
 				paging[0], paging[1], siteId, inAdmin);
 		adjustList(toolSites, inAdmin, siteId, "toolSites");
 		LTIListEntity retval = new LTIListEntity(toolSites);
@@ -226,14 +267,6 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 			throw new SecurityException(
 					"The requested site is not accessible to the current user.");
 		}
-
-	}
-
-	protected void requireAdminUser(String siteId) {
-                if (!inAdmin(siteId)) {
-                        throw new SecurityException(
-                                "The requested site is not accessible to the current user.");
-                }
 
 	}
 

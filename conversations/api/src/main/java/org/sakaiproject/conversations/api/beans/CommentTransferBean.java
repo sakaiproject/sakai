@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.conversations.api.beans;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.conversations.api.model.Metadata;
 import org.sakaiproject.conversations.api.model.ConversationsComment;
 
@@ -64,7 +65,7 @@ public class CommentTransferBean {
     public ConversationsComment asComment() {
 
         ConversationsComment comment = new ConversationsComment();
-        comment.setId(this.id);
+        comment.setId(StringUtils.trimToNull(this.id));
         comment.setMessage(this.message);
 
         Metadata metadata = new Metadata();

@@ -99,7 +99,7 @@ public class ExclusionSeqRecurrenceRule
 			{
 				try
 				{
-					m_exclusions.add(new Integer(element.getAttribute("sequence")));
+					m_exclusions.add(Integer.valueOf(element.getAttribute("sequence")));
 				}
 				catch (Exception e) { log.warn("set: while reading exclude sequence: " + e); }
 			}
@@ -239,7 +239,7 @@ public class ExclusionSeqRecurrenceRule
 				{
 					try
 					{
-						m_exclusions.add(new Integer(attributes.getValue("sequence")));
+						m_exclusions.add(Integer.valueOf(attributes.getValue("sequence")));
 					}
 					catch (Exception e)
 					{

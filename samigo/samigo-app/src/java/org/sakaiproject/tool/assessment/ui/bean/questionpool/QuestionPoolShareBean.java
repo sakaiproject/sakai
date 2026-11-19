@@ -27,13 +27,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.component.html.HtmlDataTable;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.component.html.HtmlDataTable;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.bean.ManagedBean;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,11 +94,11 @@ public class QuestionPoolShareBean implements Serializable {
 
   		QuestionPoolService delegate = new QuestionPoolService();
     
-  		QuestionPoolFacade thepool = delegate.getPool(new Long(qpid), AgentFacade.getAgentString());
+  		QuestionPoolFacade thepool = delegate.getPool(Long.valueOf(qpid), AgentFacade.getAgentString());
          
-  		setAgentsWithAccess(delegate.getAgentsWithAccess(new Long(qpid)));
-  		setAgentsWithoutAccess(delegate.getAgentsWithoutAccess(new Long(qpid), AgentFacade.getCurrentSiteId()));
-  		setQuestionPoolId(new Long(qpid));
+  		setAgentsWithAccess(delegate.getAgentsWithAccess(Long.valueOf(qpid)));
+  		setAgentsWithoutAccess(delegate.getAgentsWithoutAccess(Long.valueOf(qpid), AgentFacade.getCurrentSiteId()));
+  		setQuestionPoolId(Long.valueOf(qpid));
   		setQuestionPoolOwnerId(thepool.getOwnerId());
   		setQuestionPoolName(thepool.getDisplayName());
 

@@ -32,6 +32,10 @@ public class PollConstants {
 
     public static final String REF_POLL_TYPE = "poll";
 
+    public static final String EVENT_POLL_ADD = "poll.add";
+    public static final String EVENT_POLL_UPDATE = "poll.update";
+    public static final String EVENT_POLL_DELETE = "poll.delete";
+
     private PollConstants() {
         throw new IllegalStateException("do not instantiate this class");
     }

@@ -22,10 +22,12 @@ import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -36,10 +38,10 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class PollTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
-    private static final String POLL_TITLE = "Playwright Poll " + System.currentTimeMillis();
+    private static final String POLL_TITLE = "Playwright Poll & Options " + System.currentTimeMillis();
     private static final String LIMITS_POLL_TITLE = "Playwright Poll Limits " + System.currentTimeMillis();
-    private static final String DEFAULT_DATES_POLL_TITLE = "Playwright Default Dates Poll " + System.currentTimeMillis();
-    private static final String BULK_POLL_TITLE_ONE = "Playwright Bulk Poll One " + System.currentTimeMillis();
+    private static final String DEFAULT_DATES_POLL_TITLE = "Playwright Default Dates Poll & Options " + System.currentTimeMillis();
+    private static final String BULK_POLL_TITLE_ONE = "Playwright Bulk Poll & <b>One</b> " + System.currentTimeMillis();
     private static final String BULK_POLL_TITLE_TWO = "Playwright Bulk Poll Two " + System.currentTimeMillis();
     private static boolean pollWithTwoOptionsCreated;
 
@@ -69,9 +71,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Add|New", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
 
         page.locator("form:visible input[type=\"text\"]").first().fill(POLL_TITLE);
 
@@ -93,6 +94,7 @@ class PollTest extends SakaiUiTestBase {
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator(".sak-banner-success")).isVisible();
+        assertThat(page.locator("#poll-text")).hasValue(POLL_TITLE);
 
         Locator addOptionButton = addOptionControl();
         if (!isVisible(addOptionButton, 5_000)) {
@@ -110,10 +112,11 @@ class PollTest extends SakaiUiTestBase {
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator(".sak-banner-success")).isVisible();
+        assertThat(page.locator("#poll-text")).hasValue(POLL_TITLE);
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator(".sak-banner-success")).containsText("Poll saved successfully");
-        assertThat(page.locator("body")).containsText(POLL_TITLE);
+        assertThat(page.locator("a[href*='/voteQuestion']")).hasText(POLL_TITLE);
         pollWithTwoOptionsCreated = true;
     }
 
@@ -125,9 +128,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Add|New", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
 
         page.locator("form:visible input[type=\"text\"]").first().fill(LIMITS_POLL_TITLE);
         page.locator("#poll-details").fill("Poll limits regression test");
@@ -141,28 +143,28 @@ class PollTest extends SakaiUiTestBase {
         // blank min — form re-renders on error, no new navigation needed for subsequent checks
         page.locator("input[name=\"minOptions\"]").fill("");
         page.locator("input[name=\"maxOptions\"]").fill("2");
-        saveButton.click(new Locator.ClickOptions().setForce(true));
+        sakai.submitForm(saveButton::click);
         assertThat(page.locator("#min-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("minimum number of options is a required field", Pattern.CASE_INSENSITIVE));
 
         // blank max
         page.locator("input[name=\"minOptions\"]").fill("1");
         page.locator("input[name=\"maxOptions\"]").fill("");
-        saveButton.click(new Locator.ClickOptions().setForce(true));
+        sakai.submitForm(saveButton::click);
         assertThat(page.locator("#max-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("maximum number of options is a required field", Pattern.CASE_INSENSITIVE));
 
         // min greater than max
         page.locator("input[name=\"minOptions\"]").fill("5");
         page.locator("input[name=\"maxOptions\"]").fill("2");
-        saveButton.click(new Locator.ClickOptions().setForce(true));
+        sakai.submitForm(saveButton::click);
         assertThat(page.locator("#min-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("less than or equal to", Pattern.CASE_INSENSITIVE));
 
         // fix min/max to values that will exceed the number of available options, then proceed
         page.locator("input[name=\"minOptions\"]").fill("6");
         page.locator("input[name=\"maxOptions\"]").fill("6");
-        saveButton.click(new Locator.ClickOptions().setForce(true));
+        sakai.submitForm(saveButton::click);
 
         assertThat(page.locator("textarea")).isVisible();
 
@@ -200,9 +202,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Add|New", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
 
         page.locator("form:visible input[type=\"text\"]").first().fill(DEFAULT_DATES_POLL_TITLE);
 
@@ -221,6 +222,9 @@ class PollTest extends SakaiUiTestBase {
 
         assertThat(page.locator("textarea")).isVisible();
         assertThat(page.locator("body")).containsText(DEFAULT_DATES_POLL_TITLE);
+
+        page.locator("a[href*='/votePolls']").first().click();
+        assertThat(page.getByText(DEFAULT_DATES_POLL_TITLE + " (awaiting options)", new Page.GetByTextOptions().setExact(true))).isVisible();
     }
 
     @Test
@@ -231,9 +235,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Bulk Creation", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Bulk Creation").setExact(true)).click();
 
         assertThat(page.locator("#poll-uploaded-text")).isVisible();
         assertThat(page.locator("label[for=\"poll-uploaded-text\"]")).isVisible();
@@ -249,9 +252,9 @@ class PollTest extends SakaiUiTestBase {
         String openDate = now.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String closeDate = now.plusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String csv = String.join("\n",
-            "Question,Description,Opening date,Opening time,Closing date,Closing time,Minimum options,Maximum options,Results visibility,Option 1,Option 2",
-            BULK_POLL_TITLE_ONE + ",Bulk import details," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Alpha,Beta",
-            BULK_POLL_TITLE_TWO + ",Bulk import details," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Yes,No"
+            "Question,Description,Access,Groups,Opening date,Opening time,Closing date,Closing time,Minimum options,Maximum options,Results visibility,Option 1,Option 2",
+            BULK_POLL_TITLE_ONE + ",Bulk import details,site,," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Alpha,Beta",
+            BULK_POLL_TITLE_TWO + ",Bulk import details,site,," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Yes,No"
         );
 
         page.locator("#poll-uploaded-text").fill(csv);
@@ -321,6 +324,51 @@ class PollTest extends SakaiUiTestBase {
         assertThat(xlsxExport).isVisible();
         Download xlsxDownload = page.waitForDownload(() -> xlsxExport.click(new Locator.ClickOptions().setForce(true)));
         assertTrue(xlsxDownload.suggestedFilename().endsWith(".xlsx"));
+    }
+
+    @Test
+    @Order(7)
+    void bulkImportShowsRowSpecificErrorForInvalidCsv() {
+        createsSiteWithPolls();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Bulk Creation").setExact(true)).click();
+
+        LocalDateTime now = LocalDateTime.now();
+        String openDate = now.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String closeDate = now.plusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        // Row 2 is valid; row 3 has an invalid opening date, so the error must name row 3, not row 2.
+        String csv = String.join("\n",
+            "Question,Description,Access,Groups,Opening date,Opening time,Closing date,Closing time,Minimum options,Maximum options,Results visibility,Option 1,Option 2",
+            "Valid bulk import row,,site,," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Alpha,Beta",
+            "Invalid bulk import row,,site,,not-a-date,09:00," + closeDate + ",17:00,1,1,1,Yes,No"
+        );
+
+        page.locator("#poll-uploaded-text").fill(csv);
+        page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("[role=\"alert\"].sak-banner-error")).containsText("Row 3");
+    }
+
+    @Test
+    @Order(8)
+    void canUploadDownloadedCsvTemplate() {
+        createsSiteWithPolls();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Bulk Creation")).click();
+        Download sample = page.waitForDownload(() -> page.locator("a[href*='/pollImport/sample']").click());
+        page.locator("#poll-upload-file").setInputFiles(sample.path());
+        page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first().click();
+
+        assertThat(page.locator(".sak-banner-success")).containsText("Polls imported successfully");
+        assertThat(page.locator("body")).containsText("What is your favorite color?");
     }
 
     private Locator addOptionControl() {

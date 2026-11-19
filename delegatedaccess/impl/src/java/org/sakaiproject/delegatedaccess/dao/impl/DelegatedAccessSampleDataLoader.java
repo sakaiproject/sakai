@@ -71,6 +71,11 @@ public class DelegatedAccessSampleDataLoader {
 		if(siteService == null || securityService == null || delegatedAccessSiteHierarchyJob == null){
 			return;
 		}
+		int coursesPerSubject = serverConfigurationService.getInt("delegatedaccess.demo.coursesPerSubject", 20);
+		if (coursesPerSubject < 1 || coursesPerSubject > 20) {
+			log.warn("Invalid delegatedaccess.demo.coursesPerSubject value {}; using 20 (valid range: 1-20)", coursesPerSubject);
+			coursesPerSubject = 20;
+		}
 		// Cheating to become admin in order to add sites
 		SecurityAdvisor yesMan = new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function, String reference) {
@@ -88,7 +93,8 @@ public class DelegatedAccessSampleDataLoader {
 			for(String school : schools){
 				for(String dept : depts){
 					for(String subject : subjs){
-						for(int courseNum = 101; courseNum < 600; courseNum += 25){
+						for(int courseIndex = 0; courseIndex < coursesPerSubject; courseIndex++){
+							int courseNum = 101 + courseIndex * 25;
 							String siteid = "DAC-" + school + "-" + dept + "-" + subject + "-" + courseNum; 
 							String title = siteid;
 							String description = siteid;

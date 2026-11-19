@@ -1,8 +1,8 @@
-<div class="portletBody container-fluid">
+<div class="portletBody container-fluid sakai-reorder">
 	#if($menu && $EnabledMenuItemExists)
 			#toolbar($menu)
 	#end
-	
+
 	#set ($SiteColumnFlag = 0)
 	#foreach ($item in $showMessagesList2)
 		#set ($ref = $entityManager.newReference($item.Reference))
@@ -11,142 +11,152 @@
 			#set ($SiteColumnFlag = $SiteColumnFlag + 1)
 		#end
 	#end
+
 	<div class="page-header">
 		<h1>$tlang.getString("reorder.title")</h1>
 	</div>
- 	
+
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
-	<div class="navPanel">
-			<span class="instruction">
-				$tlang.getString('reorder.instruction.general')
-				<span id="inputFieldMessage">$tlang.getString('reorder.instruction.input')</span>
-				<span id="inputKbdMessage" class="skip">$tlang.getString('reorder.instruction.general.hidden')</span>
-			</span>
-			<br /><br />
-	</div> ##end navPanel
-	#if ($messageListVector.iterator().hasNext())	
-		<ul class="itemAction noPrint">
-			<li style="display:inline">
-				<span id="undo-last-inact" style="padding:0 .3em 0 0;border:none">$tlang.getString('reorder.undo.last.label')</span>
-				<a href="#" id="undo-last"  style="display:none">$tlang.getString('reorder.undo.last.label')</a>
-			</li>
-			<li style="display:inline;border-left:1px solid #ccc;padding-left:1em">
-				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$tlang.getString('reorder.undo.all.label')</span>
-					<a id="undo-all" href="#"   style="display:none">$tlang.getString('reorder.undo.all.label')</a>
-			</li>
-		</ul>	
-		<span id="messageHolder" class="sak-banner-error" style="display:none">$tlang.getString('reorder.fail.valid.message')</span>
-		<span id="lastMoveArray" style="display:none"></span >
-		<span id="lastMoveArrayInit" style="display:none"></span>
+
+	<div class="instruction">
+		$tlang.getString('reorder.instruction.general')
+		<span id="inputKbdMessage" class="visually-hidden">$tlang.getString('reorder.instruction.general.hidden')</span>
+	</div>
+
+	#if ($messageListVector.iterator().hasNext())
+		<div class="sakai-reorder-undo noPrint">
+			<button type="button" class="btn btn-transparent btn-sm" id="undo-last" disabled>
+				<span class="bi bi-arrow-counterclockwise" aria-hidden="true"></span>
+				$tlang.getString('reorder.undo.last.label')
+			</button>
+			<button type="button" class="btn btn-transparent btn-sm" id="undo-all" disabled>
+				<span class="bi bi-arrow-repeat" aria-hidden="true"></span>
+				$tlang.getString('reorder.undo.all.label')
+			</button>
+		</div>
+		<span id="lastMoveArray" class="d-none"></span>
+		<span id="lastMoveArrayInit" class="d-none"></span>
 		<span id="lastItemMoved" class="visually-hidden" aria-live="polite" aria-atomic="true" data-moved-message="$tlang.getString('reorder.moved')"></span>
 		<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
-			<div id="reorder-list-sortingToolBar" class="row itemAction">
-				<div class="col-md-4 col-sm-4 col-xs-12">
+			<div id="reorder-list-sortingToolBar" class="sakai-reorder-list-header">
 					#if (!$currentSortedBy.equals("subject"))
-						<a href="#" class="title" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.sortby')</a>
+						<a href="#" class="title" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" title="$tlang.getString('gen.sortby')">$tlang.getString('gen.sortby')</a>
 					#else
 						#if ($currentSortAsc.equals("true"))
-							<a href="#"  class="title"  onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbyasc')">$tlang.getString('gen.sortby') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyasc')" /></a>
+							<a href="#" class="title" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" title="$tlang.getString('gen.sortbyasc')">$tlang.getString('gen.sortby') <span class="bi bi-sort-up" aria-hidden="true"></span></a>
 						#else
-							<a href="#"  class="title" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbydesc')">$tlang.getString('gen.sortby') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbydesc')"/></a>
+							<a href="#" class="title" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" title="$tlang.getString('gen.sortbydesc')">$tlang.getString('gen.sortby') <span class="bi bi-sort-down" aria-hidden="true"></span></a>
 						#end
 					#end
-				</div>
-				<div class="col-md-2 col-sm-2 col-xs-12">
 					#if (!$currentSortedBy.equals("from"))
-						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.sortbyauth')</a>
+						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.sortbyauth')</a>
 					#else
 						#if ($currentSortAsc.equals("true"))
-							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthasc')">$tlang.getString('gen.sortbyauth') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthasc')" /></a>
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title="$tlang.getString('gen.sortbyauthasc')">$tlang.getString('gen.sortbyauth') <span class="bi bi-sort-up" aria-hidden="true"></span></a>
 						#else
-							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthdesc')">$tlang.getString('gen.sortbyauth') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthdesc')"/></a>
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title="$tlang.getString('gen.sortbyauthdesc')">$tlang.getString('gen.sortbyauth') <span class="bi bi-sort-down" aria-hidden="true"></span></a>
 						#end
 					#end
-				</div>
-				<div class="col-md-2 col-sm-2 col-xs-12">
 					#if (!$currentSortedBy.equals("releasedate"))
-						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString('gen.sortbyreleasedate')</a>
+						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;" title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString('gen.sortbyreleasedate')</a>
 					#else
 						#if ($currentSortAsc.equals("true"))
-							 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString('gen.sortbyreleasedate') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyreleasedateasc')" /></a>
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;" title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString('gen.sortbyreleasedate') <span class="bi bi-sort-up" aria-hidden="true"></span></a>
 						#else
-							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedatedesc')">$tlang.getString('gen.sortbyreleasedate') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbyreleasedatedesc')" /></a>
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;" title="$tlang.getString('gen.sortbyreleasedatedesc')">$tlang.getString('gen.sortbyreleasedate') <span class="bi bi-sort-down" aria-hidden="true"></span></a>
 						#end
 					#end
-				</div>
-				<div class="col-md-2 col-sm-2 col-xs-12">
 					#if (!$currentSortedBy.equals("retractdate"))
-						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString('gen.sortbyretractdate')</a>
+						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;" title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString('gen.sortbyretractdate')</a>
 					#else
 						#if ($currentSortAsc.equals("true"))
-							 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString('gen.sortbyretractdate') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyretractdateasc')" /></a>
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;" title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString('gen.sortbyretractdate') <span class="bi bi-sort-up" aria-hidden="true"></span></a>
 						#else
-							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdatedesc')">$tlang.getString('gen.sortbyretractdate') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbyretractdatedesc')" /></a>
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;" title="$tlang.getString('gen.sortbyretractdatedesc')">$tlang.getString('gen.sortbyretractdate') <span class="bi bi-sort-down" aria-hidden="true"></span></a>
 						#end
 					#end
-				</div>
-				<div class="col-md-2 col-sm-2 col-xs-12">
 					#if (!$currentSortedBy.equals("date"))
-						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.sortbydate')</a>
+						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.sortbydate')</a>
 					#else
 						#if ($currentSortAsc.equals("true"))
-							 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.sortbydate') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.sortbydate') <span class="bi bi-sort-up" aria-hidden="true"></span></a>
 						#else
-							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.sortbydate') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.sortbydate') <span class="bi bi-sort-down" aria-hidden="true"></span></a>
 						#end
 					#end
-				</div>
 			</div>
 				<sakai-reorderer id="announcements-reorderer" style="display:block" apply-dom>
-				<ul id="reorder-list" class="styled-reorder-list">
+				<ul id="reorder-list" class="list-group sakai-reorder-list">
 
 				#set($count = 1)
+				#set($reorderListSize = $showMessagesList.size())
 				#foreach ($ann_item in $showMessagesList)
 					#set($ann_item_props=$ann_item.getProperties())
-					<li class="row reorder-element" id="listitem.orderable$count" data-reorderable-id="listitem.orderable$count">
-						<span class="title col-md-4 col-sm-4 col-xs-12">
-							<span class="drag-handle grabHandle" tabindex="0" title="$tlang.getString('reorder.drag.handle')" aria-label="$tlang.getString('reorder.drag.handle')"><span class="si si-drag-handle"></span></span>
-							<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
-							<input type="hidden" size="3" id="holder$count"  value="$count"/>
-							<span>$formattedText.escapeHtml($validator.limit($ann_item.Header.subject, 45))</span>
-						</span>
-						<span class="author col-md-2 col-sm-2 col-xs-12">
-							$formattedText.escapeHtml($ann_item.Header.From.DisplayName)
-						</span>
-						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
-							#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
-								$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
-							#end
-						</span>
-						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
-							#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
-								$ann_item_props.getTimeProperty("retractDate").toStringLocalFull()
-							#end
-						</span>
-						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
-							#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("modDate"))
-								$ann_item_props.getTimeProperty("modDate").toStringLocalFull()
-							#end
-						</span>
-						##For Re-ordering of Announcement Messages
-							<span style="display:none"> 
-								<input type="checkbox" id="check-$count" name="selectedMembers2" checked="checked" value="$ann_item.Reference"/>
-							</span>
+					<li class="list-group-item reorder-element sakai-reorder-row" id="listitem.orderable$count" data-reorderable-id="listitem.orderable$count">
+						<div class="sakai-reorder-row-main">
+							<div class="sakai-reorder-move-controls">
+								<span class="btn btn-icon sakai-reorder-drag-handle drag-handle"
+										tabindex="0"
+										role="button"
+										title="$tlang.getString('reorder.drag.handle')"
+										aria-label="$tlang.getString('reorder.drag.handle')">
+									<span class="si si-drag-handle" aria-hidden="true"></span>
+								</span>
+								<button type="button"
+										class="btn btn-icon"
+										data-action="move-up"
+										#if ($count == 1) disabled="disabled" #end
+										title="$tlang.getString('reorder.move.up')"
+										aria-label="$tlang.getString('reorder.move.up')">
+									<span class="bi bi-chevron-up" aria-hidden="true"></span>
+								</button>
+								<button type="button"
+										class="btn btn-icon"
+										data-action="move-down"
+										#if ($count == $reorderListSize) disabled="disabled" #end
+										title="$tlang.getString('reorder.move.down')"
+										aria-label="$tlang.getString('reorder.move.down')">
+									<span class="bi bi-chevron-down" aria-hidden="true"></span>
+								</button>
+							</div>
+
+							<div class="sakai-reorder-row-content">
+								<div class="sakai-reorder-title-block">
+									<div class="sakai-reorder-display">
+										<span class="sakai-reorder-title">$formattedText.escapeHtml($validator.limit($ann_item.Header.subject, 45))</span>
+									</div>
+									<div class="sakai-reorder-meta">
+										<span>$formattedText.escapeHtml($ann_item.Header.From.DisplayName)</span>
+										#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
+											<span>$tlang.getString('gen.sortbyreleasedate'): $ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()</span>
+										#end
+										#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
+											<span>$tlang.getString('gen.sortbyretractdate'): $ann_item_props.getTimeProperty("retractDate").toStringLocalFull()</span>
+										#end
+										#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("modDate"))
+											<span>$tlang.getString('gen.sortbydate'): $ann_item_props.getTimeProperty("modDate").toStringLocalFull()</span>
+										#end
+									</div>
+									<span class="d-none">
+										<input type="checkbox" id="check-$count" name="selectedMembers2" checked="checked" value="$ann_item.Reference"/>
+									</span>
+								</div>
+							</div>
+						</div>
 					</li>
 					#set($count = $count + 1)
 				#end
 				</ul>
 				</sakai-reorderer>
-	<p class="act">
-		<input type="submit" class="active" name="eventSubmit_doReorderUpdate" value="$tlang.getString("gen.update")"  accesskey="s" />
-		<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" />
-	</p>
+		<div class="act">
+			<input type="submit" class="active btn btn-primary" name="eventSubmit_doReorderUpdate" value="$tlang.getString("gen.update")" accesskey="s" />
+			<input type="submit" class="btn btn-secondary" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" />
+		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-	</form>	
+	</form>
 
-
- #else ##there are no announcements
-		<div class="instruction clear">
+ #else
+		<div class="instruction">
 			#if ($!view == "view.public")
 				$tlang.getString("gen.therearepublic")
 			#elseif ($!view == "view.bygroup")
@@ -155,7 +165,7 @@
 				$tlang.getString("gen.thereare")
 			#end
 		</div>
-#end	##end of for each loop
+#end
 </div>
 
 #module("/webcomponents/bundles/sakai-reorderer.js")

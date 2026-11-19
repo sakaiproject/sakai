@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.toLanguageTag()}">
+<head th:replace="~{fragments/common :: head(#{adddif.choose})}"></head>
+<body>
+  <main class="portletBody col-12 col-lg-9 col-xl-8" id="participant-helper">
+    <div th:replace="~{fragments/common :: header}"></div>
+    <div th:replace="~{fragments/common :: steps(2)}"></div>
+    <div th:replace="~{fragments/common :: messages}"></div>
+
+    <form th:action="@{/roles}" th:object="${roleForm}" method="post" data-role-form novalidate>
+      <input type="hidden" th:field="*{csrfToken}">
+      <fieldset>
+        <legend class="h4" th:text="#{add.participants}">Participant Roles</legend>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" th:field="*{roleChoice}" id="same-role" value="sameRole" data-role-choice="sameRole">
+          <label class="form-check-label" for="same-role" th:text="#{add.assign}">Assign all participants to the same role</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" th:field="*{roleChoice}" id="different-role" value="differentRole" data-role-choice="differentRole">
+          <label class="form-check-label" for="different-role" th:text="#{add.assign2}">Assign each participant a role individually</label>
+        </div>
+      </fieldset>
+
+      <section class="mt-4" data-role-panel="sameRole" aria-labelledby="same-role-heading">
+        <fieldset>
+          <legend id="same-role-heading" class="h5" th:text="#{addsame.roles}">Roles</legend>
+          <div class="form-check" th:each="role, stat : ${roles}">
+            <input class="form-check-input" type="radio" th:field="*{sameRoleChoice}" th:id="|same-role-choice-${stat.index}|" th:value="${role.id}">
+            <label class="form-check-label" th:for="|same-role-choice-${stat.index}|" th:text="${role.id}">Role</label>
+          </div>
+        </fieldset>
+        <section th:if="${#lists.size(participantDisplays) > 1}" class="mt-3" aria-labelledby="same-role-participants-heading">
+          <h2 id="same-role-participants-heading" class="h5" th:text="#{addsame.participants}">Participants</h2>
+          <ul id="same-role-participants" class="list-group">
+            <li class="list-group-item" th:each="participant : ${participantDisplays}" th:text="${participant.displayName}">Participant</li>
+          </ul>
+        </section>
+      </section>
+
+      <section class="mt-4 border-top pt-4" data-role-panel="differentRole" aria-labelledby="different-role-heading">
+        <h2 id="different-role-heading" class="h5" th:text="#{adddif.choose}">Choose a role for each participant</h2>
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead><tr><th scope="col" th:text="#{addconf.username}">Username</th><th scope="col" th:text="#{addconf.role}">Role</th></tr></thead>
+            <tbody>
+              <tr th:each="participant, stat : ${participants}">
+                <td>
+                  <span th:text="${participant.eid}">Participant</span>
+                </td>
+                <td>
+                  <label class="visually-hidden" th:for="|participant-role-${stat.index}|" th:text="${participant.eid}">Role</label>
+                  <select class="form-select" th:id="|participant-role-${stat.index}|" th:field="*{individualRoles[__${stat.index}__]}">
+                    <option value="" th:text="#{java.pleasechoose}">Please choose a role</option>
+                    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.id}">Role</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="d-grid d-sm-flex flex-sm-wrap gap-2 align-items-sm-center mt-4">
+        <button type="submit" class="btn btn-primary" th:text="#{gen.continue}">Continue</button>
+        <button type="submit" class="btn btn-link" th:formaction="@{/roles/back}" formmethod="post" th:text="#{gen.back}">Back</button>
+        <div th:replace="~{fragments/common :: cancel}"></div>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

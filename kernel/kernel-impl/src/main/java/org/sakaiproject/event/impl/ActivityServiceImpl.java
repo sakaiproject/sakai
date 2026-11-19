@@ -33,8 +33,9 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 /**
  * Implementation of ActivityService
@@ -44,18 +45,15 @@ import org.sakaiproject.memory.api.MemoryService;
 public class ActivityServiceImpl implements ActivityService, Observer {
 	public static final String USER_ACTIVITY_CACHE_NAME = "org.sakaiproject.event.api.ActivityService.userActivityCache";
 
-	private Cache<String, Long> userActivityCache = null;
+	private Cache userActivityCache = null;
 
 	@Setter private EventTrackingService eventTrackingService;
-	@Setter private MemoryService memoryService;
+	@Setter private CacheManager cacheManager;
 	@Setter private UsageSessionService usageSessionService;
 
 	@Override
 	public boolean isUserActive(String userId) {
-		if(userActivityCache.containsKey(userId)){
-			return true;
-		}
-		return false;
+		return userActivityCache.get(userId, Long.class) != null;
 	}
 
 	@Override
@@ -71,7 +69,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 
 	@Override
 	public Long getLastEventTimeForUser(String userId) {
-		return (Long)userActivityCache.get(userId);
+		return userActivityCache.get(userId, Long.class);
 	}
 
 	@Override
@@ -112,7 +110,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 			
 			//if event is logout, remove entry from cache, otherwise add to cache
 			if(StringUtils.equals(e.getEvent(), UsageSessionService.EVENT_LOGOUT)) {
-				userActivityCache.remove(userId);
+				userActivityCache.evict(userId);
                 log.debug("Removed from user activity cache: {}", userId);
 			} else {
 				userActivityCache.put(userId, new Date().getTime());
@@ -127,7 +125,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 		eventTrackingService.addPriorityObserver(this);
 		
 		//setup cache
-		userActivityCache = memoryService.getCache(USER_ACTIVITY_CACHE_NAME);
+		userActivityCache = cacheManager.getCache(USER_ACTIVITY_CACHE_NAME);
 	}
 	
 	public void destroy() {

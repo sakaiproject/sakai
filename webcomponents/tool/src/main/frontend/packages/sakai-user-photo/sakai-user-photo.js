@@ -1,3 +1,3 @@
-import { SakaiUserPhoto } from './src/SakaiUserPhoto.js';
+import { SakaiUserPhoto } from "./src/SakaiUserPhoto.js";
 
-customElements.define('sakai-user-photo', SakaiUserPhoto);
+!customElements.get("sakai-user-photo") && customElements.define("sakai-user-photo", SakaiUserPhoto);

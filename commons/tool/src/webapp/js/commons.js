@@ -58,7 +58,7 @@ commons.switchState = function (state, arg) {
             $('.commons-post-editor').toggle(commons.currentUserPermissions.postCreate);
 
             const editor = $('#commons-post-creator-editor');
-            const wrapAndInsert = function (link, loadThumbnail, text) {
+            const wrapAndInsert = function (link, text) {
 
                     const clean = DOMPurify.sanitize(link, {USE_PROFILES: {html: true}});
                     if (DOMPurify.removed) {
@@ -72,7 +72,6 @@ commons.switchState = function (state, arg) {
                         const matched_url = clean.match(commons.urlRegex)[0];
                         const a = document.createElement('a');
                         a.href = matched_url;
-                        // We need to add the protocol for the server side code. It needs a valid URL.
                         url = matched_url;
                         if (url.slice(0, a.protocol.length) !== a.protocol) {
                             url = a.protocol + '//' + url;
@@ -82,7 +81,6 @@ commons.switchState = function (state, arg) {
                         wrapped = clean.replace(matched_url, `<a href="${url}" target="_blank">${text}</a>`);
 					} else {
 						text = text || clean;
-					    loadThumbnail = false;
 						wrapped = text;
 					}
 
@@ -95,14 +93,6 @@ commons.switchState = function (state, arg) {
                         a.target = '_blank';
                         range.deleteContents();
                         range.insertNode(a);
-                    }
-
-                    if (loadThumbnail) {
-                       commons.utils.getOGPMarkup(url, function (fragment) {
-                            if (fragment) {
-                                editor.append(fragment);
-                            }
-                        });
                     }
                 };
 
@@ -135,13 +125,13 @@ commons.switchState = function (state, arg) {
                 // get data
                 const dt = e.originalEvent.dataTransfer || window.dataTransfer;
                 const dropped = dt.getData('text');
-                wrapAndInsert(dropped, true);
+                wrapAndInsert(dropped);
                 e.preventDefault();
             }).on('paste', function (e) {
 
                 const cd = e.originalEvent.clipboardData || window.clipboardData;
                 const pasted = cd.getData('text');
-                wrapAndInsert(pasted, true);
+                wrapAndInsert(pasted);
                 e.preventDefault();
             }).blur(function (e) {
 
@@ -196,25 +186,21 @@ commons.switchState = function (state, arg) {
 
             const urlField = $('#commons-link-dialog-url');
             const linkTextField = $('#commons-link-dialog-text');
-            const thumbnailCheckbox = $('#commons-link-dialog-load-thumbnail');
             const linkInsertButton = $('#commons-link-dialog-insert-button');
 
             linkInsertButton.click(function (e) {
                 if (commons.currentRange) {
                     commons.getSelection().addRange(commons.currentRange);
                 }
-                const loadThumbnail = thumbnailCheckbox.prop('checked');
-                wrapAndInsert(urlField.val(), loadThumbnail, linkTextField.val());
+                wrapAndInsert(urlField.val(), linkTextField.val());
                 urlField.val('');
                 linkTextField.val('');
-                thumbnailCheckbox.prop('checked', false);
                 linkModal.hide();
             });
 
             $('#commons-link-dialog-cancel-button').click(function (e) {
                 urlField.val('');
                 linkTextField.val('');
-                thumbnailCheckbox.prop('checked', false);
                 linkModal.hide();
             });
 

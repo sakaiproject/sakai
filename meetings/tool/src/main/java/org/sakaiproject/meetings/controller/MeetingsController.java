@@ -140,7 +140,7 @@ public class MeetingsController {
 	 * @return
 	 */
 	@GetMapping(value = "/meetings/user/editperms/site/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public boolean canUpdateSite(@PathVariable String siteId) {
+	public boolean canUpdateSite(@PathVariable("siteId") String siteId) {
 		boolean result = false;
 		try {
 			Site site = sakaiProxy.getSite(siteId);
@@ -216,7 +216,7 @@ public class MeetingsController {
 	 * @throws MeetingsException 
 	 */
 	@GetMapping(value = "/meetings/site/{siteId}/existcalendar", produces = MediaType.APPLICATION_JSON_VALUE)
-	private boolean isThereAnyCalendarForSite(@PathVariable String siteId) throws MeetingsException {
+	private boolean isThereAnyCalendarForSite(@PathVariable("siteId") String siteId) throws MeetingsException {
 		checkCurrentUserInSite(siteId);
 		
 		String calReference = "/calendar/calendar/" + siteId + "/main";
@@ -230,7 +230,7 @@ public class MeetingsController {
 	 * @throws MeetingsException
 	 */
 	@GetMapping(value = "/meetings/site/{siteId}/groups", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<GroupData> getSiteGroups(@PathVariable String siteId) throws MeetingsException {
+	public Iterable<GroupData> getSiteGroups(@PathVariable("siteId") String siteId) throws MeetingsException {
 		checkCurrentUserInSite(siteId);
 		List<GroupData> siteGroups = new ArrayList<>();
 		Site site = sakaiProxy.getSite(siteId);
@@ -256,7 +256,7 @@ public class MeetingsController {
 	 * @throws MeetingsException
 	 */
 	@GetMapping(value = "/meeting/{meetingId}/participants", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<ParticipantData> getParticipants(@PathVariable String meetingId) throws MeetingsException {
+	public List<ParticipantData> getParticipants(@PathVariable("meetingId") String meetingId) throws MeetingsException {
 		checkCurrentUserInMeeting(meetingId);
 		final List<ParticipantData> participants = new ArrayList<>();
 		Optional<Meeting> optMeeting = meetingService.getMeetingById(meetingId);
@@ -327,7 +327,7 @@ public class MeetingsController {
 	 * @throws MeetingsException 
 	 */
 	@GetMapping(value = "/meetings/site/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<MeetingData> getSiteMeetings(@PathVariable String siteId) throws MeetingsException {
+	public Iterable<MeetingData> getSiteMeetings(@PathVariable("siteId") String siteId) throws MeetingsException {
 		checkCurrentUserInSite(siteId);
 		// Retrieve meetings for which the user has permission 
 		String userId = sakaiProxy.getCurrentUserId();
@@ -360,7 +360,7 @@ public class MeetingsController {
 	}
 	
 	@GetMapping(value = "/meeting/{meetingId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public MeetingData getMeeting(@PathVariable String meetingId) throws MeetingsException {
+	public MeetingData getMeeting(@PathVariable("meetingId") String meetingId) throws MeetingsException {
 		checkCurrentUserInMeeting(meetingId);
 		Optional<Meeting> optMeeting = meetingService.getMeetingById(meetingId);
 		if (optMeeting.isPresent()) {
@@ -498,7 +498,7 @@ public class MeetingsController {
 	 * @throws MeetingsException 
 	 */
 	@PutMapping(value = "/meeting/{meetingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Meeting updateMeeting(@RequestBody MeetingData data, @PathVariable String meetingId) throws MeetingsException {
+	public Meeting updateMeeting(@RequestBody MeetingData data, @PathVariable("meetingId") String meetingId) throws MeetingsException {
 		checkUpdatePermissions(data.getSiteId());
 		checkCurrentUserInMeeting(meetingId);
 		Meeting meeting = null;
@@ -600,7 +600,7 @@ public class MeetingsController {
 	 * @throws MeetingsException
 	 */
 	@DeleteMapping(value = "/meeting/{meetingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public void deleteMeeting(@PathVariable String meetingId) throws MeetingsException {
+	public void deleteMeeting(@PathVariable("meetingId") String meetingId) throws MeetingsException {
 		checkCurrentUserInMeeting(meetingId);
 		Meeting meeting = meetingService.getMeeting(meetingId);
 		checkUpdatePermissions(meeting.getSiteId());
@@ -614,7 +614,7 @@ public class MeetingsController {
 	}
 
 	@GetMapping(value = "/meeting/{meetingId}/attendanceReport", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getMeetingAttendanceReport(@PathVariable String meetingId, @RequestParam(required = false) String format) throws MeetingsException {
+	public ResponseEntity<?> getMeetingAttendanceReport(@PathVariable("meetingId") String meetingId, @RequestParam(name = "format", required = false) String format) throws MeetingsException {
 		checkCurrentUserInMeeting(meetingId);
 		Meeting meeting = meetingService.getMeeting(meetingId);
 		String onlineMeetingId = meetingService.getMeetingProperty(meeting, ONLINE_MEETING_ID);
@@ -655,7 +655,7 @@ public class MeetingsController {
 	 * @throws MeetingsException 
 	 */
 	@GetMapping(value = "/i18n/{locale}/{bundle}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public String getI18nProperties(@PathVariable String bundle, @PathVariable String locale) throws MeetingsException {
+	public String getI18nProperties(@PathVariable("bundle") String bundle, @PathVariable("locale") String locale) throws MeetingsException {
 		checkSakaiSession();
 		StringBuilder i18n = new StringBuilder();
 		if (StringUtils.isNotBlank(bundle) && StringUtils.isNotBlank(locale)) {
@@ -776,7 +776,7 @@ public class MeetingsController {
 	
 	// ------------------------------- RECORDINGS -----------------------------------------------
 	@GetMapping(value = "/meeting/{meetingId}/recordings", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<MeetingRecordingData> getMeetingRecordings(@PathVariable String meetingId, @RequestParam(defaultValue = "false") Boolean force) throws MeetingsException {
+	public List<MeetingRecordingData> getMeetingRecordings(@PathVariable("meetingId") String meetingId, @RequestParam(name = "force", defaultValue = "false") Boolean force) throws MeetingsException {
 		checkCurrentUserInMeeting(meetingId);
 		try {
 			Meeting meeting = meetingService.getMeeting(meetingId);

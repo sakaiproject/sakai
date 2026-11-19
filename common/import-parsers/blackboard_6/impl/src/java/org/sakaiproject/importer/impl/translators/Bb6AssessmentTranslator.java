@@ -121,7 +121,7 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 			correctAnswerIDs = new HashSet();
 			questionNode = (Node)i.next();
 			int questionPosition = XPathHelper.selectNodes("./preceding-sibling::item", questionNode).size() + 1;
-			q.setPosition(new Integer(questionPosition));
+			q.setPosition(Integer.valueOf(questionPosition));
 			List answerNodes = null;
 			if (questionType == AssessmentQuestion.MATCHING) {
 				answerNodes = XPathHelper.selectNodes("./presentation//flow[@class='RESPONSE_BLOCK']/flow[@class='Block']", questionNode);

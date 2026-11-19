@@ -21,6 +21,7 @@
 - **Repositories**: Keep repositories focused on persistence of mapped entities and queries. Create adapters, DTO assembly, and tool-specific workflow objects in services.
 - **Singleton State**: Do not store request-specific state such as user id, site id, locale, timezone, or request parameters in singleton Spring beans/controllers.
 - **Strategy Consistency**: Avoid mixing competing solutions for the same problem, such as backend locks plus UI state throttling, unless both are explicitly required and documented.
+- **Locking**: Prefer existing persistence patterns and simple service checks. Exotic or cross-tool locking may appear to close concurrency gaps, but Sakai's shared Hibernate sessions, transaction boundaries, and tool workflows make it prone to unexpected conflicts and regressions; do not introduce it without a demonstrated need and tests covering the affected tools through transaction commit.
 
 ### Kernel
 - **Core Services**: The Kernel provides core services that should be used by all tools
@@ -42,6 +43,7 @@
 - **Shadow DOM**: Leverage Shadow DOM for style encapsulation
 - **Custom Elements**: Define custom HTML elements for Sakai-specific functionality
 - **Integration**: Web components can be integrated into both new and existing tools
+- **Dom Queries**: Always use renderRoot for element queries in Lit components, not shadowRoot.
 
 ## Java Frameworks
 - **Legacy Frameworks**: The codebase contains multiple Java frameworks from different eras
@@ -72,7 +74,8 @@
 - **Commit Messages**: `<issue key> <component> <brief description>` (e.g., `SAK-12345 Assignments add option x`)
 - **Indentation**: Maintain consistent format (tabs/spaces) as in existing files
 - **kebab-case**: Prefer kebab-case for values of HTML class and id attributes
-- **Internationalization**: Ensure code supports different languages
+- **Internationalization**: Use translation resources and Sakai's effective locale for user-facing text and formatting. Keep changes within the issue's scope; this requirement does not authorize adding new numeral systems, calendars, or locale-specific input rules.
+- **Numeric Input**: Keep editable numeric values in Latin digits (`0–9`), supporting the effective locale's decimal separator where required (for example, Spanish `2,5`). Do not add Arabic/Persian digit parsing or support for other numeral systems unless explicitly requested. Ensure formatting an editable value never produces digits that its parser cannot read.
 - **Locale/Timezone**: Use Sakai's centrally resolved locale and timezone, not browser/request defaults (`Accept-Language`, `HttpServletRequest#getLocale()`, browser timezone, or framework default resolvers).
 - **Effective Locale**: Respect Sakai's effective locale for the current context, which may come from a site locale when configured, otherwise the user's preferences.
 - **Formatting**: UI messages, numbers, dates, and times must use the same Sakai-resolved locale; dates and times must display in the site or user's preferred timezone from account preferences.
@@ -91,11 +94,13 @@
 - **Test Naming**: When a test verifies a public API or service contract, name the test class after the API/interface under test rather than the implementation class.
 - **Spring Test Wiring**: For service tests, prefer loading the same Spring component wiring used by the running application when practical. Put reusable mocks and bean overrides in test configuration rather than remocking the same dependencies in each test.
 - **UI Flow Changes**: When changing user-visible UI flows (navigation, forms, submissions, dialogs, or interactive behavior), add or update a Playwright test in `e2e-tests/src/test/java/org/sakaiproject/e2e/tests` that covers the changed flow. If a Playwright test is not practical, document why in the PR description.
-- **Java Version**: Java 17 for master (Java 11 was used for Sakai 22 and Sakai 23)
+- **Java Version**: Java 21 for master (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
 - **No `var` in Java**: Do not use local variable type inference (`var`) in Java code. Always declare explicit types (e.g., `List<String> names = new ArrayList<>();` not `var names = new ArrayList<String>();`).
-   - Enforced: The build runs a Checkstyle rule during `mvn validate` to fail on `var` usages. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).
+- **No Boxed Primitive Constructors**: Do not use the deprecated wrapper constructors (`new Boolean(x)`, `new Integer(x)`, `new Long(x)`, etc.). Use `Boolean.valueOf(x)`, `Integer.valueOf(x)`, etc., or rely on autoboxing.
+   - Enforced: `master/pom.xml` runs a Checkstyle `IllegalInstantiation` rule during `mvn validate` that fails the build on these constructors. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).
 - **Secure XML Parsing**: For DOM XML parsing, use `org.sakaiproject.util.Xml.createSecureDocumentBuilderFactory()` instead of manually configuring `DocumentBuilderFactory`. `MapperFactory` is only for Jackson `ObjectMapper`/`XmlMapper` creation.
+- **ZIP Handling**: Use `org.sakaiproject.util.Zip` for ZIP entry paths and package-relative file references instead of tool-local path checks. Use `Zip.validateEntryName()` before using entry names in content collections or virtual paths, and use its returned normalized name. For filesystem extraction, use `Zip.resolveEntryPath()` before creating directories or opening output files. For package-relative file reads, use `Zip.resolveContainedPath()`; when a reference is relative to a nested directory, pass both the archive root and the base directory. Apply these rules to nested ZIPs and secondary extraction stages as well as the initial upload.
 
 ## Review Heuristics
 - **Security Context**: Check links, entity providers, background jobs, site copy/import, and user/site operations for explicit permissions and trustworthy user/site/session context.

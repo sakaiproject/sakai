@@ -1,6 +1,7 @@
 export const i18nUrl = /getI18nProperties.*conversations$/;
 
 export const i18n = `
+next_topic=Next topic
 GOOD_IDEA=Clicking this indicates that you think this is a good idea
 KEY=Clicking this indicates that you think this idea is key to the topic
 LOVE_IT=Clicking this indicates that you love this post or answer
@@ -17,6 +18,7 @@ add_a_new_topic=Add a New Topic
 add_a_post=Write a response
 add_a_reaction=Add a reaction
 add_an_answer=Add an answer
+tag_creation_failed=Could not create the tag. Please try again.
 add_new_tags=Add New Tags
 add_new_tags_instruction=Add multiple tags separated by a comma
 agree=Agree

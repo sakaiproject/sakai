@@ -18,17 +18,15 @@ package org.sakaiproject.content.api;
 /**
  * This interface is for copying resources when
  * ContentCopyImpl.copyResource(ContentCopyContext, String) is not enough.
- * For example, when copying a reading list, it is not enough to just copy
- * CONTENT_RESOURCE.  CITATION_COLLECTION, CITATION_COLLECTION_ORDER and
- * CITATION_CITATION should also be copied.
+ * For example, a resource type may need to copy data stored outside
+ * CONTENT_RESOURCE.
  *
  * To use this service, you need to register your ContentChangeHandler
  * with a particular resource type in the ResourceTypeRegistry,
  * e.g.,
  * <pre>
  * {@code
- * registry.register(new BasicSiteSelectableResourceType(CitationService.CITATION_LIST_ID),
- *                   new CitationContentChangeHandler());
+ * registry.register(resourceType, contentChangeHandler);
  * }
  * </pre>
  *

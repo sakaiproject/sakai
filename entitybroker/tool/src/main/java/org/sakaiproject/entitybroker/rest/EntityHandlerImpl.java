@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
@@ -1072,7 +1072,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                 lastModified = ((Long)lm);
             } else if (String.class.isAssignableFrom(c)) {
                 try {
-                    lastModified = new Long((String)lm);
+                    lastModified = Long.valueOf((String)lm);
                 } catch (NumberFormatException e) {
                     // nothing to do here
                 }

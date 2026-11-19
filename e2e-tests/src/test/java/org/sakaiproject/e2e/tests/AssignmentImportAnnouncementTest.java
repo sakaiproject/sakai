@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -75,12 +76,12 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Import from Site$", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
                 .setName(Pattern.compile("replace my data", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         String sourceSiteId = sakai.siteIdFromUrl(sourceSite);
         page.locator("input[name=\"importSites\"][value=\"" + sourceSiteId + "\"]").check(new Locator.CheckOptions().setForce(true));
@@ -94,18 +95,27 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
             .check(new Locator.CheckOptions().setForce(true));
         page.onDialog(dialog -> dialog.accept());
         clickContinueOrFinish();
-        page.waitForLoadState();
-        page.waitForTimeout(10_000);
 
         page.navigate(destinationSite);
-        page.waitForLoadState();
         sakai.toolClick("Assignments");
+        waitForImportedContent();
         assertThat(page.locator("body")).containsText(ASSIGNMENT_TITLE);
         Locator assignmentRow = page.locator("tr, li, .assignment").filter(new Locator.FilterOptions().setHasText(ASSIGNMENT_TITLE)).first();
         assertThat(assignmentRow).not().containsText(Pattern.compile("\\bDraft\\b", Pattern.CASE_INSENSITIVE));
 
         sakai.toolClick("Announcements");
+        waitForImportedContent();
         assertThat(page.locator("body")).containsText(ASSIGNMENT_TITLE);
+    }
+
+    private void waitForImportedContent() {
+        page.waitForCondition(() -> {
+            if (page.locator("body").innerText().contains(ASSIGNMENT_TITLE)) {
+                return true;
+            }
+            page.reload();
+            return false;
+        });
     }
 
     private void openAddAssignmentForm() {
@@ -139,7 +149,7 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
         ).first();
         assertThat(submit).isVisible();
         submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
     private void clickContinueOrFinish() {
@@ -149,7 +159,7 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
         ).first();
         assertThat(button).isVisible();
         button.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
 }

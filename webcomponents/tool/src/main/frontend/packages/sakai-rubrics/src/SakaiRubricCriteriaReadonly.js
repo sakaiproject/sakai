@@ -45,7 +45,7 @@ export class SakaiRubricCriteriaReadonly extends RubricsElement {
                         <h5 class="criterion-item-title">${r.title}</h5>
                         <p>${r.description}</p>
                         <span class="points">
-                          ${this.weighted && r.points > 0 ? html`
+                          ${this.weighted && r.points !== 0 ? html`
                               <b>
                                 (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
                               </b>`

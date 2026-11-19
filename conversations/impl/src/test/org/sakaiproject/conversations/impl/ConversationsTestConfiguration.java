@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.conversations.impl;
 
+import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,7 +27,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Map;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.hibernate.SessionFactory;
 
@@ -40,14 +43,13 @@ import org.sakaiproject.conversations.api.repository.PostStatusRepository;
 import org.sakaiproject.conversations.impl.repository.PostStatusRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;
 import org.sakaiproject.conversations.impl.repository.SettingsRepositoryImpl;
-import org.sakaiproject.conversations.api.repository.TagRepository;
-import org.sakaiproject.conversations.impl.repository.TagRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.conversations.impl.repository.ConversationsTopicRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.conversations.impl.repository.TopicStatusRepositoryImpl;
 import org.sakaiproject.conversations.impl.notificationprefs.ConversationsNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -66,17 +68,29 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import lombok.Getter;
 
 @Configuration
 @EnableTransactionManagement
-@ImportResource("classpath:/WEB-INF/components.xml")
+@ImportResource({"classpath:/WEB-INF/components.xml", "classpath:/META-INF/sakai-tags/tags-service.xml"})
 @PropertySource("classpath:/hibernate.properties")
 public class ConversationsTestConfiguration extends SakaiTestConfiguration {
 
     @Resource(name = "conversationsHibernateMappings")
-    @Getter
     protected AdditionalHibernateMappings additionalHibernateMappings;
+
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.tagservice")
+    protected AdditionalHibernateMappings tagMappings;
+
+    @Override
+    protected AdditionalHibernateMappings getAdditionalHibernateMappings() {
+        return new AdditionalHibernateMappingsImpl() {
+            @Override
+            public void processAdditionalMappings(LocalSessionFactoryBuilder configuration) throws IOException {
+                additionalHibernateMappings.processAdditionalMappings(configuration);
+                tagMappings.processAdditionalMappings(configuration);
+            }
+        };
+    }
 
     @Bean(name="org.sakaiproject.conversations.api.repository.ConversationsPostRepository")
     public ConversationsPostRepository postRepository(SessionFactory sessionFactory) {
@@ -126,12 +140,9 @@ public class ConversationsTestConfiguration extends SakaiTestConfiguration {
         return settingsRepository;
     }
 
-    @Bean(name="org.sakaiproject.conversations.api.repository.TagRepository")
-    public TagRepository tagRepository(SessionFactory sessionFactory) {
-
-        TagRepositoryImpl tagRepository = new TagRepositoryImpl();
-        tagRepository.setSessionFactory(sessionFactory);
-        return tagRepository;
+    @Bean(name = "org.sakaiproject.email.api.EmailService")
+    public EmailService emailService() {
+        return mock(EmailService.class);
     }
 
     @Bean(name = "org.sakaiproject.calendar.api.CalendarService")

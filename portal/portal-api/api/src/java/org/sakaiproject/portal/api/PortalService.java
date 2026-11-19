@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.api.Site;
@@ -338,6 +338,15 @@ public interface PortalService
 	 * @param siteIds The list of site ids to pin
 	 */
 	void reorderPinnedSites(String userId, List<String> siteIds);
+
+	/**
+	 * Get the site's display title for the current user, using the short description
+	 * when preferred and nonblank, otherwise the site title.
+	 *
+	 * @param site The site to display
+	 * @return The preferred site title
+	 */
+	String getSiteDisplayTitle(Site site);
 
 	/**
 	 * Get the list of pinned site ids for the current user

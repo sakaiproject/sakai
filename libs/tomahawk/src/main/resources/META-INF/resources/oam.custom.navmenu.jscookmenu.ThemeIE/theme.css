@@ -1,0 +1,107 @@
+/* ThemeIEMenu Style Sheet */
+
+.ThemeIEMenu,.ThemeIESubMenuTable
+{
+	cursor:		default;
+	font-family:	verdana, arial, sans-serif;
+	font-size:	13px;
+
+	padding:	0;
+	border:		0;
+	white-space:	nowrap;
+}
+
+.ThemeIEMenu
+{
+	background-color:	#F7F3EF;
+}
+
+.ThemeIESubMenu
+{
+	position:	absolute;
+	visibility:	hidden;
+
+	/*
+	   Netscape/Mozilla renders borders by increasing
+	   their z-index.  The following line is necessary
+	   to cover any borders underneath
+	*/
+	z-index:	100;
+	border:		0;
+	padding:	0;
+
+	filter:progid:DXImageTransform.Microsoft.Shadow(color=#848A84, Direction=135, Strength=4);
+}
+
+.ThemeIESubMenuTable
+{
+	border:		1px solid #ADAA9C;
+	background-color:	white;
+}
+
+.ThemeIESubMenuTable td
+{
+	white-space:	nowrap;
+}
+
+.ThemeIEMainItem,.ThemeIEMainItemHover,.ThemeIEMainItemActive,
+.ThemeIEMenuItem,.ThemeIEMenuItemHover,.ThemeIEMenuItemActive
+{
+	padding-left:	3px;
+	padding-right:	3px;
+	white-space:	nowrap;
+}
+
+.ThemeIEMainItemHover,.ThemeIEMainItemActive,
+.ThemeIEMenuItemHover,.ThemeIEMenuItemActive
+{
+	color:		white;
+	background-color:	#3169C6;
+}
+
+.ThemeIEMenuSplit
+{
+	height:		1px;
+	margin-top:	1px;
+	margin-bottom:	1px;
+	overflow:	hidden;
+	background-color:	inherit;
+	border-top:	1px solid #ADAA9C;
+}
+
+.ThemeIEMenuVSplit
+{
+	width:		1px;
+	margin:		0px;
+	overflow:	hidden;
+	background-color:	inherit;
+	border-right:	1px solid #ADAA9C;
+}
+
+/* image shadow animation */
+
+/*
+	seq1:	image for normal
+	seq2:	image for hover and active
+
+	To use, in the icon field, input the following:
+	<img class="seq1" src="normal.gif" /><img class="seq2" src="hover.gif" />
+*/
+
+.ThemeIEMenuItem img.seq1
+{
+	display:	inline;
+}
+
+.ThemeIEMenuItemHover seq2,
+.ThemeIEMenuItemActive seq2
+{
+	display:	inline;
+}
+
+.ThemeIEMenuItem .seq2,
+.ThemeIEMenuItemHover .seq1,
+.ThemeIEMenuItemActive .seq1
+{
+	display:	none;
+}

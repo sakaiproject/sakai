@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.type.StringType;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.messaging.api.UserNotificationData;
@@ -57,25 +56,25 @@ public class RemoveAssignmentUserNotificationHandler extends AbstractUserNotific
         String assignmentId = pathParts[pathParts.length - 1];
         try {
             users = sessionFactory.getCurrentSession().createQuery("select toUser from UserNotification where event = :event and ref = :ref")
-                    .setParameter("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT, StringType.INSTANCE)
-                    .setParameter("ref", ref, StringType.INSTANCE).list();
+                    .setParameter("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
+                    .setParameter("ref", ref).list();
             // every graded user has probably received the addition event too, but it might have been added after creation
             users.addAll(sessionFactory.getCurrentSession().createQuery("select toUser from UserNotification where event = :event and ref like :ref")
-                .setParameter("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, StringType.INSTANCE)
+                .setParameter("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION)
                 .setParameter("ref", ref.replace("/a/","/s/")+"%").list());
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(status -> {
 
                     sessionFactory.getCurrentSession().createQuery("delete UserNotification where event = :event and ref = :ref")
-                        .setParameter("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT, StringType.INSTANCE)
-                        .setParameter("ref", ref, StringType.INSTANCE).executeUpdate();
+                        .setParameter("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
+                        .setParameter("ref", ref).executeUpdate();
                     return null;
                 });
             transactionTemplate.execute(status -> {
 
                     sessionFactory.getCurrentSession().createQuery("delete UserNotification where event = :event and ref like :ref")
-                        .setParameter("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, StringType.INSTANCE)
-                        .setParameter("ref", ref.replace("/a/","/s/")+"%", StringType.INSTANCE).executeUpdate();
+                        .setParameter("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION)
+                        .setParameter("ref", ref.replace("/a/","/s/")+"%").executeUpdate();
                     return null;
                 });
         } catch (Exception e1) {

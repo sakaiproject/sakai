@@ -24,10 +24,10 @@ package org.sakaiproject.tool.assessment.ui.servlet.qti;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,7 +73,7 @@ public class ShowQTIServlet extends HttpServlet
     ServletException, IOException
   {
     XMLDisplay xmlDisp = (XMLDisplay)
-      ContextUtil.lookupBeanFromExternalServlet("xml", req, res);
+      ContextUtil.lookupBeanFromExternalServlet("xml", req, res, getServletContext());
     String xml = xmlDisp.getXml();
     String fileName = xmlDisp.getName() + "." + xml;
 

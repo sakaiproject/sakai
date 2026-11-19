@@ -23,14 +23,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.tool.service.PollPermissionsService;
+import java.util.Map;
+import java.util.Set;
+
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping
@@ -52,19 +57,22 @@ public class PollController {
     private final MessageSource messageSource;
     private final UserTimeService userTimeService;
     private final PollPermissionsService pollPermissionsService;
+    private final FormattedText formattedText;
 
     public PollController(PollsService pollsService,
                           SessionManager sessionManager,
                           ToolManager toolManager,
                           MessageSource messageSource,
                           @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
-                          PollPermissionsService pollPermissionsService) {
+                          PollPermissionsService pollPermissionsService,
+                          FormattedText formattedText) {
         this.pollsService = pollsService;
         this.sessionManager = sessionManager;
         this.toolManager = toolManager;
         this.messageSource = messageSource;
         this.userTimeService = userTimeService;
         this.pollPermissionsService = pollPermissionsService;
+        this.formattedText = formattedText;
     }
 
     @GetMapping({"/", "/votePolls"})
@@ -79,7 +87,15 @@ public class PollController {
             return "polls/list";
         }
 
-        List<Poll> polls = new ArrayList<>(pollsService.findAllPolls(siteId));
+        Map<String, String> groupTitleById = pollsService.getGroupTitlesForSite(siteId);
+
+        List<Poll> visiblePolls = new ArrayList<>(pollsService.findAllPolls(siteId));
+
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (!(pollPermissionsService.isSiteOwner() || pollPermissionsService.canAddPoll())) {
+            visiblePolls = pollsService.filterPollsVisibleToUser(visiblePolls, userId);
+        }
+
         Locale effectiveLocale = normaliseLocale(locale != null ? locale : Locale.getDefault());
 
         DateTimeFormatter sortFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
@@ -88,7 +104,7 @@ public class PollController {
 
         List<PollRow> rows = new ArrayList<>();
         boolean renderDelete = false;
-        for (Poll poll : polls) {
+        for (Poll poll : visiblePolls) {
             boolean canVote = pollsService.pollIsVotable(poll);
             boolean canEdit = pollPermissionsService.canEditPoll(poll);
             boolean canDelete = pollsService.userCanDeletePoll(poll);
@@ -114,9 +130,33 @@ public class PollController {
             }
 
             boolean canViewResults = pollsService.isAllowedViewResults(poll, sessionManager.getCurrentSessionUserId());
+
+            String visibilityDisplay;
+            boolean groupSelectionMissing = false;
+            Set<String> pollGroupIds = poll.getGroupIds();
+            if (poll.isPublic()) {
+                visibilityDisplay = messageSource.getMessage("poll_visibility_public", null, effectiveLocale);
+            } else if (poll.getTypeOfAccess() == Poll.Access.GROUP) {
+                List<String> titles = new ArrayList<>();
+                for (String gid : pollGroupIds != null ? pollGroupIds : List.<String>of()) {
+                    String title = groupTitleById.get(gid);
+                    if (title != null) {
+                        titles.add(title);
+                    }
+                }
+                if (titles.isEmpty()) {
+                    groupSelectionMissing = true;
+                    visibilityDisplay = messageSource.getMessage("poll_visibility_groups", null, effectiveLocale);
+                } else {
+                    visibilityDisplay = String.join(", ", titles);
+                }
+            } else {
+                visibilityDisplay = messageSource.getMessage("poll_visibility_site", null, effectiveLocale);
+            }
+
             rows.add(new PollRow(
                     poll.getId(),
-                    poll.getText(),
+                    formattedText.unEscapeHtml(poll.getText()),
                     canVote,
                     canEdit,
                     canDelete,
@@ -125,7 +165,9 @@ public class PollController {
                     voteOpenSortKey,
                     voteCloseDisplay,
                     voteCloseSortKey,
-                    optionCount
+                    optionCount,
+                    visibilityDisplay,
+                    groupSelectionMissing
             ));
         }
 
@@ -190,5 +232,7 @@ public class PollController {
         String voteCloseDisplay;
         String voteCloseSortKey;
         int optionCount;
+        String visibilityDisplay;
+        boolean groupSelectionMissing;
     }
 }

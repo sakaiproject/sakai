@@ -40,21 +40,20 @@ import java.math.RoundingMode;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import javax.faces.component.html.HtmlSelectOneMenu;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.event.ValueChangeListener;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.component.html.HtmlSelectOneMenu;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.event.ValueChangeListener;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
@@ -90,6 +89,9 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>
@@ -113,9 +115,14 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class HistogramListener
+public class HistogramListener extends SpringBeanAutowiringSupport
   implements ActionListener, ValueChangeListener
 {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	private static final ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	private static final String HOT_SPOT_ITEM_BLANK_VALUE = "undefined";
@@ -334,7 +341,7 @@ public class HistogramListener
 						   delivery.setOutcome("histogramScores");
 						   delivery.setSecureDeliveryHTMLFragment( "" );
 						   delivery.setBlockDelivery( false );
-						   SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+						   SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
 						   if ( secureDelivery.isSecureDeliveryAvaliable() ) {
 				            	  				            	 
 							   String moduleId = pub.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
@@ -1583,7 +1590,7 @@ public class HistogramListener
 			    
 			  subQuestionAnswers = (List) subQuestionAnswerMap.get(subQuestionSequence);
 			  Iterator answerIter = subQuestionAnswers.iterator();
-			  Double totalScore = new Double(0);
+			  Double totalScore = Double.valueOf(0);
 			  while (answerIter.hasNext()) {
 				  AnswerIfc subQuestionAnswer = (AnswerIfc) answerIter.next();
 				  totalScore += (subQuestionAnswer==null||subQuestionAnswer.getScore()==null?0.0:subQuestionAnswer.getScore());
@@ -2288,8 +2295,8 @@ public class HistogramListener
 	      numarray[i] = num;
 	      bars[i] = new HistogramBarBean();
 	      bars[i].setLabel(text.getText());
-	      // Matching bars represent prompt rows; non-distractors have a correct match and should be highlighted.
-	      bars[i].setIsCorrect(!distractors.contains(textId));
+	      // Matching bars count correct responses, including None of the Above for distractors.
+	      bars[i].setIsCorrect(Boolean.TRUE);
       bars[i].setNumStudents(num);
       bars[i].setNumStudentsText(String.valueOf(num));
 
@@ -2622,7 +2629,7 @@ public class HistogramListener
     }
 
     if (doubles.isEmpty())
-      doubles.add(new Double(0.0));
+      doubles.add(Double.valueOf(0.0));
 
     doubles.sort(Comparator.naturalOrder());
 
@@ -2987,7 +2994,7 @@ public class HistogramListener
       Integer nextVal = null;
       for(int i=1; i < ranges.length; i++)
       {
-        nextVal = new Integer((int) (((i + 1) * interval) + min));
+        nextVal = Integer.valueOf((int) (((i + 1) * interval) + min));
 
         if(nextVal.doubleValue() < max)
         {
@@ -3130,7 +3137,7 @@ public class HistogramListener
         
         StringBuilder newModebuf = new StringBuilder();
         for (int j = 0; j < tokens.length; j++) {
-           roundedtokens[j] = castingNum(new Double(tokens[j]).doubleValue(), 2);
+           roundedtokens[j] = castingNum(Double.valueOf(tokens[j]).doubleValue(), 2);
            newModebuf.append(", " + roundedtokens[j]);
         }
         String newMode = newModebuf.toString();

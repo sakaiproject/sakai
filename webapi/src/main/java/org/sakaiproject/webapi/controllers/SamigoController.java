@@ -15,7 +15,7 @@ package org.sakaiproject.webapi.controllers;
 
 import java.util.Date;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tool.api.Session;
@@ -39,7 +39,7 @@ public class SamigoController extends AbstractSakaiApiController {
 	private SecurityService securityService;
 
 	@GetMapping(value = "/assessmentgrading/{assessmentGradingId}/timerinfo/{type}/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public TimerBean getTimerInfo(@PathVariable String assessmentGradingId, @PathVariable String type, @PathVariable String itemId) {
+	public TimerBean getTimerInfo(@PathVariable("assessmentGradingId") String assessmentGradingId, @PathVariable("type") String type, @PathVariable("itemId") String itemId) {
 		Session session = checkSakaiSession();
 		String currentUserId = session.getUserId();
 		

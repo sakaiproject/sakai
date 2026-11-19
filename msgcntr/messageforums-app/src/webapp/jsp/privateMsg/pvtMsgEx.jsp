@@ -16,38 +16,41 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
-		<script>
-				$(document).ready(function() {
-						var menuLink = $('#messagesMainMenuLink');
-						var menuLinkSpan = menuLink.closest('span');
-						menuLinkSpan.addClass('current');
-						menuLinkSpan.html(menuLink.text());
-
-						<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-							initTagSelector("prefs_pvt_form");
-						</f:verbatim>
-				});
-		</script>
 		<script>includeWebjarLibrary('datatables');</script>
-
 		<script>
-			$(document).ready(function() {
-				// Initialize DataTables for search results
-				$("#prefs_pvt_form\\:pvtmsgs").DataTable({
-					"paging": false,
-					"info": false,
-					"aaSorting": [[4, "desc"]] // Sort by date column (index 4) in descending order
-				});
-				
-				// Initialize DataTables for threaded view if it exists
-				if ($("#prefs_pvt_form\\:threaded_pvtmsgs").length > 0) {
-					$("#prefs_pvt_form\\:threaded_pvtmsgs").DataTable({
-						"paging": false,
-						"info": false,
-						"aaSorting": [[4, "desc"]] // Sort by date column (index 4) in descending order
+				document.addEventListener('DOMContentLoaded', function() {
+						const menuLink = document.getElementById('messagesMainMenuLink');
+						const menuLinkSpan = menuLink?.closest('span');
+						if (menuLinkSpan) {
+							menuLinkSpan.classList.add('current');
+							menuLinkSpan.textContent = menuLink.textContent;
+						}
+
+
+						// Initialize DataTables for search results
+						const messagesTable = document.getElementById('prefs_pvt_form:pvtmsgs');
+						if (messagesTable) {
+							new DataTable(messagesTable, {
+								"paging": false,
+								// the search box above the table filters it, see setupMessagesSearch
+								"layout": {"topEnd": null},
+								"info": false,
+								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
+							});
+						}
+
+						// Initialize DataTables for threaded view if it exists
+						const threadedMessagesTable = document.getElementById("prefs_pvt_form:threaded_pvtmsgs");
+						if (threadedMessagesTable) {
+							new DataTable(threadedMessagesTable, {
+								"paging": false,
+								// the search box above the table filters it, see setupMessagesSearch
+								"layout": {"topEnd": null},
+								"info": false,
+								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
+							});
+						}
 					});
-				}
-			});
 		</script>
 
 		<h:form id="prefs_pvt_form">
@@ -173,7 +176,7 @@
 	  <mf:hierPvtMsgDataTable  styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0"  id="threaded_pvtmsgs" width="100%" 
 	  	value="#{PrivateMessagesTool.searchPvtMsgs}" 
 	  	var="rcvdItems" 
-	  	rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
+	  	rendered="#{PrivateMessagesTool.threadedView}"
 	  	expanded="true"
 		columnClasses="#{PrivateMessagesTool.calculateColumnClass()}">
 		  <h:column>

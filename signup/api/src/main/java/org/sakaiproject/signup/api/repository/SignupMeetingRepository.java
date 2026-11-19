@@ -82,16 +82,18 @@ public interface SignupMeetingRepository extends SpringCrudRepository<SignupMeet
 	 * Updates a list of SignupMeeting objects in the DB
 	 *
 	 * @param meetings a list of SignupMeeting objects
+	 * @return the saved meetings in the same order
 	 */
-	void updateAll(List<SignupMeeting> meetings);
+	List<SignupMeeting> updateAll(List<SignupMeeting> meetings);
 
 	/**
 	 * Updates a list of SignupMeeting objects and removes specified timeslots
 	 *
 	 * @param meetings a list of SignupMeeting objects
 	 * @param removedTimeslots a list of SignupTimeslot objects to be removed
+	 * @return the saved meetings in the same order
 	 */
-	void updateMeetingsAndRemoveTimeslots(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots);
+	List<SignupMeeting> updateMeetingsAndRemoveTimeslots(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots);
 
 	/**
 	 * Gets total Events record-Counts for auto-reminder process

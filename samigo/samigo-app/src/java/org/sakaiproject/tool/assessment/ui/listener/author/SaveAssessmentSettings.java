@@ -35,14 +35,13 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig.ConfigMode;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
@@ -55,7 +54,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
@@ -65,6 +63,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>2
@@ -73,8 +74,24 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class SaveAssessmentSettings
+public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
 {
+
+  @Autowired
+  @Qualifier("org.sakaiproject.grading.api.GradingService")
+  private GradingService gradebookService;
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade")
+  private ExtendedTimeFacade extendedTimeFacade;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
 
   private static final String EXTENDED_TIME_KEY = "extendedTime";
 
@@ -114,7 +131,7 @@ public class SaveAssessmentSettings
     control.setDueDate(assessmentSettings.getDueDate());
 
     if (assessmentSettings.getLateHandling() != null) {
-        control.setLateHandling(new Integer(assessmentSettings.getLateHandling()));
+        control.setLateHandling(Integer.valueOf(assessmentSettings.getLateHandling()));
     }
 
     if ("".equals(assessmentSettings.getRetractDateString())) {
@@ -131,7 +148,7 @@ public class SaveAssessmentSettings
     control.setFeedbackEndDate(assessmentSettings.getFeedbackEndDate());
     //Set the value if the checkbox is selected, wipe the value otherwise.
     String feedbackScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
-    control.setFeedbackScoreThreshold(assessmentSettings.getFeedbackScoreThresholdEnabled() ? new Double(feedbackScoreThreshold) : null);
+    control.setFeedbackScoreThreshold(assessmentSettings.getFeedbackScoreThresholdEnabled() ? Double.valueOf(feedbackScoreThreshold) : null);
     control.setReleaseTo(assessmentSettings.getReleaseTo());
 
     // b. set Timed Assessment
@@ -150,13 +167,13 @@ public class SaveAssessmentSettings
     	control.setItemNavigation(Integer.valueOf(nav));
     }
     if (StringUtils.isNotBlank(assessmentSettings.getItemNumbering())) {
-      control.setItemNumbering(new Integer(assessmentSettings.getItemNumbering()));
+      control.setItemNumbering(Integer.valueOf(assessmentSettings.getItemNumbering()));
     }
     if (StringUtils.isNotBlank(assessmentSettings.getDisplayScoreDuringAssessments())) {
-      control.setDisplayScoreDuringAssessments(new Integer(assessmentSettings.getDisplayScoreDuringAssessments()));
+      control.setDisplayScoreDuringAssessments(Integer.valueOf(assessmentSettings.getDisplayScoreDuringAssessments()));
     }
     if (StringUtils.isNotBlank(assessmentSettings.getAssessmentFormat())) {
-      control.setAssessmentFormat(new Integer(assessmentSettings.getAssessmentFormat()));
+      control.setAssessmentFormat(Integer.valueOf(assessmentSettings.getAssessmentFormat()));
     }
 
     if (assessmentSettings.getIsMarkForReview()) {
@@ -174,7 +191,7 @@ public class SaveAssessmentSettings
     			equals(AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString())) {
     		control.setUnlimitedSubmissions(Boolean.FALSE);
     		if (assessmentSettings.getSubmissionsAllowed() != null)
-    			control.setSubmissionsAllowed(new Integer(assessmentSettings.
+    			control.setSubmissionsAllowed(Integer.valueOf(assessmentSettings.
     					getSubmissionsAllowed()));
     		else
     			control.setSubmissionsAllowed(Integer.valueOf("1"));
@@ -188,7 +205,7 @@ public class SaveAssessmentSettings
     if (assessmentSettings.getInstructorNotification() != null) {
         try
         {
-            control.setInstructorNotification(new Integer(assessmentSettings.getInstructorNotification()));
+            control.setInstructorNotification(Integer.valueOf(assessmentSettings.getInstructorNotification()));
         }
         catch( NumberFormatException ex )
         {
@@ -198,7 +215,7 @@ public class SaveAssessmentSettings
     }
 
     if (assessmentSettings.getSubmissionsSaved()!=null){
-      control.setSubmissionsSaved(new Integer(assessmentSettings.getSubmissionsSaved()));
+      control.setSubmissionsSaved(Integer.valueOf(assessmentSettings.getSubmissionsSaved()));
     }
     
     if (assessmentSettings.getAutoSubmit())
@@ -231,14 +248,14 @@ public class SaveAssessmentSettings
       feedback.setAssessmentBase(assessment.getData());
     }
     if (assessmentSettings.getFeedbackDelivery()!=null)
-     feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
+     feedback.setFeedbackDelivery(Integer.valueOf(assessmentSettings.getFeedbackDelivery()));
     if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
-        feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
+        feedback.setFeedbackComponentOption(Integer.valueOf(assessmentSettings.getFeedbackComponentOption()));
     if (assessmentSettings.getFeedbackAuthoring()!=null)
-     feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
+     feedback.setFeedbackAuthoring(Integer.valueOf(assessmentSettings.getFeedbackAuthoring()));
     // if 'No feedback' (it corresponds to value 3) is selected, 
 	// all components are unchecked
-    if (feedback.getFeedbackDelivery().equals(new Integer("3")))
+    if (feedback.getFeedbackDelivery().equals(Integer.valueOf("3")))
     {
     	feedback.setShowQuestionText(false);
 		feedback.setShowStudentResponse(false);
@@ -296,7 +313,7 @@ public class SaveAssessmentSettings
 	}
 
     if (assessmentSettings.getScoringType()!=null)
-      evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
+      evaluation.setScoringType(Integer.valueOf(assessmentSettings.getScoringType()));
 
     assessment.setEvaluationModel(evaluation);
 
@@ -309,7 +326,7 @@ public class SaveAssessmentSettings
     updateMetaWithValueMap(assessment, h);
 
     org.sakaiproject.grading.api.GradingService gradingService =
-			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			gradebookService;
 
     boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
 
@@ -337,7 +354,6 @@ public class SaveAssessmentSettings
       assessment.updateAssessmentToGradebookNameMetaData("");
     }
 
-    ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
     extendedTimeFacade.saveEntries(assessment, assessmentSettings.getExtendedTimes());
 
     // i. set Graphics
@@ -352,6 +368,7 @@ public class SaveAssessmentSettings
 
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);
+    control = (AssessmentAccessControl) assessment.getAssessmentAccessControl();
     assessmentService.deleteAllSecuredIP(assessment);
 
     // k. set ipAddresses
@@ -372,7 +389,6 @@ public class SaveAssessmentSettings
     assessment.setSecuredIPAddressSet(ipSet);
     
     // kk. secure delivery settings
-    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
     String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, encryptedPassword);
@@ -432,7 +448,7 @@ public class SaveAssessmentSettings
     updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData(), true);
     EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SETTING_EDIT, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId(), true));
     
-    AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+    AuthzQueriesFacadeAPI authz = authzQueriesFacade;
     if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
         authz.removeAuthorizationByQualifierAndFunction(assessmentId.toString(), "TAKE_ASSESSMENT");
     	String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave();//getGroupsAuthorized();

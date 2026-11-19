@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.jsf2.util.JsfTool;
@@ -58,7 +58,7 @@ public class HelpJsfTool extends JsfTool
   private static final String EXTERNAL_WEBAPP_URL_BASE = "help.redirect.external.webapp";
   private static final String EXTERNAL_WEBAPP_URL = ServerConfigurationService.getString(EXTERNAL_WEBAPP_URL_BASE, "sakai");
   /**
-   * @see org.sakaiproject.jsf.util.JsfTool#dispatch(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   * @see org.sakaiproject.jsf.util.JsfTool#dispatch(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)
    */
   protected void dispatch(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException

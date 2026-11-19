@@ -24,13 +24,15 @@
 
 package org.sakaiproject.tags.tool.forms;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tags.api.TagCollection;
-import org.sakaiproject.tags.api.Errors;
 
 /**
  * Maps to and from the collection HTML form and a collection data object.
@@ -42,21 +44,21 @@ public class TagCollectionForm extends BaseForm {
     private final String name;
     private final String description;
     private final String createdBy;
-    private final long creationDate;
+    private final Long creationDate;
     private final String externalSourceName;
     private final String externalSourceDescription;
     private final String lastModifiedBy;
-    private final long lastModificationDate;
+    private final Long lastModificationDate;
     private final Boolean externalUpdate;
     private final Boolean externalCreation;
-    private final long lastSynchronizationDate;
-    private final long lastUpdateDateInExternalSystem  ;
+    private final Long lastSynchronizationDate;
+    private final Long lastUpdateDateInExternalSystem  ;
 
     private TagCollectionForm(String uuid, String name,
-                         String description, String createdBy, long creationDate,
+                         String description, String createdBy, Long creationDate,
                          String externalSourceName, String externalSourceDescription,
-                         String lastModifiedBy, long lastModificationDate, Boolean externalUpdate, Boolean externalCreation,
-                         long lastSynchronizationDate, long lastUpdateDateInExternalSystem) {
+                         String lastModifiedBy, Long lastModificationDate, Boolean externalUpdate, Boolean externalCreation,
+                         Long lastSynchronizationDate, Long lastUpdateDateInExternalSystem) {
         this.uuid = uuid;
         this.name = name;
         this.description = description;
@@ -75,26 +77,22 @@ public class TagCollectionForm extends BaseForm {
 
 
     public static TagCollectionForm fromTagCollection(TagCollection existingTagCollection) {
-        try {
-            String uuid = existingTagCollection.getTagCollectionId();
+        String uuid = existingTagCollection.getTagCollectionId();
 
-            return new TagCollectionForm(uuid,
-                    existingTagCollection.getName(),
-                    existingTagCollection.getDescription(),
-                    existingTagCollection.getCreatedBy(),
-                    existingTagCollection.getCreationDate(),
-                    existingTagCollection.getExternalSourceName(),
-                    existingTagCollection.getExternalSourceDescription(),
-                    existingTagCollection.getLastModifiedBy(),
-                    existingTagCollection.getLastModificationDate(),
-                    existingTagCollection.getExternalUpdate(),
-                    existingTagCollection.getExternalCreation(),
-                    existingTagCollection.getLastSynchronizationDate(),
-                    existingTagCollection.getLastUpdateDateInExternalSystem());
+        return new TagCollectionForm(uuid,
+                existingTagCollection.getName(),
+                existingTagCollection.getDescription(),
+                existingTagCollection.getCreatedBy(),
+                existingTagCollection.getCreationDate(),
+                existingTagCollection.getExternalSourceName(),
+                existingTagCollection.getExternalSourceDescription(),
+                existingTagCollection.getLastModifiedBy(),
+                existingTagCollection.getLastModificationDate(),
+                existingTagCollection.getExternalUpdate(),
+                existingTagCollection.getExternalCreation(),
+                existingTagCollection.getLastSynchronizationDate(),
+                existingTagCollection.getLastUpdateDateInExternalSystem());
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
 
@@ -105,35 +103,15 @@ public class TagCollectionForm extends BaseForm {
         String name= request.getParameter("name");
         String description= request.getParameter("description");
         String createdBy= request.getParameter("createdBy");
-        long creationDate;
-        try {
-            creationDate= Long.parseLong(request.getParameter("creationDate"));
-        }catch (Exception e){
-            creationDate=0L;
-        }
-        String externalSourceName= request.getParameter("externalSourceName");
+        Long creationDate = parseNullableLong(request.getParameter("creationDate"));
+        String externalSourceName = StringUtils.trimToNull(request.getParameter("externalSourceName"));
         String externalSourceDescription= request.getParameter("externalSourceDescription");
         String lastModifiedBy= request.getParameter("lastModifiedBy");
-        long lastModificationDate;
-        try {
-            lastModificationDate= Long.parseLong(request.getParameter("lastModificationDate"));
-        }catch (Exception e){
-            lastModificationDate=0L;
-        }
-        Boolean externalUpdate= "true".equals(request.getParameter("externalUpdate"));
-        Boolean externalCreation= "true".equals(request.getParameter("externalCreation"));
-        long lastSynchronizationDate;
-        try {
-            lastSynchronizationDate= Long.parseLong(request.getParameter("lastSynchronizationDate"));
-        }catch (Exception e){
-            lastSynchronizationDate=0L;
-        }
-        long lastUpdateDateInExternalSystem;
-        try {
-            lastUpdateDateInExternalSystem  = Long.parseLong(request.getParameter("lastUpdateDateInExternalSystem"));
-        }catch (Exception e){
-            lastUpdateDateInExternalSystem=0L;
-        }
+        Long lastModificationDate = parseNullableLong(request.getParameter("lastModificationDate"));
+        Boolean externalUpdate= BooleanUtils.toBooleanObject(request.getParameter("externalUpdate"));
+        Boolean externalCreation= BooleanUtils.toBooleanObject(request.getParameter("externalCreation"));
+        Long lastSynchronizationDate = parseNullableLong(request.getParameter("lastSynchronizationDate"));
+        Long lastUpdateDateInExternalSystem = parseNullableLong(request.getParameter("lastUpdateDateInExternalSystem"));
 
 
 
@@ -144,21 +122,13 @@ public class TagCollectionForm extends BaseForm {
                  lastSynchronizationDate, lastUpdateDateInExternalSystem);
     }
 
-    public Errors validate() {
-        //TODO Validate Tags
-        Errors errors = new Errors();
-
-        Errors modelErrors = toTagCollection().validate();
-
-        return errors.merge(modelErrors);
-    }
-
     public TagCollection toTagCollection() {
-        return new TagCollection(uuid, name,
-                description, createdBy, creationDate,
-                externalSourceName, externalSourceDescription,
-                lastModifiedBy, lastModificationDate, externalUpdate, externalCreation,
-                lastSynchronizationDate, lastUpdateDateInExternalSystem);
+        return TagCollection.builder().tagCollectionId(uuid).name(name).description(description)
+                .createdBy(createdBy).creationDate(creationDate).externalSourceName(externalSourceName)
+                .externalSourceDescription(externalSourceDescription).lastModifiedBy(lastModifiedBy)
+                .lastModificationDate(lastModificationDate).externalUpdate(externalUpdate).externalCreation(externalCreation)
+                .lastSynchronizationDate(lastSynchronizationDate).lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+                .build();
     }
 
 }

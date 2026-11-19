@@ -58,9 +58,9 @@ import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServ
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebService;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Created by jbush on 2/11/14.

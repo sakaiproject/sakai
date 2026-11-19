@@ -23,7 +23,7 @@ package uk.ac.cam.caret.sakai.rwiki.tool;
 import java.util.Collection;
 import java.util.HashMap;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -873,6 +873,17 @@ public class RequestScopeSuperBean
 	public void setExperimental(boolean experimental)
 	{
 		this.experimental = experimental;
+	}
+
+	/**
+	 * Whether the portal search panel is on the page, as the portal renders it only with portal and site search on
+	 * and for a logged in user. The wiki's own search form is needed otherwise.
+	 */
+	public boolean isPortalSearch()
+	{
+		return searchExperimental
+				&& ServerConfigurationService.getBoolean("portal.search.enabled", true)
+				&& getCurrentUserId() != null;
 	}
 
 	public String getSearchTarget()

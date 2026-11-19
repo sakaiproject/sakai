@@ -83,10 +83,9 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 		
 		// copy to destination
 		for(ReportDef rd : list) {
-			rd.setId(0);
-			rd.setSiteId(toContext);
-			rd.getReportParams().setSiteId(toContext);
-			reportManager.saveReportDefinition(rd);
+			ReportDef copy = new ReportDef(rd, toContext);
+			copy.setId(0);
+			reportManager.saveReportDefinition(copy);
 		}
 
         return null;

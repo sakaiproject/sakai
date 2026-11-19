@@ -20,11 +20,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules.DueRetract;
 import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules.ImportNormalization;
 import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules.ImportOutcome;
 
@@ -161,6 +163,99 @@ public class AssessmentFeedbackDateRulesTest {
                 normalization.getFeedbackStartDate(), normalization.getFeedbackEndDate());
 
         assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    public void usesLatestExceptionCutoffWhenLaterThanAssessmentDueDate() {
+        Date assessmentDue = date("2026-06-25T00:00:00Z");
+        Date exceptionDue = date("2026-06-28T00:00:00Z");
+
+        assertEquals(exceptionDue, AssessmentFeedbackDateRules.getFeedbackCutoffDate(assessmentDue, null, null,
+                Collections.singletonList(new DueRetract(exceptionDue, null))));
+    }
+
+    @Test
+    public void usesExceptionRetractCutoffIndependentOfAssessmentLateHandling() {
+        Date assessmentDue = date("2026-06-25T00:00:00Z");
+        Date exceptionDue = date("2026-06-26T00:00:00Z");
+        Date exceptionRetract = date("2026-06-30T00:00:00Z");
+
+        assertEquals(exceptionRetract, AssessmentFeedbackDateRules.getFeedbackCutoffDate(assessmentDue, null,
+                AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION,
+                Collections.singletonList(new DueRetract(exceptionDue, exceptionRetract))));
+    }
+
+    @Test
+    public void rejectsFeedbackStartBeforeExceptionDueDate() {
+        List<AssessmentFeedbackDateRules.Violation> violations = AssessmentFeedbackDateRules.validate(
+                date("2026-06-25T00:00:00Z"), null, null,
+                date("2026-06-26T00:00:00Z"), null,
+                Collections.singletonList(new DueRetract(date("2026-06-28T00:00:00Z"), null)));
+
+        assertTrue(hasError(violations, AssessmentFeedbackDateRules.Error.FEEDBACK_START_BEFORE_DUE_DATE));
+    }
+
+    @Test
+    public void allowsFeedbackStartOnLatestExceptionCutoff() {
+        Date exceptionDue = date("2026-06-28T00:00:00Z");
+        List<AssessmentFeedbackDateRules.Violation> violations = AssessmentFeedbackDateRules.validate(
+                date("2026-06-25T00:00:00Z"), null, null,
+                exceptionDue, null,
+                Collections.singletonList(new DueRetract(exceptionDue, null)));
+
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    public void detectsExceptionCutoffAfterFeedbackDate() {
+        assertTrue(AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(
+                date("2026-06-28T00:00:00Z"), null, date("2026-06-27T00:00:00Z")));
+    }
+
+    @Test
+    public void allowsExceptionCutoffOnFeedbackDate() {
+        Date feedbackDate = date("2026-06-28T00:00:00Z");
+        assertFalse(AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(
+                feedbackDate, null, feedbackDate));
+    }
+
+    @Test
+    public void detectsExceptionRetractCutoffAfterFeedbackDate() {
+        assertTrue(AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(
+                date("2026-06-26T00:00:00Z"), date("2026-06-30T00:00:00Z"), date("2026-06-28T00:00:00Z")));
+    }
+
+    @Test
+    public void rejectsFeedbackDatesWithoutAssessmentDueDateEvenWithExceptionDueDate() {
+        List<AssessmentFeedbackDateRules.Violation> violations = AssessmentFeedbackDateRules.validate(
+                null, null, null,
+                date("2026-06-29T00:00:00Z"), null,
+                Collections.singletonList(new DueRetract(date("2026-06-28T00:00:00Z"), null)));
+
+        assertTrue(hasError(violations, AssessmentFeedbackDateRules.Error.MISSING_DUE_DATE));
+        assertFalse(hasError(violations, AssessmentFeedbackDateRules.Error.FEEDBACK_START_BEFORE_DUE_DATE));
+    }
+
+    @Test
+    public void usesExceptionRetractWhenExceptionDueDateIsAbsent() {
+        Date assessmentDue = date("2026-06-25T00:00:00Z");
+        Date exceptionRetract = date("2026-06-30T00:00:00Z");
+
+        assertEquals(exceptionRetract, AssessmentFeedbackDateRules.getFeedbackCutoffDate(assessmentDue, null, null,
+                Collections.singletonList(new DueRetract(null, exceptionRetract))));
+
+        List<AssessmentFeedbackDateRules.Violation> violations = AssessmentFeedbackDateRules.validate(
+                assessmentDue, null, null,
+                date("2026-06-26T00:00:00Z"), null,
+                Collections.singletonList(new DueRetract(null, exceptionRetract)));
+
+        assertTrue(hasError(violations, AssessmentFeedbackDateRules.Error.FEEDBACK_START_BEFORE_DUE_DATE));
+    }
+
+    @Test
+    public void detectsExceptionRetractOnlyCutoffAfterFeedbackDate() {
+        assertTrue(AssessmentFeedbackDateRules.isExceptionCutoffAfterFeedbackDate(
+                null, date("2026-06-30T00:00:00Z"), date("2026-06-26T00:00:00Z")));
     }
 
     private Date date(String value) {

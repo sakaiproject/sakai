@@ -92,7 +92,6 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
 /**
  * The AssessmentService calls the service locator to reach the manager on the
@@ -174,7 +173,7 @@ public class AssessmentService {
 		try {
 			return PersistenceService.getInstance()
 					.getAssessmentFacadeQueries().getBasicInfoOfAnAssessment(
-							new Long(assessmentId));
+							Long.valueOf(assessmentId));
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -303,13 +302,13 @@ public class AssessmentService {
 			// #1 - check templateId and prepared it in Long
 			Long templateIdLong = AssessmentTemplateFacade.DEFAULTTEMPLATE;
 			if (StringUtils.isNotBlank(templateId)) {
-				templateIdLong = new Long(templateId);
+				templateIdLong = Long.valueOf(templateId);
 			}
 
 			// #2 - check typeId and prepared it in Long
 			Long typeIdLong = TypeFacade.HOMEWORK;
 			if (StringUtils.isNotBlank(typeId)) {
-				typeIdLong = new Long(typeId);
+				typeIdLong = Long.valueOf(typeId);
 			}
 
 			AssessmentFacadeQueriesAPI queries = PersistenceService
@@ -326,7 +325,7 @@ public class AssessmentService {
 
 	public int getQuestionSize(String assessmentId) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.getQuestionSize(new Long(assessmentId));
+				.getQuestionSize(Long.valueOf(assessmentId));
 	}
 
 	public List getQuestionsIdList(long assessmentId) {
@@ -335,12 +334,11 @@ public class AssessmentService {
 	}
 
 	public void update(AssessmentFacade assessment) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.saveOrUpdate(assessment);
+		saveAssessment(assessment);
 	}
 
-	public void save(AssessmentTemplateData template) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
+	public AssessmentTemplateData save(AssessmentTemplateData template) {
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.saveOrUpdate(template);
 	}
 
@@ -350,8 +348,9 @@ public class AssessmentService {
 	}
 
 	public void saveAssessment(AssessmentFacade assessment) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
+		AssessmentData savedData = PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.saveOrUpdate(assessment);
+		assessment.updateData(savedData);
 	}
 
 	public void deleteAssessmentTemplate(Long assessmentId) {
@@ -361,7 +360,7 @@ public class AssessmentService {
 
 	public void removeAssessment(String assessmentId) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.removeAssessment(new Long(assessmentId));
+				.removeAssessment(Long.valueOf(assessmentId));
 	}
 
 	/**
@@ -381,7 +380,7 @@ public class AssessmentService {
 	public SectionFacade addSection(String assessmentId) {
 		SectionFacade section = null;
 		try {
-			Long assessmentIdLong = new Long(assessmentId);
+			Long assessmentIdLong = Long.valueOf(assessmentId);
 			AssessmentFacadeQueriesAPI queries = PersistenceService
 					.getInstance().getAssessmentFacadeQueries();
 			section = queries.addSection(assessmentIdLong);
@@ -393,7 +392,7 @@ public class AssessmentService {
 
 	public void removeSection(String sectionId) {
 		try {
-			Long sectionIdLong = new Long(sectionId);
+			Long sectionIdLong = Long.valueOf(sectionId);
 			AssessmentFacadeQueriesAPI queries = PersistenceService
 					.getInstance().getAssessmentFacadeQueries();
 			queries.removeSection(sectionIdLong);
@@ -407,7 +406,7 @@ public class AssessmentService {
 		try {
 			return PersistenceService.getInstance()
 					.getAssessmentFacadeQueries().getSection(
-							new Long(sectionId));
+							Long.valueOf(sectionId));
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -426,14 +425,14 @@ public class AssessmentService {
 
 	public void moveAllItems(String sourceSectionId, String destSectionId) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.moveAllItems(new Long(sourceSectionId),
-						new Long(destSectionId)); // signalling all & no
+				.moveAllItems(Long.valueOf(sourceSectionId),
+						Long.valueOf(destSectionId)); // signalling all & no
 													// paging
 	}
 
 	public void removeAllItems(String sourceSectionId) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.removeAllItems(new Long(sourceSectionId));
+				.removeAllItems(Long.valueOf(sourceSectionId));
 	}
 
 	private List<ItemDataIfc> getItemListFromPools(SectionFacade section) {
@@ -497,7 +496,7 @@ public class AssessmentService {
 					                 
 			if (StringUtils.isNotBlank(requestedScore)) {
 				hasRandomPartScore = true;
-				score = new Double(requestedScore);
+				score = Double.valueOf(requestedScore);
 			}
 			boolean hasRandomPartDiscount = false;
 			Double discount = null;
@@ -506,7 +505,7 @@ public class AssessmentService {
 
 			if (StringUtils.isNotBlank(requestedDiscount)) {
 				hasRandomPartDiscount = true;
-				discount = new Double(requestedDiscount);
+				discount = Double.valueOf(requestedDiscount);
 			}
 
 			// random section:
@@ -706,13 +705,13 @@ public class AssessmentService {
 			// #1 - check templateId and prepared it in Long
 			Long templateIdLong = AssessmentTemplateFacade.DEFAULTTEMPLATE;
 			if (StringUtils.isNotBlank(templateId)) {
-				templateIdLong = new Long(templateId);
+				templateIdLong = Long.valueOf(templateId);
 			}
 
 			// #2 - check typeId and prepared it in Long
 			Long typeIdLong = TypeFacade.HOMEWORK;
 			if (StringUtils.isNotBlank(typeId)) {
-				typeIdLong = new Long(typeId);
+				typeIdLong = Long.valueOf(typeId);
 			}
 
 			AssessmentFacadeQueriesAPI queries = PersistenceService
@@ -729,7 +728,7 @@ public class AssessmentService {
 	public boolean assessmentTitleIsUnique(String assessmentBaseId,
 			String title, boolean isTemplate) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.assessmentTitleIsUnique(new Long(assessmentBaseId), title,
+				.assessmentTitleIsUnique(Long.valueOf(assessmentBaseId), title,
 						Boolean.valueOf(isTemplate));
 	}
 
@@ -782,7 +781,7 @@ public class AssessmentService {
 
 	public List getAssessmentByTemplate(String templateId) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.getAssessmentByTemplate(new Long(templateId));
+				.getAssessmentByTemplate(Long.valueOf(templateId));
 	}
 
 	public List getDefaultMetaDataSet() {
@@ -862,7 +861,7 @@ public class AssessmentService {
 
 	public void removeSectionAttachment(String attachmentId) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.removeSectionAttachment(new Long(attachmentId));
+				.removeSectionAttachment(Long.valueOf(attachmentId));
 	}
 
 	public AssessmentAttachmentIfc createAssessmentAttachment(
@@ -882,7 +881,7 @@ public class AssessmentService {
 
 	public void removeAssessmentAttachment(String attachmentId) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.removeAssessmentAttachment(new Long(attachmentId));
+				.removeAssessmentAttachment(Long.valueOf(attachmentId));
 	}
 
 	public AttachmentData createEmailAttachment(String resourceId,
@@ -1205,7 +1204,6 @@ public class AssessmentService {
 	 */
 	private void linkGradebookCategory(String fromContext, String toContext, Map<String, String> transversalMap) {
 		if (transversalMap == null || transversalMap.isEmpty()
-				|| !IntegrationContextFactory.getInstance().isIntegrated()
 				|| gradingService.isGradebookGroupEnabled(fromContext)
 				|| gradingService.isGradebookGroupEnabled(toContext)
 		) {
@@ -1468,7 +1466,7 @@ public class AssessmentService {
 		StringBuilder markupText = new StringBuilder(); 
 		int nQuestion = 1;
 		
-		for (Object sectionObj : assessment.getSectionArray()) {
+		for (Object sectionObj : assessment.getSectionArraySorted()) {
 			SectionFacade section = (SectionFacade)sectionObj;
 			List<ItemDataIfc> items = null;
 			boolean hasRandomPartScore = false;
@@ -1487,7 +1485,7 @@ public class AssessmentService {
 				if (StringUtils.isNotEmpty(requestedScore)) {
 					hasRandomPartScore = true;
 					try {
-						score = new Double(requestedScore);
+						score = Double.valueOf(requestedScore);
 					} catch (NumberFormatException e) {
 						log.error("NumberFormatException converting to Double: " + requestedScore);
 					}
@@ -1498,7 +1496,7 @@ public class AssessmentService {
 				if (StringUtils.isNotEmpty(requestedDiscount)) {
 					hasRandomPartDiscount = true;
 					try {
-						discount = new Double(requestedDiscount);
+						discount = Double.valueOf(requestedDiscount);
 					} catch (NumberFormatException e) {
 						log.error("NumberFormatException converting to Double: " + requestedDiscount);
 					}

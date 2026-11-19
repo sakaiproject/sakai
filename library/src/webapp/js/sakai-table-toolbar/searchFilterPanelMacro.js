@@ -4,7 +4,8 @@
     const MIN_SEARCH_CHARS = 3;
 
     document.querySelectorAll('.sakai-table-searchFilter-searchField[data-search-url]').forEach(field => {
-        const clearBtn = field.nextElementSibling;
+        // the search the listing shows, which emptying the field has to drop
+        let applied = field.value.trim();
 
         const doFetch = async (url) => {
             if (!url) return;
@@ -35,27 +36,18 @@
             }
         };
 
-        const updateClearBtn = () => clearBtn && (clearBtn.style.display = field.value ? '' : 'none');
-
         const search = () => {
             const q = field.value.trim();
-            if (!q) return doFetch(field.dataset.clearUrl);
-            if (q.length < MIN_SEARCH_CHARS) return;
-            doFetch(`${field.dataset.searchUrl}&search=${encodeURIComponent(q)}`);
+            if (q && q.length < MIN_SEARCH_CHARS) return;
+            applied = q;
+            doFetch(q ? `${field.dataset.searchUrl}&search=${encodeURIComponent(q)}` : field.dataset.clearUrl);
         };
 
-        field.addEventListener('input', () => {
-            updateClearBtn();
-        });
+        // emptying the field, with the native clear button or by deleting the text, drops the search
+        field.addEventListener('input', () => !field.value && applied && search());
 
         field.addEventListener('keydown', e => {
             if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); search(); }
-        });
-
-        clearBtn?.addEventListener('click', () => {
-            field.value = '';
-            updateClearBtn();
-            search();
         });
     });
 

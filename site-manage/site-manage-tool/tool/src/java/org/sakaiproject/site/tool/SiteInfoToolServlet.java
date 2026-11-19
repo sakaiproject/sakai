@@ -21,6 +21,8 @@
 
 package org.sakaiproject.site.tool;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -30,10 +32,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,7 +44,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,6 @@ import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 import org.apache.fop.fo.ValidationException;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.util.Participant;
@@ -106,7 +106,7 @@ public class SiteInfoToolServlet extends HttpServlet
 
 	/**
 	 * Initialize this servlet.
-	 * @throws javax.servlet.ServletException
+	 * @throws jakarta.servlet.ServletException
 	 */
 	public void init() throws ServletException
 	{
@@ -115,7 +115,7 @@ public class SiteInfoToolServlet extends HttpServlet
             basicAuth = new BasicAuth();
             basicAuth.init();
             
-            transformerFactory = TransformerFactory.newInstance();
+            transformerFactory = Xml.createSecureTransformerFactory();
     		try
     		{
     			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -378,7 +378,7 @@ public class SiteInfoToolServlet extends HttpServlet
 			FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
 			Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, streamOut);
 			InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
-			Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
+			Transformer transformer = transformerFactory.newTransformer(Xml.createSecureSource(in));
 			transformer.setParameter("titleName", rb.getString("sitegen.siteinfolist.title.name"));
 			transformer.setParameter("titleId", rb.getString("sitegen.siteinfolist.title.id"));
 			transformer.setParameter("titleSection", rb.getString("sitegen.siteinfolist.title.section"));

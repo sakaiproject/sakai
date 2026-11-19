@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>26-SNAPSHOT</version>
+		<version>27-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Sakai Library</name>
@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>org.tuckey</groupId>
 			<artifactId>urlrewritefilter</artifactId>
-			<version>4.0.3</version>
+			<version>5.1.3</version>
 		</dependency>
 		<!--Used in cloud storage, Google Drive integration, file navigation UI -->
 		<dependency>
@@ -93,12 +93,12 @@
 			<artifactId>ckeditor-html5-video</artifactId>
 			<version>${ckeditor.html5video.version}</version>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>ckeditor4-fmath-editor</artifactId>
-			<version>${ckeditor4.fmath.editor.version}</version>
-			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.webjars</groupId>
+					<artifactId>ckeditor</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!--Used in Resources, drag&drop resources -->
 		<dependency>
@@ -130,6 +130,12 @@
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>moment-timezone</artifactId>
 			<version>0.5.33</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.webjars.npm</groupId>
+					<artifactId>moment</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -183,6 +189,12 @@
 			<artifactId>jquery-i18n-properties</artifactId>
 			<version>1.2.2</version>
 			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>jquery</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -222,13 +234,13 @@
 			<version>4.1.0</version>
 			<scope>runtime</scope>
 		</dependency>
-		<!--Used in Private messages, Tests&Quizzes, selector of multiple items (users, groups), group manager tool -->
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>select2</artifactId>
-            <version>4.0.13</version>
-            <scope>runtime</scope>
-        </dependency>
+		<!-- Used for question-pool search in Tests & Quizzes. -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>select2</artifactId>
+			<version>4.0.13</version>
+			<scope>runtime</scope>
+		</dependency>
 		<!--Used in Lessons, embed calendar item. New Calendar UI. -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
@@ -238,21 +250,27 @@
 		</dependency>
 		<!--Used in Tests&Quizzes, Private Messages, search, pagination and sort options for tables -->
 		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>datatables</artifactId>
-			<version>1.10.25</version>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>datatables.net</artifactId>
+			<version>3.0.3</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>datatables-plugins</artifactId>
-			<version>1.13.1</version>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>datatables.net-bs5</artifactId>
+			<version>3.0.3</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars.bowergithub.datatables</groupId>
-			<artifactId>dist-datatables-rowgroup</artifactId>
-			<version>1.1.3</version>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>datatables.net-rowgroup</artifactId>
+			<version>2.0.0</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>datatables.net-plugins</artifactId>
+			<version>3.0.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Tests&Quizzes, Assignments, Site Info, Resources, Announcements, Sites, selector of multiple items (groups, tools) -->
@@ -261,11 +279,6 @@
 			<artifactId>bootstrap-multiselect</artifactId>
 			<version>1.1.1</version>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>jquery.tablesorter</artifactId>
-			<version>2.27.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
@@ -332,6 +345,25 @@
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>dompurify</artifactId>
 			<version>3.4.6</version>
+		</dependency>
+		<!-- Used in the Video Training tool -->
+		<dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>plyr</artifactId>
+            <version>3.8.5</version>
+            <scope>runtime</scope>
+        </dependency>
+		<dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>hls.js</artifactId>
+            <version>1.5.15</version>
+            <scope>runtime</scope>
+        </dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>sortablejs</artifactId>
+			<version>1.15.7</version>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 	<profiles>
@@ -464,7 +496,7 @@
 							<dependency>
 								<groupId>org.codehaus.plexus</groupId>
 								<artifactId>plexus-utils</artifactId>
-								<version>3.5.1</version>
+								<version>3.6.1</version>
 							</dependency>
 						</dependencies>
 						<executions>
@@ -618,7 +650,6 @@
 					<plugin>
 						<groupId>com.github.eirslett</groupId>
 						<artifactId>frontend-maven-plugin</artifactId>
-						<version>1.12.0</version>
 						<configuration>
 							<installDirectory>target</installDirectory>
 							<workingDirectory>${basedir}/src/skins/${sakai.skin.source}</workingDirectory>
@@ -694,6 +725,14 @@
 			<properties>
 				<ckeditor-math-extra-plugins>FMathEditor</ckeditor-math-extra-plugins>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.webjars</groupId>
+					<artifactId>ckeditor4-fmath-editor</artifactId>
+					<version>${ckeditor4.fmath.editor.version}</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
 		</profile>
 	</profiles>
 	<build>
@@ -721,6 +760,11 @@
 						js/portal/src/**,
                         bundled-js/**
 					</warSourceExcludes>
+                    <!-- DataTables Editor field adapters are unused by Sakai. -->
+                    <packagingExcludes>
+                        webjars/datatables.net-plugins/*/editorFields/**,
+                        WEB-INF/lib/datatables.net-plugins-*.jar
+                    </packagingExcludes>
 					<webResources>
 						<resource>
 							<directory>src/webapp-filtered</directory>

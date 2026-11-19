@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.portal.service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.mockito.Mockito.*;
 
@@ -76,6 +76,8 @@ public class PortalTestConfiguration extends SakaiTestConfiguration {
         ServerConfigurationService mock = mock(ServerConfigurationService.class);
         when(mock.getInt("portal.max.recent.sites", PortalServiceImpl.DEFAULT_MAX_RECENT_SITES))
             .thenReturn(PortalServiceImpl.DEFAULT_MAX_RECENT_SITES);
+        when(mock.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES))
+            .thenReturn(PortalServiceImpl.DEFAULT_MAX_PINNED_SITES);
         return mock;
     }
 }

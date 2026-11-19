@@ -4,7 +4,7 @@
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
         <relativePath>master/pom.xml</relativePath>
     </parent>
 
@@ -47,11 +47,11 @@
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
+                <module>attendance</module>
                 <module>lti</module>
                 <module>calendar</module>
                 <module>card-game</module>
                 <module>chat</module>
-                <module>citations</module>
                 <module>common</module>
                 <module>commons</module>
                 <module>conditions</module>
@@ -74,11 +74,11 @@
                 <module>help</module>
                 <module>hierarchy</module>
                 <module>jobscheduler</module>
-                <module>jsf</module>
                 <module>jsf2</module>
                 <module>kernel</module>
                 <module>lessonbuilder</module>
                 <module>library</module>
+                <module>libs</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
@@ -90,6 +90,7 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
+                <module>video-training</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
@@ -112,13 +113,11 @@
                 <module>site-manage</module>
                 <module>sitestats</module>
                 <module>syllabus</module>
-                <module>taggable</module>
                 <module>textarea</module>
                 <module>user</module>
                 <module>userauditservice</module>
                 <module>usermembership</module>
                 <module>velocity</module>
-                <module>vuecomponents</module>
                 <module>web</module>
                 <module>webapi</module>
                 <module>webcomponents</module>
@@ -137,11 +136,11 @@
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
+                <module>attendance</module>
                 <module>assignment2</module>
                 <module>lti</module>
                 <module>calendar</module>
                 <module>chat</module>
-                <module>citations</module>
                 <module>clog</module>
                 <module>common</module>
                 <module>commons</module>
@@ -165,10 +164,10 @@
                 <module>help</module>
                 <module>hierarchy</module>
                 <module>jobscheduler</module>
-                <module>jsf</module>
                 <module>kernel</module>
                 <module>lessonbuilder</module>
                 <module>library</module>
+                <module>libs</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
@@ -179,6 +178,7 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
+                <module>video-training</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
@@ -201,7 +201,6 @@
                 <module>site-manage</module>
                 <module>sitestats</module>
                 <module>syllabus</module>
-                <module>taggable</module>
                 <module>textarea</module>
                 <module>user</module>
                 <module>userauditservice</module>
@@ -277,6 +276,7 @@
                 <module>microsoft-integration/api</module>
                 <module>pasystem/pasystem-api/api</module>
                 <module>polls/api</module>
+                <module>video-training/api</module>
                 <module>profile2/api</module>
                 <module>rubrics/api</module>
                 <module>site/term-manager/api</module>
@@ -287,7 +287,6 @@
                 <module>calendar/calendar-hbm</module>
                 <module>card-game/api</module>
                 <module>chat/chat-api/api</module>
-                <module>citations/citations-api/api</module>
                 <module>commons/api</module>
                 <module>common/impl</module>
                 <module>help/help-component-shared</module>
@@ -321,8 +320,6 @@
                 <module>site-manage/site-manage-api/api</module>
                 <module>site-manage/site-manage-hbm</module>
                 <module>syllabus/syllabus-api</module>
-                <module>taggable/taggable-api/api</module>
-                <module>taggable/taggable-hbm/hbm</module>
                 <module>usermembership/api</module>
                 <module>velocity/tool-api</module>
                 <module>web/web-api/api</module>
@@ -346,10 +343,8 @@
                 <module>tags/tags-api/api</module>
                 <module>user/user-util</module>
                 <module>userauditservice/api</module>
-                <module>vuecomponents/bundle</module>
                 <module>webcomponents/bundle</module>
             </modules>
         </profile>
     </profiles>
 </project>
-

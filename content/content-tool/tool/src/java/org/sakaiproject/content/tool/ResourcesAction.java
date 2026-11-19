@@ -55,9 +55,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -460,7 +460,6 @@ public class ResourcesAction
 	private final String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private final ResourceLoader srb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	
-	static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
 
 	public static final String PREFIX = "resources.";
 	public static final String SYS = "sys.";
@@ -1167,7 +1166,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					resourceProperties.addProperty(entry.getKey(), entry.getValue());
 				}
 				contentHostingService.commitCollection(edit);
-				ResourceConditionsHelper.notifyCondition(edit);
 				new_collections.add(edit);
 			}
 			catch (PermissionException e)
@@ -1289,7 +1287,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				try
 				{
 					contentHostingService.commitResource(resource, notification);
-					ResourceConditionsHelper.notifyCondition(resource);
 					item_added = true;
 					new_resources.add(resource);
 				}
@@ -3937,7 +3934,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 			context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
 			
-			ResourceConditionsHelper.buildConditionContext(context, state);
 		}
 		
 		// Get default notification ("r", "o" or "n") 
@@ -4056,6 +4052,31 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										SessionState state)
 	{
 		log.debug("{}.buildListContext()", this);
+
+		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// Membership may change while the tool session is preserved between visits.
+			contentHostingService.createDropboxCollection();
+			String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+			String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+			if (!homeCollectionId.equals(collectionId))
+			{
+				try
+				{
+					contentHostingService.checkCollection(collectionId);
+				}
+				catch (IdUnusedException e)
+				{
+					// Reconciliation may have removed the empty folder being viewed.
+					state.setAttribute(STATE_COLLECTION_ID, homeCollectionId);
+					context.put("showDropboxOptions", siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext()));
+				}
+				catch (TypeException | PermissionException e)
+				{
+					log.debug("Unable to check Drop Box collection: {}", collectionId, e);
+				}
+			}
+		}
 		
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -5487,7 +5508,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			context.put("showMountPointProperty", Boolean.TRUE.toString());
 		}
-		ResourceConditionsHelper.buildConditionContext(context, state);
 		
 		context.put("shortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.resources.enabled", true));
 		
@@ -6095,14 +6115,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			ListItem item = (ListItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
 			item.captureProperties(params, ListItem.DOT + "0");
-			if (item.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (item.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new Object[] { item.getConditionAssignmentPoints() }));
-				return;
-			}
 			if(!"".equals(item.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", item.metadataValidationFails));
 				return;
@@ -6171,7 +6183,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 				resource.setResourceType(resourceType);
 				item.setId(resource.getId());
-				ResourceConditionsHelper.saveCondition(item, params, state, 0);
 				item.updateContentResourceEdit(resource);
 				
 				extractContent(pipe, resource);
@@ -6241,7 +6252,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					try
 					{
 						contentHostingService.commitResource(resource, noti);
-						ResourceConditionsHelper.notifyCondition(resource);
 						if(action instanceof InteractionAction)
 						{
 						    InteractionAction iAction = (InteractionAction) action;
@@ -6565,7 +6575,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 
 			startHelper(data.getRequest(), iAction.getHelperId());
-			conditionsHelper.loadConditionData(state);
 		}
 		else if(action instanceof ServiceLevelAction)
 		{
@@ -6626,7 +6635,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
 					ListItem item = getListItem(state);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
-					conditionsHelper.loadConditionData(state);
 					// sAction.finalizeAction(reference);
 					break;
 				case CUSTOM_TOOL_ACTION:
@@ -7389,14 +7397,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 			}
 			item.captureProperties(params, ListItem.DOT + "0");
-			if (item.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (item.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new Object[] { item.getConditionAssignmentPoints() }));
-				return;
-			}
 			if(!"".equals(item.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", item.metadataValidationFails));
 				return;
@@ -7460,7 +7460,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				try 
 				{
-					ResourceConditionsHelper.saveCondition(item, params, state, 0);
 					
 					Entity entity;
 					if(item.isCollection())
@@ -7482,7 +7481,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					    slAction.finalizeAction(entityManager.newReference(contentHostingService.getReference(item.getId())));
 					}
 
-					ResourceConditionsHelper.notifyCondition(entity);
 					state.setAttribute(STATE_MODE, MODE_LIST);
 				} 
 				catch (IdUnusedException e) 
@@ -9096,7 +9094,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				try
 				{
 					contentHostingService.commitResource(resource, notification);
-					ResourceConditionsHelper.notifyCondition(resource);
 					item_added = true;
 					new_resources.add(resource);
 				}
@@ -9352,7 +9349,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	    String displayName = params.getString("MultipleFolderDisplayName");
 	    String[] multipleDropboxSelected = params.getStrings("usersDropbox-selection");
-	    Set usersCollectionIds = new TreeSet();
+	    Set<String> usersCollectionIds = new TreeSet<>();
 		String copyright = "";
 		String newCopyright = "";
 		boolean copyrightAlert = false;
@@ -9447,10 +9444,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        }
 
 	        try {
-				for (Iterator it = usersCollectionIds.iterator(); it.hasNext();) {
+				// A participant may have been added since the upload form was opened.
+				contentHostingService.createDropboxCollection();
+				for (User user : userDirectoryService.getUsers(usersCollectionIds)) {
 					try (InputStream stream = params.getFileItem("MultipleFolderContent").getInputStream()) {
 						// A site Dropbox Collection ID will be /group-user/SITE_ID/USER_ID/
-						String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + it.next() + SEPARATOR;
+						String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + user.getId() + SEPARATOR;
 						cr = contentHostingService.addResource(collectionId, Validator.escapeResourceName(basename),
 								Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 
@@ -9485,6 +9484,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						}
 						contentHostingService.commitResource(cr, noti);
 						DropboxMultipleFoldersUploadInputPreserver.get().clearFormData(state);
+					} catch (IdUnusedException e) {
+						addAlert(state, trb.getFormattedMessage("multiple.file.upload.missingfolder", new Object[] { ComponentManager.get(FormattedText.class).escapeHtml(user.getDisplayName()) }));
+						log.warn("Skipping upload to missing Drop Box folder for user {} in site {}", user.getId(), siteId, e);
 					} catch (IOException e) {
 						log.warn("Failed to close stream.", e);
 					}
@@ -9492,8 +9494,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        } catch (PermissionException e) {
 	            addAlert(state, trb.getString("alert.perm"));
 	            log.warn("PermissionException {}", (Object) e);
-	        } catch (IdUnusedException e) {
-	            log.warn("IdUnusedException: Error while getting dropbox collection, this error happens when a selected group contains a maintain user");
 	        } catch (IdInvalidException e) {
 	            log.warn("IdInvalidException {}", (Object) e);
 	        } catch (IdUniquenessException e) {

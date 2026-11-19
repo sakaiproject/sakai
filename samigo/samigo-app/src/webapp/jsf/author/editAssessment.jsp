@@ -51,6 +51,8 @@ $(window).load( function() {
 
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
+<script type="text/javascript" src="/samigo-app/js/editAssessmentAccordion.js"></script>
+
 <script type="text/JavaScript">	
 	jQuery(window).load(function(){
 			
@@ -244,19 +246,23 @@ $(window).load( function() {
   <h:dataTable id="parts" width="100%" value="#{assessmentBean.sections}" var="partBean">
     <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
     <h:column>
-      <h:panelGrid styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
+    <h:panelGroup rendered="#{!author.isEditPoolFlow}">
+     <details open="open" style="border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px;" data-part-id="<h:outputText value="#{assessmentBean.assessmentId}"/>-<h:outputText value="#{partBean.sectionId}"/>">
+      <summary style="padding: 3px; font-size: 1.1em; font-weight: bold;"><h:outputText value="#{partBean.title}" escape="false"/></summary>
+    </h:panelGroup>
+	  <h:panelGrid styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
           <h:outputLabel for="number" value="#{authorMessages.p}" />
           <h:outputText value="&#160;" escape="false" />
           <h:selectOneMenu id="number" value="#{partBean.number}" onchange="enableOrderUpdate()" rendered="#{!author.isEditPoolFlow}" >
-            <f:selectItems value="#{assessmentBean.partNumbers}" />          
+            <f:selectItems value="#{assessmentBean.partNumbers}" />
           </h:selectOneMenu>
         <h:outputText value="#{partBean.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
         <h:outputText value="&#160;" escape="false" />
 	  <h:panelGroup rendered="#{!author.isEditPoolFlow}">
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions > 1}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 1}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.question_lower_case}" escape="false"/>
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 0}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions > 1}" value="#{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 1}" value="#{authorMessages.dash} #{partBean.questions} #{authorMessages.question_lower_case}" escape="false"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 0}" value="#{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
 
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3') && partBean.numberToBeFixedString > 1}" value="#{authorMessages.fixed_draw_type} #{partBean.poolNameToBeFixed} - #{partBean.numberToBeFixedString} #{authorMessages.questions_lower_case}" escape="false"/>
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3') && partBean.numberToBeFixedString == 1}" value="#{authorMessages.fixed_draw_type} #{partBean.poolNameToBeFixed} - #{partBean.numberToBeFixedString} #{authorMessages.question_lower_case}" escape="false"/>
@@ -364,7 +370,7 @@ $(window).load( function() {
         <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
         <h:outputText value="&#160;" escape="false" />
         <!-- each selectItem stores the itemtype, current sequence -->
-        <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
+        <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this, #{partBean.sectionAuthorType == null || partBean.sectionAuthorTypeString == '1'});"  value="#{itemauthor.itemTypeString}">
              <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{partBean.itemContents.size()}"/>
              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
              <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
@@ -445,7 +451,8 @@ $(window).load( function() {
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
             </h:commandLink>
             <h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}"/>
-            <h:commandLink title="#{authorMessages.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true">
+            <h:commandLink title="#{authorMessages.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true"
+                onclick="if (#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1')}) { try { sessionStorage.setItem('pendingFocusId', this.id); } catch(e) { console.warn('Could not save to sessionStorage:', e); }}">
               <h:outputText value="#{commonMessages.edit_action}" />
               <f:actionListener
                   type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
@@ -526,7 +533,7 @@ $(window).load( function() {
 	      <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
           <h:outputText value="&#160;" escape="false" />
           <!-- each selectItem stores the itemtype, current sequence -->
-          <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);" value="#{itemauthor.itemTypeString}" >
+          <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this, #{partBean.sectionAuthorType == null || partBean.sectionAuthorTypeString == '1'});" value="#{itemauthor.itemTypeString}" >
             <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
             <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{question.itemData.sequence}"/>
             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
@@ -574,9 +581,12 @@ $(window).load( function() {
           <h:outputText value="#{commonMessages.cancel_question_info_no_undo}" />
         </h:panelGroup>
       </h:panelGroup>
+      <h:panelGroup layout="block" styleClass="sak-banner-info" rendered="#{!assessmentBean.totalScoreCancellationAllowed}">
+        <h:outputText value="#{assessmentBean.totalScoreCancellationRestrictionMessage}" />
+      </h:panelGroup>
       <h:panelGroup styleClass="modal-footer act" layout="block">
         <h:commandButton styleClass="active" immediate="true" id="cancelItemTotal" action="editAssessment"
-            value="#{commonMessages.cancel_question_reduce_total}">
+            disabled="#{!assessmentBean.totalScoreCancellationAllowed}" value="#{commonMessages.cancel_question_reduce_total}">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
           <f:param name="outcome" value="editAssessment" />
           <f:param name="itemId" value="ITEM_ID" />
@@ -596,6 +606,7 @@ $(window).load( function() {
     </h:panelGroup>
   </h:panelGroup>
 </div>
+   <h:panelGroup rendered="#{!author.isEditPoolFlow}"></details></h:panelGroup>
   </h:column>
 </h:dataTable>
 <div class="act">

@@ -77,12 +77,21 @@
 												#if ($!assignment.draft)
 													<span class="highlight">$tlang.getString("gen.dra2")</span>
 												#end
-												$formattedText.escapeHtml($!assignment.title)
+												$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.title))
 												#if ($assignment.getContentReview())
 													<span class="bi bi-award" aria-hidden="true"></span> <span class="sr-only">$reviewIndicator</span>
 												#end
 												#assignmentIcons($assignment)
 											</strong>
+											#if ($assignment.isGroup)
+												<p class="instruction">
+													#if ($service.canReleaseGroupLocks($assignment))
+														$tlang.getString("group.locks.restore.draft")
+													#else
+														$tlang.getString("group.locks.trash.retain")
+													#end
+												</p>
+											#end
 								</td>
 								<td headers="softremoveddate" scope="row">
 									#if ($!assignment.softRemovedDate)
@@ -104,7 +113,7 @@
 								#if ($!allowRecoverAssignment)
 									<td headers="selectAssignments" class="screenOnly">
 											<input type="checkbox" name="selectedAssignments" value="$assignment.Id" id="check_$assignmentCount" onclick="ASN.checkEnableRestore();" />
-											<label for="check_$assignmentCount" class="skip">$formattedText.escapeHtml($!assignment.Title)</label>
+											<label for="check_$assignmentCount" class="skip">$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.Title))</label>
 									</td>
 								#end
 							</tr>

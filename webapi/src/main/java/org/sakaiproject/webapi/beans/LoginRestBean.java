@@ -15,13 +15,24 @@
  */
 package org.sakaiproject.webapi.beans;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@AllArgsConstructor
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
+@NoArgsConstructor
 public class LoginRestBean {
 
     private String username;
     private String password;
+
+    @JsonCreator
+    public LoginRestBean(
+            @JsonProperty("username") String username,
+            @JsonProperty("password") String password) {
+        this.username = username;
+        this.password = password;
+    }
 }

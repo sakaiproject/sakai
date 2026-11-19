@@ -81,7 +81,6 @@ ul#otherSitesMenu {
   .moresites-left-col {
     display: inline-block;
     width: 49%;
-    float: left;
     margin-right: 1%;
     @media #{$more-sites-single-column} {
       width: 100%;
@@ -94,7 +93,6 @@ ul#otherSitesMenu {
   .moresites-right-col {
     display: inline-block;
     width: 49%;
-    float: left;
     @media #{$more-sites-single-column} {
       width: 100%;
       float: none;
@@ -133,6 +131,7 @@ ul.favorite-site-list {
     margin: 0.3em;
     position: relative;
     width: 305px;
+    max-width: calc(100% - 0.6em);
     white-space: nowrap;
     padding: 0;
 
@@ -266,6 +265,7 @@ div.fav-title-myworkspace {
 
 .fav-title {
   width: 240px;
+  max-width: calc(100% - 2rem);
   overflow: hidden;
   display: inline-block;
   vertical-align: middle;
@@ -276,6 +276,11 @@ div.fav-title-myworkspace {
     line-height: 29px;
     text-decoration: none !important;
     vertical-align: middle;
+    @media #{$phone} {
+      overflow-x: auto;
+      scrollbar-width: none;
+      text-overflow: unset;
+    }
 
     .fullTitle {
       padding-left: 2px;

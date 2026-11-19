@@ -392,19 +392,21 @@ $Id$
 
     </h:panelGroup>
 
-        <h:panelGroup styleClass="samigo-search-student form-group" layout="block">
-            <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:inputText
-                    id="searchString"
-                    value="#{questionScores.searchString}"
-                    onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
-                    onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
-            <h:outputText value="&nbsp;" escape="false" />
-            <h:commandButton actionListener="#{questionScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
-            <h:outputText value="&nbsp;" escape="false" />
-            <h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}"/>
-         </h:panelGroup>
+        <h:panelGroup styleClass="samigo-search-student form-group sakai-table-searchFilter" layout="block">
+          <h:outputLabel styleClass="col-md-2" for="searchString" value="#{evaluationMessages.search}"/>
+          <h:inputText id="searchString" value="#{questionScores.searchString}" styleClass="form-control"
+              onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
+          <%-- the field searches on Enter and clears when emptied, see setupStudentSearch --%>
+          <h:commandButton actionListener="#{questionScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" style="display:none" />
+          <h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}" id="searchClearButton" style="display:none" />
+          <script>
+            {
+              const prompt = document.createElement("div");
+              prompt.innerHTML = <h:outputText value="`#{evaluationMessages.search_default_student_search_string}`" />;
+              setupStudentSearch("editTotalResults:searchString", prompt.textContent, "editTotalResults:searchClearButton");
+            }
+          </script>
+        </h:panelGroup>
     </h:panelGroup>
 
     <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">
@@ -1376,9 +1378,12 @@ $Id$
           <h:outputText value="#{commonMessages.cancel_question_info_regrade} #{commonMessages.cancel_question_info_no_undo}" />
         </h:panelGroup>
       </h:panelGroup>
+      <h:panelGroup layout="block" styleClass="sak-banner-info" rendered="#{!questionScores.totalScoreCancellationAllowed}">
+        <h:outputText value="#{questionScores.totalScoreCancellationRestrictionMessage}" />
+      </h:panelGroup>
       <h:panelGroup styleClass="modal-footer act" layout="block">
         <h:commandButton styleClass="active" type="submit" id="cancelItemTotal" action="questionScores"
-            value="#{commonMessages.cancel_question_reduce_total}">
+            disabled="#{!questionScores.totalScoreCancellationAllowed}" value="#{commonMessages.cancel_question_reduce_total}">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
           <f:param name="outcome" value="questionScores"/>
           <f:param name="itemId" value="ITEM_ID"/>

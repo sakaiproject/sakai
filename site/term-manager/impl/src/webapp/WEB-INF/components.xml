@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>   
    <!-- Project logic   -->
    <bean id="org.sakaiproject.acadtermmanage.logic.AcademicSessionLogic"
        class="org.sakaiproject.acadtermmanage.logic.impl.AcademicSessionLogicImpl"
        init-method="init">
-       <property name="cache" ref="org.sakaiproject.acadtermmanage.sakai.academicsession_cache" />          
-        <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+       <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
         <property name="asSakaiProxy" ref="org.sakaiproject.acadtermmanage.logic.AcademicSessionSakaiProxy" />
-   
+
     </bean>
         
    <!--  SakaiProxy -->
@@ -28,20 +28,5 @@
         <property name="prefService" ref="org.sakaiproject.user.api.PreferencesService" />
    </bean>
    
-   <!-- Cache: ttl=1 hour -->
-    <bean id="org.sakaiproject.acadtermmanage.sakai.academicsession_cache"
-        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.acadtermmanage.sakai.academicsession_cache</value>
-        </property>
-        <property name="maxElementsInMemory" value="200" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="3600" />
-        <property name="timeToIdle" value="3600" />
-    </bean>
 
 </beans>

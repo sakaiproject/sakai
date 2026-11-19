@@ -1,5 +1,5 @@
 #* @vtlvariable name="item" type="org.sakaiproject.content.tool.ListItem" *#
-#* @vtlvariable name="request" type="javax.servlet.http.HttpServletRequest" *#
+#* @vtlvariable name="request" type="jakarta.servlet.http.HttpServletRequest" *#
 
 #macro( printMetadataName $metadataType )
   #if($metadataType.translated)

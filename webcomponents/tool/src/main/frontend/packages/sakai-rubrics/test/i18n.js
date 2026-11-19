@@ -1,6 +1,11 @@
 export const i18nUrl = /getI18nProperties.*rubrics$/;
 
 export const i18n = `
+last_modified_by=Last Modified By
+unknown_user=Unknown
+save_conflict=Someone else changed this rubric or evaluation. Your changes have not been saved.
+operation_failed=Unable to save your changes. Try again.
+rating_points_required=Enter a point value for this rating.
 grading_rubric=Grading Rubric
 rubric=Rubric
 criterion=Criterion
@@ -32,6 +37,7 @@ weight=Weight
 save_weights=Save Weights
 total_weight=Total Weight:
 total_weight_wrong=Weighting for the criterions must equal 100%
+published_invalid_weights=Weights must total 100% to save a published rubric. Restore the total to 100%, or choose Save as Draft to save incomplete weights. If the rubric is linked to an item, unlink it before saving as a draft.
 total_grade=Total Grade:
 min_max_points=From {} to {} points
 saved_successfully=Saved successfully!
@@ -68,6 +74,7 @@ standard_label=Switch to Weighted Grading
 weighted_status=Weighted Rubric
 draft_label=Draft
 draft_turn_on=Save as Draft
+draft_in_use=Unlink this rubric from all items before saving it as a draft.
 draft_turn_off=Publish Rubric
 draft_info=While saved as draft, the rubric won't be available from other tools.
 draft_invalid_weight_publish=In order to publish the rubric:\u0020

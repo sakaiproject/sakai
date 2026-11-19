@@ -18,6 +18,7 @@ export class SakaiTasksWidget extends SakaiDashboardWidget {
       <sakai-tasks
         user-id="${ifDefined(this.userId ? this.userId : "")}"
         site-id="${ifDefined(this.siteId ? this.siteId : "")}"
+        page-size="${this._pageSize()}"
       >
       </sakai-tasks>
     `;

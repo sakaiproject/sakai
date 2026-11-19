@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.sakaiproject.samigo</groupId>
         <artifactId>samigo</artifactId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
     </parent>
 
     <name>Samigo Impl</name>
@@ -22,7 +22,7 @@
             <artifactId>samigo-hibernate</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
@@ -44,6 +44,23 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>samigo-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.scilab.forge</groupId>
+            <artifactId>jlatexmath</artifactId>
+            <version>1.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.message</groupId>
@@ -72,6 +89,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
         </dependency>
         <dependency>
@@ -97,12 +118,20 @@
             <version>3.4</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
@@ -133,6 +162,11 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,11 +178,22 @@
                 </includes>
             </resource>
             <resource>
+                <directory>${project.basedir}/../samigo-app/src/java</directory>
+                <includes>
+                    <include>org/sakaiproject/tool/assessment/bundle/AuthorMessages*.properties</include>
+                    <include>org/sakaiproject/tool/assessment/bundle/EvaluationMessages*.properties</include>
+                    <include>org/sakaiproject/tool/assessment/bundle/PrintMessages*.properties</include>
+                    <include>org/sakaiproject/tool/assessment/bundle/CommonMessages*.properties</include>
+                    <include>org/sakaiproject/tool/assessment/bundle/DeliveryMessages*.properties</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>${basedir}/src/resources</directory>
                 <includes>
                     <include>**/*.json</include>
                 </includes>
             </resource>
         </resources>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
     </build>
 </project>

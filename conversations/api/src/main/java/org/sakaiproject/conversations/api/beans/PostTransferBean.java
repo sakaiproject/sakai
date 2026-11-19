@@ -137,7 +137,7 @@ public class PostTransferBean implements Entity {
     public ConversationsPost asPost() {
 
         ConversationsPost post = new ConversationsPost();
-        post.setId(this.id);
+        post.setId(StringUtils.trimToNull(this.id));
         post.setMessage(this.message);
         post.setNumberOfComments(this.numberOfComments);
         post.setNumberOfThreadReactions(this.numberOfThreadReactions);

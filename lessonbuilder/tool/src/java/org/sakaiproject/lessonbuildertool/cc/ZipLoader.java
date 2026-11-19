@@ -69,7 +69,7 @@ import java.util.zip.ZipInputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.io.FilenameUtils;
+import org.sakaiproject.util.Zip;
 
 /**
  * 
@@ -134,12 +134,7 @@ public class ZipLoader implements CartridgeLoader {
 	  ZipEntry entry;
 	  while ((entry = zis.getNextEntry())!=null) {
 	      log.debug("zip name " + entry.getName());
-	      //Fix the path to be correct for the system extracting it to
-	      String fileName = FilenameUtils.separatorsToSystem(entry.getName());
-	      File target=new File(root, fileName);
-	      // not sure if you can put things like .. into a zip file, but be careful
-	      if (!target.getCanonicalPath().startsWith(rootPath))
-		  throw new FileNotFoundException(target.getCanonicalPath());
+	      File target = Zip.resolveEntryPath(root.toPath(), entry.getName()).toFile();
 	      if (entry.isDirectory()) {
 		  if (!target.mkdirs())
 		      throw new IOException("Unable to make temporary directory");
@@ -162,6 +157,8 @@ public class ZipLoader implements CartridgeLoader {
 	  }
 	  unzipPath = root.getCanonicalPath();
 
+      } catch (Zip.InvalidEntryException e) {
+          throw e;
       } catch (Exception x) {
 	  log.warn("exception " + x);
       } finally {
@@ -185,12 +182,8 @@ public class ZipLoader implements CartridgeLoader {
   public InputStream
   getFile(String the_target) throws FileNotFoundException, IOException {
     unzip();
-    log.debug("getfile {} :: {} :: {}", root, the_target, (new File(root, the_target)).getCanonicalPath());
-    File f = new File(root, the_target);
-    // check for people using .. or other tricks
-    if (!f.getCanonicalPath().startsWith(rootPath))
-	throw new FileNotFoundException(f.getCanonicalPath());
-    return new FileInputStream(new File(root, the_target));
+    File target = Zip.resolveContainedPath(root.toPath(), the_target).toFile();
+    return new FileInputStream(target);
   }
     
   public static CartridgeLoader

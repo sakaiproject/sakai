@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +38,7 @@ import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaFactory;
 import net.tanesha.recaptcha.ReCaptchaResponse;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -88,17 +88,6 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
     }
 
     private RequestGetter requestGetter = null;
-
-    private long maxAttachmentsBytes = 0L;
-
-    public void init() {
-
-        maxAttachmentsBytes = sakaiProxy.getAttachmentLimit() * 1024 * 1024;
-
-        if (log.isDebugEnabled()) {
-            log.debug("maxAttachmentsBytes = " + maxAttachmentsBytes);
-        }
-    }
 
 	public Object getSampleEntity() {
 		return null;
@@ -164,7 +153,7 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
 
         final String title = (String) params.get("title");
         final String description = (String) params.get("description");
-        final boolean siteExists = new Boolean((String)params.get("siteExists"));
+        final boolean siteExists = Boolean.valueOf((String)params.get("siteExists"));
 
         final String browserNameAndVersion = requestGetter.getRequest().getHeader("User-Agent");
         final String osNameAndVersion = (String) params.get("oscpu");
@@ -269,7 +258,6 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
                 db.logReport(userId, senderAddress, siteId, type, title, description);
                 return SUCCESS;
             } catch (AttachmentsTooBigException atbe) {
-                log.error("The total size of the attachments exceeded the permitted limit of " + maxAttachmentsBytes + ". '" + ATTACHMENTS_TOO_BIG + "' will be returned to the client.");
                 return ATTACHMENTS_TOO_BIG;
             } catch (SQLException sqlException) {
                 log.error("Caught exception while generating report. '" + Database.DB_ERROR + "' will be returned to the client.", sqlException);
@@ -305,7 +293,7 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
         return toAddress;
     }
 
-	private List<FileItem> getAttachments(final Map<String, Object> params) throws Exception {
+	private List<FileItem> getAttachments(final Map<String, Object> params) {
 
 		final List<FileItem> fileItems = new ArrayList<FileItem>();
 
@@ -335,16 +323,6 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
                 fileItems.add(attachment5);
             }
 		}
-
-        long totalSize = 0L;
-
-        for (FileItem fileItem : fileItems) {
-            totalSize += fileItem.getSize();
-        }
-
-        if (totalSize > maxAttachmentsBytes) {
-            throw new AttachmentsTooBigException();
-        }
 
 		return fileItems;
 	}

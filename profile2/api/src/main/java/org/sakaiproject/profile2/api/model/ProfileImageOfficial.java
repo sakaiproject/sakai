@@ -16,13 +16,14 @@
 package org.sakaiproject.profile2.api.model;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -34,6 +35,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "PROFILE_IMAGES_OFFICIAL_T")

@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
@@ -80,7 +79,6 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 	private final static boolean enableLargeMembershipTest = false;
 
 	@Autowired private DB db;
-	@Autowired private MemoryService memoryService;
 	@Autowired private ResourceLoader resourceLoader;
 	@Autowired private ServerConfigurationService serverConfigurationService;
 	@Autowired private SiteService siteService;
@@ -91,7 +89,6 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 	@Before
 	public void onSetUp() throws Exception {
 		db.deleteAll();
-		memoryService.resetCachers();
 
 		FakeSite userSiteA = spy(FakeSite.class).set("~"+FakeData.USER_A_ID);
 		FakeSite userSiteB = spy(FakeSite.class).set("~"+FakeData.USER_B_ID);
@@ -367,6 +364,36 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		assertEquals(p3.isListToolEventsOnlyAvailableInSite(), p3L.isListToolEventsOnlyAvailableInSite());
 		assertEquals(p3.isUseAllTools(), p3L.isUseAllTools());
 		assertEquals(FakeData.EVENT_REGISTRY_CHAT, p3L.getToolEventsDef());
+	}
+
+	@Test
+	public void gradesThresholdFallsBackToServerDefault() {
+		assertEquals(StatsManager.DEFAULT_GRADES_THRESHOLD, statsManager.getDefaultGradesThreshold(FakeData.SITE_A_ID), 1e-8);
+		assertEquals(StatsManager.DEFAULT_GRADES_THRESHOLD, statsManager.getGradesThreshold(FakeData.SITE_A_ID), 1e-8);
+	}
+
+	@Test
+	public void gradesThresholdUsesSitePropertyWhenPreferencesAreEmpty() throws Exception {
+		org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
+		when(properties.getProperty(StatsManager.GRADES_THRESHOLD_PROPERTY)).thenReturn("65");
+		when(siteService.getSite(FakeData.SITE_A_ID).getProperties()).thenReturn(properties);
+
+		assertEquals(65d, statsManager.getDefaultGradesThreshold(FakeData.SITE_A_ID), 1e-8);
+		assertEquals(65d, statsManager.getGradesThreshold(FakeData.SITE_A_ID), 1e-8);
+	}
+
+	@Test
+	public void gradesThresholdPrefersSavedPreferencesOverSiteAndServerDefaults() throws Exception {
+		org.sakaiproject.entity.api.ResourceProperties properties = mock(org.sakaiproject.entity.api.ResourceProperties.class);
+		when(properties.getProperty(StatsManager.GRADES_THRESHOLD_PROPERTY)).thenReturn("65");
+		when(siteService.getSite(FakeData.SITE_A_ID).getProperties()).thenReturn(properties);
+
+		PrefsData prefs = statsManager.getPreferences(FakeData.SITE_A_ID, false);
+		prefs.setGradesThreshold(Double.valueOf(80));
+		assertTrue(statsManager.setPreferences(FakeData.SITE_A_ID, prefs));
+
+		assertEquals(80d, statsManager.getGradesThreshold(FakeData.SITE_A_ID), 1e-8);
+		assertEquals(65d, statsManager.getDefaultGradesThreshold(FakeData.SITE_A_ID), 1e-8);
 	}
 
 	@Test

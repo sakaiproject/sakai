@@ -85,4 +85,9 @@ public class AccountValidationTestConfiguration extends SakaiTestConfiguration {
     public ResourceLoader resourceLoader() {
         return Mockito.mock(ResourceLoader.class);
     }
+    @Bean
+    public static org.springframework.beans.factory.config.BeanFactoryPostProcessor testClock() {
+        return factory -> ((org.springframework.beans.factory.support.AbstractBeanDefinition)
+                factory.getBeanDefinition("accountValidationClock")).setInstanceSupplier(MutableClock::new);
+    }
 }

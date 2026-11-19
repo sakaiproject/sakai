@@ -157,6 +157,7 @@
 		  class="org.sakaiproject.ignite.IgniteEntityManagerFactoryBean"
 		  depends-on="org.sakaiproject.ignite.SakaiIgnite">
 		<property name="igniteConfiguration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
+		<property name="entityManagerFactoryInterface" value="jakarta.persistence.EntityManagerFactory"/>
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>
@@ -167,10 +168,7 @@
 
 		<property name="jpaProperties">
 			<props>
-				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
 				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
-				<prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
-				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
 				<prop key="hibernate.cache.use_query_cache">true</prop>
 				<prop key="hibernate.use_second_level_cache">true</prop>
 				<prop key="hibernate.cache.region.factory_class">org.apache.ignite.cache.hibernate.HibernateRegionFactory</prop>
@@ -178,15 +176,18 @@
 				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
 				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext</prop>
 				<prop key="org.apache.ignite.hibernate.default_access_type">READ_ONLY</prop>
-				<prop key="hibernate.id.new_generator_mappings">false</prop>
-				<prop key="javax.persistence.query.timeout">30000</prop>
+				<!-- Hibernate 6 normalizes Instant and ZonedDateTime to UTC; Hibernate 5 stored them in the JVM
+				     time zone. These two settings keep the Hibernate 5 behaviour so existing DATETIME values
+				     are read correctly. -->
+				<prop key="hibernate.type.preferred_instant_jdbc_type">TIMESTAMP</prop>
+				<prop key="hibernate.timezone.default_storage">NORMALIZE</prop>
+				<prop key="jakarta.persistence.query.timeout">30000</prop>
 			</props>
 		</property>
 	</bean>
 
-	<!--  The "Global" Session Factory -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
-		  class="org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean">
+		  class="org.sakaiproject.springframework.orm.hibernate.HibernateSessionFactoryBean">
 		<property name="entityManagerFactory" ref="entityManagerFactory"/>
 	</bean>
 

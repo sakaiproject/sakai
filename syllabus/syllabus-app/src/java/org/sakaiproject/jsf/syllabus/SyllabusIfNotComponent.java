@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.jsf.syllabus;
 
-import javax.faces.component.UIComponentBase;
+import jakarta.faces.component.UIComponentBase;
 
 public class SyllabusIfNotComponent extends UIComponentBase
 {

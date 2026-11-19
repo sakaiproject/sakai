@@ -1,0 +1,379 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.opensource.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.tool.assessment.facade.authz;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+/**
+ * <p>Description: Facade for Sakai authorization queries.
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * @author cwen
+ * @author Rachel Gollub <rgollub@stanford.edu>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
+@Slf4j
+@Transactional
+public class AuthzQueriesFacade implements AuthzQueriesFacadeAPI
+{
+  // can convert these to use the resource bundle....
+  private final static String HQL_QUERY_CHECK_AUTHZ =
+    "select from " +
+    "org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as data" +
+    " where data.agentIdString = :agentId and data.functionId = :functionId" +
+    " and data.qualifierId = :qualifierId";
+  private final static String HQL_QUERY_BY_AGENT_FUNC =
+    "select from org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData " +
+    "as item where item.agentIdString = :agentId and item.functionId = :functionId";
+  private final static String HQL_QUERY_ASSESS_BY_AGENT_FUNC = "select asset from " +
+    "org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData as asset, " +
+    "org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as authz " +
+    "where asset.assessmentBaseId=authz.qualifierId and " +
+    "authz.agentIdString = :agentId and authz.functionId = :functionId";
+
+  @Setter private SessionFactory sessionFactory;
+  private AuthzGroupService authzGroupService;
+
+  public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+    this.authzGroupService = authzGroupService;
+  }
+
+  public boolean hasPrivilege(String functionName, String siteId) {
+    return SecurityService.unlock(functionName, "/site/" + siteId);
+  }
+
+  public boolean hasPrivilege(String functionName)
+  {
+      String context = ToolManager.getCurrentPlacement().getContext();
+      boolean privilege = SecurityService.unlock(functionName, "/site/"+context);
+      return privilege;
+  }
+
+    // this method is added by daisyf on 02/22/05
+  public boolean isAuthorized(final String agentId,
+      final String functionId, final String qualifierId)
+  {
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> auData = cq.from(AuthorizationData.class);
+
+    cq.select(auData).where(cb.and(
+        cb.equal(auData.get("functionId"), functionId),
+        cb.equal(auData.get("qualifierId"), qualifierId)
+    ));
+
+    List<AuthorizationData> authorizationList = session.createQuery(cq).getResultList();
+
+    String currentSiteId = null;
+    if (ToolManager.getCurrentPlacement() != null)
+      currentSiteId =ToolManager.getCurrentPlacement().getContext();
+    if (currentSiteId == null)
+      return false; // user don't login via any site if they are using published url
+
+    String currentAgentId = UserDirectoryService.getCurrentUser().getId();
+    for (int i=0; i<authorizationList.size(); i++){
+      AuthorizationData a = (AuthorizationData) authorizationList.get(i);
+      String siteId = a.getAgentIdString();
+      if (("AUTHENTICATED_USERS").equals(siteId) && (currentAgentId!=null)){
+        return true;
+      }
+      else if (("ANONYMOUS_USERS").equals(siteId)){
+        return true;
+      }
+      else if(currentSiteId.equals(siteId))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // this appears to be unused, it is also dangerous, as it is not in the API
+  public boolean checkAuthorization(final String agentId,
+      final String functionId, final String qualifierId)
+  {
+/*    if (agentId == null || functionId == null || qualifierId == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }*/
+    if (functionId == null || qualifierId == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+    final String queryAgentId = ToolManager.getCurrentPlacement().getContext();
+    final String effectiveAgentId = (agentId == null) ? queryAgentId : agentId;
+
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> a = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("agentIdString"), effectiveAgentId),
+        cb.equal(a.get("functionId"), functionId),
+        cb.equal(a.get("qualifierId"), qualifierId)
+    ));
+
+    AuthorizationData result = session.createQuery(cq).uniqueResult();
+
+    if(result != null)
+      return true;
+    else
+      return false;
+  }
+
+  public AuthorizationData createAuthorization(
+      String agentId, String functionId,
+      String qualifierId)
+  {
+    if (agentId == null || functionId == null || qualifierId == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+    else
+    {
+      AuthorizationData ad = new AuthorizationData();
+
+      Calendar cal = Calendar.getInstance();
+      Date lastModifiedDate = cal.getTime();
+
+      ad.setAgentIdString(agentId);
+      ad.setFunctionId(functionId);
+      ad.setQualifierId(qualifierId);
+      ad.setLastModifiedBy(UserDirectoryService.getCurrentUser().getId());
+      ad.setLastModifiedDate(lastModifiedDate);
+      sessionFactory.getCurrentSession().merge(ad);
+      return ad;
+    }
+  }
+
+  // this appears to be unused, it is also dangerous, as it is not in the API
+  public List<AuthorizationData> getAssessments(final String agentId, final String functionId)
+  {
+    if (agentId == null || functionId == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> a = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("agentIdString"), agentId),
+        cb.equal(a.get("functionId"), functionId)
+    ));
+
+    List<AuthorizationData> returnList = session.createQuery(cq).getResultList();
+
+    if (returnList == null) {
+      returnList = new ArrayList<>();
+    }
+
+    return returnList;
+  }
+
+  // this appears to be unused, it is also dangerous, as it is not in the API
+  public List<AssessmentBaseData> getAssessmentsByAgentAndFunction(final String agentId, final String functionId)
+  {
+    if (agentId == null || functionId == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AssessmentBaseData> cq = cb.createQuery(AssessmentBaseData.class);
+    Root<AssessmentBaseData> a = cq.from(AssessmentBaseData.class);
+    Root<AuthorizationData> authorization = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(authorization.get("agentIdString"), agentId),
+        cb.equal(authorization.get("functionId"), functionId),
+        cb.equal(a.get("assessmentBaseId").as(String.class), authorization.get("qualifierId"))
+    ));
+
+    return session.createQuery(cq).getResultList();
+  }
+
+  public void removeAuthorizationByQualifier(String qualifierId, boolean isPublishedAssessment) {
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
+    Root<AuthorizationData> a = delete.from(AuthorizationData.class);
+
+    Predicate byQualifier = cb.equal(a.get("qualifierId"), qualifierId);
+    Predicate byFunction;
+    if (isPublishedAssessment) {
+        byFunction = a.get("functionId").in(
+                "OWN_PUBLISHED_ASSESSMENT",
+                "TAKE_PUBLISHED_ASSESSMENT",
+                "VIEW_PUBLISHED_ASSESSMENT_FEEDBACK",
+                "GRADE_PUBLISHED_ASSESSMENT",
+                "VIEW_PUBLISHED_ASSESSMENT");
+    } else {
+        byFunction = cb.equal(a.get("functionId"), "EDIT_ASSESSMENT");
+    }
+
+    delete.where(cb.and(byQualifier, byFunction));
+
+    session.createQuery(delete).executeUpdate();
+  }
+
+  /**
+   * Removes an authorization for a specified qualifier and function
+   * @param qualifierId
+   * @param functionId
+   */
+  public void removeAuthorizationByQualifierAndFunction(String qualifierId, String functionId) {
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
+    Root<AuthorizationData> a = delete.from(AuthorizationData.class);
+
+    delete.where(cb.and(
+        cb.equal(a.get("qualifierId"), qualifierId),
+        cb.equal(a.get("functionId"), functionId)
+    ));
+
+    session.createQuery(delete).executeUpdate();
+  }
+  
+  /**
+   * Removes an authorization for a specified agent, qualifier and function
+   * TODO: This should be optimized into a single SQL call for a set of agents (groups)
+   * @param agentId
+   * @param qualifierId
+   */
+  public void removeAuthorizationByAgentQualifierAndFunction(String agentId, String qualifierId, String functionId) {
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
+    Root<AuthorizationData> a = delete.from(AuthorizationData.class);
+
+    delete.where(cb.and(
+        cb.equal(a.get("qualifierId"),   qualifierId),
+        cb.equal(a.get("agentIdString"), agentId),
+        cb.equal(a.get("functionId"),    functionId)
+    ));
+
+    session.createQuery(delete).executeUpdate();
+  }
+  
+  
+  /** This returns a HashMap containing (String a.qualiferId, AuthorizationData a)
+    * agentId is a site for now but can be a user
+    */
+  public HashMap getAuthorizationToViewAssessments(String agentId) {
+    HashMap h = new HashMap();
+    List l = getAuthorizationByAgentAndFunction(agentId, "VIEW_PUBLISHED_ASSESSMENT");
+    for (int i=0; i<l.size();i++){
+      AuthorizationData a = (AuthorizationData) l.get(i);
+      h.put(a.getQualifierId(), a);
+    }
+    return h;
+  }
+
+  public List getAuthorizationByAgentAndFunction(String agentId, String functionId) {
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> a = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("agentIdString"), agentId),
+        cb.equal(a.get("functionId"), functionId)
+    ));
+
+    return session.createQuery(cq).getResultList();
+  }
+
+  public List<AuthorizationData> getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> a = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("functionId"), functionId),
+        cb.equal(a.get("qualifierId"), qualifierId)
+    ));
+
+    return session.createQuery(cq).getResultList();
+  }
+
+  public boolean checkMembership(String siteId) {
+    boolean isMember = false;
+    try{
+      String realmName = "/site/" + siteId;
+      AuthzGroup siteAuthzGroup = authzGroupService.getAuthzGroup(realmName);
+      if (siteAuthzGroup.getUserRole(AgentFacade.getAgentString()) != null)
+        isMember = true;
+    }
+    catch(Exception e)
+    {
+        log.error(e.getMessage(), e);
+    }
+    return isMember;
+  }
+
+    public void hardDeleteAuthzData(String agentId) {
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
+      Root<AuthorizationData> authorizationData = delete.from(AuthorizationData.class);
+      delete.where(cb.equal(authorizationData.get("agentIdString"), agentId));
+      try {
+        session.createQuery(delete).executeUpdate();
+      } catch (IllegalStateException | PersistenceException e) {
+        log.warn("Could not delete samigo Authz Data with agentId: {}, {}", agentId, e.toString());
+      }
+    }
+
+}

@@ -17,8 +17,8 @@ package org.sakaiproject.tool.assessment.ui.bean.print.settings;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* Print settings bean. */
 @ManagedBean(name="printSettings")
@@ -31,7 +31,6 @@ public class PrintSettingsBean implements Serializable {
 	private String fontSize = "3";
 	private Boolean showPartIntros = Boolean.TRUE;
 	private Boolean showKeysFeedback = Boolean.FALSE;
-	private Boolean showSequence = Boolean.FALSE;
 	private Boolean showSamePage = Boolean.FALSE;
 
 	public PrintSettingsBean() {
@@ -81,6 +80,9 @@ public class PrintSettingsBean implements Serializable {
 	 */
 	public void setShowKeys(Boolean hasKeys) {
 		this.showKeys = hasKeys;
+		if (!Boolean.TRUE.equals(hasKeys)) {
+			this.showKeysFeedback = Boolean.FALSE;
+		}
 	}
 
 	/**
@@ -103,20 +105,6 @@ public class PrintSettingsBean implements Serializable {
 	 */
 	public void setShowKeysFeedback(Boolean showKeysFeedback) {
 		this.showKeysFeedback = showKeysFeedback;
-	}
-
-    /**
-	 * @return true if sequence should be shown
-	 */
-	public Boolean getShowSequence() {
-		return showSequence;
-	}
-
-	/**
-	 * @param set if the sequence should be shown
-	 */
-	public void setShowSequence(Boolean showSequence) {
-		this.showSequence = showSequence;
 	}
 
 }

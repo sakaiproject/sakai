@@ -156,7 +156,7 @@ public class BLTIExport {
             return ((Number) key).longValue();
         } else if ((key instanceof String)) {
             try {
-                return new Long((String) key);
+                return Long.valueOf((String) key);
             } catch (NumberFormatException nfe) {
                 log.debug(nfe.toString());
                 return null;

@@ -6,10 +6,10 @@
  * http://opensource.org/licenses/ECL-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ *  License for the specific language governing permissions and limitations under
+ *  the License.
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
@@ -33,6 +33,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import org.sakaiproject.exception.IdUnusedException;
@@ -44,8 +45,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ public class TasksController extends AbstractSakaiApiController {
 
     @Resource
     private UserDirectoryService userDirectoryService;
-    
+
     @Resource
     private SecurityService securityService;
 
@@ -105,12 +107,12 @@ public class TasksController extends AbstractSakaiApiController {
 
         return data;
     }
-    
+
     @GetMapping(value = "/sites/{siteId}/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
+    public Map<String, Object> getSiteTasks(@PathVariable("siteId") String siteId) throws UserNotDefinedException, IdUnusedException {
 
         Session session = checkSakaiSession();
-        
+
         final Site site = siteService.getSite(siteId);
 
         Map<String, Object> data = new HashMap<>();
@@ -120,8 +122,8 @@ public class TasksController extends AbstractSakaiApiController {
             .stream().map(bean -> {
 
                 if (site != null) {
-                	bean.setSiteTitle(site.getTitle());
-                	bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
+                    bean.setSiteTitle(site.getTitle());
+                    bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
                 }
                 if (StringUtils.isNotBlank(bean.getReference()) && !bean.getReference().startsWith("/user/")) {
                     entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
@@ -150,78 +152,26 @@ public class TasksController extends AbstractSakaiApiController {
 
         return data;
     }
-    
+
     @PostMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserTaskAdapterBean createTask(@RequestBody UserTaskAdapterBean taskTransfer) {
+    public UserTaskAdapterBean createTask(@RequestBody UserTaskAdapterBean taskTransfer) throws IdUnusedException {
 
         checkSakaiSession();
 
-        UserTaskAdapterBean result = taskTransfer;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-        String time = sdf.format(new Date());
-
-        Task task = new Task();
-        BeanUtils.copyProperties(taskTransfer, task);
-        task.setReference("/user/" + taskTransfer.getUserId() + "/" + time);
-        task.setDue(taskTransfer.getDue());
-        task.setSystem(false);
-        String assignationType = taskTransfer.getAssignationType();
-        if (AssignationType.site.name().equals(assignationType)) {
-            try {
-                Site site = siteService.getSite(taskTransfer.getSiteId());
-                Set<String> users = site.getUsersIsAllowed("section.role.student");
-                task = taskService.createTask(task, users, taskTransfer.getPriority());
-                result = UserTaskAdapterBean.from(taskService.createUserTask(task, taskTransfer));
-                taskService.assignTask(task, AssignationType.site, taskTransfer.getSiteId());
-                result.setTaskAssignedTo(getTaskAssignedDescription(task.getId(), site));
-                result.setSiteTitle(site.getTitle());
-            } catch (BeansException | IdUnusedException e) {
-                log.error(e.getMessage(), e);
-            }
-        } else if (AssignationType.group.name().equals(assignationType)) {
-            try {
-                Site site = siteService.getSite(taskTransfer.getSiteId());
-                Set<String> users = new HashSet<>();
-                List<String> groups = new ArrayList<>();
-                for (String groupId : taskTransfer.getSelectedGroups()) {
-                    Group group = site.getGroup(groupId);
-                    if (group == null) {
-                        log.warn("Skipping unknown group id {} on site {}", groupId, taskTransfer.getSiteId());
-                        continue;
-                    }
-                    groups.add(groupId);
-                    users.addAll(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toSet()));
-                }
-                if (groups.isEmpty() || users.isEmpty()) {
-                    throw new IllegalArgumentException("No valid groups/users found for group task assignment");
-                }
-                task = taskService.createTask(task, users, taskTransfer.getPriority());
-                result = UserTaskAdapterBean.from(taskService.createUserTask(task, taskTransfer));
-                taskService.assignTask(task, AssignationType.group, groups);
-                result.setTaskAssignedTo(getTaskAssignedDescription(task.getId(), site));
-                result.setSiteTitle(site.getTitle());
-            } catch (BeansException | IdUnusedException e) {
-                log.error(e.getMessage(), e);
-            }
-        } else {
-            result = UserTaskAdapterBean.from(taskService.createSingleUserTask(taskTransfer));
-        	if (!StringUtils.isEmpty(taskTransfer.getSiteId())) {
-                try {
-                    Site site = siteService.getSite(taskTransfer.getSiteId());
-                    result.setTaskAssignedTo(getTaskAssignedDescription(result.getTaskId(), site));
-                    result.setSiteTitle(site.getTitle());
-                } catch (IdUnusedException e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
+        UserTaskAdapterBean result = UserTaskAdapterBean.from(taskService.createUserAuthoredTask(taskTransfer));
+        if (StringUtils.isNotBlank(result.getSiteId())) {
+            Site site = siteService.getSite(result.getSiteId());
+            result.setTaskAssignedTo(getTaskAssignedDescription(result.getTaskId(), site));
+            result.setSiteTitle(site.getTitle());
         }
-        result.setOwner(taskTransfer.getUserId());
- 
         return result;
     }
 
     @PutMapping(value = "/tasks/{userTaskId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserTaskAdapterBean updateTask(@RequestBody UserTaskAdapterBean taskTransfer ) {
+    public UserTaskAdapterBean updateTask(@PathVariable("userTaskId") Long userTaskId, @RequestBody UserTaskAdapterBean taskTransfer) {
+        if (!userTaskId.equals(taskTransfer.getUserTaskId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
 
         checkSakaiSession();
 
@@ -232,12 +182,12 @@ public class TasksController extends AbstractSakaiApiController {
             } catch (IdUnusedException e) {
                 log.error(e.getMessage(), e);
             }
-        }        
+        }
         return bean;
     }
 
     @DeleteMapping("/tasks/{userTaskId}")
-    public void deleteTask(@PathVariable Long userTaskId) {
+    public void deleteTask(@PathVariable("userTaskId") Long userTaskId) {
 
         checkSakaiSession();
         taskService.removeUserTask(userTaskId);

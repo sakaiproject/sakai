@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.jsf2.component;
 
-import javax.faces.component.UIInput;
+import jakarta.faces.component.UIInput;
 
 public class InputFileUploadComponent extends UIInput
 {

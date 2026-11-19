@@ -19,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -27,15 +28,14 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ClosingException;
-import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.Principal;
 
 import static org.junit.Assert.assertFalse;
@@ -43,6 +43,9 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RequestFilterTest {
+
+    private static final String MODERN_CHROME = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36";
 
     private MockedStatic<ComponentManager> componentManagerMock;
 
@@ -52,7 +55,6 @@ public class RequestFilterTest {
     @Mock private Session session;
     @Mock private SessionManager sessionManager;
     @Mock private ThreadLocalManager threadLocalManager;
-    @Mock private RebuildBreakdownService rebuildBreakdownService;
 
     private RequestFilter filter;
 
@@ -64,7 +66,6 @@ public class RequestFilterTest {
         componentManagerMock.when(() -> ComponentManager.get(SessionManager.class)).thenReturn(sessionManager);
         componentManagerMock.when(() -> ComponentManager.get(ThreadLocalManager.class)).thenReturn(threadLocalManager);
         componentManagerMock.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);
-        componentManagerMock.when(() -> ComponentManager.get(RebuildBreakdownService.class)).thenReturn(rebuildBreakdownService);
 
         filter = new RequestFilter();
     }
@@ -126,6 +127,50 @@ public class RequestFilterTest {
     }
 
     @Test
+    public void testAddCookieSameSiteWithoutHttpOnly() {
+        filter.m_cookieHttpOnly = false;
+        filter.m_cookieSameSite = "none";
+        Mockito.when(request.getHeader("user-agent")).thenReturn(MODERN_CHROME);
+
+        Cookie cookie = secureCookie();
+        filter.addCookie(request, response, cookie);
+
+        ArgumentCaptor<String> header = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(response).addHeader(Mockito.eq("Set-Cookie"), header.capture());
+        assertTrue(header.getValue().contains("SameSite=None"));
+        assertFalse(header.getValue().contains("HttpOnly"));
+        Mockito.verify(response, Mockito.never()).addCookie(Mockito.any(Cookie.class));
+    }
+
+    @Test
+    public void testAddCookieSameSiteWithHttpOnly() {
+        filter.m_cookieHttpOnly = true;
+        filter.m_cookieSameSite = "none";
+        Mockito.when(request.getHeader("user-agent")).thenReturn(MODERN_CHROME);
+
+        Cookie cookie = secureCookie();
+        filter.addCookie(request, response, cookie);
+
+        ArgumentCaptor<String> header = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(response).addHeader(Mockito.eq("Set-Cookie"), header.capture());
+        assertTrue(header.getValue().contains("SameSite=None"));
+        assertTrue(header.getValue().contains("HttpOnly"));
+        Mockito.verify(response, Mockito.never()).addCookie(Mockito.any(Cookie.class));
+    }
+
+    @Test
+    public void testAddCookieWithoutSameSiteOrHttpOnlyUsesServletContainer() {
+        filter.m_cookieHttpOnly = false;
+        filter.m_cookieSameSite = "";
+
+        Cookie cookie = secureCookie();
+        filter.addCookie(request, response, cookie);
+
+        Mockito.verify(response).addCookie(cookie);
+        Mockito.verify(response, Mockito.never()).addHeader(Mockito.eq("Set-Cookie"), Mockito.anyString());
+    }
+
+    @Test
     public void testAssureSessionParameterId() {
         // Check we can pass a session ID parameter
         filter.m_sessionParamAllow = true;
@@ -146,8 +191,6 @@ public class RequestFilterTest {
         Mockito.when(sessionManager.getSession("paramSession")).thenReturn(session);
         Session newSession = Mockito.mock(Session.class);
         Mockito.when(sessionManager.startSession()).thenReturn(newSession);
-        Mockito.when(sessionManager.startSession("paramSession")).thenReturn(session);
-        Mockito.when(rebuildBreakdownService.rebuildSession(session)).thenReturn(false);
 
         filter.assureSession(request, response);
 
@@ -212,27 +255,6 @@ public class RequestFilterTest {
         Mockito.doReturn(response).when(testFilter).preProcessResponse(session, request, response);
         Mockito.doThrow(new ServletException("boom")).when(chain).doFilter(request, response);
 
-        testFilter.doFilter(request, response, chain);
-
-        Mockito.verify(testFilter, Mockito.times(2)).surfaceTomcatParameterParseFailure(request);
-    }
-
-    @Test
-    public void testDoFilterSurfacesTomcatParameterParseFailureWhenTerracottaChainThrows() throws Exception {
-        RequestFilter testFilter = Mockito.spy(new RequestFilter());
-        FilterChain chain = Mockito.mock(FilterChain.class);
-        testFilter.TERRACOTTA_CLUSTER = true;
-
-        setupDoFilterRequest();
-        Mockito.doNothing().when(testFilter).handleCharacterEncoding(request, response);
-        Mockito.doReturn(request).when(testFilter).handleFileUpload(Mockito.eq(request), Mockito.eq(response), Mockito.anyList());
-        Mockito.doReturn(session).when(testFilter).assureSession(request, response);
-        Mockito.doNothing().when(testFilter).surfaceTomcatParameterParseFailure(request);
-        Mockito.doReturn(request).when(testFilter).preProcessRequest(session, request);
-        Mockito.doReturn(null).when(testFilter).detectToolPlacement(session, request);
-        Mockito.doReturn(response).when(testFilter).preProcessResponse(session, request, response);
-        Mockito.doThrow(new ServletException("boom")).when(chain).doFilter(request, response);
-
         try {
             testFilter.doFilter(request, response, chain);
         } catch (ServletException e) {
@@ -249,6 +271,13 @@ public class RequestFilterTest {
         Mockito.when (cookie.getValue()).thenReturn("session1.server1");
         Mockito.when(request.getCookies()).thenReturn(new Cookie[]{cookie});
         Mockito.when (sessionManager.getSession("session1")).thenReturn(session);
+    }
+
+    private Cookie secureCookie() {
+        Cookie cookie = new Cookie("SAKAIID", "session.server1");
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        return cookie;
     }
 
     private void setupPrincipal() {

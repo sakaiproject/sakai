@@ -21,9 +21,9 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.annotation.PostConstruct;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 @NoArgsConstructor
-@ManagedBean(name = MessageForumPublishToFaqBean.NAME)
+@ManagedBean(name=MessageForumPublishToFaqBean.NAME)
 @SessionScoped
 @EqualsAndHashCode(callSuper = false)
 public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport implements Serializable {
@@ -115,6 +115,11 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
         Objects.requireNonNull(siteService);
         Objects.requireNonNull(userDirectoryService);
 
+        if (!forumManager.isPublishToFaqEnabled()) {
+            canPost = canReply = Boolean.FALSE;
+            return;
+        }
+
         siteId = toolManager.getCurrentPlacement().getContext();
         userId = userDirectoryService.getCurrentUser().getId();
         discussionArea = areaManager.getDiscussionArea(siteId);
@@ -150,15 +155,20 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
     }
 
     public void publishToFaq() {
-        DiscussionForum faqForum = forumManager.getOrCreateFaqForumForArea(discussionArea);
-        DiscussionTopic faqTopic = forumManager.getOrCreateFaqTopicForForum(faqForum);
-
-        log.debug("Creating question message for Forum [{}] and Topic [{}]", faqForum, faqTopic);
+        if (!forumManager.isPublishToFaqEnabled()) {
+            log.warn("Attempted to publish a private message to FAQ while the feature is disabled");
+            return;
+        }
 
         if (!Boolean.TRUE.equals(canPost)) {
             log.warn("User with id [{}] does not have permissions to create a new forum post", userId);
             return;
         }
+
+        DiscussionForum faqForum = forumManager.getOrCreateFaqForumForArea(discussionArea);
+        DiscussionTopic faqTopic = forumManager.getOrCreateFaqTopicForForum(faqForum);
+
+        log.debug("Creating question message for Forum [{}] and Topic [{}]", faqForum, faqTopic);
 
         String questionTitlePrefix = resourceBundle.getString("pvt_question_title_prefix");
         String answerTitlePrefix = resourceBundle.getString("pvt_answer_title_prefix");

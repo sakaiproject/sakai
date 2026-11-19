@@ -1,0 +1,340 @@
+/*
+ * Copyright (c) 2026 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.sakaiproject.e2e.tests;
+
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.google.gson.JsonParser;
+import com.microsoft.playwright.APIResponse;
+import com.microsoft.playwright.Dialog;
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.RequestOptions;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
+
+class AssignmentGroupLockTest extends SakaiUiTestBase {
+
+    @Test
+    void emptyAssignmentUnlocksGroupsAndRestoresAsDraftAfterGroupDeletion() {
+        String suffix = Long.toString(System.currentTimeMillis());
+        String groupTitle = "Restore group " + suffix;
+        String assignmentTitle = "Group lock regression " + suffix;
+        sakai.login("instructor1");
+        String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.assignment\\.grades"));
+
+        openGroups(courseUrl);
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("sakai-user-picker").getByRole(AriaRole.COMBOBOX)).isVisible();
+        sakai.waitForPortalFocus();
+        // Use real key events after the form's member picker has initialized.
+        page.locator("#groupTitle").pressSequentially(groupTitle);
+        assertThat(page.locator("#groupTitle")).hasValue(groupTitle);
+        Locator picker = page.locator("sakai-user-picker");
+        picker.getByRole(AriaRole.COMBOBOX).click();
+        picker.getByRole(AriaRole.OPTION).last().click();
+        picker.getByRole(AriaRole.COMBOBOX).press("Escape");
+        assertThat(page.locator("#create-group-submit-button")).isEnabled();
+        page.locator("#create-group-submit-button").click();
+        assertThat(groupRow(groupTitle).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName(groupTitle).setExact(true))).isVisible();
+
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
+        page.locator("#new_assignment_title").fill(assignmentTitle);
+        page.locator("#gradeAssignment").uncheck();
+        sakai.typeCkEditorIfPresent("new_assignment_instructions", "<p>Group restore regression.</p>");
+        page.locator("#groupAssignment").check();
+        String groupId = page.locator("#selectedGroups option")
+                .filter(new Locator.FilterOptions().setHasText(groupTitle)).getAttribute("value");
+        page.locator("#selectedGroups").selectOption(groupId);
+        page.locator(".act input[name=post]").click();
+        assertThat(assignmentRow(assignmentTitle)).isVisible();
+
+        // Opening the grading screen creates empty submission placeholders.
+        assignmentRow(assignmentTitle).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("View Submissions " + assignmentTitle).setExact(true)).click();
+        assertThat(page.locator("body")).containsText(groupTitle);
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Assignments").setExact(true)).click();
+        assertThat(page.locator("#assignments-list")).isVisible();
+
+        openGroups(courseUrl);
+        assertThat(groupRow(groupTitle).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName(groupTitle).setExact(true))).hasCount(0);
+
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        assignmentRow(assignmentTitle).locator("input[name=selectedAssignments]").check();
+        page.locator("#btnRemove").click();
+        assertThat(page.locator("body")).containsText("This assignment's group locks will be released.");
+        page.locator("input[name=eventSubmit_doDelete_assignment]").click();
+
+        openGroups(courseUrl);
+        assertThat(groupRow(groupTitle).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName(groupTitle).setExact(true))).isVisible();
+        groupRow(groupTitle).locator("input[type=checkbox]").check();
+        page.locator("#delete-groups-submit-button").click();
+        page.locator("#modal-btn-confirm").click();
+        assertThat(groupRow(groupTitle)).hasCount(0);
+
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Trash").setExact(true)).click();
+        Locator deletedAssignment = assignmentRow(assignmentTitle);
+        assertThat(deletedAssignment).containsText("Restores as a draft.");
+        deletedAssignment.locator("input[name=selectedAssignments]").check();
+        page.onceDialog(Dialog::accept);
+        page.locator("#btnRestore").click();
+        assertThat(assignmentRow(assignmentTitle)).containsText("Draft");
+        assertThat(page.locator(".sak-banner-error:visible")).hasCount(0);
+    }
+
+    @Test
+    void editingGroupsRetainsSubmittedAndGradedWorkWhileEmptyGroupCanBeRemoved() {
+        String suffix = Long.toString(System.nanoTime());
+        String submittedGroup = "Submitted group " + suffix;
+        String gradedGroup = "Graded group " + suffix;
+        String emptyGroup = "Empty group " + suffix;
+        String assignmentTitle = "Preserve group work " + suffix;
+        sakai.login("instructor1");
+        String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.assignment\\.grades"));
+        try (TestUser grader = sakai.createUser("group-grader")) {
+            sakai.addMember(courseUrl, grader.username(), "Instructor");
+            addStudent(courseUrl, "student0011");
+            addStudent(courseUrl, "student0012");
+            addStudent(courseUrl, "student0013");
+            createGroupThroughUi(courseUrl, submittedGroup, "student0011");
+            createGroupThroughUi(courseUrl, gradedGroup, "student0012");
+            createGroupThroughUi(courseUrl, emptyGroup, "student0013");
+            createGradedGroupAssignment(courseUrl, assignmentTitle, List.of(submittedGroup, gradedGroup, emptyGroup));
+
+            sakai.login("student0011");
+            openAssignments(courseUrl);
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(assignmentTitle).setExact(true)).click();
+            sakai.typeCkEditor("Assignment.view_submission_text", "<p>Submitted work for group A.</p>");
+            page.locator("#confirm").click();
+            page.locator("#post").click();
+            assertThat(page.locator("body")).containsText("Submission Confirmation");
+
+            sakai.login(grader.username());
+            sakai.setAssignmentGrader(false);
+            openGroupGrading(courseUrl, assignmentTitle, gradedGroup);
+            assertThat(page.locator("body")).containsText("There is no student submitted text.");
+            page.locator("#grade").first().fill("7");
+            sakai.typeCkEditor("grade_submission_feedback_comment", "<p>Keep this unreleased group feedback.</p>");
+            page.locator("#save").click();
+            assertThat(page.locator("#gradeForm")).isVisible();
+            assertThat(page.locator(".sak-banner-error:visible")).hasCount(0);
+
+            editAssignment(courseUrl, assignmentTitle);
+            assertGroupOption(submittedGroup, true, true);
+            assertGroupOption(gradedGroup, true, true);
+            assertGroupOption(emptyGroup, true, false);
+            openGroupChoices();
+            assertThat(groupCheckbox(submittedGroup)).isChecked();
+            assertThat(groupCheckbox(submittedGroup)).isDisabled();
+            assertThat(groupCheckbox(gradedGroup)).isChecked();
+            assertThat(groupCheckbox(gradedGroup)).isDisabled();
+            assertThat(groupCheckbox(emptyGroup)).isEnabled();
+            groupCheckbox(emptyGroup).uncheck();
+            openGroupChoices();
+            saveAssignment(assignmentTitle);
+
+            editAssignment(courseUrl, assignmentTitle);
+            assertGroupOption(submittedGroup, true, true);
+            assertGroupOption(gradedGroup, true, true);
+            assertGroupOption(emptyGroup, false, false);
+            openGroupGrading(courseUrl, assignmentTitle, gradedGroup);
+            assertEquals(0, new BigDecimal("7").compareTo(new BigDecimal(page.locator("#grade").first().inputValue())));
+            assertTrue(page.locator("#grade_submission_feedback_comment").inputValue()
+                    .contains("Keep this unreleased group feedback."));
+            assertThat(page.locator("#grade-is-released")).hasValue("false");
+            openGroupGrading(courseUrl, assignmentTitle, submittedGroup);
+            assertThat(page.locator("body")).containsText("Submitted work for group A.");
+        }
+    }
+
+    @Test
+    void rejectedGradebookChangeRetainsGroupSubmissionPlaceholders() {
+        String suffix = Long.toString(System.nanoTime());
+        String title = "Rejected group edit " + suffix;
+        String groupA = "Old group " + suffix;
+        String groupB = "Remaining group " + suffix;
+        sakai.login("instructor1");
+        String course = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.gradebookng"));
+        sakai.addMember(course, "student0011", "Student");
+        sakai.addMember(course, "student0012", "Student");
+        createGroupThroughUi(course, groupA, "student0011");
+        createGroupThroughUi(course, groupB, "student0012");
+        createGradedGroupAssignment(course, title, List.of(groupA, groupB));
+        editAssignment(course, title);
+        page.locator("#new_assignment_send_to_gradebook").uncheck();
+        saveAssignment(title);
+        String reference = assignmentRow(title).locator("input[name=selectedAssignments]").getAttribute("value");
+        String id = reference.substring(reference.lastIndexOf('/') + 1);
+        assignmentRow(title).getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Grade " + title).setExact(true)).click();
+        assertThat(page.locator("#submissionList")).containsText(groupA);
+        String submissionsUrl = "/direct/assignment/itemSubmission/" + id + ".json";
+        assertEquals(2, JsonParser.parseString(page.request().get(submissionsUrl).text())
+                .getAsJsonObject().getAsJsonArray("assignment_collection").size());
+
+        sakai.toolClick("Gradebook");
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=title]").fill(title);
+        dialog.locator("input[name$=points]").fill("10");
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+        editAssignment(course, title);
+        page.locator("#new_assignment_send_to_gradebook").check();
+        page.locator("#create-gradebook-item").check();
+        openGroupChoices();
+        groupCheckbox(groupA).uncheck();
+        openGroupChoices();
+        page.locator("input[name=post]").click();
+        assertThat(page.locator("body")).containsText("an existing item of the same name");
+        assertEquals(2, JsonParser.parseString(page.request().get(submissionsUrl).text())
+                .getAsJsonObject().getAsJsonArray("assignment_collection").size(),
+                "A rejected save must retain the original group's submission");
+    }
+
+    private void addStudent(String courseUrl, String eid) {
+        APIResponse user = page.request().get("/direct/user/" + eid + ".json");
+        assertTrue(user.ok(), user.text());
+        String userId = JsonParser.parseString(user.text()).getAsJsonObject().get("id").getAsString();
+        APIResponse membership = page.request().post("/direct/membership/new", RequestOptions.create().setForm(FormData.create()
+                .set("locationReference", "/site/" + sakai.siteIdFromUrl(courseUrl))
+                .set("userId", userId).set("memberRole", "Student").set("active", "true")));
+        assertTrue(membership.ok(), membership.text());
+    }
+
+    private void createGroupThroughUi(String courseUrl, String title, String student) {
+        openGroups(courseUrl);
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("sakai-user-picker").getByRole(AriaRole.COMBOBOX)).isVisible();
+        sakai.waitForPortalFocus();
+        page.locator("#groupTitle").pressSequentially(title);
+        Locator picker = page.locator("sakai-user-picker");
+        picker.getByRole(AriaRole.COMBOBOX).fill(student);
+        picker.getByRole(AriaRole.OPTION).filter(new Locator.FilterOptions().setHasText(student)).click();
+        picker.getByRole(AriaRole.COMBOBOX).press("Escape");
+        assertThat(page.locator("#create-group-submit-button")).isEnabled();
+        page.locator("#create-group-submit-button").click();
+        assertThat(groupRow(title)).isVisible();
+    }
+
+    private void createGradedGroupAssignment(String courseUrl, String title, List<String> groups) {
+        openAssignments(courseUrl);
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
+        page.locator("#new_assignment_title").fill(title);
+        page.locator("#subType").selectOption("1");
+        page.locator("#gradeAssignment").check();
+        page.locator("#new_assignment_grade_points").fill("10");
+        page.locator("#new_assignment_check_add_honor_pledge").uncheck();
+        sakai.typeCkEditor("new_assignment_instructions", "<p>Submit work as a group.</p>");
+        LocalDateTime openDate = LocalDateTime.parse(page.locator("#opendate input[type=datetime-local]").inputValue());
+        sakai.selectDate("#opendate", openDate.minusDays(1).toString());
+        sakai.selectDate("#duedate", openDate.plusDays(7).toString());
+        sakai.selectDate("#closedate", openDate.plusDays(7).toString());
+        page.locator("#groupAssignment").check();
+        openGroupChoices();
+        for (Locator checked : page.locator("#groupTableContainer .multiselect-container input[type=checkbox]").all()) {
+            checked.uncheck();
+        }
+        for (String group : groups) {
+            groupCheckbox(group).check();
+        }
+        openGroupChoices();
+        saveAssignment(title);
+    }
+
+    private void openAssignments(String courseUrl) {
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+    }
+
+    private void editAssignment(String courseUrl, String title) {
+        openAssignments(courseUrl);
+        assignmentRow(title).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Edit " + title).setExact(true)).click();
+        assertThat(page.locator("#new_assignment_title")).hasValue(title);
+    }
+
+    private void saveAssignment(String title) {
+        page.locator(".act input[name=post]").click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".sak-banner-error:visible")).hasText(new String[0]);
+        assertThat(assignmentRow(title)).isVisible();
+        assertThat(page.locator("#assignments-list")).isVisible();
+    }
+
+    private void openGroupGrading(String courseUrl, String title, String group) {
+        openAssignments(courseUrl);
+        assignmentRow(title).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Grade " + title).setExact(true)).click();
+        assertThat(page.locator("#submissionList")).isVisible();
+        page.locator("#submissionList").getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName(group).setExact(true)).click();
+        assertThat(page.locator("#gradeForm")).isVisible();
+    }
+
+    private void assertGroupOption(String group, boolean selected, boolean disabled) {
+        Locator option = page.locator("#selectedGroups option").filter(new Locator.FilterOptions().setHasText(group));
+        assertThat(option).hasCount(1);
+        assertThat(option).hasJSProperty("selected", selected);
+        assertThat(option).hasJSProperty("disabled", disabled);
+    }
+
+    private void openGroupChoices() {
+        page.locator("#groupTableContainer button.multiselect").click();
+    }
+
+    private Locator groupCheckbox(String title) {
+        return page.locator("#groupTableContainer .multiselect-container").getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName(title).setExact(true)).locator("input[type=checkbox]");
+    }
+
+    private void openGroups(String courseUrl) {
+        page.navigate(courseUrl);
+        sakai.toolClick("Site Info");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Manage Groups").setExact(true)).click();
+        assertThat(page.getByRole(AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName("Group List").setExact(true))).isVisible();
+    }
+
+    private Locator groupRow(String title) {
+        return page.locator("#groupTable tbody tr").filter(new Locator.FilterOptions().setHasText(title));
+    }
+
+    private Locator assignmentRow(String title) {
+        return page.locator("tr").filter(new Locator.FilterOptions().setHasText(title));
+    }
+}

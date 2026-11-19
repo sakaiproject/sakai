@@ -32,7 +32,7 @@ import java.util.Set;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -42,6 +42,7 @@ import org.sakaiproject.email.api.EmailAddress;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.feedback.exception.AttachmentsTooBigException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -176,7 +177,16 @@ public class SakaiProxy {
 			, String userTitle, String userContent
 			, List<FileItem> fileItems, boolean siteExists,
 			   String browserNameAndVersion, String osNameAndVersion, String browserSize, String screenSize, String plugins, String ip,
-			   String currentTime) {
+			   String currentTime) throws AttachmentsTooBigException {
+
+        long totalBytes = 0L;
+        for (FileItem fileItem : fileItems) {
+            totalBytes += fileItem.getSize();
+        }
+
+        if (totalBytes > 0 && totalBytes > getAttachmentLimitBytes()) {
+            throw new AttachmentsTooBigException();
+        }
 
 		final List<Attachment> attachments = new ArrayList<Attachment>();
 
@@ -303,14 +313,25 @@ public class SakaiProxy {
 
 	}
 
-    public int getAttachmentLimit() {
-
-        // set the limit to whichever is the lowest.
+    /**
+     * The largest combined attachment size, in bytes, that Feedback accepts: the lowest of the
+     * content upload limit, the Feedback attachment limit and the outgoing mail limit.
+     */
+    public long getAttachmentLimitBytes() {
         int contentUploadMax = getConfigInt("content.upload.max", ATTACH_MAX_DEFAULT);
-        int feedbackAttachMax= getConfigInt("feedback.attach.max", ATTACH_MAX_DEFAULT);
-        int mb = Math.min(contentUploadMax, feedbackAttachMax);
+        int feedbackAttachMax = getConfigInt("feedback.attach.max", ATTACH_MAX_DEFAULT);
+        long uploadLimitBytes = Math.min(contentUploadMax, feedbackAttachMax) * 1024L * 1024L;
+        // BasicEmailService treats the mail limit as exclusive.
+        long mailLimitBytes = getConfigInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE) - 1L;
+        return Math.min(uploadLimitBytes, mailLimitBytes);
+    }
 
-        return mb;
+    /**
+     * The attachment limit shown to users, in whole MB, rounded down so it never advertises more
+     * than {@link #getAttachmentLimitBytes()} accepts.
+     */
+    public int getAttachmentLimit() {
+        return (int) (getAttachmentLimitBytes() / (1024L * 1024L));
     }
 
     public Locale getLocale() {

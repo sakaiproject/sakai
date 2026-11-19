@@ -28,6 +28,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.sakaiproject.util.Zip;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.Date;
@@ -256,56 +259,27 @@ public class FileUtils
 	 */
 	public static void unpack(InputStream source, File destination) throws IOException
 	{
-		ZipInputStream zin = new ZipInputStream(source);
-		ZipEntry zipEntry = null;
-		FileOutputStream fout = null;
-		try
-		{
-			byte[] buffer = new byte[4096];
-			while ((zipEntry = zin.getNextEntry()) != null)
-			{
-
-				long ts = zipEntry.getTime();
-				// the zip entry needs to be a full path from the
-				// searchIndexDirectory... hence this is correct
-
-				File f = new File(destination, zipEntry.getName());
-				if (log.isDebugEnabled())
-					log.debug("         Unpack " + f.getAbsolutePath());
-				if (!f.getParentFile().exists())
-				{
-					if (!f.getParentFile().mkdirs())
-					{
-						log.warn("unpack(): Failed to create parent folder: " + f.getParentFile().getPath());
-					}
-				}
-
-				fout = new FileOutputStream(f);
-				int len;
-				while ((len = zin.read(buffer)) > 0)
-				{
-					fout.write(buffer, 0, len);
-				}
-				zin.closeEntry();
-				fout.close();
-				if (!f.setLastModified(ts))
-				{
-					log.warn("upack(): failes to set modified date on " + f.getPath());
-				}
-			}
-		}
-		finally
-		{
-			try
-			{
-				fout.close();
-			}
-			catch (Exception ex)
-			{
-				log.warn("Exception closing file output stream", ex);
-			}
-		}
-	}
+        Path root = destination.toPath();
+        Files.createDirectories(root);
+        try (ZipInputStream zin = new ZipInputStream(source)) {
+            ZipEntry entry;
+            while ((entry = zin.getNextEntry()) != null) {
+                Path target = Zip.resolveEntryPath(root, entry.getName());
+                if (entry.isDirectory()) {
+                    Files.createDirectories(target);
+                } else {
+                    Files.createDirectories(target.getParent());
+                    try (OutputStream out = Files.newOutputStream(target)) {
+                        zin.transferTo(out);
+                    }
+                    if (entry.getTime() >= 0 && !target.toFile().setLastModified(entry.getTime())) {
+                        log.warn("Unable to set modified date on {}", target);
+                    }
+                }
+                zin.closeEntry();
+            }
+        }
+    }
 
 	public static String digest(String token) throws GeneralSecurityException,
 			IOException

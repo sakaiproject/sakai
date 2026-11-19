@@ -13,7 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;
@@ -51,7 +51,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,7 +82,7 @@ public class SitesController extends AbstractSakaiApiController {
     private UserMessagingService userMessagingService;
 
     @GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<Map<String, Object>>> getSites(@PathVariable String userId, @RequestParam Optional<Boolean> pinned)
+    public Map<String, List<Map<String, Object>>> getSites(@PathVariable("userId") String userId, @RequestParam("pinned") Optional<Boolean> pinned)
         throws UserNotDefinedException {
 
         checkSakaiSession();
@@ -105,17 +105,27 @@ public class SitesController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> getSite(@PathVariable String siteId) {
+    public ResponseEntity<Map<String, Object>> getSite(@PathVariable("siteId") String siteId) {
+
+        checkSakaiSession();
+
+        Site site;
+        try {
+            site = siteService.getSiteVisit(siteId);
+        } catch (IdUnusedException e) {
+            return ResponseEntity.notFound().build();
+        } catch (PermissionException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         List<UserNotificationTransferBean> notifications = userMessagingService.getNotifications();
         List<String> pinnedSites = portalService.getPinnedSites();
 
-        return siteService.getOptionalSite(siteId).map(s -> ResponseEntity.ok(this.getSiteMap(s, notifications, pinnedSites)))
-            .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(this.getSiteMap(site, notifications, pinnedSites));
     }
 
     @PostMapping(value = "/sites/{siteId}/image", produces = "text/plain")
-    public String postImage(HttpServletRequest req, @PathVariable String siteId) throws Exception {
+    public String postImage(HttpServletRequest req, @PathVariable("siteId") String siteId) throws Exception {
 
         if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -132,25 +142,32 @@ public class SitesController extends AbstractSakaiApiController {
         }
     }
 
-    @PostMapping(value = "/sites/{siteId}/card-config")
-    public void postCardConfig(HttpServletRequest req, @PathVariable String siteId, @RequestParam String mode, @RequestParam(required = false) String background, @RequestParam(required = false) String foreground) throws Exception {
+    @PostMapping(value = "/sites/{siteId}/card-config", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> postCardConfig(HttpServletRequest req, @PathVariable("siteId") String siteId, @RequestParam("mode") String mode, @RequestParam(name = "background", required = false) String background, @RequestParam(name = "foreground", required = false) String foreground) throws Exception {
 
         if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
+        Map<String, String> result = new HashMap<>();
+
         try {
             Site site = siteService.getSite(siteId);
             if ("image".equals(mode)) {
                 saveSiteImage(req, site, foreground);
+                result.put("imageUrl", site.getProperties().getProperty(Site.PROP_COURSE_IMAGE_URL));
+                result.put("foreground", foreground);
             } else if ("color".equals(mode)) {
                 site.getProperties().addProperty(Site.PROP_COURSE_CARD_BACKGROUND_COLOR, background);
+                result.put("background", background);
                 site.getProperties().addProperty(Site.PROP_COURSE_CARD_FOREGROUND_COLOR, foreground);
+                result.put("foreground", foreground);
                 site.getProperties().removeProperty(Site.PROP_COURSE_IMAGE_URL);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unrecognized mode: " + mode);
             }
             siteService.save(site);
+            return result;
         } catch (Exception e) {
             log.error("Failed to update card config for site {}: {}", siteId, e.toString());
             throw e;

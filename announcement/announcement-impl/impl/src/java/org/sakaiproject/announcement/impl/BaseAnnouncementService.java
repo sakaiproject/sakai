@@ -21,6 +21,8 @@
 
 package org.sakaiproject.announcement.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -42,9 +44,9 @@ import java.util.Stack;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -203,7 +205,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			factory.setValidating(false);		   // we're not validating
 			docBuilder = factory.newDocumentBuilder();
 			
-			TransformerFactory tFactory = TransformerFactory.newInstance();
+			TransformerFactory tFactory = Xml.createSecureTransformerFactory();
 			docTransformer = tFactory.newTransformer();
 
 			siteService.addSiteRemovalAdvisor(this);
@@ -2365,7 +2367,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			// add draft, subject
 			String encodedSubject = formattedText.encodeUnicode(getSubject());
 			header.setAttribute("subject", encodedSubject);
-			header.setAttribute("draft", new Boolean(getDraft()).toString());
+			header.setAttribute("draft", Boolean.toString(getDraft()));
 
 			return header;
 

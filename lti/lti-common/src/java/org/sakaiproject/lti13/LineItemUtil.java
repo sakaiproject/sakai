@@ -354,15 +354,6 @@ public class LineItemUtil {
 		return shouldMigrateLegacyOnUpdate(gradebookColumn);
 	}
 
-	private static Long deriveContentIdFromGradebookExternalId(Assignment gradebookColumn) {
-		String toolContentKey = getPreferredToolContentKey(gradebookColumn);
-		if (toolContentKey == null) {
-			return null;
-		}
-		String[] parts = StringUtils.split(toolContentKey, ID_SEPARATOR_REGEX);
-		return (parts == null || parts.length < 2) ? null : Long.valueOf(parts[1]);
-	}
-
 	public static Assignment createLineItem(Site site, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
 		String context_id = site.getId();
 		return createLineItem(context_id, tool_id, content, lineItem);

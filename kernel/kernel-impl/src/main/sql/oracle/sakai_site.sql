@@ -346,7 +346,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-710', '!gateway-700', '!gateway', '
 -- Create the !user site to be used as the template for a new user's site.
 
 INSERT INTO SAKAI_SITE VALUES('!user', 'Home', null, null, 'Home', null, null, null, 1, 0, 0, '', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 0, 0, 0, null);
-INSERT INTO SAKAI_SITE_PAGE VALUES('!user-100', '!user', 'Home', '1', 1, '0' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!user-100', '!user', 'Home', '1', 2, '0' );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!user', '!user-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-110', '!user-100', '!user', 'sakai.motd', 1, 'Message of the Day', '0,0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-120', '!user-100', '!user', 'sakai.iframe.myworkspace', 2, 'Home', '1,0' );
@@ -368,7 +368,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!user-610', '!user-600', '!user', 'sakai.pre
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-700', '!user', 'Account', '0', 9, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-710', '!user-700', '!user', 'sakai.singleuser', 1, 'Account', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!user', '!user-710', 'include-password', 'true' );
-INSERT INTO SAKAI_SITE_PAGE VALUES('!user-800', '!user', 'Dashboard', '0', 10, '0' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!user-800', '!user', 'Dashboard', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-810', '!user-800', '!user', 'sakai.dashboard', 1, 'Dashboard', NULL );
 -- sakai.rwiki currently stealthed
 -- INSERT INTO SAKAI_SITE_PAGE VALUES('!user-800', '!user', 'Wiki', '0', 10, '0' );
@@ -457,6 +457,11 @@ INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-1210', 'saka
 INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-1300', '!plussite', 'Statistics', '0', 13, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-1310', '!plussite-1300', '!plussite', 'sakai.sitestats', 1, 'Statistics', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-1310', 'sakai-portal:visible', 'false' );
+
+-- Global tag collection management in the Admin Workspace.
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-2100', '!admin', 'Tags', '0', 25, '0');
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-2110', '!admin-2100', '!admin', 'sakai.tagservice', 1, 'Tags', NULL);
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!admin', '!admin-2110', 'customTitle', 'Tags');
 
 -- Create the mercury site.
 

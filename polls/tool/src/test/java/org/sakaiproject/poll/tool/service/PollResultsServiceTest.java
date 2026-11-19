@@ -17,6 +17,8 @@
 package org.sakaiproject.poll.tool.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -147,8 +149,25 @@ public class PollResultsServiceTest {
     private PollResultsService.PollResults buildResults(Poll poll, List<Vote> votes, int distinctVoters, int potentialVoters) {
         when(pollsService.getAllVotesForPoll(poll.getId())).thenReturn(votes);
         when(pollsService.getDistinctVotersForPoll(poll)).thenReturn(distinctVoters);
-        when(pollsService.getNumberUsersCanVote("site-1")).thenReturn(potentialVoters);
+        when(pollsService.getNumberUsersCanVote(poll)).thenReturn(potentialVoters);
         return pollResultsService.buildResults(poll, "site-1", Locale.US);
+    }
+
+    @Test
+    public void gapsInOptionOrderAreIgnored() {
+        Poll poll = new Poll();
+        poll.setId("poll-1");
+        Option first = option(1L, "First", false);
+        Option second = option(2L, "Second", false);
+        // Hibernate fills gaps in OPTION_ORDER with null elements
+        poll.setOptions(new ArrayList<>(Arrays.asList(first, null, second)));
+
+        PollResultsService.PollResults results = buildResults(poll, List.of(vote(first, "user1")), 1, 1);
+        List<PollResultsService.ResultRow> rows = results.getRows();
+
+        Assert.assertEquals(2, rows.size());
+        Assert.assertEquals("First", rows.get(0).getText());
+        Assert.assertEquals("Second", rows.get(1).getText());
     }
 
     private Option option(Long id, String text, boolean deleted) {

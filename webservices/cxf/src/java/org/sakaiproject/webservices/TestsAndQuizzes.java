@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.webservices;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,15 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.xml.XMLConstants;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -139,10 +140,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 
 			inputStream = new ByteArrayInputStream(bytes);
 
-			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-			builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
 			builderFactory.setNamespaceAware(true);
 			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 			document = documentBuilder.parse(inputStream);
@@ -372,7 +370,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 		if (contextToReplace.isEmpty()) contextToReplace=null;
 		
 		if (!poolId.isEmpty()) {
-			poolIds.add(new Long(poolId));
+			poolIds.add(Long.valueOf(poolId));
 		}
 		else 
 		{

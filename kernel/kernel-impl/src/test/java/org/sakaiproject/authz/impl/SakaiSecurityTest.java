@@ -28,8 +28,12 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.lti.api.LTIToolPermissionService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -52,9 +56,11 @@ public class SakaiSecurityTest {
     @Mock private FunctionManager functionManager;
     @Mock private AuthzGroupService authzGroupService;
     @Mock private EntityManager entityManager;
-    @Mock private MemoryService memoryService;
+    @Mock private CacheManager cacheManager;
     @Mock private ServerConfigurationService serverConfigurationService;
     @Mock private EventTrackingService eventTrackingService;
+    @Mock private SessionManager sessionManager;
+    @Mock private Session session;
 
 
     private SakaiSecurity sakaiSecurity;
@@ -65,9 +71,10 @@ public class SakaiSecurityTest {
         sakaiSecurity.setFunctionManager(functionManager);
         sakaiSecurity.setAuthzGroupService(authzGroupService);
         sakaiSecurity.setEntityManager(entityManager);
-        sakaiSecurity.setMemoryService(memoryService);
+        sakaiSecurity.setCacheManager(cacheManager);
         sakaiSecurity.setServerConfigurationService(serverConfigurationService);
         sakaiSecurity.setEventTrackingService(eventTrackingService);
+        sakaiSecurity.setSessionManager(sessionManager);
 
         // Always return default
         when(serverConfigurationService.getString(anyString(), anyString())).thenAnswer(invocation -> invocation.getArgument(1));
@@ -83,7 +90,7 @@ public class SakaiSecurityTest {
     public void testCacheRealmPermsChangedSimple() throws GroupNotDefinedException {
 
         Cache cache = mock(Cache.class);
-        when(memoryService.getCache("org.sakaiproject.authz.api.SecurityService.cache")).thenReturn(cache);
+        when(cacheManager.getCache("org.sakaiproject.authz.api.SecurityService.cache")).thenReturn(cache);
         sakaiSecurity.init();
 
         AuthzGroup group = new AuthzGroupBuilder(authzGroupService, "/site/1")
@@ -92,7 +99,7 @@ public class SakaiSecurityTest {
 
         // This collects all the flushes
         Set<String> flushed = new HashSet<>();
-        doAnswer(s -> flushed.addAll(s.getArgument(0))).when(cache).removeAll(any());
+        doAnswer(s -> flushed.add(s.getArgument(0))).when(cache).evict(any());
 
         sakaiSecurity.cacheRealmPermsChanged("/realm//site/1", singleton("role"), singleton("function"));
 
@@ -104,7 +111,7 @@ public class SakaiSecurityTest {
     public void testCacheRealmPermsChangedMultiple() throws GroupNotDefinedException {
 
         Cache cache = mock(Cache.class);
-        when(memoryService.getCache("org.sakaiproject.authz.api.SecurityService.cache")).thenReturn(cache);
+        when(cacheManager.getCache("org.sakaiproject.authz.api.SecurityService.cache")).thenReturn(cache);
         sakaiSecurity.init();
 
         AuthzGroup group = new AuthzGroupBuilder(authzGroupService, "/site/1")
@@ -114,7 +121,7 @@ public class SakaiSecurityTest {
 
         // This collects all the flushes
         Set<String> flushed = new HashSet<>();
-        doAnswer(s -> flushed.addAll(s.getArgument(0))).when(cache).removeAll(any());
+        doAnswer(s -> flushed.add(s.getArgument(0))).when(cache).evict(any());
 
         sakaiSecurity.cacheRealmPermsChanged("/realm//site/1", singleton("role"), new HashSet<>(Arrays.asList("function1", "function2")));
 
@@ -130,7 +137,7 @@ public class SakaiSecurityTest {
     public void testCacheRealmPermsChangedSimpleSV() throws GroupNotDefinedException {
 
         Cache cache = mock(Cache.class);
-        when(memoryService.getCache("org.sakaiproject.authz.api.SecurityService.cache")).thenReturn(cache);
+        when(cacheManager.getCache("org.sakaiproject.authz.api.SecurityService.cache")).thenReturn(cache);
         when(serverConfigurationService.getString(eq("studentview.roles"), anyString())).thenReturn("student");
         sakaiSecurity.init();
 
@@ -141,11 +148,10 @@ public class SakaiSecurityTest {
 
         // This collects all the flushes
         Set<String> flushed = new HashSet<>();
-        doAnswer(s -> flushed.addAll(s.getArgument(0))).when(cache).removeAll(any());
+        doAnswer(s -> flushed.add(s.getArgument(0))).when(cache).evict(any());
 
         sakaiSecurity.cacheRealmPermsChanged("/realm//site/1", singleton("role"), singleton("function"));
 
         assertThat(flushed, containsInAnyOrder("unlock@1@@function@/site/1", "unlock@2@@function@/site/1"));
     }
-
 }

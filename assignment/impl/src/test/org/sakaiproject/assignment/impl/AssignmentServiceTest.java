@@ -56,14 +56,21 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -71,11 +78,13 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
@@ -83,6 +92,8 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -92,9 +103,12 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -107,9 +121,14 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.messaging.api.Message;
+import org.sakaiproject.messaging.api.MessageMedium;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
@@ -131,7 +150,10 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -147,11 +169,15 @@ import lombok.extern.slf4j.Slf4j;
 public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     private static final Faker faker = new Faker();
+    private static final String PEER_REVIEW_INVOKEE = "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService";
 
     @Resource(name = "org.sakaiproject.announcement.api.AnnouncementService")
     private AnnouncementService announcementService;
     @Autowired private AssignmentEventObserver assignmentEventObserver;
+    @Autowired private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Autowired private AssignmentService assignmentService;
+    @Autowired private org.hibernate.SessionFactory sessionFactory;
+    @Autowired private org.springframework.orm.hibernate5.HibernateTransactionManager transactionManager;
     @Autowired private AuthzGroupService authzGroupService;
     @Resource(name = "org.sakaiproject.calendar.api.CalendarService")
     private CalendarService calendarService;
@@ -160,20 +186,25 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     private EventTrackingService eventTrackingService;
     @Autowired private FormattedText formattedText;
     @Autowired private GradingService gradingService;
+    @Autowired private RubricsService rubricsService;
+    @Autowired private ScheduledInvocationManager scheduledInvocationManager;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SiteService siteService;
+    @Autowired private TagService tagService;
     @Autowired private TaskService taskService;
     @Resource(name = "org.sakaiproject.time.api.TimeService")
     private TimeService timeService;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private UserMessagingService userMessagingService;
     private ResourceLoader resourceLoader;
 
     @Before
     public void setUp() {
+        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(false);
         when(serverConfigurationService.getAccessUrl()).thenReturn("http://localhost:8080/access");
         resourceLoader = mock(ResourceLoader.class);
         when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
@@ -266,8 +297,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void testPublishAssignmentIntegratesCalendarAndAnnouncement() throws Exception {
-        AssignmentServiceImpl service = integrationService();
+        Assignment assignment = createPublishableAssignment(false);
+        String siteId = assignment.getContext();
+        String assignmentId = assignment.getId();
         Calendar calendar = mock(Calendar.class);
         CalendarEvent calendarEvent = mock(CalendarEvent.class);
         CalendarEventEdit calendarEventEdit = mock(CalendarEventEdit.class);
@@ -277,8 +311,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         ResourcePropertiesEdit messageProperties = mock(ResourcePropertiesEdit.class);
         Event updateEvent = mock(Event.class);
         Event availableEvent = mock(Event.class);
-        Assignment assignment = mock(Assignment.class);
-        Map<String, String> properties = new HashMap<>();
+        Map<String, String> properties = assignment.getProperties();
         Instant openTime = Instant.parse("2099-04-14T16:00:00Z");
         Instant dueTime = Instant.parse("2099-04-21T16:00:00Z");
 
@@ -287,22 +320,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         properties.put(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION,
                 AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
 
-        when(assignment.getProperties()).thenReturn(properties);
-        when(assignment.getDraft()).thenReturn(Boolean.TRUE);
-        when(assignment.getTitle()).thenReturn("Bulk Publish Assignment");
-        when(assignment.getDueDate()).thenReturn(dueTime);
-        when(assignment.getOpenDate()).thenReturn(openTime);
-        when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.SITE);
-        when(assignment.getId()).thenReturn("assignment-id");
-        when(assignment.getContext()).thenReturn("site-id");
-        when(calendarService.calendarReference("site-id", SiteService.MAIN_CONTAINER)).thenReturn("calendar-ref");
+        assignment.setTitle("Bulk Publish Assignment");
+        assignment.setDueDate(dueTime);
+        assignment.setOpenDate(openTime);
+        when(calendarService.calendarReference(siteId, SiteService.MAIN_CONTAINER)).thenReturn("calendar-ref");
         when(calendarService.getCalendar("calendar-ref")).thenReturn(calendar);
         when(calendar.addEvent(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.eq("Deadline"), Mockito.eq(""), Mockito.eq(CalendarEvent.EventAccess.SITE),
                 Mockito.anyList(), Mockito.isNull())).thenReturn(calendarEvent);
         when(calendarEvent.getId()).thenReturn("calendar-event-id");
         when(calendar.getEditEvent("calendar-event-id", CalendarService.EVENT_ADD_CALENDAR)).thenReturn(calendarEventEdit);
-        when(announcementService.channelReference("site-id", SiteService.MAIN_CONTAINER)).thenReturn("announcement-ref");
+        when(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER)).thenReturn("announcement-ref");
         when(announcementService.getAnnouncementChannel("announcement-ref")).thenReturn(channel);
         when(channel.addAnnouncementMessage()).thenReturn(message);
         when(message.getAnnouncementHeaderEdit()).thenReturn(header);
@@ -320,13 +348,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(userTimeService.dateTimeFormat(openTime, null, null)).thenReturn("Apr 14, 2026 12:00 PM EDT");
         when(userTimeService.dateTimeFormat(dueTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 21, 2026 12:00 PM EDT");
         when(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT,
-                "/assignment/a/site-id/assignment-id", true)).thenReturn(updateEvent);
+                "/assignment/a/" + siteId + "/" + assignmentId, true)).thenReturn(updateEvent);
         when(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT,
-                "/assignment/a/site-id/assignment-id", true)).thenReturn(availableEvent);
+                "/assignment/a/" + siteId + "/" + assignmentId, true)).thenReturn(availableEvent);
 
-        service.publishAssignment(assignment);
+        assignmentService.publishAssignment(assignment);
 
-        verify(assignment).setDraft(Boolean.FALSE);
+        Assert.assertFalse(assignmentService.getAssignment(assignmentId).getDraft());
         verify(calendar).addEvent(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.eq("Deadline"), Mockito.eq(""), Mockito.eq(CalendarEvent.EventAccess.SITE),
                 Mockito.anyList(), Mockito.isNull());
@@ -341,7 +369,160 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals("announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
         verify(eventTrackingService).post(updateEvent);
         verify(eventTrackingService).delay(availableEvent, openTime);
-        verify(service, Mockito.atLeast(3)).updateAssignment(assignment);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishAssignmentSkipsDeletedGroupAndLocksRemainingGroup() throws Exception {
+        Assignment assignment = createPublishableAssignment(false);
+        String groupReference = "/site/" + assignment.getContext() + "/group/remaining";
+        String deletedGroupReference = "/site/" + assignment.getContext() + "/group/deleted";
+        Site site = siteService.getSite(assignment.getContext());
+        Group group = mock(Group.class);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(site.getGroup(groupReference)).thenReturn(group);
+        when(site.getGroup(deletedGroupReference)).thenReturn(null);
+        when(authzGroupService.getAuthzGroup(deletedGroupReference)).thenThrow(new GroupNotDefinedException(deletedGroupReference));
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+        when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        assignment.setIsGroup(true);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.getGroups().addAll(Set.of(groupReference, deletedGroupReference));
+        assignmentService.updateAssignment(assignment);
+
+        AnnouncementChannel channel = mock(AnnouncementChannel.class);
+        AnnouncementMessageEdit message = mock(AnnouncementMessageEdit.class);
+        AnnouncementMessageHeaderEdit header = mock(AnnouncementMessageHeaderEdit.class);
+        when(announcementService.channelReference(assignment.getContext(), SiteService.MAIN_CONTAINER))
+                .thenReturn("group-announcement-ref");
+        when(announcementService.getAnnouncementChannel("group-announcement-ref")).thenReturn(channel);
+        when(channel.addAnnouncementMessage()).thenReturn(message);
+        when(message.getAnnouncementHeaderEdit()).thenReturn(header);
+        when(message.getPropertiesEdit()).thenReturn(mock(ResourcePropertiesEdit.class));
+        assignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+
+        assignmentService.publishAssignment(assignment);
+
+        Assert.assertFalse(assignmentService.getAssignment(assignment.getId()).getDraft());
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        verify(authzGroup, Mockito.atLeastOnce()).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+        verify(header).setGroupAccess(List.of(group));
+        verify(channel).commitMessage(message, NotificationService.NOTI_NONE,
+                "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishAssignmentSchedulesPeerReview() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+
+        assignmentService.publishAssignment(assignment);
+
+        Assert.assertFalse(assignmentService.getAssignment(assignment.getId()).getDraft());
+        org.mockito.InOrder order = Mockito.inOrder(scheduledInvocationManager);
+        order.verify(scheduledInvocationManager).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+        order.verify(scheduledInvocationManager).createDelayedInvocation(
+                assignment.getCloseDate(), PEER_REVIEW_INVOKEE, assignment.getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void republishAssignmentReplacesPeerReviewSchedule() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+        assignmentService.publishAssignment(assignment);
+        Instant newCloseDate = assignment.getCloseDate().plusSeconds(3600);
+        assignment.setCloseDate(newCloseDate);
+
+        assignmentService.publishAssignment(assignment);
+
+        verify(scheduledInvocationManager, Mockito.times(2)).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+        verify(scheduledInvocationManager).createDelayedInvocation(
+                newCloseDate, PEER_REVIEW_INVOKEE, assignment.getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishAssignmentWithoutPeerAssessmentRemovesStaleSchedule() throws Exception {
+        Assignment assignment = createPublishableAssignment(false);
+
+        assignmentService.publishAssignment(assignment);
+
+        verify(scheduledInvocationManager).deleteDelayedInvocation(PEER_REVIEW_INVOKEE, assignment.getId());
+        verify(scheduledInvocationManager, Mockito.never()).createDelayedInvocation(
+                Mockito.any(Instant.class), eq(PEER_REVIEW_INVOKEE), eq(assignment.getId()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void unpublishAssignmentRemovesPeerReviewSchedule() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+        assignmentService.publishAssignment(assignment);
+
+        assignmentService.unpublishAssignment(assignment);
+
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDraft());
+        verify(scheduledInvocationManager, Mockito.times(2)).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+        verify(scheduledInvocationManager, Mockito.times(1)).createDelayedInvocation(
+                assignment.getCloseDate(), PEER_REVIEW_INVOKEE, assignment.getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deniedPublishDoesNotSchedulePeerReview() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+        denyUpdate(assignment);
+
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.publishAssignment(assignment));
+
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDraft());
+        verify(scheduledInvocationManager, Mockito.never()).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+        verify(scheduledInvocationManager, Mockito.never()).createDelayedInvocation(
+                Mockito.any(Instant.class), eq(PEER_REVIEW_INVOKEE), eq(assignment.getId()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deniedUnpublishPreservesPeerReviewSchedule() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+        assignmentService.publishAssignment(assignment);
+        denyUpdate(assignment);
+
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.unpublishAssignment(assignment));
+
+        Assert.assertFalse(assignmentService.getAssignment(assignment.getId()).getDraft());
+        verify(scheduledInvocationManager, Mockito.times(1)).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+    }
+
+    private Assignment createPublishableAssignment(boolean peerAssessment) throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        when(securityService.unlock(eq(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT),
+                eq(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())))
+                .thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn(context);
+        when(siteService.getSite(context)).thenReturn(site);
+        assignment.setDraft(true);
+        assignment.setAllowPeerAssessment(peerAssessment);
+        assignment.setOpenDate(Instant.parse("2099-04-14T16:00:00Z"));
+        assignment.setDueDate(Instant.parse("2099-04-21T16:00:00Z"));
+        assignment.setCloseDate(Instant.parse("2099-04-22T16:00:00Z"));
+        assignmentService.updateAssignment(assignment);
+        return assignment;
+    }
+
+    private void denyUpdate(Assignment assignment) {
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(false);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).reckon().getReference())).thenReturn(false);
     }
 
     private AssignmentServiceImpl integrationService() throws PermissionException {
@@ -535,6 +716,109 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void submissionWorkIncludesSavedGradesAndFeedbackButNotEmptyGradingPlaceholders() throws Exception {
+        AssignmentSubmission submission = createNewGroupSubmission(UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(), Set.of("student"));
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+        submission.setUserSubmission(false);
+        submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "2");
+        submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, "123456");
+        Assert.assertFalse("Empty grading placeholders remain removable", assignmentService.hasSubmissionWork(submission));
+        submission.setGrade("0");
+        Assert.assertTrue("Zero is saved grading work", assignmentService.hasSubmissionWork(submission));
+        submission.setGrade(null);
+        submission.setFeedbackComment("Feedback without a grade or student submission");
+        Assert.assertTrue("Feedback alone is saved work", assignmentService.hasSubmissionWork(submission));
+        submission.setFeedbackComment(null);
+        submission.setUserSubmission(true);
+        Assert.assertTrue("Student submissions are work", assignmentService.hasSubmissionWork(submission));
+    }
+
+    @Test
+    public void gradebookLinksMatchIndividualItemsAndIgnoreDeletedAssignments() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(List.of());
+        when(siteService.getSite(context)).thenReturn(site);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        Assignment shared = createNewAssignment(context);
+        shared.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "12,123,raw%_\\literal");
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(shared).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, reference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        assignmentService.updateAssignment(shared);
+        Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "12"));
+        Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "123"));
+        Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "2").isEmpty());
+        Assert.assertEquals(List.of(shared), assignmentService.getAssignmentsForGradebookLink(context, "raw%_\\literal"));
+        Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "rawXX\\literal").isEmpty());
+        AssignmentGradeInfoProvider provider = new AssignmentGradeInfoProvider();
+        provider.setAssignmentService(assignmentService);
+        provider.setSiteService(siteService);
+        org.sakaiproject.grading.api.Assignment item = new org.sakaiproject.grading.api.Assignment();
+        item.setId(456L);
+        item.setName("12");
+        Assert.assertFalse("A numeric title is not another item's ID", provider.isGradebookItemInUse(context, item));
+        item.setName("raw%_\\literal");
+        Assert.assertTrue("Legacy nonnumeric names still match", provider.isGradebookItemInUse(context, item));
+        item.setId(12L);
+        Assert.assertTrue(provider.isGradebookItemInUse(context, item));
+        assignmentService.softDeleteAssignment(shared);
+        Assert.assertTrue(assignmentService.getAssignmentsForGradebookLink(context, "12").isEmpty());
+    }
+
+    @Test
+    public void failedGradebookCreationPreservesTheExistingAssociation() throws Exception {
+        Assignment assignment = createPublishableAssignment(false);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setMaxGradePoint(10000);
+        assignment.setScaleFactor(100);
+        assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "existing-item");
+        assignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
+        assignmentService.updateAssignment(assignment);
+        Mockito.doThrow(new org.sakaiproject.grading.api.ConflictingAssignmentNameException("Duplicate title"))
+                .when(gradingService).addExternalAssessment(eq(assignment.getContext()), eq(assignment.getContext()),
+                        anyString(), Mockito.isNull(), eq(assignment.getTitle()), Mockito.any(), Mockito.any(),
+                        anyString(), Mockito.isNull(), eq(false), Mockito.isNull(), anyString());
+        Assert.assertThrows(org.sakaiproject.grading.api.ConflictingAssignmentNameException.class,
+                () -> assignmentService.updateAssignmentWithGradebook(assignment, AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+                        Map.of(assignment.getContext(), -1L), Map.of()));
+        Assert.assertEquals("existing-item", assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+    }
+
+    @Test
+    public void deletingAnAssignmentRetainsItsSharedGradebookItem() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(List.of());
+        when(siteService.getSite(context)).thenReturn(site);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        Assignment original = createNewAssignment(context);
+        Assignment copy = createNewAssignment(context);
+        String originalRef = AssignmentReferenceReckoner.reckoner().assignment(original).reckon().getReference();
+        for (Assignment assignment : List.of(original, copy)) {
+            String ref = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, ref)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, ref)).thenReturn(true);
+            FakeReference entityRef = new FakeReference(assignmentService, ref);
+            assignmentService.parseEntityReference(ref, entityRef);
+            when(entityManager.newReference(ref)).thenReturn(entityRef);
+            assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, originalRef);
+            assignmentService.updateAssignment(assignment);
+        }
+        assignmentService.deleteAssignmentAndAllReferences(original);
+        verify(gradingService, Mockito.never()).removeExternalAssignment(Mockito.any(), eq(originalRef), Mockito.any());
+        AssignmentGradeInfoProvider provider = new AssignmentGradeInfoProvider();
+        provider.setAssignmentService(assignmentService);
+        Assert.assertTrue(provider.getAllExternalAssignments(context).contains(originalRef));
+        assignmentService.deleteAssignmentAndAllReferences(copy);
+        verify(gradingService).removeExternalAssignment(Mockito.isNull(), eq(originalRef), anyString());
+    }
+
+    @Test
     public void softDeleteAssignment() {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
@@ -552,7 +836,436 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void savingDraftUnlocksGroupsWithoutWork() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        for (boolean unpublish : new boolean[] {false, true}) {
+            // No submissions, an empty grading placeholder, and saved student/instructor work.
+            for (int state = 0; state < 3; state++) {
+                final int submissionState = state;
+                Assignment assignment = transaction.execute(status -> {
+                    try {
+                        if (submissionState == 0) {
+                            return createPublishedGroupAssignment();
+                        }
+                        AssignmentSubmission submission = createNewGroupSubmission(UUID.randomUUID().toString(),
+                                UUID.randomUUID().toString(), Set.of("student"));
+                        Assignment parent = submission.getAssignment();
+                        parent.setDraft(false);
+                        assignmentService.updateAssignment(parent);
+                        if (submissionState == 2) {
+                            submission.setSubmittedText("Student draft");
+                            submission.setGrade("0");
+                            submission.setFeedbackComment("Instructor feedback");
+                            submission.getAttachments().add("/content/student-work");
+                            submission.getSubmitters().iterator().next().setGrade("0");
+                        }
+                        return parent;
+                    } catch (Exception e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+                String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                AuthzGroup group = authzGroupService.getAuthzGroup(assignment.getGroups().iterator().next());
+                Mockito.clearInvocations(group);
+                try {
+                    if (unpublish) {
+                        assignmentService.unpublishAssignment(assignment);
+                    } else {
+                        assignment.setDraft(true);
+                        assignmentService.updateAssignment(assignment);
+                    }
+                    if (state < 2) {
+                        verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                    } else {
+                        Mockito.verifyNoInteractions(group);
+                    }
+                    transaction.executeWithoutResult(status -> {
+                        Assignment saved = sessionFactory.getCurrentSession().get(Assignment.class, assignment.getId());
+                        Assert.assertTrue(saved.getDraft());
+                        Assert.assertEquals(submissionState == 0 ? 0 : 1, saved.getSubmissions().size());
+                        if (submissionState == 2) {
+                            AssignmentSubmission retained = saved.getSubmissions().iterator().next();
+                            Assert.assertEquals("Student draft", retained.getSubmittedText());
+                            Assert.assertEquals("0", retained.getGrade());
+                            Assert.assertEquals("Instructor feedback", retained.getFeedbackComment());
+                            Assert.assertEquals(Set.of("/content/student-work"), retained.getAttachments());
+                            Assert.assertEquals("0", retained.getSubmitters().iterator().next().getGrade());
+                        }
+                    });
+                } finally {
+                    try {
+                        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+                        assignmentService.deleteAssignment(assignmentService.getAssignment(assignment.getId()));
+                    } catch (Exception e) {
+                        log.warn("Could not clean up assignment {} after the draft test", assignment.getId(), e);
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void softDeleteEmptyGroupAssignmentReleasesOnlyItsOwnLocks() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        AuthzGroup group = authzGroupService.getAuthzGroup(assignment.getGroups().iterator().next());
+        Mockito.clearInvocations(group);
+
+        Assert.assertTrue(assignmentService.canReleaseGroupLocks(assignment));
+        assignmentService.softDeleteAssignment(assignment);
+
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDeleted());
+        verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+        Mockito.verifyNoMoreInteractions(group);
+    }
+
+    @Test
+    public void restoreEmptyGroupAssignmentAsDraftWithCurrentGroups() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        assignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+                AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
+        assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "old-gradebook-item");
+        Set<String> groups = new HashSet<>(assignment.getGroups());
+        assignmentService.softDeleteAssignment(assignment);
+        Assignment restored = assignmentService.restoreAssignment(assignment.getId());
+
+        Assert.assertFalse(restored.getDeleted());
+        Assert.assertTrue(restored.getDraft());
+        Assert.assertNull(restored.getSoftRemovedDate());
+        Assert.assertEquals(groups, restored.getGroups());
+        Assert.assertEquals(AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+                restored.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+        Assert.assertFalse(restored.getProperties().containsKey(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+    }
+
+    @Test
+    public void restoreEmptyGroupAssignmentWithDeletedGroups() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        String groupReference = assignment.getGroups().iterator().next();
+        assignmentService.softDeleteAssignment(assignment);
+        when(siteService.getSite(assignment.getContext()).getGroup(groupReference)).thenReturn(null);
+        when(authzGroupService.getAuthzGroup(groupReference)).thenThrow(new GroupNotDefinedException(groupReference));
+
+        Assignment restored = assignmentService.restoreAssignment(assignment.getId());
+
+        Assert.assertFalse(restored.getDeleted());
+        Assert.assertTrue(restored.getDraft());
+        Assert.assertTrue(restored.getGroups().isEmpty());
+    }
+
+    @Test
+    public void softDeleteAndRestoreProtectsUnsubmittedGroupWork() throws Exception {
+        assertGroupSubmissionLocksRetained(submission -> submission.setSubmittedText("Saved draft"));
+    }
+
+    @Test
+    public void softDeleteAndRestoreProtectsInstructorGradeWithoutSubmission() throws Exception {
+        assertGroupSubmissionLocksRetained(submission -> {
+            submission.setGrade("85");
+            submission.setFeedbackComment("Instructor feedback");
+        });
+    }
+
+    @Test
+    public void softDeleteAndRestoreProtectsSubmittedGroupWork() throws Exception {
+        assertGroupSubmissionLocksRetained(submission -> {
+            submission.setSubmitted(true);
+            submission.setDateSubmitted(Instant.now());
+            submission.setSubmittedText("Submitted work");
+        });
+    }
+
+    @Test
+    public void gradingPlaceholdersUnlockAndRestoreWithCurrentMembers() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        String groupReference = assignment.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Site site = siteService.getSite(assignment.getContext());
+        Group group = site.getGroup(groupReference);
+        when(group.getId()).thenReturn(groupId);
+        when(site.getGroup(groupId)).thenReturn(group);
+        Member oldMember = buildGroupMember("old-student");
+        when(group.getMembers()).thenReturn(Set.of(oldMember));
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "2");
+        assignmentService.updateAssignment(assignment);
+
+        // This is the service call made by the group grading screen.
+        assignmentService.getSubmitterGroupList(null, groupId, null, assignment.getId(), assignment.getContext());
+        AssignmentSubmission placeholder = assignmentService.getSubmissions(assignment).iterator().next();
+        String placeholderId = placeholder.getId();
+        Assert.assertTrue(placeholder.getSubmitted());
+        Assert.assertFalse(placeholder.getUserSubmission());
+        Assert.assertTrue(assignmentService.canReleaseGroupLocks(assignment));
+        assignmentService.softDeleteAssignment(assignment);
+        verify(authzGroupService.getAuthzGroup(groupReference)).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+
+        Member newMember = buildGroupMember("new-student");
+        when(group.getMembers()).thenReturn(Set.of(newMember));
+        Assignment restored = assignmentService.restoreAssignment(assignment.getId());
+        sessionFactory.getCurrentSession().flush();
+        Assert.assertTrue(restored.getDraft());
+        Assert.assertTrue(assignmentService.getSubmissions(restored).isEmpty());
+        Assert.assertNull(sessionFactory.getCurrentSession().get(AssignmentSubmission.class, placeholderId));
+        restored.setDraft(false);
+        assignmentService.updateAssignment(restored);
+        AssignmentSubmission recreated = assignmentService.addSubmission(restored.getId(), groupId);
+        Assert.assertEquals(Set.of("new-student"), recreated.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void softDeleteAndRestoreProtectsWorkOnGradingPlaceholders() throws Exception {
+        List<Consumer<AssignmentSubmission>> work = Arrays.asList(
+                submission -> submission.setUserSubmission(true),
+                submission -> submission.setGrade("0"),
+                submission -> submission.setFeedbackComment("Feedback only"),
+                submission -> submission.setPrivateNotes("Instructor notes"),
+                submission -> submission.getAttachments().add("/content/student-draft"),
+                submission -> submission.getFeedbackAttachments().add("/content/feedback"),
+                submission -> submission.getSubmitters().iterator().next().setGrade("0"),
+                submission -> submission.getSubmitters().iterator().next().setFeedback("Individual feedback"),
+                submission -> submission.getProperties().put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, "Earlier work"));
+        for (Consumer<AssignmentSubmission> populate : work) {
+            assertGroupSubmissionLocksRetained(submission -> {
+                submission.setSubmitted(true);
+                submission.setUserSubmission(false);
+                populate.accept(submission);
+            });
+        }
+    }
+
+    @Test
+    public void rubricLinkedSubmissionRecordsKeepTheirLocks() throws Exception {
+        assertGroupSubmissionLocksRetained(submission -> {
+            ToolItemRubricAssociation association = new ToolItemRubricAssociation();
+            when(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, submission.getAssignment().getId()))
+                    .thenReturn(Optional.of(association));
+        });
+    }
+
+    @Test
+    public void rubricLookupFailureRetainsLocksWithoutRollingBackAssignmentChanges() throws Exception {
+        org.hibernate.Session assignmentSession = sessionFactory.getCurrentSession();
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        transaction.executeWithoutResult(assignmentStatus -> {
+            try {
+                assertGroupSubmissionLocksRetained(submission -> {
+                    Mockito.doAnswer(invocation -> {
+                        Assert.assertTrue(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+                        Assert.assertNotSame(assignmentSession, sessionFactory.getCurrentSession());
+                        // Simulate a failing rubric service that marks its participating transaction for rollback.
+                        return transaction.execute(rubricStatus -> {
+                            rubricStatus.setRollbackOnly();
+                            throw new org.springframework.dao.DataAccessResourceFailureException("Rubric lookup unavailable");
+                        });
+                    }).when(rubricsService).getRubricAssociation(AssignmentConstants.TOOL_ID, submission.getAssignment().getId());
+                });
+                Assert.assertSame(assignmentSession, sessionFactory.getCurrentSession());
+                Assert.assertFalse("Rubric failure must not mark assignment changes for rollback", assignmentStatus.isRollbackOnly());
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
+
+    @Test
+    public void cannotAddFirstSubmissionToDeletedGroupAssignment() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        assignmentService.softDeleteAssignment(assignment);
+
+        Assert.assertThrows(PermissionException.class,
+                () -> assignmentService.addSubmission(assignment.getId(), "student"));
+        Assert.assertTrue(assignmentService.canReleaseGroupLocks(assignment));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deletionBlocksFirstSubmissionFromAnAlreadyOpenRequest() throws Exception {
+        assertDeletionBlocksSubmission(false);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deletionBlocksGradingFromAnAlreadyOpenRequest() throws Exception {
+        assertDeletionBlocksSubmission(true);
+    }
+
+    private void assertDeletionBlocksSubmission(boolean existingPlaceholder) throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment assignment = transaction.execute(status -> {
+            try {
+                return createPublishedGroupAssignment();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String groupReference = assignment.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Group group = siteService.getSite(assignment.getContext()).getGroup(groupReference);
+        when(siteService.getSite(assignment.getContext()).getGroup(groupId)).thenReturn(group);
+        Member member = buildGroupMember(UUID.randomUUID().toString());
+        when(group.getMembers()).thenReturn(Set.of(member));
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+
+        String submissionId = existingPlaceholder ? assignmentService.addSubmission(assignment.getId(), groupId).getId() : null;
+        if (existingPlaceholder) {
+            String submissionReference = AssignmentReferenceReckoner.reckoner().context(assignment.getContext())
+                    .container(assignment.getId()).id(submissionId).subtype("s").reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        }
+        CountDownLatch assignmentRead = new CountDownLatch(1);
+        CountDownLatch deletionLocked = new CountDownLatch(1);
+        CountDownLatch submissionAttempted = new CountDownLatch(1);
+        CountDownLatch finishDeletion = new CountDownLatch(1);
+        Mockito.doAnswer(invocation -> {
+            deletionLocked.countDown();
+            Assert.assertTrue("Deletion was not released", finishDeletion.await(10, TimeUnit.SECONDS));
+            return null;
+        }).when(taskService).removeTaskByReference(reference);
+
+        ExecutorService requests = Executors.newFixedThreadPool(2);
+        try {
+            Future<Boolean> submissionRejected = requests.submit(() -> transaction.execute(status -> {
+                try {
+                    // Keep the pre-deletion entity in this request's Hibernate session.
+                    assignmentService.getAssignment(assignment.getId());
+                    AssignmentSubmission placeholder = existingPlaceholder
+                            ? assignmentService.getSubmission(submissionId) : null;
+                    assignmentRead.countDown();
+                    Assert.assertTrue("Deletion did not acquire its lock", deletionLocked.await(10, TimeUnit.SECONDS));
+                    submissionAttempted.countDown();
+                    try {
+                        if (existingPlaceholder) {
+                            placeholder.setGrade("0");
+                            assignmentService.updateSubmission(placeholder);
+                        } else {
+                            assignmentService.addSubmission(assignment.getId(), groupId);
+                        }
+                        return false;
+                    } catch (PermissionException expected) {
+                        status.setRollbackOnly();
+                        return true;
+                    }
+                } catch (IdUnusedException | PermissionException | InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }));
+            Assert.assertTrue("Submission request did not load the assignment", assignmentRead.await(10, TimeUnit.SECONDS));
+            Future<?> deletion = requests.submit(() -> {
+                assignmentService.softDeleteAssignment(assignment);
+                return null;
+            });
+            Assert.assertTrue("Submission request did not reach the locked assignment", submissionAttempted.await(10, TimeUnit.SECONDS));
+            Assert.assertThrows(TimeoutException.class, () -> submissionRejected.get(200, TimeUnit.MILLISECONDS));
+            finishDeletion.countDown();
+            deletion.get(10, TimeUnit.SECONDS);
+            Assert.assertTrue("The stale request must not save submission work", submissionRejected.get(10, TimeUnit.SECONDS));
+            Assert.assertTrue(transaction.execute(status -> assignmentService.canReleaseGroupLocks(assignment)));
+            verify(authzGroupService.getAuthzGroup(groupReference))
+                    .setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+        } finally {
+            finishDeletion.countDown();
+            requests.shutdownNow();
+            try {
+                if (!requests.awaitTermination(10, TimeUnit.SECONDS)) {
+                    log.warn("Request threads did not finish for assignment {}", assignment.getId());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Interrupted while cleaning up requests for assignment {}", assignment.getId(), e);
+            }
+            try {
+                // The service proxy starts a separate transaction because this test has none.
+                assignmentService.deleteAssignment(assignment);
+            } catch (Exception e) {
+                log.warn("Could not clean up assignment {} after the concurrency test", assignment.getId(), e);
+            }
+        }
+    }
+
+    @Test
+    public void cannotRestoreAssignmentWithoutUpdatePermission() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        assignmentService.softDeleteAssignment(assignment);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, reference)).thenReturn(false);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(false);
+
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.restoreAssignment(assignment.getId()));
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDeleted());
+    }
+
+    private Assignment createPublishedGroupAssignment() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String groupReference = "/site/" + context + "/group/" + UUID.randomUUID();
+        assignment.setIsGroup(true);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setDraft(false);
+        assignment.getGroups().add(groupReference);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, reference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(group.getReference()).thenReturn(groupReference);
+        when(site.getGroup(groupReference)).thenReturn(group);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(mock(AuthzGroup.class));
+        assignmentService.updateAssignment(assignment);
+        // The deletion and restore APIs deliberately reload persisted state.
+        sessionFactory.getCurrentSession().flush();
+        return assignment;
+    }
+
+    private void assertGroupSubmissionLocksRetained(Consumer<AssignmentSubmission> populateWork) throws Exception {
+        String context = UUID.randomUUID().toString();
+        String groupId = UUID.randomUUID().toString();
+        AssignmentSubmission submission = createNewGroupSubmission(context, groupId, Set.of(UUID.randomUUID().toString()));
+        Assignment assignment = submission.getAssignment();
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(assignment.getAuthor());
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        assignment.setDraft(false);
+        assignmentService.updateAssignment(assignment);
+        populateWork.accept(submission);
+        assignmentService.updateSubmission(submission);
+        sessionFactory.getCurrentSession().flush();
+        AuthzGroup group = authzGroupService.getAuthzGroup("/site/" + context + "/group/" + groupId);
+        Mockito.clearInvocations(group);
+
+        Assert.assertFalse(assignmentService.canReleaseGroupLocks(assignment));
+        assignmentService.softDeleteAssignment(assignment);
+        Mockito.verifyNoInteractions(group);
+        Assignment restored = assignmentService.restoreAssignment(assignment.getId());
+
+        Assert.assertFalse(restored.getDraft());
+        Assert.assertFalse(restored.getDeleted());
+        Assert.assertEquals(1, assignmentService.getSubmissions(restored).size());
+        AssignmentSubmission restoredSubmission = assignmentService.getSubmissions(restored).iterator().next();
+        Assert.assertEquals(submission.getGrade(), restoredSubmission.getGrade());
+        Assert.assertEquals(submission.getSubmittedText(), restoredSubmission.getSubmittedText());
+        Assert.assertEquals(submission.getFeedbackComment(), restoredSubmission.getFeedbackComment());
+        verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+        verify(group, Mockito.never()).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+    }
+
+    @Test
     public void deleteAssignment() {
+        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(true);
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
         String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
@@ -560,6 +1273,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(true);
         try {
             assignmentService.deleteAssignment(assignment);
+            verify(tagService).updateTagAssociations(context, assignment.getId(), Collections.emptyList(), true);
             deleted = assignmentService.getAssignment(assignment.getId());
         } catch (PermissionException e) {
             Assert.fail("Assignment not deleted\n" + e.toString());
@@ -573,6 +1287,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void deleteAssignmentPermissionDenied() {
+        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(true);
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
         String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
@@ -580,6 +1295,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         try {
             assignmentService.deleteAssignment(assignment);
         } catch (PermissionException e) {
+            verify(tagService, Mockito.never()).updateTagAssociations(eq(context), eq(assignment.getId()), anyCollection(), eq(true));
             Assignment notDeleted = null;
             try {
                 notDeleted = assignmentService.getAssignment(assignment.getId());
@@ -591,6 +1307,19 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             return;
         }
         Assert.fail("Should never reach this line");
+    }
+
+    @Test
+    public void deleteAssignmentWithTagIntegrationsDisabled() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+
+        assignmentService.deleteAssignment(assignment);
+
+        Assert.assertThrows(IdUnusedException.class, () -> assignmentService.getAssignment(assignment.getId()));
+        verify(tagService, Mockito.never()).updateTagAssociations(eq(context), eq(assignment.getId()), anyCollection(), eq(true));
     }
 
     @Test
@@ -1026,6 +1755,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
 
         Assert.assertNotNull(submission);
+        assertSubmitterSetStable(submission);
+        sessionFactory.getCurrentSession().flush();
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> currentUser.equals(s.getSubmitter())));
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
 
@@ -1048,6 +1779,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         try {
             assignmentService.updateSubmission(submission);
+            sessionFactory.getCurrentSession().flush();
+            sessionFactory.getCurrentSession().clear();
             AssignmentSubmission reconciledSubmission = assignmentService.getSubmission(submission.getId());
             Set<String> submitterIds = reconciledSubmission.getSubmitters().stream()
                     .map(AssignmentSubmissionSubmitter::getSubmitter)
@@ -1178,6 +1911,214 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         } catch (Exception e) {
             Assert.fail("Could not preserve current member submitter rows for instructor update\n" + e.toString());
         }
+    }
+
+    @Test
+    public void groupSubmissionFirstLtiPostByNonMemberPreservesExplicitSubmittee() {
+        // Replays the real LTI sequence: student flagged directly (as SakaiLTIUtil does),
+        // then updateSubmission() called once by the non-member service identity.
+        String context = UUID.randomUUID().toString();
+        String groupId = "team-7";
+        String submittingStudent = "student0041";
+        String otherMember = "student0042";
+        String ltiServiceIdentity = "lti-score-callback-2";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String groupReference = siteReference + "/group/" + groupId;
+
+        assignment.getGroups().add(groupReference);
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        Set<Member> members = new HashSet<>(Arrays.asList(
+                buildGroupMember(submittingStudent),
+                buildGroupMember(otherMember)));
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure LTI-post mocks\n" + e.toString());
+        }
+
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(group.getMembers()).thenReturn(members);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(site.getGroup(groupId)).thenReturn(group);
+        when(site.getGroup(groupReference)).thenReturn(group);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        // Stands in for pushAdvisor(): grants access despite not being a member.
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(ltiServiceIdentity), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(Collections.singleton(groupReference));
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for LTI-post test\n" + e.toString());
+        }
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(ltiServiceIdentity);
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        } catch (Exception e) {
+            Assert.fail("Could not create group submission\n" + e.toString());
+        }
+
+        Assert.assertNotNull(submission);
+        Assert.assertEquals("Nobody should be flagged yet - the LTI service identity isn't a member",
+                0, submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+
+        submission.getSubmitters().stream()
+                .filter(s -> submittingStudent.equals(s.getSubmitter()))
+                .findFirst()
+                .ifPresent(s -> s.setSubmittee(true));
+
+        submission.setUserSubmission(true);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        try {
+            assignmentService.updateSubmission(submission);
+            AssignmentSubmission reloaded = assignmentService.getSubmission(submission.getId());
+
+            Assert.assertEquals(1, reloaded.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+            Assert.assertTrue(reloaded.getSubmitters().stream()
+                    .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                    .anyMatch(s -> submittingStudent.equals(s.getSubmitter())));
+        } catch (Exception e) {
+            Assert.fail("Could not post first LTI submission for the group\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void groupSubmissionUpdateByNonMemberWithoutGradePermissionIsRejected() {
+        // Has update permission but not grade permission, and isn't a group member.
+        String context = UUID.randomUUID().toString();
+        String groupId = "team-6";
+        String submittingUser = "student0031";
+        String otherMember = "student0032";
+        String nonMemberUpdater = "support-role-0001";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String groupReference = siteReference + "/group/" + groupId;
+
+        assignment.getGroups().add(groupReference);
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        Set<Member> members = new HashSet<>(Arrays.asList(
+                buildGroupMember(submittingUser),
+                buildGroupMember(otherMember)));
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure non-member update mocks\n" + e.toString());
+        }
+
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(group.getMembers()).thenReturn(members);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(site.getGroup(groupId)).thenReturn(group);
+        when(site.getGroup(groupReference)).thenReturn(group);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, groupReference)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(submittingUser), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(Collections.singleton(groupReference));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(submittingUser);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for non-member update test\n" + e.toString());
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        } catch (Exception e) {
+            Assert.fail("Could not create group submission\n" + e.toString());
+        }
+
+        Assert.assertNotNull(submission);
+
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        // A real member posts first, establishing a legitimate submittee.
+        submission.setUserSubmission(true);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+
+        try {
+            assignmentService.updateSubmission(submission);
+        } catch (PermissionException e) {
+            Assert.fail("Group member's own post should not require grade permission\n" + e.toString());
+        }
+
+        AssignmentSubmission afterMemberPost = null;
+        try {
+            afterMemberPost = assignmentService.getSubmission(submission.getId());
+        } catch (Exception e) {
+            Assert.fail("Could not reload submission after member post\n" + e.toString());
+        }
+        Assert.assertEquals(1, afterMemberPost.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+
+        // Grade permission is left unstubbed - only update permission lets this actor in.
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(nonMemberUpdater);
+        // Forces reconcile to run again (a real resubmission keeps the old dateSubmitted, so
+        // wouldn't reach it) - pins down behavior if it ever does.
+        afterMemberPost.setDateSubmitted(Instant.now());
+        afterMemberPost.setFeedbackComment("A comment from a non-member updater");
+
+        boolean threw = false;
+        try {
+            assignmentService.updateSubmission(afterMemberPost);
+        } catch (PermissionException e) {
+            threw = true;
+        } catch (Exception e) {
+            Assert.fail("Expected a PermissionException, got\n" + e.toString());
+        }
+
+        Assert.assertTrue("A non-member with update-only (not grade) permission should be rejected here, "
+                + "even though a submittee is already recorded", threw);
     }
 
     @Test
@@ -1937,6 +2878,191 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void assignedPeerCanReadOnlyTheirActiveReviewWithoutSubmissionReadPermission() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.setDraft(false);
+        assignment.setAllowPeerAssessment(true);
+        assignment.setCloseDate(Instant.now().minusSeconds(3600));
+        assignment.setPeerAssessmentPeriodDate(Instant.now().plusSeconds(3600));
+        AssignmentSubmission submission = createNewSubmission(context, "reviewed-student", assignment);
+        PeerAssessmentItem review = new PeerAssessmentItem();
+        review.setId(new AssessorSubmissionId(submission.getId(), "assigned-reviewer"));
+        review.setAssignmentId(assignment.getId());
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("assigned-reviewer");
+        when(securityService.unlock(eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyString())).thenReturn(false);
+        when(securityService.unlock(eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION), anyString())).thenReturn(false);
+        // This is the real Assignments permission check, not a stubbed getSubmission call.
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmission(submission.getId()));
+        Assert.assertEquals(submission.getId(), assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer").getId());
+        assignment.setDeleted(true);
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer"));
+        assignment.setDeleted(false);
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "other-reviewer"));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("other-reviewer");
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer"));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("assigned-reviewer");
+        review.setRemoved(true);
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer"));
+        review.setRemoved(false);
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        assignment.setPeerAssessmentPeriodDate(Instant.now().minusSeconds(60));
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer"));
+        assignment.setPeerAssessmentPeriodDate(Instant.now().plusSeconds(3600));
+        review.setAssignmentId("another-assignment");
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "assigned-reviewer"));
+        Assert.assertNull(assignmentService.getSubmissionForPeerAssessment("missing", "assigned-reviewer"));
+    }
+
+    @Test
+    public void assignedReviewGroupAllowsOnlyItsMembersToReadSubmission() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.setDraft(false);
+        assignment.setAllowPeerAssessment(true);
+        assignment.setCloseDate(Instant.now().minusSeconds(3600));
+        assignment.setPeerAssessmentPeriodDate(Instant.now().plusSeconds(3600));
+        AssignmentSubmission submission = createNewSubmission(context, "reviewed-student", assignment);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        String groupRef = "/site/" + context + "/group/reviewers";
+        assignment.getGroups().add(groupRef);
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("reviewers");
+        when(group.getReference()).thenReturn(groupRef);
+        when(site.getGroupsWithMember("group-member")).thenReturn(List.of(group));
+        when(siteService.getSite(context)).thenReturn(site);
+        PeerAssessmentItem review = new PeerAssessmentItem();
+        review.setId(new AssessorSubmissionId(submission.getId(), "reviewers"));
+        review.setAssignmentId(assignment.getId());
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("group-member");
+        Assert.assertEquals(submission.getId(), assignmentService.getSubmissionForPeerAssessment(submission.getId(), "reviewers").getId());
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("nonmember");
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.getSubmissionForPeerAssessment(submission.getId(), "reviewers"));
+    }
+
+    @Test
+    public void peerFeedbackWithoutScoreIsCommented() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.setAllowPeerAssessment(true);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        AssignmentSubmission submission = createNewSubmission(context, UUID.randomUUID().toString(), assignment);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        PeerAssessmentItem review = new PeerAssessmentItem();
+        review.setId(new AssessorSubmissionId(submission.getId(), UUID.randomUUID().toString()));
+        review.setAssignmentId(assignment.getId());
+        review.setComment("Peer feedback without a score");
+        review.setSubmitted(true);
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+        Assert.assertNull(submission.getGrade());
+        Assert.assertFalse(submission.getGradeReleased());
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+
+        review.setRemoved(true);
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setFeedbackComment("Instructor feedback with a removed peer review");
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setFeedbackComment(null);
+
+        review.setRemoved(false);
+        review.setComment(" \t ");
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+
+        review.setComment("Peer feedback without a score");
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        assignment.setAllowPeerAssessment(false);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+
+        assignment.setAllowPeerAssessment(true);
+        submission.setGraded(true);
+        submission.setGrade("1000");
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        submission.setGrade(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setReturned(true);
+        submission.setGradeReleased(true);
+        submission.setDateReturned(Instant.now());
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setGradeReleased(false);
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+    }
+
+    @Test
+    public void bulkReleaseIncludesInstructorFeedbackWithoutGrade() throws Exception {
+        for (Assignment.GradeType gradeType : Assignment.GradeType.values()) {
+            String context = UUID.randomUUID().toString();
+            Assignment assignment = createNewAssignment(context);
+            assignment.setAllowPeerAssessment(false);
+            assignment.setTypeOfGrade(gradeType);
+            AssignmentSubmission submission = createNewSubmission(context, UUID.randomUUID().toString(), assignment);
+            submission.setSubmitted(true);
+            submission.setDateSubmitted(Instant.now());
+            Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+
+            submission.setPrivateNotes("Instructor-only notes");
+            submission.setFeedbackComment(" \t ");
+            Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+
+            submission.setFeedbackComment("Instructor feedback without a grade");
+            Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+            Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+            submission.setGradeReleased(true);
+            Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+            submission.setGradeReleased(false);
+
+            submission.setFeedbackComment(null);
+            Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+            submission.getFeedbackAttachments().add("/content/feedback.txt");
+            Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+            submission.setGradeReleased(true);
+            Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+            Assert.assertNull(submission.getGrade());
+        }
+    }
+
+    @Test
+    public void bulkReleasePreservesGradeEligibility() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.setAllowPeerAssessment(false);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        AssignmentSubmission submission = createNewSubmission(context, UUID.randomUUID().toString(), assignment);
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+
+        submission.setGrade(" \t ");
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setGrade("1000");
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+        assignment.setAllowPeerAssessment(true);
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setGradeReleased(true);
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+    }
+
+    @Test
     public void submissionStatus() {
         // gen.resub         = Re-submitted
         // gen.late2         = - late
@@ -2127,6 +3253,235 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void getGroupsAllowAddAssignmentWithoutCurrentUserReturnsNoGroups() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String siteReference = "/site/" + context;
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+
+        when(siteService.getSite(context)).thenReturn(site);
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(null);
+
+        Collection<Group> groups = assignmentService.getGroupsAllowAddAssignment(context, null);
+
+        Assert.assertTrue(groups.isEmpty());
+        Mockito.verify(securityService, Mockito.never()).unlock(Mockito.isNull(String.class),
+                eq(AssignmentServiceConstants.SECURE_ALL_GROUPS), eq(siteReference));
+    }
+
+    @Test
+    public void addingSubmissionDoesNotReloadExistingSubmissionGraph() throws Exception {
+        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+        List<User> users = configurePlaceholderUsers(assignment, 2);
+        assignmentService.addSubmission(assignment.getId(), users.get(0).getId());
+        sessionFactory.getCurrentSession().flush();
+        org.hibernate.stat.Statistics statistics = sessionFactory.getStatistics();
+        boolean statisticsEnabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        long loadsBefore = statistics.getEntityLoadCount();
+        try {
+            Assert.assertNotNull(assignmentService.addSubmission(assignment.getId(), users.get(1).getId()));
+            Assert.assertEquals("Adding a submission must not refresh the existing graph", loadsBefore, statistics.getEntityLoadCount());
+        } finally {
+            statistics.setStatisticsEnabled(statisticsEnabled);
+        }
+    }
+
+    @Test
+    public void placeholderCreationPreservesExistingWork() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "2");
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, "1795000000000");
+        List<User> users = configurePlaceholderUsers(assignment, 3);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        AssignmentSubmission existing = assignmentService.addSubmission(assignment.getId(), users.get(0).getId());
+        assertSubmitterSetStable(existing);
+        existing.setSubmittedText("Student work");
+        existing.setFeedbackComment("Saved feedback");
+        existing.setGrade("0");
+        existing.setUserSubmission(true);
+        String existingId = existing.getId();
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+
+        Mockito.clearInvocations(eventTrackingService);
+        Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+        submissions.values().forEach(this::assertSubmitterSetStable);
+        sessionFactory.getCurrentSession().flush();
+
+        verify(eventTrackingService, Mockito.times(users.size() - 1))
+                .newEvent(eq(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
+        Assert.assertEquals(users.size(), submissions.size());
+        AssignmentSubmission preserved = submissions.get(users.get(0));
+        Assert.assertEquals(existingId, preserved.getId());
+        Assert.assertEquals("Student work", preserved.getSubmittedText());
+        Assert.assertEquals("Saved feedback", preserved.getFeedbackComment());
+        Assert.assertEquals("0", preserved.getGrade());
+        Assert.assertTrue(preserved.getUserSubmission());
+        for (User user : users.subList(1, users.size())) {
+            AssignmentSubmission placeholder = submissions.get(user);
+            Assert.assertTrue(placeholder.getSubmitted());
+            Assert.assertFalse(placeholder.getUserSubmission());
+            Assert.assertEquals("2", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+            Assert.assertEquals("1795000000000", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+        }
+
+        sessionFactory.getCurrentSession().clear();
+        Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, context);
+        reopened.values().forEach(this::assertSubmitterSetStable);
+        Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
+                reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void placeholderPreservesOptionalResubmissionCloseTime() throws Exception {
+        for (Instant closeDate : Arrays.asList(null, Instant.parse("2026-12-01T12:00:00Z"))) {
+            for (String resubmitClose : List.of("", " ", "1795000000000")) {
+                Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+                assignment.setCloseDate(closeDate);
+                assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "-1");
+                assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, resubmitClose);
+                configurePlaceholderUsers(assignment, 1);
+                String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+                sessionFactory.getCurrentSession().flush();
+                sessionFactory.getCurrentSession().clear();
+
+                AssignmentSubmission placeholder = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext())
+                        .values().iterator().next();
+                String expected = resubmitClose.isBlank() ? (closeDate == null ? null : String.valueOf(closeDate.toEpochMilli())) : resubmitClose;
+                Assert.assertEquals(expected, placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+                Assert.assertEquals(expected != null, placeholder.getProperties().containsKey(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+                Assert.assertEquals("-1", placeholder.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+            }
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void placeholdersCommitWhenOneCreationEventFails() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment assignment = transaction.execute(status -> createNewAssignment(UUID.randomUUID().toString()));
+        configurePlaceholderUsers(assignment, 3);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        Mockito.clearInvocations(eventTrackingService);
+        Mockito.doThrow(new IllegalStateException("Event transport unavailable")).doNothing()
+                .when(eventTrackingService).post(Mockito.nullable(Event.class));
+        try {
+            Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+            Assert.assertEquals(3, submissions.size());
+            verify(eventTrackingService, Mockito.times(3)).post(Mockito.nullable(Event.class));
+
+            // A second service call starts a new transaction and verifies the placeholders committed.
+            Map<User, AssignmentSubmission> reopened = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+            Assert.assertEquals(submissions.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()),
+                    reopened.values().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+            verify(eventTrackingService, Mockito.times(3)).post(Mockito.nullable(Event.class));
+        } finally {
+            Mockito.doNothing().when(eventTrackingService).post(Mockito.nullable(Event.class));
+            assignmentService.deleteAssignmentAndAllReferences(assignment);
+        }
+    }
+
+    @Test
+    public void placeholdersShareOneGroupSubmissionAndCreationEvent() throws Exception {
+        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+        List<User> users = configurePlaceholderUsers(assignment, 2);
+        Site site = siteService.getSite(assignment.getContext());
+        String groupId = UUID.randomUUID().toString();
+        String groupReference = "/site/" + assignment.getContext() + "/group/" + groupId;
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        Set<Member> members = users.stream().map(user -> buildGroupMember(user.getId())).collect(Collectors.toSet());
+        when(group.getMembers()).thenReturn(members);
+        when(site.getGroup(groupId)).thenReturn(group);
+        for (User user : users) {
+            when(site.getGroupsWithMember(user.getId())).thenReturn(List.of(group));
+        }
+        assignment.setIsGroup(true);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.getGroups().add(groupReference);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        Mockito.clearInvocations(eventTrackingService);
+
+        Map<User, AssignmentSubmission> submissions = assignmentService.getSubmitterMap("true", null, "student", reference, assignment.getContext());
+        submissions.values().forEach(this::assertSubmitterSetStable);
+        sessionFactory.getCurrentSession().flush();
+        Assert.assertEquals(2, submissions.size());
+        Assert.assertSame(submissions.get(users.get(0)), submissions.get(users.get(1)));
+        Assert.assertEquals(1, assignment.getSubmissions().size());
+        Assert.assertEquals(2, submissions.get(users.get(0)).getSubmitters().size());
+        verify(eventTrackingService).newEvent(eq(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
+    }
+
+    private void assertSubmitterSetStable(AssignmentSubmission submission) {
+        for (AssignmentSubmissionSubmitter member : List.copyOf(submission.getSubmitters())) {
+            Assert.assertTrue(submission.getSubmitters().contains(member));
+            Assert.assertTrue(submission.getSubmitters().remove(member));
+            Assert.assertTrue(submission.getSubmitters().add(member));
+        }
+    }
+
+    @Test
+    public void groupPlaceholderPreservesOpenEndedResubmissionsWhenCreationEventFails() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        String groupReference = assignment.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Site site = siteService.getSite(assignment.getContext());
+        Group group = site.getGroup(groupReference);
+        when(group.getId()).thenReturn(groupId);
+        Member member = buildGroupMember(UUID.randomUUID().toString());
+        when(group.getMembers()).thenReturn(Set.of(member));
+        when(site.getGroup(groupId)).thenReturn(group);
+        assignment.setCloseDate(null);
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "-1");
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+
+        Mockito.doThrow(new IllegalStateException("Event transport unavailable"))
+                .when(eventTrackingService).post(Mockito.nullable(Event.class));
+        try {
+            Assert.assertEquals(1, assignmentService.getSubmitterGroupList("false", groupId, null, assignment.getId(), assignment.getContext()).size());
+        } finally {
+            Mockito.doNothing().when(eventTrackingService).post(Mockito.nullable(Event.class));
+        }
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        AssignmentSubmission submission = assignmentService.getAssignment(assignment.getId()).getSubmissions().iterator().next();
+        Assert.assertNotNull("Group placeholder creation must complete despite the event failure", submission.getDateModified());
+        Assert.assertTrue(submission.getSubmitted());
+        Assert.assertFalse(submission.getUserSubmission());
+        Assert.assertEquals("-1", submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+        Assert.assertFalse(submission.getProperties().containsKey(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+    }
+
+    private List<User> configurePlaceholderUsers(Assignment assignment, int count) throws Exception {
+        String context = assignment.getContext();
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String submissionReference = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
+        Site site = mock(Site.class);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            String id = UUID.randomUUID().toString();
+            User user = mock(User.class);
+            when(user.getId()).thenReturn(id);
+            when(user.getSortName()).thenReturn("student " + i);
+            when(site.getMember(id)).thenReturn(mock(Member.class));
+            users.add(user);
+        }
+        when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(users);
+        return users;
+    }
+
+    @Test
     public void countSubmissions() {
         String context = UUID.randomUUID().toString();
         List<String> submitterIds = Collections.nCopies(10,1).stream().map(i -> UUID.randomUUID().toString()).collect(Collectors.toList());
@@ -2198,6 +3553,39 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(new ArrayList<>());
         int countNoUsers = assignmentService.countSubmissions(assignmentReference, false);
         Assert.assertThat(countNoUsers, is(0)); // should have 0 submissions submitted
+    }
+
+    @Test
+    public void getSubmissionsForAssignmentIds() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String submitterOne = UUID.randomUUID().toString();
+        String submitterTwo = UUID.randomUUID().toString();
+        Assignment homework = createNewAssignment(context);
+        Assignment essay = createNewAssignment(context);
+        AssignmentSubmission homeworkOne = createNewSubmission(context, submitterOne, homework);
+        AssignmentSubmission homeworkTwo = createNewSubmission(context, submitterTwo, homework);
+        AssignmentSubmission essayOne = createNewSubmission(context, submitterOne, essay);
+
+        Assert.assertTrue(assignmentService.getSubmissions(Collections.emptyList()).isEmpty());
+        Assert.assertTrue(assignmentService.getSubmissions((Collection<String>) null).isEmpty());
+        Assert.assertTrue(assignmentService.getSubmissions(Arrays.asList("", "  ")).isEmpty());
+
+        Map<String, Set<AssignmentSubmission>> byAssignment = assignmentService.getSubmissions(
+                Arrays.asList(homework.getId(), essay.getId(), "missing-assignment-id", "", homework.getId()));
+
+        Assert.assertEquals(3, byAssignment.size());
+        Assert.assertThat(byAssignment.get(homework.getId()).size(), is(2));
+        Assert.assertThat(byAssignment.get(essay.getId()).size(), is(1));
+        Assert.assertTrue(byAssignment.get("missing-assignment-id").isEmpty());
+        Assert.assertTrue(byAssignment.get(homework.getId()).contains(homeworkOne));
+        Assert.assertTrue(byAssignment.get(homework.getId()).contains(homeworkTwo));
+        Assert.assertTrue(byAssignment.get(essay.getId()).contains(essayOne));
+        Assert.assertFalse(byAssignment.containsKey(""));
+
+        AssignmentSubmission loaded = byAssignment.get(homework.getId()).iterator().next();
+        Assert.assertNotNull(loaded.getAssignment());
+        Assert.assertEquals(homework.getId(), loaded.getAssignment().getId());
+        Assert.assertFalse(loaded.getSubmitters().isEmpty());
     }
 
     @Test
@@ -2285,6 +3673,120 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                 }
             }
         }
+    }
+
+    @Test
+    public void assignmentsByStudentAppliesSubmitterAndGradingPermissions() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String siteRef = "/site/" + context;
+        String groupRef = siteRef + "/group/assigned";
+        String otherGroupRef = siteRef + "/group/other";
+        String teachingAssistant = "teaching-assistant";
+        User student = mock(User.class);
+        User otherStudent = mock(User.class);
+        when(student.getId()).thenReturn("student");
+        when(otherStudent.getId()).thenReturn("other-student");
+        when(userDirectoryService.getOptionalUser("student")).thenReturn(Optional.of(student));
+        when(userDirectoryService.getOptionalUser("other-student")).thenReturn(Optional.of(otherStudent));
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        Group otherGroup = mock(Group.class);
+        Member studentMember = mock(Member.class);
+        Member taMember = mock(Member.class);
+        Role studentRole = mock(Role.class);
+        Role taRole = mock(Role.class);
+        when(studentMember.getUserId()).thenReturn("student");
+        when(studentMember.getRole()).thenReturn(studentRole);
+        when(taMember.getUserId()).thenReturn(teachingAssistant);
+        when(taMember.getRole()).thenReturn(taRole);
+        when(studentRole.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(siteService.siteReference(context)).thenReturn(siteRef);
+        when(site.getReference()).thenReturn(siteRef);
+        when(site.getUsers()).thenReturn(Set.of("student", "other-student", teachingAssistant));
+        when(site.getGroups()).thenReturn(List.of(group, otherGroup));
+        when(site.getGroupsWithMember(teachingAssistant)).thenReturn(List.of(group));
+        when(group.getReference()).thenReturn(groupRef);
+        when(group.getUsers()).thenReturn(Set.of("student", teachingAssistant));
+        when(group.getMembers()).thenReturn(Set.of(studentMember, taMember));
+        when(otherGroup.getReference()).thenReturn(otherGroupRef);
+        when(otherGroup.getUsers()).thenReturn(Set.of("other-student"));
+        when(authzGroupService.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION,
+                List.of(siteRef))).thenReturn(Set.of("student", "other-student"));
+        when(serverConfigurationService.getStringList(AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS,
+                AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT)).thenReturn(List.of(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT));
+
+        Assignment siteAssignment = createNewAssignment(context);
+        siteAssignment.setDraft(false);
+        Assignment groupAssignment = createNewAssignment(context);
+        groupAssignment.setDraft(false);
+        groupAssignment.setTypeOfAccess(Assignment.Access.GROUP);
+        groupAssignment.setGroups(new HashSet<>(Set.of(groupRef)));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(teachingAssistant);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(teachingAssistant),
+                eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection())).thenReturn(Set.of(groupRef));
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, groupRef)).thenReturn(true);
+        String groupAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(groupAssignment).reckon().getReference();
+        String siteAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(siteAssignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, groupAssignmentRef)).thenReturn(true);
+
+        Map<User, List<Assignment>> taAssignments = assignmentService.getAssignmentsByStudent(context, AssignmentConstants.ALL);
+        Assert.assertEquals(Set.of(student), taAssignments.keySet());
+        Assert.assertEquals(List.of(groupAssignment), taAssignments.get(student));
+        Assert.assertEquals(taAssignments, assignmentService.getAssignmentsByStudent(context, groupRef));
+        Assert.assertTrue(assignmentService.getAssignmentsByStudent(context, otherGroupRef).isEmpty());
+        Assert.assertTrue(assignmentService.getAssignmentsByStudent(context, "missing-group").isEmpty());
+
+        groupAssignment.getProperties().put(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, "true");
+        Assert.assertTrue(assignmentService.getAssignmentsByStudent(context, AssignmentConstants.ALL).get(student).isEmpty());
+        groupAssignment.getProperties().remove(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, siteRef)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, siteAssignmentRef)).thenReturn(true);
+        Map<User, List<Assignment>> instructorAssignments = assignmentService.getAssignmentsByStudent(context, AssignmentConstants.ALL);
+        Assert.assertEquals(Set.of(student, otherStudent), instructorAssignments.keySet());
+        Assert.assertEquals(Set.of(siteAssignment, groupAssignment), new HashSet<>(instructorAssignments.get(student)));
+        Assert.assertEquals(List.of(siteAssignment), instructorAssignments.get(otherStudent));
+
+        when(securityService.unlock("student", AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, siteRef)).thenReturn(true);
+        Assert.assertEquals(Set.of(otherStudent), assignmentService.getAssignmentsByStudent(context, AssignmentConstants.ALL).keySet());
+    }
+
+    @Test
+    public void canSubmitOnBehalfWithAssignmentGroupPermission() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String siteRef = "/site/" + context;
+        String groupRef = siteRef + "/group/assigned";
+        String otherGroupRef = siteRef + "/group/other";
+        String teachingAssistant = "teaching-assistant";
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setGroups(new HashSet<>(Set.of(groupRef)));
+        assignment.setDraft(false);
+        assignment.setOpenDate(Instant.now().minus(1, ChronoUnit.DAYS));
+        assignment.setCloseDate(Instant.now().plus(1, ChronoUnit.DAYS));
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(siteService.siteReference(context)).thenReturn(siteRef);
+        when(site.getGroups()).thenReturn(List.of(group));
+        when(group.getReference()).thenReturn(groupRef);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(teachingAssistant);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(teachingAssistant),
+                eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection())).thenReturn(Set.of(groupRef));
+
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, otherGroupRef)).thenReturn(true);
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, groupRef)).thenReturn(true);
+        Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+        assignment.setTypeOfAccess(Assignment.Access.SITE);
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, siteRef)).thenReturn(true);
+        Assert.assertTrue(assignmentService.canSubmit(assignment));
     }
 
     @Test
@@ -2557,6 +4059,268 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertTrue(entryNames.get(0).endsWith("/grades.csv"));
     }
 
+    @Test
+    public void savingRecentFeedbackDoesNotSendSubmissionNotifications() throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        submission.setFeedbackComment("Unreleased bulk feedback");
+        submission.setGraded(true);
+
+        when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(true);
+        try {
+            Mockito.clearInvocations(eventTrackingService);
+            assignmentService.updateSubmission(submission, false);
+
+            Mockito.verifyNoInteractions(userMessagingService, taskService);
+            verify(eventTrackingService, Mockito.never()).newEvent(eq(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION),
+                    anyString(), Mockito.isNull(), eq(true), eq(NotificationService.NOTI_OPTIONAL),
+                    Mockito.any(LRS_Statement.class));
+            Assert.assertEquals("Unreleased bulk feedback", assignmentService.getSubmission(submission.getId()).getFeedbackComment());
+        } finally {
+            when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(false);
+        }
+    }
+
+    @Test
+    public void repeatedInstructorUploadsSuppressReceiptsAndStillAllowRelease() throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        submission.setDateSubmitted(Instant.now().minusSeconds(86400));
+        submission.setDateReturned(Instant.now().minusSeconds(3600));
+        submission.setReturned(false);
+        submission.setGraded(true);
+        submission.setFeedbackComment("Uploaded feedback, release later");
+
+        when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(true);
+        try {
+            Mockito.clearInvocations(eventTrackingService);
+            Instant originalSubmissionDate = submission.getDateSubmitted();
+            String originalSubmissionText = submission.getSubmittedText();
+            for (int upload = 0; upload < 2; upload++) {
+                assignmentService.updateSubmission(submission, false);
+                submission = assignmentService.getSubmission(submission.getId());
+                Assert.assertFalse(submission.getReturned());
+                Assert.assertEquals(originalSubmissionDate, submission.getDateSubmitted());
+                Assert.assertEquals(originalSubmissionText, submission.getSubmittedText());
+            }
+
+            Mockito.verifyNoInteractions(userMessagingService, taskService);
+            verify(eventTrackingService, Mockito.never()).newEvent(eq(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION),
+                    anyString(), Mockito.isNull(), eq(true), eq(NotificationService.NOTI_OPTIONAL),
+                    Mockito.any(LRS_Statement.class));
+
+            submission.getAssignment().getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                    AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+            submission.setReturned(true);
+            submission.setGradeReleased(true);
+            submission.setDateReturned(Instant.now());
+            assignmentService.updateSubmission(submission, false);
+
+            ArgumentCaptor<Message> message = ArgumentCaptor.forClass(Message.class);
+            verify(userMessagingService).message(Mockito.anySet(), message.capture(),
+                    eq(List.of(MessageMedium.EMAIL)), Mockito.anyMap(), eq(NotificationService.NOTI_REQUIRED));
+            Assert.assertEquals("releasegrade", message.getValue().getType());
+            Mockito.verifyNoInteractions(taskService);
+        } finally {
+            when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(false);
+        }
+    }
+
+    @Test
+    public void submissionsAndResubmissionsStillSendSubmissionNotifications() throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(true);
+        try {
+            assignmentService.updateSubmission(submission);
+
+            submission.setDateSubmitted(Instant.now());
+            submission.setSubmittedText("Resubmitted answer");
+            assignmentService.updateSubmission(submission);
+
+            ArgumentCaptor<Message> messages = ArgumentCaptor.forClass(Message.class);
+            verify(userMessagingService, Mockito.times(2)).message(Mockito.anySet(), messages.capture(),
+                    eq(List.of(MessageMedium.EMAIL)), Mockito.anyMap(), eq(NotificationService.NOTI_REQUIRED));
+            Assert.assertTrue(messages.getAllValues().stream().allMatch(message -> "submission".equals(message.getType())));
+        } finally {
+            when(serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)).thenReturn(false);
+        }
+    }
+
+    @Test
+    public void instructorDraftFeedbackDoesNotPostStudentSaveEvent() throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        submission.setSubmitted(false);
+        submission.setFeedbackComment("Instructor feedback on a draft");
+        Mockito.clearInvocations(eventTrackingService);
+
+        assignmentService.updateSubmission(submission, false);
+
+        verify(eventTrackingService, Mockito.never()).newEvent(eq(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
+        verify(eventTrackingService).newEvent(eq(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
+        Mockito.verifyNoInteractions(userMessagingService, taskService);
+        Assert.assertEquals("Instructor feedback on a draft", assignmentService.getSubmission(submission.getId()).getFeedbackComment());
+        Assert.assertFalse(submission.getSubmitted());
+    }
+
+    @Test
+    public void studentDraftSaveStillPostsStudentSaveEvent() throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        submission.setSubmitted(false);
+        Mockito.clearInvocations(eventTrackingService);
+
+        assignmentService.updateSubmission(submission);
+
+        verify(eventTrackingService).newEvent(eq(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION), anyString(), eq(true));
+        Mockito.verifyNoInteractions(userMessagingService, taskService);
+    }
+
+    @Test
+    public void releasingGradeOnStudentDraftSendsReleaseNotification() throws Exception {
+        assertDraftReturnSendsReleaseNotification(false);
+    }
+
+    @Test
+    public void releasingDraftWithEqualSubmitAndReturnTimesSendsReleaseNotification() throws Exception {
+        assertDraftReturnSendsReleaseNotification(true);
+    }
+
+    private void assertDraftReturnSendsReleaseNotification(boolean matchingTimestamps) throws Exception {
+        AssignmentSubmission submission = createNotificationSubmission();
+        submission.getAssignment().setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        submission.getAssignment().setScaleFactor(100);
+        submission.getAssignment().setMaxGradePoint(10000);
+        configureScale(100, Locale.ENGLISH);
+        submission.setSubmitted(false);
+        submission.setDateSubmitted(null);
+        submission.setSubmittedText("Student draft answer");
+        submission.setGrade("8500");
+        submission.setFeedbackComment("Instructor feedback on a student draft");
+        submission.setGraded(true);
+        submission.setGradeReleased(true);
+        submission.setReturned(true);
+        Instant returnTime = Instant.now();
+        submission.setDateReturned(returnTime);
+        if (matchingTimestamps) {
+            submission.setDateSubmitted(returnTime);
+        }
+        submission.getAssignment().getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+
+        assignmentService.updateSubmission(submission, false);
+
+        ArgumentCaptor<Message> message = ArgumentCaptor.forClass(Message.class);
+        verify(userMessagingService).message(Mockito.anySet(), message.capture(),
+                eq(List.of(MessageMedium.EMAIL)), Mockito.anyMap(), eq(NotificationService.NOTI_REQUIRED));
+        Assert.assertEquals("releasegrade", message.getValue().getType());
+        Assert.assertFalse(assignmentService.getSubmission(submission.getId()).getSubmitted());
+    }
+
+    private AssignmentSubmission createNotificationSubmission() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String studentId = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfSubmission(Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION);
+        AssignmentSubmission submission = createNewSubmission(context, studentId, assignment);
+        submission.setSubmitted(true);
+        submission.setUserSubmission(true);
+        submission.setDateSubmitted(Instant.now());
+        submission.setSubmittedText("Student answer");
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(false);
+        User student = mock(User.class);
+        when(student.getId()).thenReturn(studentId);
+        when(student.getDisplayName()).thenReturn("Student");
+        when(student.getDisplayId()).thenReturn("student");
+        when(userDirectoryService.getUser(studentId)).thenReturn(student);
+        when(siteService.getSite(context).getUsers()).thenReturn(Set.of(studentId));
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        Mockito.clearInvocations(userMessagingService, taskService);
+        return submission;
+    }
+
+    @Test
+    public void releasedFeedbackEmailsUseRecipientPermissionsForEachSubmitter() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String submittingStudentId = UUID.randomUUID().toString();
+        String readOnlyStudentId = UUID.randomUUID().toString();
+        Set<String> studentIds = Set.of(submittingStudentId, readOnlyStudentId);
+        AssignmentSubmission submission = createNewGroupSubmission(context, UUID.randomUUID().toString(), studentIds);
+        Assignment assignment = submission.getAssignment();
+        Site site = siteService.getSite(context);
+        ToolConfiguration tool = mock(ToolConfiguration.class);
+        when(tool.getId()).thenReturn("assignments-tool");
+        when(site.getToolForCommonId(AssignmentConstants.TOOL_ID)).thenReturn(tool);
+        when(site.getUsers()).thenReturn(studentIds);
+        when(serverConfigurationService.getPortalUrl()).thenReturn("https://sakai.example/portal");
+
+        String groupReference = assignment.getGroups().iterator().next();
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        for (String studentId : studentIds) {
+            User student = mock(User.class);
+            when(student.getId()).thenReturn(studentId);
+            when(userDirectoryService.getUser(studentId)).thenReturn(student);
+            when(securityService.unlock(studentId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, groupReference)).thenReturn(true);
+        }
+        when(securityService.unlock(submittingStudentId, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, groupReference)).thenReturn(true);
+
+        assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now().minusSeconds(120));
+        submission.setReturned(true);
+        submission.setDateReturned(Instant.now());
+        submission.setGraded(false);
+        submission.setFeedbackComment("Feedback for the group");
+        submission.setGradeReleased(false);
+        Mockito.clearInvocations(userMessagingService);
+
+        assignmentService.updateSubmission(submission, false);
+        Mockito.verifyNoInteractions(userMessagingService);
+
+        submission.setGradeReleased(true);
+        assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_NONE);
+        assignmentService.updateSubmission(submission, false);
+        Mockito.verifyNoInteractions(userMessagingService);
+
+        assignment.getProperties().put(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE,
+                AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+        assignmentService.updateSubmission(submission, false);
+
+        ArgumentCaptor<Set<User>> recipients = ArgumentCaptor.forClass(Set.class);
+        ArgumentCaptor<Map<String, Object>> replacements = ArgumentCaptor.forClass(Map.class);
+        verify(userMessagingService, Mockito.times(2)).message(recipients.capture(), Mockito.any(Message.class),
+                eq(List.of(MessageMedium.EMAIL)), replacements.capture(), eq(NotificationService.NOTI_REQUIRED));
+        Set<String> notifiedIds = new HashSet<>();
+        for (int i = 0; i < recipients.getAllValues().size(); i++) {
+            Set<User> users = recipients.getAllValues().get(i);
+            Assert.assertEquals(1, users.size());
+            String recipientId = users.iterator().next().getId();
+            notifiedIds.add(recipientId);
+            String action = submittingStudentId.equals(recipientId) ? "doView_submission" : "doView_assignment_as_student";
+            Assert.assertEquals("https://sakai.example/portal/directtool/assignments-tool?assignmentId="
+                    + assignment.getId() + "&assignmentReference=" + assignmentReference
+                    + "&panel=Main&sakai_action=" + action, replacements.getAllValues().get(i).get("url"));
+        }
+        Assert.assertEquals(studentIds, notifiedIds);
+
+        Mockito.clearInvocations(userMessagingService);
+        when(site.getToolForCommonId(AssignmentConstants.TOOL_ID)).thenReturn(null);
+        assignmentService.updateSubmission(submission, false);
+        recipients = ArgumentCaptor.forClass(Set.class);
+        replacements = ArgumentCaptor.forClass(Map.class);
+        verify(userMessagingService, Mockito.times(2)).message(recipients.capture(), Mockito.any(Message.class),
+                eq(List.of(MessageMedium.EMAIL)), replacements.capture(), eq(NotificationService.NOTI_REQUIRED));
+        for (Map<String, Object> replacement : replacements.getAllValues()) {
+            Assert.assertEquals("", replacement.get("url"));
+            Assert.assertNotNull(replacement.get("bundle"));
+            Assert.assertEquals(assignment.getTitle(), replacement.get("title"));
+        }
+    }
+
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {
 
         if (assignment == null) {
@@ -2681,7 +4445,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     private void configureScale(int scale, Locale locale) {
-        int dec = new Double(Math.log10(scale)).intValue();
+        int dec = Double.valueOf(Math.log10(scale)).intValue();
         NumberFormat nf = NumberFormat.getInstance(locale);
         nf.setMaximumFractionDigits(dec);
         nf.setMinimumFractionDigits(dec);

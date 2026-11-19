@@ -23,7 +23,7 @@ package org.sakaiproject.portal.api;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;

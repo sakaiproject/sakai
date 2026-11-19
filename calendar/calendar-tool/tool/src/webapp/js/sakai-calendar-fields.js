@@ -9,9 +9,11 @@ function getCheckedFieldNodes() {
 
 function getCheckedFieldList() {
   const nodes = getCheckedFieldNodes();
-  let list = "";
+  const list = document.createDocumentFragment();
   for (const node of nodes) {
-    list += "<li>" + node.getAttribute("name") + "</li>";
+    const item = document.createElement("li");
+    item.textContent = node.getAttribute("name");
+    list.append(item);
   }
   return list;
 }
@@ -24,7 +26,7 @@ const checkboxes = container.querySelectorAll("input[id*='addedFields']");
 checkboxes.forEach(function(elem) {
     elem.addEventListener("input", function() {
         setRemoveButtonState();
-	deleteList.innerHTML = getCheckedFieldList();
+        deleteList.replaceChildren(getCheckedFieldList());
     });
 });
 

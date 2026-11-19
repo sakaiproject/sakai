@@ -4,7 +4,7 @@
   <parent>
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
-    <version>26-SNAPSHOT</version>
+    <version>27-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>Sakai Import Blackboard 5.5</name>
@@ -15,6 +15,10 @@
     <deploy.target/>
   </properties>
   <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>import-impl</artifactId>

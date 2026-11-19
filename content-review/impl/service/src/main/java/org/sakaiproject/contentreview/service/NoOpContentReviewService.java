@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -278,9 +278,10 @@ public class NoOpContentReviewService extends BaseContentReviewService {
 	}
 	
 	@Override
-	public void updateUserEULATimestamp(String userId) {
+	public boolean updateUserEULATimestamp(String userId) {
 		String ret = "There is no content review service configured, please see your administrator";
 		log.debug("{} updateUserEULATimestamp {}", ret, userId);
+		return false;
 	}
 
 	@Override

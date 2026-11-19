@@ -23,8 +23,14 @@
 **********************************************************************************/
 package com.corejsf;
 
-import javax.faces.component.UIComponent;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.el.ExpressionFactory;
+import jakarta.el.MethodExpression;
+import jakarta.faces.component.EditableValueHolder;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.MethodExpressionValueChangeListener;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.webapp.UIComponentTag;
 
 public class UploadTag extends UIComponentTag {
   private String value;
@@ -40,9 +46,17 @@ public class UploadTag extends UIComponentTag {
 
   public void setProperties(UIComponent component){
     super.setProperties(component);
-    com.corejsf.util.Tags.setString(component, "target", target);
-    com.corejsf.util.Tags.setString(component, "value", value);
-    com.corejsf.util.Tags.setValueChangeListener(component, valueChangeListener);
+    FacesContext context = FacesContext.getCurrentInstance();
+    ExpressionFactory factory = context.getApplication().getExpressionFactory();
+    if (target != null) {
+      component.setValueExpression("target", factory
+          .createValueExpression(context.getELContext(), target, String.class));
+    }
+    if (value != null) {
+      component.setValueExpression("value", factory
+          .createValueExpression(context.getELContext(), value, Object.class));
+    }
+    registerValueChangeListener(component, valueChangeListener);
   }
 
   public void release(){
@@ -50,6 +64,21 @@ public class UploadTag extends UIComponentTag {
     value = null;
     target = null;
     valueChangeListener = null;
+  }
+
+  private static void registerValueChangeListener(UIComponent component, String expression) {
+    if (expression == null) {
+      return;
+    }
+    if (!(component instanceof EditableValueHolder)) {
+      throw new IllegalStateException(
+          "valueChangeListener requires an EditableValueHolder, got " + component.getClass().getName());
+    }
+    FacesContext ctx = FacesContext.getCurrentInstance();
+    ExpressionFactory ef = ctx.getApplication().getExpressionFactory();
+    MethodExpression me = ef.createMethodExpression(
+        ctx.getELContext(), expression, null, new Class<?>[] { ValueChangeEvent.class });
+    ((EditableValueHolder) component).addValueChangeListener(new MethodExpressionValueChangeListener(me));
   }
 
   public String getRendererType(){ return "com.corejsf.Upload";}

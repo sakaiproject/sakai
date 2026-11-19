@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -43,6 +44,7 @@ import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
@@ -62,10 +64,20 @@ public class UploadPage extends ConsoleBasePage
     @SpringBean( name = "org.sakaiproject.scorm.service.api.ScormResourceService" )
     ScormResourceService resourceService;
 
+    @SpringBean
+    private LearningManagementSystem lms;
+
+    private void checkUploadPermission() {
+        if (!lms.canUpload(lms.currentContext())) {
+            throw new AbortWithHttpErrorCodeException(403);
+        }
+    }
+
     @Override
     protected void onInitialize()
     {
         super.onInitialize();
+        checkUploadPermission();
         uploadLink.disable();
     }
 
@@ -121,6 +133,7 @@ public class UploadPage extends ConsoleBasePage
                 @Override
                 protected void onSubmit( AjaxRequestTarget target )
                 {
+                    checkUploadPermission();
                     target.appendJavaScript( JS_SCROLL_TO_TOP );
 
                     final List<FileUpload> uploads = fileUploadField.getFileUploads();

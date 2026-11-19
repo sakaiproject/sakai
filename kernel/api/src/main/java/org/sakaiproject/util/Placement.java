@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -32,7 +33,7 @@ import org.sakaiproject.tool.api.ToolManager;
  * Placement is a utility class that implements the Placement interface.
  * </p>
  */
-public class Placement implements org.sakaiproject.tool.api.Placement
+public class Placement implements org.sakaiproject.tool.api.Placement, Serializable
 {
 
 	/** Placement configuration Properties (mutable). */
@@ -47,8 +48,8 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 	/** The title string. */
 	protected String m_title = null;
 
-	/** Tool placed. */
-	protected Tool m_tool = null;
+	/** Tool placed. Not cacheable directly; getTool() lazily re-resolves it from m_toolId via ToolManager's live registry. */
+	protected transient Tool m_tool = null;
 
 	/** The placed tool's id - use if the tool is null. */
 	protected String m_toolId = null;

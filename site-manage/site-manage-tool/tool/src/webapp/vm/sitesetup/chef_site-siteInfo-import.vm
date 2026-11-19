@@ -20,7 +20,7 @@
                     #foreach($templateSite in $templateSites)
                         #if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
                         #set($templateDescription = $formattedText.stripHtmlFromText($!templateSite.description, true))
-                        <div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+                        <div class="py-2 px-2 rounded #if ($foreach.count % 2 == 0) bg-body-tertiary #end">
                             <label class="d-flex align-items-start gap-2 mb-0 w-100">
                                 <input class="form-check-input mt-1 flex-shrink-0" type="checkbox" name="importSites" value="$templateSite.getId()"
                                     #if ($!importSiteList.containsKey($!templateSite))
@@ -48,7 +48,7 @@
                     #foreach($site in $sites)
                         #if ($!currentSite && ($site.Id != $!currentSite.Id))
                             #set($siteDescription = $formattedText.stripHtmlFromText($!site.description, true))
-                            <div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+                            <div class="py-2 px-2 rounded #if ($foreach.count % 2 == 0) bg-body-tertiary #end">
                                 <label class="d-flex align-items-start gap-2 mb-0 w-100">
                                     <input class="form-check-input mt-1 flex-shrink-0" type="checkbox" name="importSites" value="$site.getId()"
                                         #if ($!importSiteList.containsKey($!site))
@@ -77,7 +77,7 @@
                             #foreach($hiddenSite in $hiddenSites)
                                 #if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
                                     #set($hiddenSiteDescription = $formattedText.stripHtmlFromText($!hiddenSite.description, true))
-                                    <div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+                                    <div class="py-2 px-2 rounded #if ($foreach.count % 2 == 0) bg-body-tertiary #end">
                                         <label class="d-flex align-items-start gap-2 mb-0 w-100">
                                             <input class="form-check-input mt-1 flex-shrink-0" type="checkbox" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
                                             <span class="d-block flex-grow-1" style="min-width: 0;">

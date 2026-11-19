@@ -15,16 +15,21 @@
  */
 package org.sakaiproject.jsf2.tag;
 
-import org.sakaiproject.jsf2.util.JSFDepends;
+import jakarta.faces.webapp.UIComponentTag;
 
 /**
  * A two-column layout for when the user is editing something
  * (defined by the style guide).
  */
-public class PanelEditTag extends JSFDepends.PanelGridTag
+public class PanelEditTag extends UIComponentTag
 {
 	public String getComponentType()
 	{
 		return "org.sakaiproject.PanelEdit";
+	}
+
+	public String getRendererType()
+	{
+		return "jakarta.faces.Grid";
 	}
 }

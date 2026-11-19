@@ -40,25 +40,4 @@
 		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
 	</bean>
 
-	<!--
-	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic"
-		class="org.sakaiproject.mailsender.logic.impl.CachingComposeLogicImpl"
-		init-method="init" destroy-method="destroy">
-		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-	</bean>
-	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic.groupsCache"
-		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-		<property name="cacheManager">
-			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-		</property>
-		<property name="cacheName" value="org.sakaiproject.mailsender.logic.ComposeLogic.groupsCache"/>
-		<property name="maxElementsInMemory" value="10000" />
-	</bean>
-	-->
 </beans>

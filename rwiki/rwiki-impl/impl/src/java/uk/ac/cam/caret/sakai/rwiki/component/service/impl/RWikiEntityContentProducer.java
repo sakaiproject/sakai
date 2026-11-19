@@ -20,6 +20,8 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -39,6 +42,8 @@ import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -59,6 +64,10 @@ public class RWikiEntityContentProducer implements EntityContentProducer, Entity
 
 	private EntityManager entityManager = null;
 
+	private ServerConfigurationService serverConfigurationService = null;
+
+	private SiteService siteService = null;
+
 	// Map of events to their corresponding search index actions
 	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
 			RWikiObjectService.EVENT_RESOURCE_ADD, SearchBuilderItem.ACTION_ADD,
@@ -78,6 +87,8 @@ public class RWikiEntityContentProducer implements EntityContentProducer, Entity
 			searchIndexBuilder = (SearchIndexBuilder) load(cm, SearchIndexBuilder.class
 					.getName());
 			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
+			serverConfigurationService = (ServerConfigurationService) load(cm, ServerConfigurationService.class.getName());
+			siteService = (SiteService) load(cm, SiteService.class.getName());
 
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
@@ -121,7 +132,8 @@ public class RWikiEntityContentProducer implements EntityContentProducer, Entity
 		Entity cr = ref.getEntity();
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
-		String r = SearchUtils.appendCleanString(rwo.getName(), null).toString();
+		// the page name as the wiki shows it, not its global /site/{siteId}/... name
+		String r = SearchUtils.appendCleanString(NameHelper.localizeName(rwo.getName(), rwo.getRealm()), null).toString();
 		if (log.isDebugEnabled())
 		{
 			log.debug("Wiki.getTitle:" + reference + ":" + r);
@@ -175,6 +187,23 @@ public class RWikiEntityContentProducer implements EntityContentProducer, Entity
 	public String getUrl(String reference)
 	{
 		Reference ref = getReference(reference);
+		RWikiObject rwo = ((RWikiEntity) ref.getEntity()).getRWikiObject();
+		String siteId = getSiteId(ref);
+		try
+		{
+			ToolConfiguration tool = siteService.getSite(siteId).getToolForCommonId("sakai.rwiki");
+			if (tool != null)
+			{
+				// open the page in the site's wiki, with the same parameters as the tool's own view links
+				return serverConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/" + tool.getId()
+						+ "?pageName=" + URLEncoder.encode(rwo.getName(), StandardCharsets.UTF_8)
+						+ "&action=view&panel=Main&realm=" + URLEncoder.encode(rwo.getRealm(), StandardCharsets.UTF_8);
+			}
+		}
+		catch (Exception ex)
+		{
+			log.debug("No wiki tool to link {} to: {}", reference, ex.toString());
+		}
 		return ref.getUrl() + "html";
 	}
 

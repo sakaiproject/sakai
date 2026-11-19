@@ -27,16 +27,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Enumeration;
-import java.util.zip.ZipException;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
+import org.sakaiproject.util.Zip;
 
 /**
  * 
@@ -97,52 +98,31 @@ public class UnZipHandler {
 	 * Extracts the Zip File into the destination directory
 	 * 
 	 */
-	public void extract() {
-		String fileName = "";
-		String destFileName = "";
-
-		// Create a byte buffer
-		byte[] buffer = new byte[BUFFER_SIZE];
+    public void extract() throws IOException {
+        Path root = Path.of(mExtractToDir);
+        Files.createDirectories(root);
+        byte[] buffer = new byte[BUFFER_SIZE];
 
         try (ZipFile archive = new ZipFile(mZipFile, encoding)) {
-            for (Enumeration<?> e = archive.getEntries(); e.hasMoreElements(); ) {
-                // Get the next entry in the Zip File
-                ZipEntry entry = (ZipEntry) e.nextElement();
-
-                if (!entry.isDirectory()) {
-                    fileName = entry.getName();
-                    fileName = fileName.replace('/', File.separatorChar);
-
-                    destFileName = mExtractToDir + fileName;
-
-                    File destFile = new File(destFileName);
-
-                    // Create the destination path, if needed
-                    String parent = destFile.getParent();
-                    if (parent != null) {
-                        File parentFile = new File(parent);
-                        if (!parentFile.exists()) {
-                            // Create the chain of sub-directories to the file
-                            parentFile.mkdirs();
-                        }
-                    }
-
-                    // Get a stream of the archive entry's bytes
-                    try (InputStream in = archive.getInputStream(entry);
-                         FileOutputStream out = new FileOutputStream(destFileName)) {
-
-                        // Repeat reading into buffer and writing buffer to file,
-                        // until done. Count will always be # bytes read, until
-                        // EOF when it is -1.
-                        int count;
-                        while ((count = in.read(buffer)) != -1) {
-                            out.write(buffer, 0, count);
-                        }
+            // Check the complete package before writing any of its contents.
+            for (Enumeration<ZipEntry> entries = archive.getEntries(); entries.hasMoreElements();) {
+                Zip.resolveEntryPath(root, entries.nextElement().getName());
+            }
+            for (Enumeration<ZipEntry> entries = archive.getEntries(); entries.hasMoreElements();) {
+                ZipEntry entry = entries.nextElement();
+                Path destination = Zip.resolveEntryPath(root, entry.getName());
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                Files.createDirectories(destination.getParent());
+                try (InputStream in = archive.getInputStream(entry);
+                     FileOutputStream out = new FileOutputStream(destination.toFile())) {
+                    int count;
+                    while ((count = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, count);
                     }
                 }
             }
-        } catch (NullPointerException | IOException | SecurityException ze) {
-            log.warn("Could not extract zip file [{}]", mZipFile, ze);
         }
     }
 

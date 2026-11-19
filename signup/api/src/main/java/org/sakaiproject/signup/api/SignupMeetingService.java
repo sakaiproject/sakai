@@ -184,10 +184,11 @@ public interface SignupMeetingService {
 	 *            a list of SignupMeeting objects
 	 * @param isOrganizer
 	 *            true if the user is event-organizer
+	 * @return the saved meetings in the same order, including operation metadata
 	 * @throws Exception
 	 *             thrown if something goes bad
 	 */
-	void updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception;
+	List<SignupMeeting> updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception;
 
 	/**
 	 * This updates a list of SingupMeeting objects into the database storage. If it's
@@ -200,10 +201,11 @@ public interface SignupMeetingService {
 	 *            a list of SignupTimeslot objects, which will be removed from the meeting
 	 * @param isOrganizer
 	 *            true if the user is event-organizer
+	 * @return the saved meetings in the same order, including operation metadata
 	 * @throws Exception
 	 *             thrown if something goes bad
 	 */
-	void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots, boolean isOrganizer) throws Exception;
+	List<SignupMeeting> updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots, boolean isOrganizer) throws Exception;
 	
 	/**
 	 * This retrieve a SignupDefaultSiteEvent object from database according to the

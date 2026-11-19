@@ -77,7 +77,7 @@ public class BeanDoubleComparator
 
     try
     {
-    	i1 = new Double(s1);
+    	i1 = Double.valueOf(s1);
     }
     catch (NumberFormatException e)
     {
@@ -86,7 +86,7 @@ public class BeanDoubleComparator
 
     try
     {
-    	i2 = new Double(s2);
+    	i2 = Double.valueOf(s2);
     }
     catch (NumberFormatException e)
     {

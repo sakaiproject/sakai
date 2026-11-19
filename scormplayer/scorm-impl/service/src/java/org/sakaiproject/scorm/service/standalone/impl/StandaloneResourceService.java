@@ -22,6 +22,9 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import org.sakaiproject.util.Zip;
+import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -211,7 +214,7 @@ public class StandaloneResourceService extends AbstractResourceService
 	@Override
 	protected String newFolder(String uuid, ZipEntry entry)
 	{
-		File file = new File(getContentPackageDirectory(uuid), entry.getName());
+		File file = resolveEntry(uuid, entry.getName());
 		if (!file.exists())
 		{
 			if (!file.mkdirs())
@@ -226,10 +229,11 @@ public class StandaloneResourceService extends AbstractResourceService
 	@Override
 	protected String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry)
 	{
-		File file = new File(getContentPackageDirectory(uuid), entry.getName());
+		File file = resolveEntry(uuid, entry.getName());
 		FileOutputStream fileStream = null;
 		try
 		{
+            Files.createDirectories(file.toPath().getParent());
 			fileStream = new FileOutputStream(file);
 			byte[] buffer = new byte[1024];
 			int length;
@@ -264,37 +268,28 @@ public class StandaloneResourceService extends AbstractResourceService
 		return file.getAbsolutePath();
 	}
 
-	@Override
-	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority)
-	{
-		String uuid = UUID.randomUUID().toString();
-		String fileName = new StringBuilder(name).toString();
-		File archiveFile = new File(getContentPackageDirectory(uuid), fileName);
+    @Override
+    public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) {
+        String uuid = UUID.randomUUID().toString();
+        try (stream) {
+            String entryName = Zip.validateEntryName(name);
+            File archiveFile = resolveEntry(uuid, entryName);
+            try (FileOutputStream out = new FileOutputStream(archiveFile)) {
+                stream.transferTo(out);
+            }
+            return uuid;
+        } catch (IOException e) {
+            throw new ResourceStorageException("Unable to store SCORM archive", e);
+        }
+    }
 
-		try
-		{
-			FileOutputStream fileStream = new FileOutputStream(archiveFile);
-
-			byte[] buffer = new byte[1024];
-			int length;
-
-			while ((length = stream.read(buffer)) > 0)
-			{
-				fileStream.write(buffer, 0, length);
-			}
-
-			if (null != fileStream)
-			{
-				fileStream.close();
-			}
-		}
-		catch (Exception e)
-		{
-			log.error("Unable to write archive to disk {}", fileName, e);
-		}
-
-		return uuid;
-	}
+    private File resolveEntry(String uuid, String entryName) {
+        try {
+            return Zip.resolveEntryPath(getContentPackageDirectory(uuid).toPath(), entryName).toFile();
+        } catch (IOException e) {
+            throw new ResourceStorageException("Unable to resolve SCORM archive entry", e);
+        }
+    }
 
 	// TODO: this does nothing... huh?
 	private void removeAll(File dir)

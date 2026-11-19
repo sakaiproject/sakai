@@ -1,0 +1,14 @@
+{
+  "name": "@sakai-ui/sakai-timer-bar",
+  "version": "3.0.6",
+  "description": "Sakai timer bar components",
+  "main": "index.js",
+  "license": "ECL-2.0",
+  "scripts": {
+    "test": "wtr"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "lit": "^3.2.1"
+  }
+}

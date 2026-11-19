@@ -22,14 +22,23 @@ package org.sakaiproject.tool.messageforums.jsf;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import javax.faces.application.Application;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.el.MethodBinding;
-import javax.faces.el.ValueBinding;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.webapp.UIComponentTag;
+
+import jakarta.el.ELContext;
+import jakarta.el.MethodExpression;
+import jakarta.el.MethodInfo;
+import jakarta.el.ValueExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.ActionSource;
+import jakarta.faces.component.ActionSource2;
+import jakarta.faces.component.EditableValueHolder;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.MethodExpressionActionListener;
+import jakarta.faces.event.MethodExpressionValueChangeListener;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.validator.MethodExpressionValidator;
+import jakarta.faces.webapp.UIComponentTag;
 
 /**
  * Common static utility methods that help in implementing JSF tags.
@@ -144,8 +153,8 @@ public class TagUtil
     {
         FacesContext context = FacesContext.getCurrentInstance();
         Application app = context.getApplication();
-        ValueBinding vb = app.createValueBinding(value);
-        component.setValueBinding(name, vb);
+        ValueExpression vb = app.getExpressionFactory().createValueExpression(context.getELContext(), value, Object.class);
+        component.setValueExpression(name, vb);
     }
 
     /**
@@ -193,8 +202,8 @@ public class TagUtil
         } else
         {
            
-            MethodBinding mb = new ActionMethodBinding(value);
-            component.getAttributes().put("action", mb);
+            MethodExpression mb = new ActionMethodBinding(value);
+            ((ActionSource2) component).setActionExpression(mb);
         }
     }
 
@@ -212,8 +221,18 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            MethodBinding mb = app.createMethodBinding(value, paramTypes);
-            component.getAttributes().put(name, mb);
+            MethodExpression mb = app.getExpressionFactory().createMethodExpression(context.getELContext(), value, "action".equals(name) ? Object.class : Void.TYPE, paramTypes);
+            if ("action".equals(name)) {
+                ((ActionSource2) component).setActionExpression(mb);
+            } else if ("actionListener".equals(name)) {
+                ((ActionSource) component).addActionListener(new MethodExpressionActionListener(mb));
+            } else if ("valueChangeListener".equals(name)) {
+                ((EditableValueHolder) component).addValueChangeListener(new MethodExpressionValueChangeListener(mb));
+            } else if ("validator".equals(name)) {
+                ((EditableValueHolder) component).addValidator(new MethodExpressionValidator(mb));
+            } else {
+                component.getAttributes().put(name, mb);
+            }
         }
     }
 
@@ -227,7 +246,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            return "" + app.createValueBinding(expression).getValue(context);
+            return "" + app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class).getValue(context.getELContext());
         } else
         {
             return expression;
@@ -244,7 +263,8 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            ELContext elContext = context.getELContext();
+            Object r = app.getExpressionFactory().createValueExpression(elContext, expression, Object.class) .getValue(elContext);
             if (r == null)
             {
                 return null;
@@ -271,7 +291,8 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            ELContext elContext = context.getELContext();
+            Object r = app.getExpressionFactory() .createValueExpression(elContext, expression, Object.class) .getValue(elContext);
             if (r == null)
             {
                 return null;
@@ -298,7 +319,8 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            ELContext elContext = context.getELContext();
+            Object r = app.getExpressionFactory() .createValueExpression(elContext, expression, Object.class) .getValue(elContext);
             if (r == null)
             {
                 return null;
@@ -320,7 +342,7 @@ public class TagUtil
      * useful when an action should just return a certain result, not call a
      * method.
      */
-    private static class ActionMethodBinding extends MethodBinding implements Serializable
+    private static class ActionMethodBinding extends MethodExpression implements Serializable
     {
         private String result;
 
@@ -329,7 +351,7 @@ public class TagUtil
             this.result = result;
         }
 
-        public Object invoke(FacesContext context, Object params[])
+        public Object invoke(ELContext context, Object params[])
         {
             return result;
         }
@@ -342,6 +364,26 @@ public class TagUtil
         public Class getType(FacesContext context)
         {
             return String.class;
+        }
+
+        @Override
+        public MethodInfo getMethodInfo(ELContext context) {
+            return null;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public boolean isLiteralText() {
+            return false;
         }
     }
 }

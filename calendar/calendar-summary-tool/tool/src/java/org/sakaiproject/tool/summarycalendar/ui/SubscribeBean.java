@@ -99,7 +99,6 @@ public class SubscribeBean {
 		String httpForm = serverConfigurationService.getAccessUrl()
 			+ calendarService.calendarOpaqueUrlReference(calendarRef);
 		url.put("httpForm", httpForm);
-		url.put("webcalForm", httpForm.replaceFirst("http", "webcal"));
 		return url;
 	}
 }

@@ -33,6 +33,12 @@ export const sakaiWidgets = {
         roles: [ "instructor", "student" ],
         tag: "sakai-tasks-widget",
       },
+      {
+        id: "sitestats",
+        roles: [ "instructor", "student" ],
+        tag: "sakai-sitestats-widget",
+        prefix: "sitestats-",
+      },
     ];
   },
 };

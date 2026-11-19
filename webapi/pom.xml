@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>26-SNAPSHOT</version>
+    <version>27-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -22,8 +22,20 @@
 
   <dependencies>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
@@ -39,9 +51,14 @@
       <artifactId>commons-text</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+      <scope>provided</scope>
     </dependency>
+  <dependency>
+   <groupId>jakarta.annotation</groupId>
+   <artifactId>jakarta.annotation-api</artifactId>
+  </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
@@ -128,6 +145,18 @@
       <artifactId>sakai-grading-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.samigo</groupId>
       <artifactId>samigo-services</artifactId>
     </dependency>
@@ -144,9 +173,9 @@
       <artifactId>sitestats-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.json</groupId>
-      <artifactId>javax.json-api</artifactId>
-      <version>1.1.4</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
+      <version>2.1.3</version>
     </dependency>
     <dependency>
       <groupId>com.github.java-json-tools</groupId>
@@ -173,6 +202,12 @@
     <dependency>
       <groupId>org.sakaiproject.conditions</groupId>
       <artifactId>sakai-conditions-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.videotraining</groupId>
+      <artifactId>video-training-api</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
     <!-- Spring dependencies -->
     <dependency>
@@ -204,7 +239,7 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
-      <dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
     </dependency>
@@ -217,13 +252,18 @@
       <artifactId>mockito-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.restdocs</groupId>
       <artifactId>spring-restdocs-mockmvc</artifactId>
-      <version>2.0.8.RELEASE</version>
+      <version>3.0.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -237,7 +277,6 @@
       <artifactId>sections-api</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>

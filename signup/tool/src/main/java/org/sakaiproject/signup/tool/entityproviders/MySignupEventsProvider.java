@@ -37,7 +37,7 @@ package org.sakaiproject.signup.tool.entityproviders;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -96,7 +96,7 @@ public class MySignupEventsProvider extends AbstractEntityProvider implements Co
 
 		Long eventId;
 		try {
-			eventId = new Long(id);
+			eventId = Long.valueOf(id);
 		} catch (NumberFormatException e) {
 			throw new EntityException("Invalid identifier provided for mySignup", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}

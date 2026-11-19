@@ -16,12 +16,24 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import com.microsoft.playwright.APIResponse;
+import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.FilePayload;
+import com.microsoft.playwright.options.RequestOptions;
+import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
+import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -35,6 +47,7 @@ class SiteStatsTest extends SakaiUiTestBase {
     private static String sakaiUrl;
     private static final String REPORT_TITLE = "Playwright Report " + System.currentTimeMillis();
     private static final String REPORT_DESC = "This is a Playwright-generated SiteStats report.";
+    private static final String SAVED_REPORT_TITLE = REPORT_TITLE + " Saved";
 
     @Test
     @Order(1)
@@ -44,61 +57,696 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     @Test
+    void searchesActivityForTheSelectedUser() {
+        sakai.login("instructor1");
+        String courseUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.sitestats"));
+        sakai.addMemberToSite(courseUrl, "student0011", "Student");
+        String siteId = sakai.siteIdFromUrl(courseUrl);
+        sakai.login("admin");
+        APIResponse permissions = page.request().post("/api/sites/" + siteId + "/permissions",
+            RequestOptions.create().setForm(FormData.create()
+                .set("ref", "/site/" + siteId)
+                .set("Student:sitestats.usertracking.be.tracked", "true")));
+        assertTrue(permissions.ok(), "Unable to configure tracked students: HTTP " + permissions.status());
+
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Statistics");
+
+        Locator activity = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("User Activity").setExact(true));
+        assumeTrue(activity.count() > 0, "User Activity must be enabled and the instructor must be allowed to track users");
+        activity.click();
+        Locator users = page.locator("#activity-user option[value]:not([value=''])");
+        Locator user = users.first();
+        assertThat(user).isAttached();
+        String name = user.textContent();
+        String userId = user.getAttribute("value");
+
+        Locator picker = page.locator("sakai-user-picker");
+        Locator query = picker.getByRole(AriaRole.COMBOBOX);
+        Locator submit = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search").setExact(true));
+        assertThat(submit).isDisabled();
+        query.fill(name);
+        picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions().setName(name).setExact(true)).click();
+        assertThat(submit).isEnabled();
+        Response response = page.waitForResponse(result -> result.url().contains("/useractivity?")
+                && result.url().contains("userId=" + userId), submit::click);
+        assertTrue(response.ok(), response.url());
+        assertThat(picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Remove " + name))).isVisible();
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Remove " + name)).click();
+        assertThat(submit).isDisabled();
+    }
+
+    @Test
     @Order(2)
     void overviewWidgetsRenderThroughJsonPanels() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
         sakai.toolClick("Statistics");
 
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("Show more", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        Locator percentages = page.locator(".sitestats-metric-percentage");
+        assertThat(percentages.first()).containsText("%");
 
-        Locator reportPanel = page.locator("sakai-sitestats-report-panel:visible").first();
+        Locator widgetTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/visits/tabs/bydate']");
+        assertThat(widgetTab).hasCount(1);
+        widgetTab.locator("summary").click();
+        widgetTab.getByLabel("Period:").selectOption("when-all");
+
+        Locator reportPanel = widgetTab.locator("sakai-sitestats-report-panel");
         assertThat(reportPanel).isVisible();
-        assertThat(reportPanel).hasAttribute("endpoint", Pattern.compile("/api/sites/.*/sitestats/widgets/.*/tabs/.*"));
-        assertThat(page.locator("sakai-sitestats-report-panel:visible sakai-sitestats-table table").first()).isVisible();
+        String reportEndpoint = (String) reportPanel.evaluate("panel => panel.endpoint");
+        assertTrue(Pattern.compile("/api/sites/.*/sitestats/widgets/.*/tabs/.*date=when-all")
+            .matcher(reportEndpoint).find());
+        Locator table = reportPanel.locator("sakai-sitestats-table table");
+        assertThat(table).isVisible();
+        assertThat(reportPanel.locator("sakai-sitestats-chart")).hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/visits/tabs/byrole']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/member-adoption/tabs/']"))
+            .hasCount(0);
+        Locator visitsWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(widgetTab));
+        assertTrue(visitsWidget.locator("sakai-sitestats-highlights").count() <= 1);
+        widgetTab.getByLabel("Period:").selectOption("when-custom");
+        assertThat(widgetTab.locator("[data-report-filter='whenFrom']")).isVisible();
+        assertThat(widgetTab.locator("[data-report-filter='whenTo']")).isVisible();
+        assertFalse(widgetTab.locator("[data-report-filter='whenFrom']").inputValue().isEmpty());
+        assertFalse(widgetTab.locator("[data-report-filter='whenTo']").inputValue().isEmpty());
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(9)
+    void presenceAccessWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator presenceTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/presence-access/tabs/bydate']");
+        assertThat(presenceTab).hasCount(1);
+        presenceTab.locator("summary").click();
+
+        Locator reportPanel = presenceTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator lastVisitMetric = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(presenceTab))
+            .locator(".sitestats-metric").first();
+        assertThat(lastVisitMetric).isVisible();
+        assertThat(lastVisitMetric.locator(".sitestats-metric-primary")).not().hasText("");
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(10)
+    void submissionsWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator submissionsTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/submissions/tabs/byuser']");
+        assertThat(submissionsTab).hasCount(1);
+        submissionsTab.locator("summary").click();
+
+        Locator reportPanel = submissionsTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator submissionsWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(submissionsTab));
+        Locator toolFilter = submissionsWidget.locator("sakai-sitestats-tool-filter");
+        assertThat(toolFilter).isVisible();
+        assertThat(toolFilter).containsText("Assignments");
+        assertThat(toolFilter).containsText("Tests");
+        assertThat(toolFilter.locator("[data-tool-id='sakai.assignment.grades']")).hasAttribute("aria-pressed", "true");
+        assertThat(toolFilter.locator("[data-tool-id='sakai.assignment.grades'] .si-sakai-assignment-grades")).hasCount(1);
+        assertThat(toolFilter.locator("[data-tool-id='sakai.samigo']")).hasAttribute("aria-pressed", "true");
+        assertThat(toolFilter.locator("[data-tool-id='sakai.samigo'] .si-sakai-samigo")).hasCount(1);
+        toolFilter.locator("[data-tool-id='sakai.samigo']").click();
+        assertThat(toolFilter.locator("[data-tool-id='sakai.samigo']")).hasAttribute("aria-pressed", "false");
+        toolFilter.locator("[data-tool-id='sakai.assignment.grades']").click();
+        assertThat(toolFilter.locator("[data-tool-id='sakai.assignment.grades']")).hasAttribute("aria-pressed", "true");
+        String metricsEndpoint = (String) submissionsWidget.locator("sakai-sitestats-widget-metrics")
+            .evaluate("el => el.endpoint");
+        assertTrue(metricsEndpoint.contains("itemType=sakai.assignment.grades"));
+        String tabEndpoint = (String) submissionsTab.evaluate("el => el.endpoint");
+        assertTrue(tabEndpoint.contains("itemType=sakai.assignment.grades"));
+        assertThat(submissionsTab.locator("[data-report-filter='itemType']")).hasCount(0);
+        assertThat(submissionsTab.locator("[data-report-filter='group']")).isVisible();
+        assertThat(submissionsTab.locator("[data-report-filter='item']")).isVisible();
+        assertThat(submissionsWidget.locator(".sitestats-widget-title")).containsText("Submissions");
+        assertWidgetHasMetricLabels(submissionsWidget, "On-time submissions", "Late submissions",
+            "Missed submissions", "Submissions to grade", "Students with missed submissions",
+            "Median time past due");
+        assertTrue(submissionsWidget.locator("sakai-sitestats-highlights").count() <= 1);
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(11)
+    void gradesWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator gradesTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/grades/tabs/byuser']");
+        assertThat(gradesTab).hasCount(1);
+        gradesTab.locator("summary").click();
+
+        Locator reportPanel = gradesTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator gradesWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(gradesTab));
+        Locator toolChips = gradesWidget.locator("sakai-sitestats-tool-filter [data-tool-id]");
+        int chipCount = toolChips.count();
+        for (int i = 0; i < chipCount; i++) {
+            String toolId = toolChips.nth(i).getAttribute("data-tool-id");
+            assertTrue(toolId != null && !toolId.isBlank());
+        }
+        assertThat(gradesTab.locator("[data-report-filter='itemType']")).hasCount(0);
+        assertThat(gradesTab.locator("[data-report-filter='threshold']")).hasCount(0);
+        assertThat(gradesTab.locator("[data-report-filter='item']")).isVisible();
+        assertThat(gradesTab.locator("[data-report-filter='group']")).isVisible();
+        assertThat(gradesWidget.locator(".sitestats-widget-title")).containsText("Grades");
+        assertWidgetHasMetricLabels(gradesWidget, "Items graded", "Students fully graded",
+            "Class average", "Students below 50% on graded work");
+        assertTrue(gradesWidget.locator("sakai-sitestats-highlights").count() <= 1);
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(12)
+    void communicationWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator communicationTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/communication/tabs/byuser']");
+        assertThat(communicationTab).hasCount(1);
+        communicationTab.locator("summary").click();
+
+        Locator reportPanel = communicationTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator communicationWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(communicationTab));
+        assertThat(communicationTab.locator("[data-report-filter='itemType']")).hasCount(0);
+        assertThat(communicationTab.locator("[data-report-filter='item']")).hasCount(0);
+        assertThat(communicationTab.locator("[data-report-filter='group']")).isVisible();
+        assertThat(communicationTab.locator("[data-report-filter='role']")).isVisible();
+        assertThat(communicationWidget.locator(".sitestats-widget-title")).containsText("Communication");
+        assertWidgetHasMetricLabels(communicationWidget, "Authored", "Replied",
+            "Unanswered threads", "Most active author");
+        assertTrue(communicationWidget.locator("sakai-sitestats-highlights").count() <= 1);
         assertNoLegacyReportChartImages();
     }
 
     @Test
     @Order(3)
+    void reportValidationDisplaysOneErrorBanner() {
+        openReportsAsInstructor();
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).click();
+        page.getByLabel("Title").fill(REPORT_TITLE);
+        page.getByLabel("Period:").selectOption("when-custom");
+        page.locator("#when-from").fill("");
+        page.locator("#when-to").fill("");
+
+        Locator validationError = page.locator(".sak-banner-error[role='alert']");
+        for (String action : List.of("Save report", "Generate report")) {
+            page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName(Pattern.compile("^" + action + "$", Pattern.CASE_INSENSITIVE)))
+                .click();
+            assertThat(validationError).hasCount(1);
+            assertThat(validationError).containsText("Custom time period not defined");
+        }
+    }
+
+    @Test
+    @Order(4)
     void createsReportViaReportsFlow() {
-        sakai.login("instructor1");
-        page.navigate(sakaiUrl);
-        sakai.toolClick("Statistics");
+        openReportsAsInstructor();
 
-        page.locator(".navIntraTool a, .navIntraTool button, a, button")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reports$", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        Locator addReportLink = page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE)));
+        addReportLink.click();
 
-        Locator addReportLink = page.locator("a[href*=\"lnkNewReport\"], .navIntraTool a, a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).first();
-        if (addReportLink.count() == 0) {
-            assertThat(page.locator("body")).containsText(Pattern.compile("Reports", Pattern.CASE_INSENSITIVE));
-            return;
-        }
-        addReportLink.click(new Locator.ClickOptions().setForce(true));
+        Locator activity = page.getByLabel("Activity:");
+        assertThat(activity).isVisible();
+        assertThat(activity.locator("option[value='what-resources']")).hasCount(0);
+        assertThat(page.locator("#event-options")).isHidden();
+        activity.selectOption("what-events");
+        assertThat(page.locator("#event-options")).isVisible();
+        assertThat(page.locator("#tool-selection")).isVisible();
+        page.getByLabel("Selection:").selectOption(new SelectOption().setLabel("Select by event"));
+        assertThat(page.locator("#tool-selection")).isHidden();
+        assertThat(page.locator("#event-selection-list")).isVisible();
 
-        page.locator("#content, main, .portletBody").first().locator("input[type=\"text\"]:visible").first().fill(REPORT_TITLE);
+        assertThat(page.locator("#custom-dates")).isHidden();
+        page.getByLabel("Period:").selectOption("when-custom");
+        assertThat(page.locator("#custom-dates")).isVisible();
+        assertThat(page.locator("#who-role-options")).isHidden();
+        page.getByLabel("Users:").selectOption("who-role");
+        assertThat(page.locator("#who-role-options")).isVisible();
+        page.getByLabel("Users:").selectOption("who-custom");
+        Locator userSearch = page.getByLabel("Search site users");
+        assertThat(userSearch).isVisible();
+        userSearch.fill("instructor1");
+        Locator userResult = page.locator("#who-user-search-results button").first();
+        assertThat(userResult).isVisible();
+        userResult.click();
+        assertThat(page.locator("#who-users option:checked")).hasCount(1);
 
-        if (!sakai.typeFirstCkEditorIfPresent("<p>" + REPORT_DESC + "</p>")) {
-            page.locator("#content, main, .portletBody").first()
-                .locator("textarea:visible, [contenteditable=\"true\"]:visible, div[role=\"textbox\"]:visible")
-                .first()
-                .fill(REPORT_DESC);
-        }
+        page.getByLabel("Specify sorting field").check();
+        assertThat(page.locator("#sorting-options")).isVisible();
+        page.getByLabel("Limit to:").check();
+        assertThat(page.locator("#max-results-options")).isVisible();
+        Locator maxResults = page.locator("#max-results");
+        maxResults.fill("25");
+        page.getByLabel("Limit to:").uncheck();
+        assertThat(page.locator("#max-results-options")).isHidden();
+        page.getByLabel("Limit to:").check();
+        assertThat(maxResults).hasValue("25");
+        page.getByLabel(Pattern.compile("Presentation", Pattern.CASE_INSENSITIVE)).selectOption("how-presentation-both");
+        assertThat(page.locator("#chart-options")).isVisible();
+        page.getByLabel("Chart type:").selectOption("timeseries");
+        assertThat(page.locator("#chart-source-options")).isHidden();
+        assertThat(page.locator("#chart-series-options")).isVisible();
+
+        activity.selectOption("what-visits");
+        page.getByLabel("Period:").selectOption("when-last7days");
+        page.getByLabel("Users:").selectOption("who-all");
+        page.getByLabel("Specify sorting field").uncheck();
+        page.getByLabel("Limit to:").uncheck();
+        page.getByLabel("Title").fill(REPORT_TITLE);
+        page.getByLabel("Description").fill(REPORT_DESC);
+        page.getByLabel(Pattern.compile("Presentation", Pattern.CASE_INSENSITIVE)).selectOption("how-presentation-both");
 
         page.locator("button:has-text(\"Generate report\"), input[type=\"submit\"][value*=\"Generate report\"]").first().click(new Locator.ClickOptions().setForce(true));
-        assertThat(page.getByText(REPORT_TITLE).first()).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(REPORT_TITLE))).isVisible();
         Locator reportPanel = page.locator("sakai-sitestats-report-panel").first();
         assertThat(reportPanel).isVisible();
         assertThat(reportPanel).hasAttribute("endpoint", Pattern.compile("/api/sites/.*/sitestats/"));
         assertReportSummaryRendered();
         assertReportTableRenderedWithData();
+        assertThat(page.locator("main > div.d-flex.noprint a.btn-link")).hasCount(4);
         assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-chart canvas").first()).isVisible();
         page.waitForFunction(siteStatsCanvasHasPixelsScript());
         assertTrue(Boolean.TRUE.equals(page.evaluate(siteStatsCanvasHasPixelsScript())));
         assertNoLegacyReportChartImages();
+
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.locator("#report-editor")).isVisible();
+        assertThat(page.getByLabel("Title")).hasValue(REPORT_TITLE);
+        assertThat(page.getByLabel("Description")).hasValue(REPORT_DESC);
+        assertThat(page.getByLabel("Period:")).hasValue("when-last7days");
+        assertThat(page.getByLabel(Pattern.compile("Presentation", Pattern.CASE_INSENSITIVE)))
+            .hasValue("how-presentation-both");
+        page.reload();
+        assertThat(page.getByLabel("Title")).hasValue(REPORT_TITLE);
+    }
+
+    @Test
+    @Order(5)
+    void savesEditsCopiesExportsAndDeletesReport() {
+        openReportsAsInstructor();
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.locator("#report-hidden")).hasCount(0);
+        page.getByLabel("Title").fill(SAVED_REPORT_TITLE);
+        page.getByLabel("Description").fill(REPORT_DESC);
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Save report$", Pattern.CASE_INSENSITIVE))).click();
+
+        assertThat(page.locator(".sak-banner-success")).containsText(
+            "Report '" + SAVED_REPORT_TITLE + "' saved successfully");
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(SAVED_REPORT_TITLE))).isVisible();
+        Download csv = page.waitForDownload(() -> page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("Export CSV", Pattern.CASE_INSENSITIVE))).click());
+        assertTrue(csv.suggestedFilename().endsWith(".csv"));
+
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE))).click();
+        Locator savedRow = page.getByRole(AriaRole.ROW).filter(new Locator.FilterOptions().setHasText(SAVED_REPORT_TITLE));
+        savedRow.getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName(Pattern.compile("^Edit$", Pattern.CASE_INSENSITIVE))).click();
+        page.getByLabel("Title").fill(SAVED_REPORT_TITLE + " Edited");
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Save report$", Pattern.CASE_INSENSITIVE))).click();
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE))).click();
+
+        Locator editedRow = page.getByRole(AriaRole.ROW)
+            .filter(new Locator.FilterOptions().setHasText(SAVED_REPORT_TITLE + " Edited"));
+        editedRow.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName(Pattern.compile("^Duplicate$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.getByText("The report was copied.")).isVisible();
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE))).click();
+
+        Locator deleteButtons = page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Delete$", Pattern.CASE_INSENSITIVE)));
+        assertThat(deleteButtons).hasCount(2);
+        deleteButtons.first().click();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Delete$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.getByText("No reports defined.")).isVisible();
+    }
+
+    @Test
+    @Order(6)
+    void preferencesUseSpringForms() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).click();
+        Locator preferenceTools = page.locator("fieldset").filter(
+            new Locator.FilterOptions().setHas(page.locator("#all-tools"))).locator("h2");
+        assertThat(preferenceTools.first()).isVisible();
+        for (int index = 0; index < preferenceTools.count(); index++) {
+            assertTrue(!preferenceTools.nth(index).textContent().startsWith("sakai."));
+        }
+        Locator allTools = page.locator("#all-tools");
+        Locator activityEventOptions = page.locator("#activity-event-options");
+        allTools.check();
+        assertThat(activityEventOptions).isHidden();
+        allTools.uncheck();
+        assertThat(activityEventOptions).isVisible();
+        allTools.check();
+        assertThat(activityEventOptions).isHidden();
+        page.getByLabel("Show their own statistics to students").check();
+        assertThat(page.getByLabel("Grade threshold (%)")).isVisible();
+        assertThat(page.getByText("If empty, the site default of 50% is used.")).isVisible();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Update$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.getByText("Preferences updated successfully.")).isVisible();
+    }
+
+    @Test
+    @Order(7)
+    void studentOwnStatisticsViewDoesNotRenderInstructorNavigation() {
+        sakai.login("admin");
+        String siteId = sakai.siteIdFromUrl(sakaiUrl);
+        APIResponse permissionsResponse = page.request().post("/api/sites/" + siteId + "/permissions",
+            RequestOptions.create().setForm(FormData.create()
+                .set("ref", "/site/" + siteId)
+                .set("Student:sitestats.view", "true")
+                .set("Student:sitestats.own", "true")));
+        assertTrue(permissionsResponse.ok(),
+            "Unable to grant student access to Statistics: HTTP " + permissionsResponse.status());
+
+        sakai.login("student0011");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Overview$", Pattern.CASE_INSENSITIVE)))).isVisible();
+        assertThat(page.getByRole(AriaRole.NAVIGATION,
+            new Page.GetByRoleOptions().setName("SiteStats"))).hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-presence-access/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/presence-access/tabs/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/member-adoption/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-submissions/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/submissions/tabs/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-grades/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/grades/tabs/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-communication/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/communication/tabs/']"))
+            .hasCount(0);
+    }
+
+    @Test
+    @Order(8)
+    void adminRegistrationRendersSummaryAndServerWideReports() {
+        sakai.login("admin");
+        sakai.gotoPath("/portal/site/!admin/tool/!admin-1225");
+
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(Pattern.compile("Summary", Pattern.CASE_INSENSITIVE)))).isVisible();
+        assertThat(page.locator(".sitestats-widget[data-widget-id='platform-health']")).isVisible();
+        assertThat(page.locator(".sitestats-widget[data-widget-id='institutional-presence']")).isVisible();
+        assertThat(page.locator(".sitestats-widget[data-widget-id='client-environment']")).isVisible();
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("All sites", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(Pattern.compile("All sites", Pattern.CASE_INSENSITIVE)))).isVisible();
+        Locator siteLinks = page.locator("table tbody a[href*='home']");
+        assertTrue(siteLinks.count() > 0);
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("Server-wide", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.locator("sakai-sitestats-report-panel")).isVisible();
+        assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-table table")).isVisible();
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(12)
+    void searchesNestedResourcesAndPreservesSelectionsThroughReportFlows() throws Exception {
+        sakai.login("instructor1");
+        String resourcesSiteUrl = createNestedResourceFixture();
+        String root = "/group/" + sakai.siteIdFromUrl(resourcesSiteUrl) + "/";
+        page.navigate(resourcesSiteUrl);
+        sakai.toolClick("Statistics");
+        seedOldSiteStatsTranslations();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Reports").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
+        page.getByLabel("Title").fill(REPORT_TITLE + " Resources");
+        page.getByLabel("Activity:").selectOption("what-resources");
+        assertThat(page.locator("#resource-selection")).isHidden();
+        page.locator("#limit-resources").check();
+        Locator component = page.locator("sakai-sitestats-resource-search");
+        Locator search = component.getByLabel("Search resources");
+        assertResourceInputThemes(component, search);
+        List<String> metadataRequests = new ArrayList<>();
+        page.onRequest(request -> {
+            if (request.url().contains("/reports/resources?")) metadataRequests.add(request.url());
+        });
+        Response resourcesResponse = page.waitForResponse(
+            response -> response.url().contains("/reports/resources?"), () -> search.fill("reading"));
+        assertEquals(200, resourcesResponse.status(), "Resource metadata request must succeed");
+        Locator matches = component.locator("#resource-results li");
+        assertThat(matches).hasCount(20);
+        assertThat(component.locator("[role=status]")).containsText("Showing the first 20 matches. Refine your search.");
+        assertThat(component.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("More results").setExact(true))).hasCount(0);
+        assertThat(component.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Previous results").setExact(true))).hasCount(0);
+        matches.first().getByRole(AriaRole.BUTTON).click();
+        String portalLocale = (String) page.evaluate("() => window.portal?.locale || ''");
+        try (AutoCloseable cleanup = () -> {
+            page.evaluate("locale => { if (locale) window.portal.locale = locale; else delete window.portal.locale; }",
+                    portalLocale);
+        }) {
+            page.evaluate("() => { window.portal ||= {}; window.portal.locale = 'tr_TR'; }");
+            search.fill("istanbul");
+            assertThat(matches).hasCount(1);
+            assertThat(matches.locator(".resource-name")).hasText("İstanbul.txt");
+            search.fill("ırmak");
+            assertThat(matches).hasCount(1);
+            assertThat(matches.locator(".resource-name")).hasText("IRMAK.txt");
+        }
+        search.fill("Week 5 Reading");
+        assertThat(matches).hasCount(0);
+        assertThat(component.locator("[role=status]")).containsText("No matching resources.");
+        search.fill("Reading 5");
+        assertThat(matches).hasCount(1);
+        assertThat(matches.locator(".resource-name")).hasText("Reading 5.txt");
+        search.fill("Week 5");
+        assertThat(matches).hasCount(1);
+        Locator chosenWeek = matches.filter(new Locator.FilterOptions().setHasText("Resources / Week 5"));
+        assertThat(chosenWeek).hasCount(1);
+        chosenWeek.getByRole(AriaRole.BUTTON).click();
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+        search.fill("notes");
+        assertThat(matches).hasCount(1);
+        matches.first().getByRole(AriaRole.BUTTON).click();
+        component.locator("#selected-resources li").first().getByRole(AriaRole.BUTTON).click();
+        assertEquals(1, metadataRequests.size(), "Refining the query must reuse the editor's resource metadata");
+        assertFalse(metadataRequests.get(0).contains("&q="));
+        String selectedIds = root + "Week 5/Reading.txt\n" + root + "Notes.txt";
+        assertResourceFormValue(selectedIds);
+        assertThat(page.locator("#resource-ids")).hasCount(0);
+        assertThat(component).not().containsText(root);
+        assertThat(component.locator("select")).hasCount(0);
+        page.getByLabel("Period:").selectOption("when-custom");
+        page.locator("#when-from").fill("");
+        page.locator("#when-to").fill("");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
+        assertThat(page.locator("#report-error")).containsText("Custom time period not defined");
+        assertResourceFormValue(selectedIds);
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+        page.getByLabel("Period:").selectOption("when-all");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate report").setExact(true)).click();
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(REPORT_TITLE + " Resources").setExact(true))).isVisible();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
+        assertResourceFormValue(selectedIds);
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+        // An unfinished query must not replace the filters already selected in the form.
+        component.getByLabel("Search resources").fill("unfinished query");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
+        assertThat(page.locator(".sak-banner-success")).containsText("saved successfully");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
+        page.getByRole(AriaRole.ROW).filter(new Locator.FilterOptions().setHasText(REPORT_TITLE + " Resources"))
+            .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Edit").setExact(true)).click();
+        assertResourceFormValue(selectedIds);
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+        assertThat(component).containsText("Reading.txt");
+        assertThat(component).containsText("Notes.txt");
+        page.locator("#limit-resources").uncheck();
+        assertThat(page.locator("#resource-selection")).isHidden();
+        assertFalse((Boolean) page.locator("#report-editor").evaluate(
+            "form => new FormData(form).has('whatResourceIds')"));
+        page.locator("#limit-resources").check();
+        assertResourceFormValue(selectedIds);
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+    }
+
+    private String themeColor(Locator input, String token) {
+        return (String) input.evaluate("""
+            (input, token) => {
+                const probe = document.createElement('span');
+                probe.style.color = getComputedStyle(input).getPropertyValue(token);
+                document.body.append(probe);
+                const color = getComputedStyle(probe).color;
+                probe.remove();
+                return color;
+            }
+            """, token);
+    }
+
+    private String createNestedResourceFixture() {
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.sitestats", "sakai\\.resources"));
+        page.navigate(siteUrl);
+        sakai.toolClick("Resources");
+        String resourcesUrl = page.url();
+        assertEquals(sakai.siteIdFromUrl(siteUrl), sakai.siteIdFromUrl(resourcesUrl));
+        page.locator("button[title='Actions']").first().click();
+        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Create Folders").setExact(true)).click();
+        page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Folder Name").setExact(true)).fill("Week 1");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Another Folder").setExact(true)).click();
+        page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Folder Name").setExact(true)).nth(1).fill("Week 5");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create Folders Now").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Week 1").setExact(true)).click();
+        List<FilePayload> readings = new ArrayList<>();
+        readings.add(resourceFile("Reading.txt"));
+        for (int index = 1; index <= 20; index++) {
+            readings.add(resourceFile("Reading " + index + ".txt"));
+        }
+        uploadResourceFiles(readings.toArray(FilePayload[]::new));
+        page.navigate(resourcesUrl);
+        sakai.toolClick("Resources");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Week 5").setExact(true)).click();
+        uploadResourceFiles(resourceFile("Reading.txt"));
+        page.navigate(resourcesUrl);
+        sakai.toolClick("Resources");
+        uploadResourceFiles(resourceFile("Notes.txt"), resourceFile("İstanbul.txt"), resourceFile("IRMAK.txt"));
+        return siteUrl;
+    }
+
+    private FilePayload resourceFile(String name) {
+        return new FilePayload(name, "text/plain", "SiteStats resource search fixture".getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void uploadResourceFiles(FilePayload... files) {
+        String listingUrl = page.url().split("[?#]", 2)[0];
+        page.locator("button[title='Actions']").first().click();
+        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Upload Files").setExact(true)).click();
+        page.locator("input[type=file]").setInputFiles(files);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        page.waitForURL(url -> url.split("[?#]", 2)[0].equals(listingUrl));
+        for (FilePayload file : files) {
+            assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(file.name).setExact(true))).isVisible();
+        }
+    }
+
+    private void assertResourceFormValue(String expected) {
+        assertThat(page.locator("sakai-sitestats-resource-search")).hasJSProperty("value", expected);
+        assertEquals(expected, page.locator("#report-editor").evaluate(
+            "form => new FormData(form).get('whatResourceIds')"));
+    }
+
+    private void assertResourceInputThemes(Locator component, Locator search) throws Exception {
+        String rootClasses = (String) page.evaluate("() => document.documentElement.className");
+        try (AutoCloseable cleanup = () -> {
+            page.evaluate("classes => document.documentElement.className = classes", rootClasses);
+            page.setViewportSize(1280, 720);
+        }) {
+            for (String theme : List.of("light", "dark", "light")) {
+                page.evaluate("""
+                    theme => {
+                        document.documentElement.classList.remove('sakaiUserTheme-light', 'sakaiUserTheme-dark');
+                        document.documentElement.classList.add('sakaiUserTheme-' + theme);
+                    }
+                    """, theme);
+                String background = themeColor(search, "--sakai-background-color-1");
+                String text = themeColor(search, "--sakai-text-color-1");
+                search.evaluate("input => input.blur()");
+                assertThat(search).hasCSS("background-color", background);
+                assertThat(search).hasCSS("color", text);
+                assertThat(search).hasCSS("border-top-color", themeColor(search, "--sakai-border-color"));
+                search.focus();
+                assertThat(search).hasCSS("background-color", background);
+                assertThat(search).hasCSS("color", text);
+                assertThat(search).hasCSS("border-top-color", themeColor(search, "--focus-outline-color"));
+                if ("dark".equals(theme)) {
+                    assertFalse("rgb(255, 255, 255)".equals(background), "Dark theme input must not be white");
+                    for (int width : List.of(1280, 390)) {
+                        page.setViewportSize(width, 900);
+                        component.scrollIntoViewIfNeeded();
+                        assertThat(search).hasCSS("background-color", background);
+                    }
+                }
+            }
+        }
+    }
+
+    private void seedOldSiteStatsTranslations() {
+        page.evaluate("""
+            () => {
+                const oldBundle = {
+                    loading_statistics: 'Loading statistics...',
+                    failed_to_load_statistics: 'Failed to load statistics ({})',
+                    failed_to_load_statistics_unknown: 'Failed to load statistics',
+                    no_data_available: 'No data available',
+                    site_statistics_chart: 'Site statistics chart',
+                    label: 'Label',
+                    overview_tool_filters_min_one: 'Keep at least one tool selected.'
+                };
+                sessionStorage.setItem((window.portal?.locale || '') + 'sitestats', JSON.stringify(oldBundle));
+            }
+            """);
+    }
+
+    private void openReportsAsInstructor() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Reports$", Pattern.CASE_INSENSITIVE))).click();
+    }
+
+    private void assertWidgetHasMetricLabels(Locator widget, String... labels) {
+        Locator metricLabels = widget.locator("sakai-sitestats-widget-metrics dt");
+        assertThat(metricLabels.first()).isVisible();
+        for (String label : labels) {
+            assertThat(metricLabels.filter(new Locator.FilterOptions()
+                    .setHasText(Pattern.compile("^" + label + "$")))).hasCount(1);
+        }
     }
 
     private void assertReportSummaryRendered() {
@@ -121,7 +769,14 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     private String siteStatsCanvasHasPixelsScript() {
         return "() => {"
-            + " const panels = Array.from(document.querySelectorAll('sakai-sitestats-report-panel'));"
+            + " const panels = [];"
+            + " const collectPanels = root => {"
+            + "   panels.push(...root.querySelectorAll('sakai-sitestats-report-panel'));"
+            + "   for (const element of root.querySelectorAll('*')) {"
+            + "     if (element.shadowRoot) { collectPanels(element.shadowRoot); }"
+            + "   }"
+            + " };"
+            + " collectPanels(document);"
             + " for (const panel of panels) {"
             + "   const chart = panel.shadowRoot && panel.shadowRoot.querySelector('sakai-sitestats-chart');"
             + "   const canvas = chart && chart.shadowRoot && chart.shadowRoot.querySelector('canvas');"

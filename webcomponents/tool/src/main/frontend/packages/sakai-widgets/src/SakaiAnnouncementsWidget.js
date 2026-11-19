@@ -5,11 +5,16 @@ import { SakaiDashboardWidget } from "./SakaiDashboardWidget.js";
 
 export class SakaiAnnouncementsWidget extends SakaiDashboardWidget {
 
+  static properties = {
+    savedFilters: { attribute: false, type: Object },
+  };
+
   constructor() {
 
     super();
 
     this.widgetId = "announcements";
+    this.hasFilters = true;
   }
 
   content() {
@@ -18,6 +23,11 @@ export class SakaiAnnouncementsWidget extends SakaiDashboardWidget {
       <sakai-announcements
         user-id="${ifDefined(this.userId ? this.userId : undefined)}"
         site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
+        page-size="${this._pageSize()}"
+        ?save-filters=${Boolean(this.userId) && !this.siteId}
+        ?filters-open=${this.filtersOpen}
+        .savedFilters=${this.savedFilters}
+        @filters-closed=${this._closeFilters}
       >
       </sakai-announcements>
     `;

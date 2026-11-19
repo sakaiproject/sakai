@@ -22,7 +22,7 @@
         <property     name="dateReportReceived" column="DATEREPORTRECEIVED" type="java.util.Date"       not-null="false" />
         <property     name="status"             column="STATUS"             type="long" length="255"    not-null="false" />
         <property     name="reviewScore"        column="REVIEWSCORE"        type="java.lang.Integer"    not-null="false" />
-        <property     name="lastError"          column="LASTERROR"          type="text"                 not-null="false" />
+        <property     name="lastError"          column="LASTERROR"          type="text" length="2147483647" not-null="false" />
         <property     name="retryCount"         column="RETRYCOUNT"         type="long"                 not-null="false" />
         <property     name="nextRetryTime"      column="NEXTRETRYTIME"      type="java.util.Date"       not-null="true" />
         <property     name="errorCode"          column="ERRORCODE"          type="integer"              not-null="false" />
@@ -33,8 +33,4 @@
             <element column="VALUE" type="string"/>
         </map>
     </class>
-    <database-object>
-		<create>create index FK_CON_REVIEW_ITEM_I on CONTENTREVIEW_ITEM_PROPERTIES (CONTENTREVIEW_ITEM_ID)</create>
-		<drop></drop>
-	</database-object>
 </hibernate-mapping>

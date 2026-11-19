@@ -177,9 +177,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				this.toBedeletedTSList = null;
 
 				List<SignupMeeting> sMeetings = prepareModify(meeting);
-				signupMeetingService.updateModifiedMeetings(sMeetings, this.toBedeletedTSList, true);
-				//signupMeetingService.updateMSignupMeetings(sMeetings, this.toBedeletedTSList, true);
-				setSavedMeetings(sMeetings);// for email & postCalendar purpose
+				setSavedMeetings(signupMeetingService.updateModifiedMeetings(sMeetings, this.toBedeletedTSList, true)); // for email & postCalendar purpose
 				return;
 			} catch (OptimisticLockingFailureException oe) {
 				// don't do any thing

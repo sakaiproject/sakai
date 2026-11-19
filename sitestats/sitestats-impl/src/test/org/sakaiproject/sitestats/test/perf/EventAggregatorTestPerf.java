@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
@@ -81,8 +80,6 @@ public class EventAggregatorTestPerf extends AbstractTransactionalJUnit4SpringCo
 	private ContentTypeImageService contentTypeImageService;
     @Resource(name = "org.sakaiproject.sitestats.test.DB")
     private DB db;
-    @Resource(name = "org.sakaiproject.memory.api.MemoryService")
-    private MemoryService memoryService;
     @Resource(name = "org.sakaiproject.site.api.SiteService")
     private SiteService siteService;
     @Resource(name = "org.sakaiproject.sitestats.api.StatsManager")
@@ -96,7 +93,6 @@ public class EventAggregatorTestPerf extends AbstractTransactionalJUnit4SpringCo
     @Before
     public void onSetUp() throws Exception {
         db.deleteAll();
-        memoryService.resetCachers();
 
         // Setup site users
         siteUsers = new ArrayList<>();

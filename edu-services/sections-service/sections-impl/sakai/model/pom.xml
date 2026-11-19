@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sections</artifactId>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <version>26-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>27-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <name>sakai-sections-model</name>
@@ -47,7 +47,6 @@
             <resource>
                 <directory>${basedir}/src/hibernate</directory>
                 <includes>
-                    <include>ehcache.xml</include>
                     <include>**/*.hbm.xml</include>
                 </includes>
             </resource>

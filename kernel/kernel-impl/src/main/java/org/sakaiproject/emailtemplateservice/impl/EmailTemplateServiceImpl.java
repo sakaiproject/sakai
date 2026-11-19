@@ -21,6 +21,14 @@
 
 package org.sakaiproject.emailtemplateservice.impl;
 
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.jdom2.input.DOMBuilder;
+
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -28,13 +36,10 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +50,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
 
 //import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
@@ -64,7 +67,6 @@ import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.api.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.api.repository.EmailTemplateRepository;
 import org.sakaiproject.emailtemplateservice.util.TextTemplateLogicUtils;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -542,12 +544,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
             securityService.pushAdvisor(yesMan);
  
             // Parse the XML, get all the child templates
-            Document document = new SAXBuilder().build(templateResourceStream);
+            Document document = new DOMBuilder().build(Xml.createSecureDocumentBuilderFactory().newDocumentBuilder().parse(templateResourceStream));
             List<Element> childTemplates = document.getRootElement().getChildren("emailTemplate");
 
             // Create and register a template with the service for each one found in the XML file
             childTemplates.stream().forEach( (element) -> { xmlToTemplate(element, templateRegistrationKey); } );
-        } catch (JDOMException | IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             log.error(String.format("Error registering template under key '%s': ", templateRegistrationKey), e);
             return false;
         } finally {

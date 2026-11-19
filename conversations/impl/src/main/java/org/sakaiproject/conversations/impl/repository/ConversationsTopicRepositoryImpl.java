@@ -19,11 +19,11 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
 
 import org.sakaiproject.conversations.api.model.Metadata;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
@@ -48,18 +48,6 @@ public class ConversationsTopicRepositoryImpl extends SpringCrudRepositoryImpl<C
         return session.createQuery(query).list();
     }
 
-    @Transactional(readOnly = true)
-    public List<ConversationsTopic> findByTags_Id(Long tagId) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<ConversationsTopic> query = cb.createQuery(ConversationsTopic.class);
-        Root<ConversationsTopic> topic = query.from(ConversationsTopic.class);
-        query.where(cb.isMember(tagId, topic.get("tagIds")));
-
-        return session.createQuery(query).list();
-    }
 
     @Transactional(readOnly = true)
     public Long countBySiteIdAndMetadata_Creator_Id(String siteId, String creatorId) {

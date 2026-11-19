@@ -18,8 +18,8 @@ package org.sakaiproject.tool.app.scheduler;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 
-import javax.faces.event.PhaseId;
-import javax.faces.event.ValueChangeEvent;
+import jakarta.faces.event.PhaseId;
+import jakarta.faces.event.ValueChangeEvent;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -152,11 +152,11 @@ public class EventPager
 
     private void setAllEventTypes(boolean b)
     {
-        selectedEventTypes.put("FIRED", new Boolean(b));
-        selectedEventTypes.put("COMPLETE", new Boolean(b));
-        selectedEventTypes.put("INFO", new Boolean(b));
-        selectedEventTypes.put("DEBUG", new Boolean(b));
-        selectedEventTypes.put("ERROR", new Boolean(b));        
+        selectedEventTypes.put("FIRED", Boolean.valueOf(b));
+        selectedEventTypes.put("COMPLETE", Boolean.valueOf(b));
+        selectedEventTypes.put("INFO", Boolean.valueOf(b));
+        selectedEventTypes.put("DEBUG", Boolean.valueOf(b));
+        selectedEventTypes.put("ERROR", Boolean.valueOf(b));        
     }
 
     public void setTypes(TriggerEvent.TRIGGER_EVENT_TYPE[] types)

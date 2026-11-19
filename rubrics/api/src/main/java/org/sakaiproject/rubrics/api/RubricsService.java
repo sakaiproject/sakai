@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -41,6 +42,13 @@ import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 public interface RubricsService extends EntityProducer {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "rubrics";
+
+    /**
+     * @return the reference of a rubric, as used by its events and the search index: {@code /rubrics/{siteId}/{rubricId}}
+     */
+    static String rubricReference(String siteId, Long rubricId) {
+        return REFERENCE_ROOT + Entity.SEPARATOR + siteId + Entity.SEPARATOR + rubricId;
+    }
 
     RubricTransferBean createDefaultRubric(String siteId);
 
@@ -57,17 +65,22 @@ public interface RubricsService extends EntityProducer {
 
     List<RubricTransferBean> getSharedRubrics();
 
+    /**
+     * Save the revision supplied by the caller. Existing edits must retain their version and nested
+     * versions; criterion/rating edits also retain rubricVersion. Stale edits raise
+     * {@link RubricsConflictException}. Successful mutations return the new revision.
+     */
     RubricTransferBean saveRubric(RubricTransferBean rubricBean);
 
-    boolean deleteRubric(Long rubricId);
+    boolean deleteRubric(Long rubricId, Long version);
 
-    Optional<CriterionTransferBean> createDefaultCriterion(String siteId, Long rubricId);
+    Optional<CriterionTransferBean> createDefaultCriterion(String siteId, Long rubricId, Long version);
 
-    Optional<CriterionTransferBean> createDefaultEmptyCriterion(String siteId, Long rubricId);
+    Optional<CriterionTransferBean> createDefaultEmptyCriterion(String siteId, Long rubricId, Long version);
 
-    CriterionTransferBean copyCriterion(Long rubricId, Long sourceId);
+    CriterionTransferBean copyCriterion(Long rubricId, Long sourceId, Long version);
 
-    Optional<RatingTransferBean> createDefaultRating(String siteId, Long rubricId, Long criterionId, int position);
+    Optional<RatingTransferBean> createDefaultRating(String siteId, Long rubricId, Long criterionId, int position, Long version);
 
     /**
      * This method is used for updating a Criterion's values it should not be used to create a new Criterion
@@ -79,11 +92,11 @@ public interface RubricsService extends EntityProducer {
      */
     CriterionTransferBean updateCriterion(CriterionTransferBean bean, String siteId);
 
-    void deleteCriterion(Long rubricId, Long criterionId, String siteId);
+    RubricTransferBean deleteCriterion(Long rubricId, Long criterionId, String siteId, Long version);
 
-    void sortRubricCriteria(Long rubricId, List<Long> sortedCriterionIds);
+    RubricTransferBean sortRubricCriteria(Long rubricId, List<Long> sortedCriterionIds, Long version);
 
-    void sortCriterionRatings(Long criteriaId, List<Long> sortedRatingIds);
+    CriterionTransferBean sortCriterionRatings(Long criterionId, List<Long> sortedRatingIds, Long version);
 
     /**
      * This method is used for updating a Criterion's values it should not be used to create a new Criterion
@@ -95,7 +108,7 @@ public interface RubricsService extends EntityProducer {
      */
     RatingTransferBean updateRating(RatingTransferBean bean, String siteId);
 
-    CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId, Long rubricId);
+    CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId, Long rubricId, Long version);
 
     Optional<RubricTransferBean> getRubric(Long rubricId);
 
@@ -109,11 +122,21 @@ public interface RubricsService extends EntityProducer {
 
     boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
 
+    /**
+     * Delete evaluations and saved feedback for the exact evaluated items in a tool and site.
+     * Rubric associations are retained. Missing evaluations are ignored.
+     * Internal tool-service operation: the calling service must authorize removal of
+     * the evaluated items. Do not expose this operation directly to client requests.
+     *
+     * @return the number of evaluations removed
+     */
+    int deleteEvaluationsForToolAndEvaluatedItems(String toolId, Set<String> evaluatedItemIds, String siteId);
+
     List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId);
 
     EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId);
 
-    EvaluationTransferBean cancelDraftEvaluation(Long draftEvaluationId);
+    EvaluationTransferBean cancelDraftEvaluation(Long draftEvaluationId, Long version);
 
     boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
 

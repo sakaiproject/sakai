@@ -328,6 +328,11 @@
                             <span rsf:id="msg.simplepage.scorm"></span>
                           </a>
                         </li>
+                        <li class="list-group-item m-1" rsf:id="video-training-li">
+                          <a role="button" href="#" rsf:id="add-video-training" class="add-before-param">
+                            <span rsf:id="msg=simplepage.video-training"></span>
+                          </a>
+                        </li>
                         <li class="list-group-item m-1" rsf:id="forum-li">
                           <a role="button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum">
                             <span rsf:id="msg.simplepage.forum"></span>
@@ -369,7 +374,7 @@
                 </div>
               </div>
               <div class="row mt-sm-3">
-                <div class="col-sm-6 d-flex align-items-stretch">
+                <div class="col-sm-6 d-flex align-items-stretch" rsf:id="advanced-content-items">
                   <div class="card w-100">
                     <div class="card-header">
                       <h4><span rsf:id="msg=simplepage.advanced.content.items"></span></h4>
@@ -491,9 +496,10 @@
               <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before" />
             </div>
             <div class="modal-footer">
+             <div>
               <button class="btn-primary" type="submit" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();"></button>
-              <a class="btn btn-secondary" id="subpage-choose" role="button" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
-              <button class="btn btn-secondary" id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
+             </div>
+              <a class="button" id="subpage-choose" role="button" rsf:id="subpage-choose"><span rsf:id="msg=simplepage.page.chooser"></span></a>
               <button class="btn btn-secondary" type="submit" data-bs-dismiss="modal" rsf:id="cancel-subpage"></button>
             </div>
           </div>
@@ -1849,7 +1855,7 @@
               </form>
 
               <p class="shorttext required" style="margin-top: 1em">
-                <a role="button" href="#" id="subpage-choose" rsf:id="new-page-choose">
+                <a role="button" href="#" id="new-page-choose" rsf:id="new-page-choose">
                   <span rsf:id="msg=simplepage.lm_existing_page"></span>
                 </a>
               </p>
@@ -2404,6 +2410,12 @@
         <div rsf:id="errors:">
           <p rsf:id="error-message"></p>
         </div>
+      </div>
+    </div>
+
+    <div rsf:id="success-div" class="ui-widget sak-banner-success error-spacingabove error-nospcebelow" role="status">
+      <div rsf:id="successes:">
+        <p rsf:id="success-message"></p>
       </div>
     </div>
 
@@ -3475,7 +3487,6 @@
   </div>
 
   <div rsf:id="comments-script">
-    <script src="$context/js/periodicalupdater.js"></script>
     <script src="$context/js/comments.js"></script>
   </div>
 

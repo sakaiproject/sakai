@@ -23,16 +23,15 @@ package org.sakaiproject.emailtemplateservice.api.model;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Lob;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -63,8 +62,7 @@ public class EmailTemplate implements java.io.Serializable, PersistableEntity<Lo
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "email_template_item_id_sequence")
-    @SequenceGenerator(name = "email_template_item_id_sequence", sequenceName = "EMAILTEMPLATE_ITEM_SEQ")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "email_template_item_id_sequence", sequenceName = "EMAILTEMPLATE_ITEM_SEQ"))
     private Long id;
 
     @Column(name = "LAST_MODIFIED", nullable = false)

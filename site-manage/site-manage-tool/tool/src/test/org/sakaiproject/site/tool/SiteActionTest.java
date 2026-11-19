@@ -15,6 +15,34 @@
  */
 package org.sakaiproject.site.tool;
 
+import java.util.Locale;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.stream.Stream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.UncheckedIOException;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+import org.sakaiproject.importer.api.ImportDataSource;
+import org.sakaiproject.importer.api.SakaiArchive;
+import org.sakaiproject.cheftool.JetspeedRunData;
+import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.FileItem;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -39,7 +67,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.UserTimeService;
@@ -52,8 +79,6 @@ import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -74,7 +99,6 @@ public class SiteActionTest {
     @Mock private IdManager idManager;
     @Mock private LinkMigrationHelper linkMigrationHelper;
     @Mock private LTIService ltiService;
-    @Mock private MemoryService memoryService;
     @Mock private PreferencesService preferencesService;
     @Mock private SecurityService securityService;
     @Mock private ServerConfigurationService serverConfigurationService;
@@ -101,7 +125,6 @@ public class SiteActionTest {
         componentManagerMock.when(() -> ComponentManager.get(EventTrackingService.class)).thenReturn(eventTrackingService);
         componentManagerMock.when(() -> ComponentManager.get(FormattedText.class)).thenReturn(formattedText);
         componentManagerMock.when(() -> ComponentManager.get(IdManager.class)).thenReturn(idManager);
-        componentManagerMock.when(() -> ComponentManager.get(MemoryService.class)).thenReturn(memoryService);
         componentManagerMock.when(() -> ComponentManager.get(PreferencesService.class)).thenReturn(preferencesService);
         componentManagerMock.when(() -> ComponentManager.get(SecurityService.class)).thenReturn(securityService);
         componentManagerMock.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);
@@ -130,6 +153,24 @@ public class SiteActionTest {
         Mockito.when(siteService.getSiteTypeStrings("project")).thenReturn(Arrays.asList(types));
         Mockito.when(serverConfigurationService.getString(Mockito.eq("projectSiteTargetType"), Mockito.anyString()))
                 .thenAnswer(invocation -> invocation.getArgument(1));
+    }
+
+    @Test
+    public void concurrentLocaleRequestsEachReceiveTheConfiguredLocales() throws Exception {
+        Locale[] configured = {Locale.ENGLISH, Locale.FRENCH};
+        CountDownLatch ready = new CountDownLatch(8);
+        Mockito.when(serverConfigurationService.getSakaiLocales()).thenAnswer(invocation -> {
+            ready.countDown();
+            org.junit.Assert.assertTrue(ready.await(5, TimeUnit.SECONDS));
+            return configured;
+        });
+        try (ExecutorService executor = Executors.newFixedThreadPool(8)) {
+            List<Callable<List<Locale>>> requests =
+                Collections.nCopies(8, siteAction::getPrefLocales);
+            for (Future<List<Locale>> result : executor.invokeAll(requests)) {
+                org.junit.Assert.assertEquals(Arrays.asList(configured), result.get());
+            }
+        }
     }
 
     @Test
@@ -203,4 +244,123 @@ public class SiteActionTest {
         Assert.assertEquals(Collections.singletonList("sakai.multiple"), siteAction.getOriginalToolIds(Arrays.asList("sakai.multiple1", "sakai.multiple2"), state));
         Assert.assertEquals(Collections.singletonList("sakai.multiple"), siteAction.getOriginalToolIds(Collections.singletonList("012345678901234567890123456789012345sakai.multiple"), state));
     }
+    @Rule
+    public TemporaryFolder archiveFiles = new TemporaryFolder();
+
+    @Test
+    public void replacingUploadedArchiveDeletesPreviousFile() throws Exception {
+        Path directory = archiveFiles.newFolder().toPath();
+        Path previous = Files.writeString(directory.resolve("previous.zip"), "old upload");
+        Map<String, Object> values = new HashMap<>();
+        values.put("uploadedArchivePath", previous.toString());
+        SessionState state = archiveState(values);
+        Mockito.when(siteService.allowImportArchiveSite()).thenReturn(true);
+        Mockito.when(serverConfigurationService.getString(Mockito.eq("archive.storage.path"), Mockito.anyString())).thenReturn(directory.toString());
+        ParameterParser parameters = Mockito.mock(ParameterParser.class);
+        Mockito.when(parameters.getFileItem("importFile")).thenReturn(new FileItem("upload.zip", "application/zip",
+            new ByteArrayInputStream(new byte[] {1, 2, 3})));
+        JetspeedRunData data = new JetspeedRunData(null, state, "site-info", parameters);
+        siteAction.doUploadArchive(data);
+        Assert.assertFalse(Files.exists(previous));
+        Path replacement = Path.of((String) values.get("uploadedArchivePath"));
+        Assert.assertArrayEquals(new byte[] {1, 2, 3}, Files.readAllBytes(replacement));
+        Assert.assertEquals("upload.zip", values.get("uploadedArchiveNAme"));
+    }
+
+    @Test
+    public void failedReplacementPreservesPreviousUploadedArchive() throws Exception {
+        Path directory = archiveFiles.newFolder().toPath();
+        Path previous = Files.writeString(directory.resolve("previous.zip"), "old upload");
+        Map<String, Object> values = new HashMap<>();
+        values.put("uploadedArchivePath", previous.toString());
+        Mockito.when(siteService.allowImportArchiveSite()).thenReturn(true);
+        Mockito.when(serverConfigurationService.getString(Mockito.eq("archive.storage.path"), Mockito.anyString())).thenReturn(directory.toString());
+        ParameterParser parameters = Mockito.mock(ParameterParser.class);
+        InputStream failing = new InputStream() {
+            @Override public int read() throws IOException { throw new IOException("copy failed"); }
+        };
+        Mockito.when(parameters.getFileItem("importFile")).thenReturn(new FileItem("upload.zip", "application/zip", failing));
+        siteAction.doUploadArchive(new JetspeedRunData(null, archiveState(values), "site-info", parameters));
+        Assert.assertEquals(previous.toString(), values.get("uploadedArchivePath"));
+        Assert.assertEquals("old upload", Files.readString(previous));
+        try (Stream<Path> files = Files.list(directory)) {
+            Assert.assertEquals(1, files.count());
+        }
+    }
+
+    @Test
+    public void cancellingSiteCreationDeletesUploadedArchive() throws Exception {
+        Path archive = archiveFiles.newFile("uploaded.zip").toPath();
+        Map<String, Object> values = new HashMap<>();
+        values.put("uploadedArchivePath", archive.toString());
+        values.put("uploadedArchiveNAme", "uploaded.zip");
+        siteAction.doCancel_create(new JetspeedRunData(null, archiveState(values), "site-info", null));
+        Assert.assertFalse(Files.exists(archive));
+        Assert.assertFalse(values.containsKey("uploadedArchivePath"));
+        Assert.assertFalse(values.containsKey("uploadedArchiveNAme"));
+    }
+
+    @Test
+    public void cancellingStillClearsStateWhenArchiveCannotBeDeleted() throws Exception {
+        Path archive = archiveFiles.newFolder().toPath();
+        Files.writeString(archive.resolve("keep.txt"), "delete must fail");
+        Map<String, Object> values = new HashMap<>();
+        values.put("uploadedArchivePath", archive.toString());
+        siteAction.doCancel_create(new JetspeedRunData(null, archiveState(values), "site-info", null));
+        Assert.assertTrue(Files.exists(archive.resolve("keep.txt")));
+        Assert.assertFalse(values.containsKey("uploadedArchivePath"));
+    }
+
+    @Test
+    public void failedImportReportsErrorAndReleasesSourceAndSessionState() {
+        ImportDataSource source = Mockito.mock(ImportDataSource.class,
+            Mockito.withSettings().extraInterfaces(SakaiArchive.class));
+        Mockito.doThrow(new UncheckedIOException(new IOException("rejected archive")))
+            .when((SakaiArchive) source).buildSourceFolder(Mockito.anyCollection());
+        Map<String, Object> values = importState(source);
+        siteAction.doSaveMtrlSite(new JetspeedRunData(null, archiveState(values), "site-info", null));
+        Mockito.verify(source).cleanup();
+        Mockito.verify(archiveService, Mockito.never()).merge(Mockito.anyString(), Mockito.anyString(), Mockito.any());
+        Assert.assertNotNull(values.get("message"));
+        Assert.assertFalse(values.containsKey("import_data_source"));
+        Assert.assertFalse(values.containsKey("allzipImports"));
+        Assert.assertFalse(values.containsKey("finalzipImports"));
+        Assert.assertEquals("45", values.get(org.sakaiproject.site.util.SiteConstants.STATE_TEMPLATE_INDEX));
+    }
+
+    @Test
+    public void successfulImportReleasesSourceAndRetainsCompletionSummary() {
+        ImportDataSource source = Mockito.mock(ImportDataSource.class,
+            Mockito.withSettings().extraInterfaces(SakaiArchive.class));
+        Mockito.when(((SakaiArchive) source).getSourceFolder()).thenReturn("archive/source");
+        Map<String, Object> values = importState(source);
+        siteAction.doSaveMtrlSite(new JetspeedRunData(null, archiveState(values), "site-info", null));
+        Mockito.verify(source).cleanup();
+        Mockito.verify(archiveService).merge("archive/source", "site-a", null);
+        Assert.assertFalse(values.containsKey("import_data_source"));
+        Assert.assertTrue(values.containsKey("finalzipImports"));
+        Assert.assertEquals("48", values.get(org.sakaiproject.site.util.SiteConstants.STATE_TEMPLATE_INDEX));
+    }
+
+    private Map<String, Object> importState(ImportDataSource source) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("site.instance.id", "site-a");
+        values.put("finalzipImports", new ArrayList<>());
+        values.put("directzipImports", new ArrayList<>());
+        values.put("allzipImports", new ArrayList<>());
+        values.put("import_data_source", source);
+        return values;
+    }
+
+    private SessionState archiveState(Map<String, Object> values) {
+        return Mockito.mock(SessionState.class, invocation -> {
+            switch (invocation.getMethod().getName()) {
+                case "getAttribute": return values.get(invocation.getArgument(0));
+                case "setAttribute": values.put(invocation.getArgument(0), invocation.getArgument(1)); return null;
+                case "removeAttribute": values.remove(invocation.getArgument(0)); return null;
+                default: return Mockito.RETURNS_DEFAULTS.answer(invocation);
+            }
+        });
+    }
+
 }

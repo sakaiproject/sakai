@@ -75,6 +75,7 @@ import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.util.MergeConfig;
+import org.sakaiproject.util.Zip;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -752,13 +753,12 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                 continue;
             }
 
-            File zip = new File(archiveDir, element.getAttribute(ATTR_ARCHIVE));
-            if (!zip.isFile()) {
-                log.warn("SCORM archive zip {} not found while merging into {}", zip.getPath(), siteId);
-                continue;
-            }
-
             try {
+                File zip = Zip.resolveContainedPath(archiveDir.toPath(), element.getAttribute(ATTR_ARCHIVE)).toFile();
+                if (!zip.isFile()) {
+                    log.warn("SCORM archive zip {} not found while merging into {}", zip.getPath(), siteId);
+                    continue;
+                }
                 ContentPackage created = importPackageArchive(siteId, zip, title);
                 if (created != null) {
                     restoreSettings(created, element);

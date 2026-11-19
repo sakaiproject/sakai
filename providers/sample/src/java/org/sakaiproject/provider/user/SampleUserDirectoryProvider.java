@@ -346,7 +346,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	public List<UserEdit> searchExternalUsers(String criteria, int first, int last, UserFactory factory) {
 		Stream<Info> stream = userInfo.values().stream().filter(i -> i.contains(criteria));
 		if (first != -1) {
-			stream = stream.skip(first);
+			stream = stream.skip(Math.max(0, first - 1));
 		}
 		if (last != -1) {
 			stream = stream.limit(last-first+1);

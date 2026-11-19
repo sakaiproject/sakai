@@ -149,7 +149,7 @@ export class SakaiRubricAssociation extends RubricsElement {
 
   _handleRubrics(data) {
 
-    this._rubrics = data.slice().filter(rubric => !rubric.draft);
+    this._rubrics = data.filter(rubric => !rubric.draft || rubric.id == this.association?.rubricId);
 
     if (this._rubrics.length && this.isAssociated != 1 && !this.association?.rubricId) {
       // Not associated yet, select the first rubric in the list.
@@ -221,7 +221,7 @@ export class SakaiRubricAssociation extends RubricsElement {
                 ?disabled=${this.isAssociated != 1 || this.readOnly}>
               ${this._rubrics.map(r => html`
               <option value="${r.id}" ?selected=${r.id == this._selectedRubricId ? "selected" : undefined}>
-                ${r.title} ${r.maxPoints ? `(${r.maxPoints} ${this._i18n.points})` : ""}
+                ${r.title} ${r.maxPoints ? `(${r.maxPoints.toLocaleString(this.locale)} ${this._i18n.points})` : ""}
               </option>
               `)}
             </select>

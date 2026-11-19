@@ -99,7 +99,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                       ` : nothing }
                       <p>${r.description}</p>
                       <span class="points">
-                        ${this.weighted && r.points > 0 ? html`
+                        ${this.weighted && r.points !== 0 ? html`
                           <b>
                               (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
                           </b>
@@ -118,13 +118,12 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                   <sakai-rubric-student-comment .criterion=${c}></sakai-rubric-student-comment>
                 ` : nothing }
                 <div class="rubric-grading-points-value">
-                  <strong class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                    ${c.selectedRatingId ? c.selectedvalue.toLocaleString(this.locale) : "0"}
+                  <strong class="points-display">
+                    ${this.isOverridden(c.pointoverride, c.selectedvalue)
+                      ? c.pointoverride.toLocaleString(this.locale, { maximumSignificantDigits: 21 })
+                      : (c.selectedvalue ?? 0).toLocaleString(this.locale, { maximumSignificantDigits: 21 })}
                   </strong>
                 </div>
-                ${this.isOverridden(c.pointoverride, c.selectedvalue) ?
-                  html`<strong class="points-display">${c.pointoverride.toLocaleString(this.locale)}</strong>`
-                  : nothing }
               ` : nothing }
               </div>
             </div>
@@ -195,7 +194,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
     this.totalPoints = this.criteria.reduce((a, c) => {
 
-      if (c.pointoverride) {
+      if (c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined) {
         return a + parseFloat(c.pointoverride);
       } else if (c.selectedvalue) {
         return a + parseFloat(c.selectedvalue);

@@ -119,6 +119,24 @@ public interface SecurityService
 	boolean isSuperUser(String userId);
 
 	/**
+	 * Register a service lifetime security advisor. These are different to a pushed advisor as they
+	 * are expected to be more long-lived, for example registered by another services's init method.
+	 * Think of these as Sakai lifetime participants in the Sakai security architecture.
+	 *
+	 * @param advisor
+	 *        The advisor to establish
+	 */
+	void registerAdvisor(SecurityAdvisor advisor);
+
+	/**
+	 * Unregister a particular advisor.
+	 *
+	 * @param advisor
+	 *        The advisor to unregister
+	 */
+	void unregisterAdvisor(SecurityAdvisor advisor);
+
+	/**
 	 * Establish a new SecurityAdvisor for this thread, at the top of the stack (it gets first dibs on the answer).
 	 * 
 	 * @param advisor
@@ -143,9 +161,10 @@ public interface SecurityService
 	SecurityAdvisor popAdvisor(SecurityAdvisor advisor);
 
 	/**
-	 * Check if there are any security advisors stacked for this thread.
+	 * Check if there are any security advisors stacked for this thread. This does NOT check if any
+	 * registered (long-lived) advisors have been registered.
 	 * 
-	 * @return true if some advisors are defined, false if not.
+	 * @return true if some advisors are on the stack, false if not.
 	 */
 	boolean hasAdvisors();
 

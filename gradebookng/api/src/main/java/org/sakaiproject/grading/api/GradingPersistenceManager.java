@@ -27,6 +27,7 @@ import org.sakaiproject.grading.api.model.Comment;
 import org.sakaiproject.grading.api.model.CourseGrade;
 import org.sakaiproject.grading.api.model.CourseGradeRecord;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.grading.api.model.GradableObject;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.grading.api.model.GradebookProperty;
 import org.sakaiproject.grading.api.model.GradeMapping;
@@ -76,7 +77,7 @@ public interface GradingPersistenceManager {
 
     Optional<Comment> getInternalComment(String studentUid, String gradebookUid, Long assignmentId);
     Comment saveComment(Comment comment);
-    List<Comment> getCommentsForStudents(GradebookAssignment assignment, Collection<String> studentIds);
+    List<Comment> getCommentsForStudents(GradableObject assignment, Collection<String> studentIds);
     void deleteInternalComment(String studentUid, String gradebookUid, Long assignmentId);
     int deleteCommentsForAssignment(GradebookAssignment assignment);
 

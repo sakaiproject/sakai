@@ -154,9 +154,9 @@ public interface AssessmentFacadeQueriesAPI {
 
 	public void deleteAllSecuredIP(AssessmentIfc assessment);
 
-	public void saveOrUpdate(AssessmentFacade assessment);
+	public AssessmentData saveOrUpdate(AssessmentFacade assessment);
 
-	public void saveOrUpdate(AssessmentTemplateData template);
+	public AssessmentTemplateData saveOrUpdate(AssessmentTemplateData template);
 
 	public void deleteTemplate(Long templateId);
 
@@ -251,4 +251,9 @@ public interface AssessmentFacadeQueriesAPI {
     public void restoreAssessment(Long assessmentId);
 
     public Set<String> getDuplicateItemHashesForAssessmentIds(Collection<Long> assessmentIds);
+
+	/**
+	 * Assessment base ids whose TO_GRADEBOOK_ID metadata references the given gradebook assignment id.
+	 */
+	public List<Long> findAssessmentIdsLinkedToGradebookItem(String gradebookAssignmentId);
 }

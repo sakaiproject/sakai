@@ -16,8 +16,8 @@
           class="org.sakaiproject.assignment.impl.AssignmentServiceImpl"
           init-method="init">
         <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
-        <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
         <property name="assignmentDueReminderService" ref="org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService"/>
+        <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.api.persistence.AssignmentRepository"/>
         <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
@@ -55,7 +55,6 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
         <property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
@@ -119,17 +118,7 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
 
-    <bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"
-          class="org.sakaiproject.assignment.impl.taggable.AssignmentActivityProducerImpl"
-          init-method="init">
-        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
-        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-    </bean>
+
 
     <!--  Hibernate persistence -->
 
@@ -223,7 +212,7 @@
                     <property name="labelResourceKey" value="length.attribute.property"/>
                     <property name="descriptionResourceKey" value="length.attribute.description"/>
                     <property name="defaultValue">
-                        <util:constant static-field="com.ctc.wstx.api.ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH"/>
+                        <util:constant static-field="org.sakaiproject.serialization.MapperFactory.DEFAULT_MAX_XML_ATTRIBUTE_LENGTH"/>
                     </property>
                 </bean>
                 <bean id="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob.jobWrapper.number"
@@ -232,7 +221,7 @@
                     <property name="labelResourceKey" value="number.attributes.property"/>
                     <property name="descriptionResourceKey" value="number.attributes.description"/>
                     <property name="defaultValue">
-                        <util:constant static-field="com.ctc.wstx.api.ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT"/>
+                        <util:constant static-field="org.sakaiproject.serialization.MapperFactory.DEFAULT_MAX_XML_ATTRIBUTES_PER_ELEMENT"/>
                     </property>
                 </bean>
             </set>
@@ -305,5 +294,18 @@
 
     <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.assignments.remove"
           class="org.sakaiproject.assignment.impl.messaging.RemoveAssignmentUserNotificationHandler"/>
+
+    <!-- Register the completed transactional proxy rather than the target from init(). -->
+    <bean id="org.sakaiproject.assignment.api.AssignmentService.entityProducerRegistration"
+          class="org.springframework.beans.factory.config.MethodInvokingBean">
+        <property name="targetObject" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="targetMethod" value="registerEntityProducer"/>
+        <property name="arguments">
+            <list>
+                <ref bean="org.sakaiproject.assignment.api.AssignmentService"/>
+                <value>/assignment</value>
+            </list>
+        </property>
+    </bean>
 
 </beans>

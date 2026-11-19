@@ -7,6 +7,7 @@ export class SakaiImageEditor extends SakaiShadowElement {
 
   static properties = {
     imageUrl: { attribute: "image-url", type: String },
+    hideDoneButton: { attribute: "hide-done-button", type: Boolean },
     _filePicked: { state: true },
   };
 
@@ -29,44 +30,107 @@ export class SakaiImageEditor extends SakaiShadowElement {
       autoCropArea: 1,
       viewMode: 1,
       dragMode: "move",
+      crop: () => this._fireImageUpdatedEvent(),
     });
+
+    if (this.cropper.getImageData().top) {
+      this.getImageBlob().then(blob => {
+        const url = URL.createObjectURL(blob);
+        this.dispatchEvent(new CustomEvent("image-selected", { detail: { url }, composed: true, bubbles: true }));
+      });
+    }
   }
+
+  set imageUrl(value) {
+
+    this.cropper && this.cropper.replace(value);
+    const oldValue = this._imageUrl;
+    this._imageUrl = value;
+    this.requestUpdate("imageUrl", oldValue);
+  }
+
+  get imageUrl() { return this._imageUrl; }
 
   filePicked(e) {
 
     if (e.target.files[0]) {
       this.cropper.clear();
-      this.cropper.replace(URL.createObjectURL(e.target.files[0]));
+      const url = URL.createObjectURL(e.target.files[0]);
+      this.cropper.replace(url);
+      this.dispatchEvent(new CustomEvent("image-selected", { detail: { url }, composed: true, bubbles: true }));
       this._filePicked = true;
     }
   }
 
-  done() {
+  async getImageBlob() {
 
-    const croppedCanvas = this.cropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1080 });
-    croppedCanvas.toBlob(blob => {
-      const url = URL.createObjectURL(blob);
-      this.dispatchEvent(new CustomEvent("image-edited", { detail: { url, blob }, composed: true, bubbles: true }));
-    }, "image/webp", 0.75);
+    const canvas = this.cropper.getCroppedCanvas({
+      maxWidth: 1920,
+      maxHeight: 1080,
+    });
+
+    if (!canvas) {
+      console.info("No canvas. Returning null ...");
+      return null;
+    }
+    return new Promise(resolve => canvas.toBlob(resolve, "image/webp", 0.75));
   }
 
-  zoomIn() { this.cropper.zoom(0.1); }
+  _done() {
 
-  zoomOut() { this.cropper.zoom(-0.1); }
+    this.getImageBlob().then(blob => {
+      const url = URL.createObjectURL(blob);
+      this.dispatchEvent(new CustomEvent("image-edited", { detail: { url, blob }, composed: true, bubbles: true }));
+    });
+  }
 
-  up() { this.cropper.move(0, -10); }
+  zoomIn() {
 
-  down() { this.cropper.move(0, +10); }
+    this.cropper.zoom(0.1);
+    this._fireImageUpdatedEvent();
+  }
 
-  left() { this.cropper.move(+10, 0); }
+  zoomOut() {
 
-  right() { this.cropper.move(-10, 0); }
+    this.cropper.zoom(-0.1);
+    this._fireImageUpdatedEvent();
+  }
+
+  up() {
+
+    this.cropper.move(0, -10);
+    this._fireImageUpdatedEvent();
+  }
+
+  down() {
+
+    this.cropper.move(0, +10);
+    this._fireImageUpdatedEvent();
+  }
+
+
+  left() {
+
+    this.cropper.move(+10, 0);
+    this._fireImageUpdatedEvent();
+  }
+
+  right() {
+
+    this.cropper.move(-10, 0);
+    this._fireImageUpdatedEvent();
+  }
 
   rotate() {
 
     this.cropper.clear();
     this.cropper.rotate(90);
     this.cropper.crop();
+    this._fireImageUpdatedEvent();
+  }
+
+  _fireImageUpdatedEvent() {
+    this.dispatchEvent(new CustomEvent("image-updated"));
   }
 
   shouldUpdate(changed) {
@@ -76,7 +140,11 @@ export class SakaiImageEditor extends SakaiShadowElement {
   render() {
 
     return html`
-      <div class="sak-banner-info">${this._i18n.info}</div>
+      ${this.hideDoneButton ? html`
+        <div class="sak-banner-info">${this._i18n.info_without_done}</div>
+      ` : html`
+        <div class="sak-banner-info">${this._i18n.info}</div>
+      `}
       <input type="file" accept="image/*" aria-label="${this._i18n.image_picker_label}" @change=${this.filePicked} />
       <div><img id="image" src="${this.imageUrl}" /></div>
       ${this.imageUrl || this._filePicked ? html`
@@ -103,7 +171,9 @@ export class SakaiImageEditor extends SakaiShadowElement {
             <sakai-icon type="refresh"></sakai-icon>
           </sakai-button>
         </div>
-        <button type="button" class="btn btn-primary mt-2" @click=${this.done} primary>${this._i18n.done}</button>
+        ${!this.hideDoneButton ? html`
+          <button type="button" class="btn btn-primary mt-2" @click=${this._done} primary>${this._i18n.done}</button>
+        ` : nothing}
       ` : nothing}
     `;
   }
@@ -122,7 +192,7 @@ export class SakaiImageEditor extends SakaiShadowElement {
         margin: 0;
       }
       #image {
-        max-width: 100%;
+        max-width: 600px;
       }
     `
   ];

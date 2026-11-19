@@ -35,11 +35,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.event.ActionEvent;
-import javax.faces.model.SelectItem;
-
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.bean.ManagedBean;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 import lombok.Getter;
@@ -76,24 +75,35 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService.SubmissionOutcome;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.ui.bean.util.TotalScoresExportBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 
 /* For evaluation: Total Scores backing bean. */
 @Slf4j
 @ManagedBean(name="totalScores")
 @SessionScoped
-public class TotalScoresBean implements Serializable, PhaseAware {
+public class TotalScoresBean extends SpringBeanAutowiringSupport implements Serializable, PhaseAware {
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private transient AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Autowired
+  @Qualifier("sectionAwareServiceHelper")
+  private transient SectionAwareServiceHelper sectionAwareServiceHelper;
+
   private String assessmentId;
   private String publishedId;
 
@@ -166,7 +176,6 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   
   // Searching
   private String searchString;
-  private String defaultSearchString;
   private String applyToUngraded = "";
   
   private boolean multipleSubmissionsAllowed = false;
@@ -200,8 +209,6 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
 
 	protected void init() {
-        defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-
 		try {
 			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			boolean sitePropertyExists = false;
@@ -222,8 +229,9 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 			log.warn(ex.getMessage(), ex);
 		}
 
+		// no search is an empty search; the page shows its prompt as a placeholder
 		if (searchString == null) {
-			searchString = defaultSearchString;
+			searchString = "";
 		}
 		
 		// Get allAgents only at the first time
@@ -942,7 +950,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	    String userId = AgentFacade.getAnonymousId();
 	    try {
 	        Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-	        GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+	        SectionAwareServiceHelper service = sectionAwareServiceHelper;
 	        // Add the available sections to which it belongs
 	        Collection<Group> groups = site.getGroups();
 	        int i = 0;
@@ -973,7 +981,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
 	    // If the selected value now falls out of legal range due to sections
 	    // being deleted, throw it back to the default value (meaning everyone).
-	    int selectedSectionVal = new Integer(selectedSectionFilterValue).intValue();
+	    int selectedSectionVal = Integer.valueOf(selectedSectionFilterValue).intValue();
 	    if ((selectedSectionVal >= 0) && (selectedSectionVal >= availableSections.size())) {
 	    	if (isReleasedToGroups()) {
 	    		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
@@ -987,7 +995,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
 
   private List getAllAvailableSections() {
-    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    SectionAwareServiceHelper service = sectionAwareServiceHelper;
     return service.getAvailableSections(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString());
   }
 
@@ -996,8 +1004,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     List enrollments;
     
     // Check if current user has privilege to assess all groups - if so, they should see all student submissions regardless of group restrictions
-    boolean hasAllGroupsPrivilege = PersistenceService.getInstance()
-        .getAuthzQueriesFacade()
+    boolean hasAllGroupsPrivilege = authzQueriesFacade
         .hasPrivilege(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, siteId);
     
     if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER_STUDENT){
@@ -1028,13 +1035,13 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
 
   public List getSectionEnrollments(String sectionid, String siteId) {
-    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    SectionAwareServiceHelper service = sectionAwareServiceHelper;
     return service.getSectionEnrollments(siteId, sectionid , AgentFacade.getAgentString());
   }
 
 
   public List<EnrollmentRecord> getAvailableEnrollments(boolean fromStudentStatistics, String siteId) {
-    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    SectionAwareServiceHelper service = sectionAwareServiceHelper;
 
     if (fromStudentStatistics) {
     	return service.getAvailableEnrollments(siteId, "-1");
@@ -1044,12 +1051,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }  
 
   private List<EnrollmentRecord> getGroupReleaseEnrollments(String siteId) {
-    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    SectionAwareServiceHelper service = sectionAwareServiceHelper;
     return service.getGroupReleaseEnrollments(siteId, AgentFacade.getAgentString(), publishedId);
   }
 
   private List<EnrollmentRecord> getAllGroupsReleaseEnrollments(String siteId) {
-    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    SectionAwareServiceHelper service = sectionAwareServiceHelper;
     return service.getAllGroupsReleaseEnrollments(siteId, AgentFacade.getAgentString(), publishedId);
   }
 
@@ -1058,7 +1065,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     		|| uid.equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE) ){
       return null;
     } else {
-      CourseSection section = (CourseSection)(availableSections.get(new Integer(uid).intValue()));
+      CourseSection section = (CourseSection)(availableSections.get(Integer.valueOf(uid).intValue()));
       return section.getUuid();
     }
   }
@@ -1253,7 +1260,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
   public void setSearchString(String searchString) {
 	  if (StringUtils.trimToNull(searchString) == null) {
-          searchString = defaultSearchString;
+          searchString = "";
       }
 	  if (!StringUtils.equals(searchString, this.searchString)) {
 	    	log.debug("setSearchString " + searchString);
@@ -1274,7 +1281,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
   
 	private boolean isFilteredSearch() {
-        return !StringUtils.equals(searchString, defaultSearchString);
+        return StringUtils.isNotBlank(searchString);
 	}
 	
 	/**

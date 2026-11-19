@@ -1,5 +1,5 @@
-<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
-                 javax.faces.el.*, org.sakaiproject.tool.messageforums.*,
+<%@ page import="java.util.*, jakarta.faces.context.*, jakarta.faces.application.*,
+                 jakarta.faces.el.*, org.sakaiproject.tool.messageforums.*,
                  org.sakaiproject.tool.messageforums.ui.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
@@ -39,66 +39,34 @@
     <script>includeWebjarLibrary('datatables');</script>
 
     <script>
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', function() {
 
-            var menuLink = $('#messagesMainMenuLink');
-            var menuLinkSpan = menuLink.closest('span');
-            menuLinkSpan.addClass('current');
-            menuLinkSpan.html(menuLink.text());
-
-            var notEmptyTableTd = $("#prefs_pvt_form\\:pvtmsgs td:not(:empty)").length;
-            if (notEmptyTableTd > 0) {
-                var table = $("#prefs_pvt_form\\:pvtmsgs").DataTable({
-                    "paging": false,
-                    "info": false,
-                    "aaSorting": [[4, "desc"]],
-                    "columns": [
-                        {"bSortable": false, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": false, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true},
-                        {"bSortable": true, "bSearchable": false},
-                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received'}" />
-                        {"bSortable": true, "bSearchable": true},
-                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }"/>
-                        {"bSortable": true, "bSearchable": true},
-                        <h:outputText value="{\"bSortable\": false, \"bSearchable\": true}," rendered="#{PrivateMessagesTool.canUseTags}"/>
-                    ],
-                    "language": {
-                        "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
-                        "zeroRecords": <h:outputText value="'#{msgs.datatables_zeroRecords}'" />,
-                        "info": <h:outputText value="'#{msgs.datatables_info}'" />,
-                        "infoEmpty": <h:outputText value="'#{msgs.datatables_infoEmpty}'" />,
-                        "infoFiltered": <h:outputText value="'#{msgs.datatables_infoFiltered}'" />,
-                        "emptyTable": <h:outputText value="'#{msgs.datatables_infoEmpty}'" />,
-                        "paginate": {
-                            "next": <h:outputText value="'#{msgs.datatables_paginate_next}'" />,
-                            "previous": <h:outputText value="'#{msgs.datatables_paginate_previous}'" />,
-                        },
-                        "aria": {
-                            "sortAscending": <h:outputText value="'#{msgs.datatables_aria_sortAscending}'" />,
-                            "sortDescending": <h:outputText value="'#{msgs.datatables_aria_sortDescending}'" />,
-                        }
-                    }
-                });
+            const menuLink = document.getElementById('messagesMainMenuLink');
+            const menuLinkSpan = menuLink?.closest('span');
+            if (menuLinkSpan) {
+                menuLinkSpan.classList.add('current');
+                menuLinkSpan.textContent = menuLink.textContent;
             }
-            var notEmptyTableTdThread = $("#prefs_pvt_form\\:threaded_pvtmsgs td:not(:empty)").length;
-            if (notEmptyTableTdThread > 0) {
-                var tableThread = $("#prefs_pvt_form\\:threaded_pvtmsgs").DataTable({
+
+            const messagesTable = document.getElementById('prefs_pvt_form:pvtmsgs');
+            if (messagesTable?.querySelector('tbody td:not(:empty)')) {
+                new DataTable(messagesTable, {
                     "paging": false,
-                    "aaSorting": [[4, "desc"]],
+                    // the search box above the table filters it, see setupMessagesSearch
+                    "layout": {"topEnd": null},
                     "info": false,
+                    "order": [[4, "desc"]],
                     "columns": [
-                        {"bSortable": false, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": false, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true},
-                        {"bSortable": true, "bSearchable": false},
-                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{ PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' }" />
-                        {"bSortable": true, "bSearchable": true},
-                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }"/>
-                        {"bSortable": true, "bSearchable": true},
-                        <h:outputText value="{\"bSortable\": false, \"bSearchable\": true}," rendered="#{PrivateMessagesTool.canUseTags}" />
+                        {"orderable": false, "searchable": false},
+                        {"orderable": true, "searchable": false},
+                        {"orderable": false, "searchable": false},
+                        {"orderable": true, "searchable": true},
+                        {"orderable": true, "searchable": false},
+                        <h:outputText value="{\"orderable\": true, \"searchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received'}" />
+                        {"orderable": true, "searchable": true},
+                        <h:outputText value="{\"orderable\": true, \"searchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }"/>
+                        {"orderable": true, "searchable": true},
+                        <h:outputText value="{\"orderable\": false, \"searchable\": true}," rendered="#{PrivateMessagesTool.canUseTags}"/>
                     ],
                     "language": {
                         "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
@@ -119,9 +87,45 @@
                 });
             }
 
-            <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-                initTagSelector("prefs_pvt_form");
-            </f:verbatim>
+            const threadedMessagesTable = document.getElementById('prefs_pvt_form:threaded_pvtmsgs');
+            if (threadedMessagesTable?.querySelector('tbody td:not(:empty)')) {
+                new DataTable(threadedMessagesTable, {
+                    "paging": false,
+                    // the search box above the table filters it, see setupMessagesSearch
+                    "layout": {"topEnd": null},
+                    "order": [[4, "desc"]],
+                    "info": false,
+                    "columns": [
+                        {"orderable": false, "searchable": false},
+                        {"orderable": true, "searchable": false},
+                        {"orderable": false, "searchable": false},
+                        {"orderable": true, "searchable": true},
+                        {"orderable": true, "searchable": false},
+                        <h:outputText value="{\"orderable\": true, \"searchable\": false}," rendered="#{ PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' }" />
+                        {"orderable": true, "searchable": true},
+                        <h:outputText value="{\"orderable\": true, \"searchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }"/>
+                        {"orderable": true, "searchable": true},
+                        <h:outputText value="{\"orderable\": false, \"searchable\": true}," rendered="#{PrivateMessagesTool.canUseTags}" />
+                    ],
+                    "language": {
+                        "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
+                        "zeroRecords": <h:outputText value="'#{msgs.datatables_zeroRecords}'" />,
+                        "info": <h:outputText value="'#{msgs.datatables_info}'" />,
+                        "infoEmpty": <h:outputText value="'#{msgs.datatables_infoEmpty}'" />,
+                        "infoFiltered": <h:outputText value="'#{msgs.datatables_infoFiltered}'" />,
+                        "emptyTable": <h:outputText value="'#{msgs.datatables_infoEmpty}'" />,
+                        "paginate": {
+                            "next": <h:outputText value="'#{msgs.datatables_paginate_next}'" />,
+                            "previous": <h:outputText value="'#{msgs.datatables_paginate_previous}'" />,
+                        },
+                        "aria": {
+                            "sortAscending": <h:outputText value="'#{msgs.datatables_aria_sortAscending}'" />,
+                            "sortDescending": <h:outputText value="'#{msgs.datatables_aria_sortDescending}'" />,
+                        }
+                    }
+                });
+            }
+
     });
     </script>
 
@@ -250,11 +254,10 @@
 		  </h:column>
 		</h:dataTable>
 	  </h:panelGroup>
-	  <h:panelGroup layout="block" styleClass="table">
+	  <h:panelGroup layout="block" styleClass="table" rendered="#{PrivateMessagesTool.threadedView}">
 	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
-	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
 								 columnClasses="#{PrivateMessagesTool.calculateColumnClass()}">
 		 	<h:column>
 		    <f:facet name="header">

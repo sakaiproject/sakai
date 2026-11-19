@@ -8,6 +8,11 @@ var count = 0;
 
 
 SynMainLite.toggleHiddenRows = function(){
+	// Keep DataTables' column definition in sync with the hidden Options cells.
+	document.querySelectorAll(".workspaceTable colgroup col:first-child").forEach(column => {
+		column.classList.add("optionsTable");
+		column.style.display = "none";
+	});
 	jQuery("tr", $(".workspaceTable")).each(function(){
 		 if($(this.cells).size() >= 1){
 			$($(this.cells)[0]).addClass('optionsTable');

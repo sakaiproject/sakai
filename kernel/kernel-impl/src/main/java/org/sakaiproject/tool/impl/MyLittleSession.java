@@ -28,11 +28,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
-import javax.servlet.http.HttpSessionContext;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.collections4.iterators.IteratorEnumeration;
@@ -47,8 +46,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.SessionStore;
 import org.sakaiproject.tool.api.ToolSession;
 
-import com.carrotsearch.sizeof.ObjectTree;
-import com.carrotsearch.sizeof.RamUsageEstimator;
 import lombok.extern.slf4j.Slf4j;
 
 /**********************************************************************************************************************************************************************************************************************************************************
@@ -93,7 +90,6 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 	private transient SessionManager sessionManager;
 	private transient SessionStore sessionStore;
 	private transient ThreadLocalManager threadLocalManager;
-	private transient boolean TERRACOTTA_CLUSTER;
 	private transient NonPortableSession m_nonPortalSession;
 	private transient SessionAttributeListener sessionListener;
 
@@ -112,8 +108,6 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 		this.sessionListener = sessionListener;
 		m_created = System.currentTimeMillis();
 		m_accessed = m_created;
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 	}
 
     /**
@@ -165,18 +159,9 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 		
 		threadLocalManager = (ThreadLocalManager)compMgr.get(org.sakaiproject.thread_local.api.ThreadLocalManager.class); 
 		
-		// set the TERRACOTTA_CLUSTER flag
-		resolveTerracottaClusterProperty();
-		
 		m_nonPortalSession = new MyNonPortableSession();
 		
 		sessionListener = (SessionAttributeListener)compMgr.get(org.sakaiproject.tool.api.SessionBindingListener.class);
-	}
-	
-	protected void resolveTerracottaClusterProperty() 
-	{
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 	}
 
 	/**
@@ -310,40 +295,13 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 
 		else
 		{
-			if (log.isDebugEnabled()) {
-				// DO NOT USE this in a production system as calculating object sizes is very
-				// CPU intensive and is for debugging only. YOU HAVE BEEN WARNED.
-				try {
-					long size = RamUsageEstimator.sizeOf(value);
-					StringBuilder msg = new StringBuilder("sizeOf [tool context = ");
-					msg.append(this.m_littleId).append("]");
-					msg.append(":[").append(name).append(" => ").append(value.getClass().getName()).append("]");
-					msg.append(" size is ").append(RamUsageEstimator.humanReadableUnits(size));
-
-					if (log.isTraceEnabled()) {
-						// to get a dump of the object tree turn on trace level logging
-						// don't dump anything over 1MB
-						if (size <= 1048576 ) {
-							msg.append(", dumping object tree:\n");
-							msg.append(ObjectTree.dump(value));
-						} else {
-							msg.append(", object is over 1MB skipping dump\n");
-						}
-					}
-					log.debug("{}", msg);
-				} catch(Exception e) {
-					log.error("sizeOf could not calculate the size of [toolSession => attribute]:[{} => {}]",this.m_id, name, e);
-				}
-			}
+			log.debug("Setting tool-session attribute of type {}", value.getClass().getName());
 
 			Object old = null;
-			
-			// If this is not a terracotta clustered environment then immediately
-			// place the attribute in the normal data structure
-			// Otherwise, if this *IS* a TERRACOTTA_CLUSTER, then check the current
-			// tool id against the tool whitelist, to see if attributes from this
-			// tool should be clustered, or not.
-			if ((!TERRACOTTA_CLUSTER) || (sessionStore.isCurrentToolClusterable()))
+
+			// Store the attribute in the clustered map only if the current tool
+			// is allowed to be clustered; otherwise keep it in the non-portal session
+			if (sessionStore.isCurrentToolClusterable())
 			{
 				old = m_attributes.put(name, value);
 			}
@@ -494,7 +452,7 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 	/**
 	 * @inheritDoc
 	 */
-	public HttpSessionContext getSessionContext()
+	public Object getSessionContext()
 	{
 		throw new UnsupportedOperationException();
 	}

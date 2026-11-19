@@ -95,7 +95,7 @@ public class SemesterPage extends BasePage implements AcademicTermConstants{
 		private boolean visible;
 		
 		public PagingForm(String id, DataView<?> dv){			
-			super(id, Model.of(new Long(dv.getItemsPerPage())));
+			super(id, Model.of(Long.valueOf(dv.getItemsPerPage())));
 			this.theView = dv;
 			NumberTextField<Long> numField = new NumberTextField<Long>("pagecount", super.getModel());
 																		//(IModel<Long>)super.getDefaultModel());

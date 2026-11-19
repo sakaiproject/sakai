@@ -25,11 +25,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -308,9 +308,7 @@ public class ToolPortal extends HttpServlet
 
 				if (site != null)
 				{
-					String strMathJaxEnabledForSite = site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
-
-					if (StringUtils.isNotBlank(strMathJaxEnabledForSite) && Boolean.valueOf(strMathJaxEnabledForSite))
+					if (site.getProperties().getBooleanProperty(Site.PROP_SITE_MATHJAX_ALLOWED, true))
 					{
 						// In order to get MathJax to work on the site, the config and source has to be added to the header.
 						Element config = new Element("script");

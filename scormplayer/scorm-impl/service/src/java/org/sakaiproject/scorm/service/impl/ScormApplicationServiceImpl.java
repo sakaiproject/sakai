@@ -708,7 +708,7 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 			{
 				// Initialize the learner id
 				element = CMI_LEARNER_ID;
-				DMInterface.processSetValue(element, learner.getId(), true, ioSCOData, validatorFactory);
+				DMInterface.processSetValue(element, learner.getDisplayId(), true, ioSCOData, validatorFactory);
 
 				// Initialize the learner name
 				element = CMI_LEARNER_NAME;
@@ -902,7 +902,7 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 			{
 				try
 				{
-					cmiData.normalScore = (new Double(objScore));
+					cmiData.normalScore = (Double.valueOf(objScore));
 					sequencer.setAttemptObjMeasure(cmiData.activityId, objID, cmiData.normalScore);
 
 					if (foundPrimaryObj)
@@ -1031,7 +1031,7 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 			{
 				try
 				{
-					cmiData.normalScore = (new Double(cmiData.score));
+					cmiData.normalScore = (Double.valueOf(cmiData.score));
 					sequencer.setAttemptObjMeasure(cmiData.activityId, cmiData.primaryObjectiveId, cmiData.normalScore);
 				}
 				catch (Exception e)

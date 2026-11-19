@@ -28,10 +28,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.context.FacesContext;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -45,7 +45,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
  * @author rgollub@stanford.edu
  * $Id$
  */
-public class MatchingBean
+public final class MatchingBean implements MatchingEntry
 {
 	private final String NONE_OF_THE_ABOVE = "-1";
 

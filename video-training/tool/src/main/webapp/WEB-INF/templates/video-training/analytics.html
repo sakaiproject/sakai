@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head(#{video.training.analytics})}"></head>
+<body class="Mrphs-toolBody sakai-video-training">
+<div class="Mrphs-sakai-video-training portletBody container-fluid sakai-video-training">
+    <div th:replace="~{fragments/common :: menu('analytics', ${canManage}, ${canAnalytics}, ${canView})}"></div>
+    <div th:replace="~{fragments/common :: messages(${success}, ${error})}"></div>
+
+    <h1 class="h3" th:text="#{video.training.analytics}">Analytics</h1>
+
+    <form class="vt-search-view-toolbar mb-4" method="get">
+        <div class="vt-search-field">
+            <label class="form-label" for="categoryId" th:text="#{video.training.categories.title}">Categories</label>
+            <select class="form-select" id="categoryId" name="categoryId">
+                <option value="" th:text="#{video.training.categories.parent.root}">All categories</option>
+                <option th:each="row : ${analyticsCategoryRows}"
+                        th:value="${row.category.id}"
+                        th:selected="${selectedCategoryId != null and selectedCategoryId == row.category.id}"
+                        th:text="${#strings.repeat('— ', row.level) + row.category.name}">Category</option>
+            </select>
+        </div>
+        <div class="vt-search-actions align-self-end">
+            <button class="btn" type="submit" th:text="#{video.training.search.submit}">Filter</button>
+            <a class="btn" th:if="${selectedCategoryId != null}" th:href="@{/analytics}" th:text="#{video.training.search.clear}">Clear</a>
+        </div>
+    </form>
+
+    <div class="table-responsive" th:if="${!#lists.isEmpty(analytics)}">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+        <tr>
+            <th scope="col" th:text="#{video.training.analytics.video}">Video</th>
+            <th scope="col" th:text="#{video.training.analytics.views}">Views</th>
+            <th scope="col" th:text="#{video.training.analytics.unique}">Unique viewers</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="summary : ${analytics}" th:with="video=${videoById[summary.videoId]}">
+            <td>
+                <div class="d-flex align-items-center gap-3" th:if="${video != null}">
+                    <div class="vt-table-thumb-wrap">
+                        <video class="vt-table-thumb"
+                            th:if="${thumbnailIsVideoById[video.id]}"
+                            th:src="${thumbnailUrlById[video.id]}"
+                            data-thumb-retry="true"
+                            muted
+                            preload="metadata"
+                            playsinline
+                            aria-hidden="true">
+                        </video>
+
+                        <img class="vt-table-thumb"
+                            th:if="${!thumbnailIsVideoById[video.id] && !#strings.isEmpty(thumbnailUrlById[video.id])}"
+                            th:src="${thumbnailUrlById[video.id]}"
+                            data-thumb-retry="true"
+                            th:attr="alt=${video.title}">
+
+                        <div class="vt-video-thumb vt-video-thumb-placeholder"
+                            th:classappend="${!#strings.isEmpty(thumbnailUrlById[video.id])} ? ' vt-is-hidden' : ''">
+                            <span class="vt-video-thumb-play" aria-hidden="true">&#9658;</span>
+                        </div>
+                    </div>
+                    <div>
+                        <a class="fw-bold text-decoration-none" 
+                           th:href="@{/videos/{id}(id=${video.id})}" 
+                           th:text="${video.title}">
+                           Video title
+                        </a>
+                        <div class="vt-video-category-badges" th:if="${videoCategoryNamesById != null and !#lists.isEmpty(videoCategoryNamesById[video.id])}">
+                            <span class="badge rounded-pill text-bg-secondary me-1" th:each="categoryName : ${videoCategoryNamesById[video.id]}" th:text="${categoryName}">Category</span>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td th:text="${summary.viewCount}">0</td>
+            <td th:text="${summary.uniqueViewerCount}">0</td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+
+    <div class="sak-banner-info" role="status" th:if="${#lists.isEmpty(analytics)}" th:text="#{video.training.analytics.empty}">No analytics data available yet.</div>
+
+    <a class="btn btn-outline-secondary" th:href="@{/videos}" th:text="#{video.training.back}">Back</a>
+</div>
+<div th:replace="~{fragments/common :: jQuery}"></div>
+</body>
+</html>

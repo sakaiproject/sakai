@@ -20,12 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
@@ -86,6 +87,9 @@ public interface PrivateMessageManager {
 			final String contextId);
     public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final String userId, final String orderField,
     	      final String order);
+    public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final Collection<String> userIds);
+    public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final Collection<String> userIds,
+    		final Date from, final Date to);
 
 
     /**

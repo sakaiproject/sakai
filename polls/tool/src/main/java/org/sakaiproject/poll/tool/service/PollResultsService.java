@@ -46,7 +46,7 @@ public class PollResultsService {
     public PollResults buildResults(Poll poll, String siteId, Locale locale) {
         List<Vote> votes = pollsService.getAllVotesForPoll(poll.getId());
         int distinctVoters = pollsService.getDistinctVotersForPoll(poll);
-        int potentialVoters = pollsService.getNumberUsersCanVote(siteId);
+        int potentialVoters = pollsService.getNumberUsersCanVote(poll);
         return new PollResults(
                 buildResultRows(poll, votes, distinctVoters, potentialVoters, locale),
                 votes.size(),

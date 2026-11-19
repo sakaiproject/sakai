@@ -8,12 +8,7 @@
     	<category name="course" />
 		<category name="project" />
 
-		<!-- Sakai 2.2.x: For use with custom SAK-4120 patch -->
-		<configuration name="roles.allow" value="maintain,Instructor" />
-		<!-- <configuration name="roles.order" value="allow,deny" />
-		<configuration name="roles.deny" value="access,guest" /> -->
-		
-		<!-- Sakai 2.3.0, up -->
+		<!-- Portal visibility is gated by functions.require (sitestats.view). -->
 		<configuration name="functions.require" value="sitestats.view" />
 		
 	</tool>

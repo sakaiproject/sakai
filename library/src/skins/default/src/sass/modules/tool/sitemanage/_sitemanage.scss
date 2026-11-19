@@ -751,3 +751,62 @@ td.disabled{
 #printme.btn i {
   color: white;
 }
+
+#tool-order-app {
+  .tool-order-busy {
+    cursor: progress;
+  }
+
+  .tool-order-tool-icon {
+    color: var(--sakai-text-color-1);
+    font-size: 1.15rem;
+  }
+
+  .tool-order-title-block {
+    min-width: 0;
+  }
+
+  .tool-order-display {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    min-height: 2rem;
+  }
+
+  .tool-order-title {
+    overflow-wrap: anywhere;
+  }
+
+  .tool-order-edit-form {
+    border-top: 1px solid var(--sakai-border-color);
+    margin-top: 0.55rem;
+    padding-top: 0.65rem;
+  }
+
+  .tool-order-edit-fields {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: minmax(12rem, 1fr);
+    margin-bottom: 0.65rem;
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+  }
+
+  .tool-order-url-field {
+    min-width: 0;
+  }
+
+  .tool-order-empty {
+    color: var(--sakai-text-color-2);
+    margin-top: 1rem;
+  }
+
+  .tool-order-done-form {
+    display: inline;
+  }
+}
+

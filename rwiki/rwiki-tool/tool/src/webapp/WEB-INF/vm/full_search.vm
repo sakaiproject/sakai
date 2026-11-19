@@ -15,12 +15,7 @@
 				##  $homeBean $viewBean $resourceLoaderBean )
 				##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
 				#commandlinks(true false false ${rlb.jsp_view}	false  false false false false	${homeBean} false ${rlb} ) 
-				<li class="rwiki_searchBox">
-					<label for="searchField">${rlb.jsp_search}:</label>
-					<input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
-					<input type="hidden" name="panel" value="Main" />
-					<input type="text" id="searchField" name="search" />
-				</li>
+	    #searchBox()
 			</ul>
 		</form>
 	

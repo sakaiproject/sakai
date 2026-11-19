@@ -43,11 +43,6 @@
 		Update org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl set siteTitle = :siteTitle where siteId = :siteId
 	</query>
 	
-	<database-object>
-	  <create>create index MRF_SYN_USER on MFR_SYNOPTIC_ITEM (USER_ID)</create>
-	  <drop></drop>
-	  <dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
-	 </database-object>
 	
 	
 

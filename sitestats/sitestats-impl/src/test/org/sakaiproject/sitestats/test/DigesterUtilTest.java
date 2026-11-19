@@ -74,9 +74,19 @@ public class DigesterUtilTest {
 		assertEquals(0.75f, prefsData.getChartTransparency(), 0.001f);
 		assertFalse(prefsData.isItemLabelsVisible());
 		assertTrue(prefsData.isUseAllTools());
+		assertNull(prefsData.getGradesThreshold());
 		assertEquals(1, prefsData.getToolEventsDef().size());
 		assertEquals("sakai.resources", prefsData.getToolEventsDef().get(0).getToolId());
 		assertEquals("content.read", prefsData.getToolEventsDef().get(0).getEvents().get(0).getEventId());
+	}
+
+	@Test
+	public void parsePrefsReadsGradesThreshold() throws Exception {
+		String xml = "<prefs gradesThreshold=\"80\"/>";
+
+		PrefsData prefsData = DigesterUtil.parsePrefs(input(xml));
+
+		assertEquals(Double.valueOf(80), prefsData.getGradesThreshold());
 	}
 
 	@Test

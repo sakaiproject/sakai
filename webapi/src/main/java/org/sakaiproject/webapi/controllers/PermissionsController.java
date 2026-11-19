@@ -70,9 +70,10 @@ public class PermissionsController extends AbstractSakaiApiController {
     private SecurityService securityService;
 
     @GetMapping(value = "/sites/{siteId}/permissions/{tool}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getPermissions(@PathVariable String siteId, @PathVariable String tool, 
-                                             @RequestParam String ref, 
-                                             @RequestParam(required = false) String overrideRef) {
+    public Map<String, Object> getPermissions(@PathVariable("siteId") String siteId,
+                                             @PathVariable("tool") String tool,
+                                             @RequestParam("ref") String ref,
+                                             @RequestParam(name = "overrideRef", required = false) String overrideRef) {
 
         Session session = checkSakaiSession();
         final String siteRef = siteService.siteReference(siteId);
@@ -80,6 +81,11 @@ public class PermissionsController extends AbstractSakaiApiController {
         if (!authzGroupService.allowUpdate(siteRef)) {
             log.warn("User {} is forbidden from retrieving permissions for site {}", session.getUserId(), siteRef);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to update permissions for this site");
+        }
+
+        requireRealmAccess(siteId, ref);
+        if (StringUtils.isNotBlank(overrideRef)) {
+            requireRealmAccess(siteId, overrideRef);
         }
 
         Site site = getSiteById(siteId);
@@ -96,7 +102,10 @@ public class PermissionsController extends AbstractSakaiApiController {
         try {
             authzGroup = authzGroupService.getAuthzGroup(ref);
         } catch (GroupNotDefinedException e) {
-            // Instructor editing a folder that doesn't have a realm yet
+            // A new folder inherits the site's realm.
+            if (!isSiteContentReference(siteId, ref)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No realm for reference");
+            }
             authzGroup = siteAuthzGroup;
         }
 
@@ -105,7 +114,7 @@ public class PermissionsController extends AbstractSakaiApiController {
             String tempOverrideRef = overrideRef;
             boolean done = false;
             // We need to make sure the ref is for a content folder in this site
-            if (tempOverrideRef.matches("^/content/(group|group-user)/" + siteId + "/.*")) {
+            if (isSiteContentReference(siteId, tempOverrideRef)) {
                 // Keep trying parent folders until we find one with permissions or reach site level
                 while (!done) {
                     try {
@@ -139,8 +148,7 @@ public class PermissionsController extends AbstractSakaiApiController {
                 try {
                     overrideAuthzGroup = authzGroupService.getAuthzGroup(tempOverrideRef);
                 } catch (GroupNotDefinedException e) {
-                    // Use site's AuthzGroup
-                    overrideAuthzGroup = siteAuthzGroup;
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No override realm for reference");
                 }
             }
         }
@@ -193,9 +201,21 @@ public class PermissionsController extends AbstractSakaiApiController {
         }
     }
 
+    private boolean isSiteContentReference(String siteId, String reference) {
+        return reference != null && (reference.startsWith("/content/group/" + siteId + "/")
+            || reference.startsWith("/content/group-user/" + siteId + "/"));
+    }
+
+    private void requireRealmAccess(String siteId, String reference) {
+        if (!siteService.siteReference(siteId).equals(reference) && !isSiteContentReference(siteId, reference)
+                && !authzGroupService.allowUpdate(reference)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to access this realm");
+        }
+    }
+
     @PostMapping(value = "/sites/{siteId}/permissions")
-    public String setPermissions(@PathVariable String siteId, 
-                                @RequestParam String ref,
+    public String setPermissions(@PathVariable("siteId") String siteId,
+                                @RequestParam("ref") String ref,
                                 @RequestParam Map<String, String> params) {
 
         Session session = checkSakaiSession();
@@ -207,6 +227,7 @@ public class PermissionsController extends AbstractSakaiApiController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to update permissions for this site");
         }
 
+        requireRealmAccess(siteId, ref);
         List<String> userMutableFunctions = functionManager.getRegisteredUserMutableFunctions();
 
         AuthzGroup authzGroup;
@@ -215,7 +236,7 @@ public class PermissionsController extends AbstractSakaiApiController {
         } catch (GroupNotDefinedException e) {
             try {
                 // Only reason to be here is for a folder like /content/group/SITE_ID/FolderName/SubFolderName/
-                if (!ref.matches("^/content/(group|group-user)/" + siteId + "/.*")) {
+                if (!isSiteContentReference(siteId, ref)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reference format: " + ref);
                 }
                 authzGroup = authzGroupService.addAuthzGroup(ref);

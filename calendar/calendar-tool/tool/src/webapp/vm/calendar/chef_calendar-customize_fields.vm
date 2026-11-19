@@ -99,7 +99,7 @@
 								<label for="addedFields$addedFieldsCount">$formattedText.escapeHtml($fieldEntry)</label>
 							</td>
 							<td headers="checkbox">
-								<input type="checkbox" id="addedFields$addedFieldsCount"  name="$fieldEntry" value="$tlang.getString('cust.true')"  />
+								<input type="checkbox" id="addedFields$addedFieldsCount"  name="$formattedText.escapeHtml($fieldEntry, false)" value="$tlang.getString('cust.true')"  />
 							</td>
 						</tr>
 					#end

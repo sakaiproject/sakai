@@ -40,6 +40,11 @@ in your Sakai properties.
 Once you've configured your push settings, enable push by setting
 portal.notifications.push.enabled to true, and restart Sakai.
 
+Push endpoints must use HTTPS and resolve only to public addresses. Sakai connects
+directly to these destinations and does not follow redirects. Deployments with
+restricted outbound access must allow HTTPS connections to their browsers' push
+providers.
+
 ## Using Push on the client
 
 Notifications need to be permitted on the client browser. You know those

@@ -32,7 +32,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
@@ -119,9 +118,6 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
             protected Storage newStorage() {
                 return (Storage)getService(Storage.class.getName());
             }
-            protected MemoryService memoryService() {
-                return (MemoryService)getService(MemoryService.class.getName());
-            }
             protected IdManager idManager() {
                 return (IdManager)getService(IdManager.class.getName());
             }
@@ -203,6 +199,15 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
         eid = null;
         cleaned = userDirectoryService.cleanEid(eid);
         Assert.assertNull(cleaned);
+    }
+
+    /**
+     * A caller whose editUser() call failed has no UserEdit to cancel, so cancelEdit(null) must be a no-op.
+     */
+    @Test
+    public void testCancelEditIgnoresNullUserEdit() {
+        UserDirectoryService directoryService = (UserDirectoryService) getService(UserDirectoryService.class.getName());
+        directoryService.cancelEdit(null);
     }
 
 }

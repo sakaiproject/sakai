@@ -16,11 +16,22 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.RequestOptions;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -32,6 +43,43 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class LessonsTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
+
+    /** Anonymous visitors cannot use a Lessons page to probe link MIME types. */
+    @Test
+    void anonymousVisitorsCannotProbeLinkTypes() {
+        APIResponse response = page.request().get("/lessonbuilder-tool/ajax",
+            RequestOptions.create().setQueryParam("op", "getmimetype")
+                .setQueryParam("url", "http://127.0.0.1:1/image.png"));
+        try {
+            assertEquals(401, response.status());
+        } finally {
+            response.dispose();
+        }
+    }
+
+    /** Students cannot probe MIME types on Lessons pages they cannot edit. */
+    @Test
+    void studentsCannotProbeLinkTypesOnCourseLessonPages() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
+        sakai.addMemberToSite(siteUrl, "student0011", "Student");
+
+        sakai.login("student0011");
+        page.navigate(siteUrl);
+        sakai.toolClick("Lessons");
+        String pageId = page.locator("#lessonsCurrentPageId").inputValue();
+        String csrfToken = page.locator("#add-multimedia-dialog input[name='csrf9']").inputValue();
+
+        APIResponse response = page.request().get("/lessonbuilder-tool/ajax",
+            RequestOptions.create().setQueryParam("op", "getmimetype")
+                .setQueryParam("pageId", pageId).setHeader("X-CSRF-Token", csrfToken)
+                .setQueryParam("url", "http://127.0.0.1:1/image.png"));
+        try {
+            assertEquals(403, response.status());
+        } finally {
+            response.dispose();
+        }
+    }
 
     @Test
     @Order(1)
@@ -74,5 +122,376 @@ class LessonsTest extends SakaiUiTestBase {
 
         page.locator("#save").click(new Locator.ClickOptions().setForce(true));
         assertThat(page.locator("#content")).isVisible();
+    }
+
+    @Test
+    @Order(3)
+    void canPromoteOnlySubpagesToSiteNavigation() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+
+        addSubpage("Promote Me");
+
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Back").setExact(true)).first().click();
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("Promote Me").setExact(true))).isVisible();
+        openAddMorePages();
+        chooseExistingPageForSiteNavigation();
+
+        Locator lessonsRadio = page.locator("input[type=radio][title^=\"Lessons \"]").first();
+        assertThat(lessonsRadio).isDisabled();
+        lessonsRadio.evaluate("element => element.removeAttribute('disabled')");
+        lessonsRadio.check();
+        useSelectedItem();
+        assertThat(page.locator("body")).containsText("The page could not be added to site navigation.");
+        Locator currentSiteNavigation = page.locator("li.site-list-item.is-current-site .site-page-list a.btn-nav");
+        assertThat(currentSiteNavigation.filter(new Locator.FilterOptions()
+            .setHasText(Pattern.compile("^\\s*Lessons\\s*$", Pattern.CASE_INSENSITIVE)))).hasCount(1);
+
+        openAddMorePages();
+        chooseExistingPageForSiteNavigation();
+        Locator subpageRadio = page.locator("input[type=radio][title^=\"Promote Me \"]").first();
+        assertThat(subpageRadio).isEnabled();
+        subpageRadio.check();
+        useSelectedItem();
+
+        sakai.toolClick("Promote Me");
+        assertThat(page.locator(".neoPortletTitleWrap")).containsText("Promote Me");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
+        Locator moreToolsDialog = page.locator("#moreDiv");
+        assertThat(moreToolsDialog).isVisible();
+        assertThat(moreToolsDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add More Pages").setExact(true))).isVisible();
+    }
+
+    @Test
+    @Order(4)
+    void canRestoreTopLevelPageRemovedViaMoreTools() {
+        restoreTopLevelPageAfterRemoval("Restore More Tools", this::removeTopLevelPageViaMoreTools);
+    }
+
+    @Test
+    @Order(5)
+    void canRestoreTopLevelPageRemovedViaManageTools() {
+        restoreTopLevelPageAfterRemoval("Restore Manage Tools", this::removeTopLevelPageViaManageTools);
+    }
+
+    @Test
+    @Order(6)
+    void canRestoreTopLevelPageRemovedViaToolOrder() {
+        restoreTopLevelPageAfterRemoval("Restore Tool Order", this::removeTopLevelPageViaToolOrder);
+    }
+
+    /** Adding and resizing a loopback image preserves its client-detected MIME type without a server-side probe. */
+    @Test
+    @Order(7)
+    void resizingEmbeddedImagePreservesItsMediaType() throws IOException {
+        if (sakaiUrl == null) {
+            canCreateNewCourse();
+        }
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+
+        String pageId = page.locator("#lessonsCurrentPageId").inputValue();
+        Locator addDialog = page.locator("#add-multimedia-dialog");
+        String csrfToken = addDialog.locator("input[name='csrf9']").inputValue();
+
+        // The browser can load the image even though Sakai must not probe loopback.
+        AtomicInteger requests = new AtomicInteger();
+        HttpServer imageServer = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        byte[] png = Base64.getDecoder().decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgKF/1HwADvQIhA4EOVwAAAABJRU5ErkJggg==");
+        imageServer.createContext("/image.png", exchange -> {
+            requests.incrementAndGet();
+            exchange.getResponseHeaders().set("Content-Type", "image/png");
+            exchange.sendResponseHeaders(200, png.length);
+            try (OutputStream response = exchange.getResponseBody()) {
+                response.write(png);
+            }
+        });
+        imageServer.start();
+        try {
+            String imageUrl = "http://127.0.0.1:" + imageServer.getAddress().getPort()
+                + "/image.png?regression=SAK-52825";
+            APIResponse mime = page.request().get("/lessonbuilder-tool/ajax",
+                RequestOptions.create().setQueryParam("op", "getmimetype").setQueryParam("url", imageUrl)
+                    .setQueryParam("pageId", pageId).setHeader("X-CSRF-Token", csrfToken));
+            try {
+                assertEquals(200, mime.status());
+                assertTrue(mime.text().trim().startsWith("image/"));
+                assertEquals(0, requests.get(), "Sakai must not fetch the loopback image");
+            } finally {
+                mime.dispose();
+            }
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+            page.locator("#addContentDiv .add-multimedia").click();
+            assertThat(addDialog).isVisible();
+            addDialog.locator("#new-url-section-collapse").click();
+            addDialog.locator("#mm-url").fill(imageUrl);
+            addDialog.locator("#mm-add-item").click();
+
+            Locator embeddedImage = page.locator("img.multimedia");
+            assertThat(embeddedImage).hasAttribute("src", imageUrl);
+            assertThat(embeddedImage).hasJSProperty("naturalWidth", 1);
+            assertThat(embeddedImage).isVisible();
+            embeddedImage.hover();
+            page.locator(".image-col .multimedia-edit").click();
+            Locator editDialog = page.locator("#edit-multimedia-dialog");
+            assertThat(editDialog).isVisible();
+            editDialog.locator("#width").fill("120");
+            editDialog.locator("#height").fill("80");
+            editDialog.locator("#alt").fill("Resized logo");
+            editDialog.locator("#edit-multimedia-item").click();
+
+            assertThat(embeddedImage).isVisible();
+            assertThat(embeddedImage).hasAttribute("width", "120");
+            assertThat(embeddedImage).hasAttribute("height", "80");
+            assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
+            page.reload();
+            assertThat(embeddedImage).isVisible();
+            assertThat(embeddedImage).hasAttribute("width", "120");
+            assertThat(embeddedImage).hasAttribute("height", "80");
+            assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
+            assertThat(page.locator(".image-col .mm-type")).hasText("image/unknown");
+        } finally {
+            imageServer.stop(0);
+        }
+    }
+
+    @Test
+    @Order(8)
+    void manageToolsListsLessonsPageOnlyOnce() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
+        page.navigate(siteUrl);
+        sakai.toolClick("Lessons");
+        assertThat(page.locator("#content")).isVisible();
+
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Manage Tools").setExact(true)).click();
+
+        Locator lessonsCheckboxes = page.locator(
+            "#toolHolder input[name=\"selectedTools\"][value$=\"sakai.lessonbuildertool\"]");
+        assertThat(lessonsCheckboxes).hasCount(2);
+        assertThat(page.locator("#toolHolder input[id=\"sakai.lessonbuildertool\"]")).hasCount(1);
+        Locator lessonsPage = page.locator(
+            "#toolHolder .indnt3 input[name=\"selectedTools\"][value$=\"sakai.lessonbuildertool\"]");
+        assertThat(lessonsPage).hasCount(1);
+        assertThat(lessonsPage).isChecked();
+    }
+
+    @Test
+    @Order(9)
+    void hiddenTopLevelPageStaysOutOfStudentNavigation() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
+        sakai.addMemberToSite(siteUrl, "student0011", "Student");
+        page.navigate(siteUrl);
+        sakai.toolClick("Lessons");
+        createTopLevelPage("Hidden navigation page");
+
+        page.locator("#edit-title").click();
+        Locator settings = page.locator("#edit-title-dialog");
+        settings.locator("input[type=radio][value=hideFromNav]").check();
+        settings.locator("input[type=submit]").click();
+        page.navigate(siteUrl);
+        assertNavigationLinkCount("Hidden navigation page", 1);
+        assertNavigationLinkCount("Lessons", 1);
+
+        sakai.login("student0011");
+        page.navigate(siteUrl);
+        assertNavigationLinkCount("Hidden navigation page", 0);
+        assertNavigationLinkCount("Lessons", 1);
+        page.reload();
+        assertNavigationLinkCount("Hidden navigation page", 0);
+
+        sakai.login("instructor1");
+        page.navigate(siteUrl);
+        sakai.toolClick("Hidden navigation page");
+        page.locator("#edit-title").click();
+        settings.locator("input[type=radio][value=visible]").check();
+        settings.locator("input[type=submit]").click();
+        sakai.login("student0011");
+        page.navigate(siteUrl);
+        assertNavigationLinkCount("Hidden navigation page", 1);
+    }
+
+    private void restoreTopLevelPageAfterRemoval(String title, java.util.function.Consumer<String> removePage) {
+        if (sakaiUrl == null) {
+            canCreateNewCourse();
+        }
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+
+        createTopLevelPage(title);
+        assertNavigationLinkCount(title, 1);
+
+        removePage.accept(title);
+        assertNavigationLinkCount(title, 0);
+
+        sakai.toolClick("Lessons");
+        openAddMorePages();
+        chooseExistingPageForSiteNavigation();
+        Locator removedRadio = page.locator("#removed-pages input[type=radio][title^=\"" + title + " \"]").first();
+        assertThat(removedRadio).isEnabled();
+        removedRadio.check();
+        useSelectedItem();
+
+        sakai.toolClick(title);
+        assertThat(page.locator(".neoPortletTitleWrap")).containsText(title);
+        assertNavigationLinkCount(title, 1);
+    }
+
+    private void createTopLevelPage(String title) {
+        openAddMorePages();
+        Locator newPageDialog = page.locator("#new-page-dialog");
+        newPageDialog.locator("#newPage").fill(title);
+        newPageDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Save").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        sakai.toolClick(title);
+        assertThat(page.locator(".neoPortletTitleWrap")).containsText(title);
+    }
+
+    private void removeTopLevelPageViaMoreTools(String title) {
+        sakai.toolClick(title);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
+        Locator moreToolsDialog = page.locator("#moreDiv");
+        assertThat(moreToolsDialog).isVisible();
+        moreToolsDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Remove Page").setExact(true)).click();
+        assertThat(page.locator("#remove-page-dialog")).isVisible();
+        page.locator("#remove-page-submit").click();
+        page.waitForURL(Pattern.compile(".*/portal/site/.*"));
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+    }
+
+    private void removeTopLevelPageViaManageTools(String title) {
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool a, .navIntraTool button")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Tools$", Pattern.CASE_INSENSITIVE)))
+            .first()
+            .click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        Locator expandAll = page.locator("#expandAll");
+        if (expandAll.count() > 0 && expandAll.isVisible()) {
+            expandAll.click(new Locator.ClickOptions().setForce(true));
+        }
+
+        Locator checkbox = page.locator("#toolHolder .toolListControl")
+            .filter(new Locator.FilterOptions().setHas(page.getByText(title,
+                new Page.GetByTextOptions().setExact(true))))
+            .locator("input[type=\"checkbox\"][name=\"selectedTools\"]")
+            .first();
+        if (checkbox.count() == 0) {
+            checkbox = page.getByRole(AriaRole.CHECKBOX,
+                new Page.GetByRoleOptions().setName(title).setExact(true)).first();
+        }
+        assertThat(checkbox).isVisible();
+        assertThat(checkbox).isChecked();
+        checkbox.uncheck(new Locator.UncheckOptions().setForce(true));
+
+        page.locator("#btnContinue").click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        clickContinueOrFinish();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.navigate(sakaiUrl);
+        assertNavigationLinkCount(title, 0);
+    }
+
+    private void removeTopLevelPageViaToolOrder(String title) {
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Tool Order").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        Locator app = page.locator("#tool-order-app");
+        assertThat(app).isVisible();
+
+        Locator row = page.locator(".tool-order-row")
+            .filter(new Locator.FilterOptions().setHas(page.getByText(title,
+                new Page.GetByTextOptions().setExact(true))))
+            .first();
+        if (row.count() == 0) {
+            row = page.locator(".tool-order-row")
+                .filter(new Locator.FilterOptions().setHasText(title))
+                .first();
+        }
+        assertThat(row).isVisible();
+        Locator deleteButton = row.locator("[data-action=\"delete\"]");
+        assertThat(deleteButton).isVisible();
+        page.onceDialog(dialog -> dialog.accept());
+        deleteButton.click();
+        assertThat(page.locator("#tool-order-alert"))
+            .containsText(Pattern.compile("successfully removed", Pattern.CASE_INSENSITIVE));
+        assertThat(page.locator(".tool-order-row")
+            .filter(new Locator.FilterOptions().setHasText(title))).hasCount(0);
+
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName(Pattern.compile("Done", Pattern.CASE_INSENSITIVE))).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.navigate(sakaiUrl);
+        assertNavigationLinkCount(title, 0);
+    }
+
+    private void assertNavigationLinkCount(String title, int expectedCount) {
+        Locator currentSiteNavigation = page.locator(
+            "li.site-list-item.is-current-site .site-page-list a.btn-nav");
+        // Count exact labels in the DOM, including links in collapsed tool lists.
+        assertThat(currentSiteNavigation.filter(new Locator.FilterOptions()
+            .setHas(page.getByText(title, new Page.GetByTextOptions().setExact(true)))))
+            .hasCount(expectedCount);
+    }
+
+    private void clickContinueOrFinish() {
+        Locator button = page.locator(
+            "input#revise, input[type=\"submit\"][value*=\"Finish\"], button:has-text(\"Finish\"), "
+                + "input[type=\"submit\"][value*=\"Continue\"], button:has-text(\"Continue\")"
+        ).first();
+        assertThat(button).isVisible();
+        button.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+    }
+
+    private void addSubpage(String title) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+
+        Locator addContentDialog = page.locator("#addContentDiv");
+        assertThat(addContentDialog).isVisible();
+        addContentDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add Subpage").setExact(true)).click();
+
+        Locator subpageDialog = page.locator("#subpage-dialog");
+        assertThat(subpageDialog).isVisible();
+        subpageDialog.locator("#subpage-title").fill(title);
+        subpageDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Create").setExact(true)).click();
+
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
+    }
+
+    private void openAddMorePages() {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
+        Locator moreToolsDialog = page.locator("#moreDiv");
+        assertThat(moreToolsDialog).isVisible();
+        moreToolsDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add More Pages").setExact(true)).click();
+        assertThat(page.locator("#new-page-dialog")).isVisible();
+    }
+
+    private void chooseExistingPageForSiteNavigation() {
+        page.locator("#new-page-dialog").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
+    }
+
+    private void useSelectedItem() {
+        page.locator(".PagePicker").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("Use selected item", Pattern.CASE_INSENSITIVE))).click();
     }
 }

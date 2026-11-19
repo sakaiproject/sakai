@@ -24,39 +24,45 @@ package org.sakaiproject.poll.api.model;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.Table;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
+import org.sakaiproject.springframework.data.PersistableEntity;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.springframework.data.PersistableEntity;
 
 @Data
 @Entity
@@ -64,6 +70,11 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 @Table(name = "POLL_POLL")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Poll implements PersistableEntity<String> {
+
+    public enum Access {
+        SITE,
+        GROUP
+    }
 
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -83,12 +94,12 @@ public class Poll implements PersistableEntity<String> {
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
-    @Column(name = "POLL_TEXT", nullable = false)
+    @Column(name = "POLL_TEXT", nullable = false, length = Length.LONG32)
     private String text;
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
-    @Column(name = "POLL_DETAILS")
+    @Column(name = "POLL_DETAILS", length = Length.LONG32)
     private String description;
 
     @Column(name = "POLL_MIN_OPTIONS", nullable = false)
@@ -117,6 +128,18 @@ public class Poll implements PersistableEntity<String> {
     @Column(name = "POLL_IS_PUBLIC", nullable = false)
     private boolean isPublic = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ACCESS_TYPE", nullable = false, length = 10)
+    private Access typeOfAccess = Access.SITE;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "POLL_GROUPS",
+        joinColumns = @JoinColumn(name = "POLL_ID")
+    )
+    @Column(name = "GROUP_ID", length = 99, nullable = false)
+    private Set<String> groupIds = new HashSet<>();
+
     public Poll() {
         this.text = "";
         this.description = "";
@@ -124,9 +147,26 @@ public class Poll implements PersistableEntity<String> {
         this.maxOptions = 1;
         this.limitVoting = true;
         this.isPublic = false;
+        this.typeOfAccess = Access.SITE;
         this.voteOpen = Instant.now();
         this.voteClose = Instant.now().plus(7, ChronoUnit.DAYS);
         this.displayResult = "open";
+    }
+
+    /**
+     * Options of this poll in OPTION_ORDER order. Hibernate fills gaps in
+     * OPTION_ORDER (e.g. 0, 2, 3 in legacy data) with null elements, which would
+     * make every caller fail. In that case a copy without the nulls is returned;
+     * otherwise the managed collection is returned, so callers can still reorder
+     * options by modifying it.
+     *
+     * @return the options in OPTION_ORDER order, without nulls
+     */
+    public List<Option> getOptions() {
+        if (options.stream().noneMatch(Objects::isNull)) {
+            return options;
+        }
+        return options.stream().filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
@@ -160,6 +200,9 @@ public class Poll implements PersistableEntity<String> {
     private static final String MIN_OPTIONS = "min-options";
     private static final String MAX_OPTIONS = "max-options";
     private static final String DISPLAY_RESULT = "display-result";
+    private static final String ACCESS_TYPE = "access-type";
+    private static final String GROUP_IDS = "groupIds";
+    private static final String GROUP_ID = "groupId";
 
     public static Poll fromXML(Element element) {
         Poll poll = new Poll();
@@ -199,6 +242,36 @@ public class Poll implements PersistableEntity<String> {
             }
         }
         poll.setLimitVoting(Boolean.parseBoolean(element.getAttribute(LIMIT_VOTING)));
+
+        String accessType = element.getAttribute(ACCESS_TYPE);
+        if (accessType != null && !accessType.isBlank()) {
+            try {
+                poll.setTypeOfAccess(Access.valueOf(accessType));
+            } catch (IllegalArgumentException e) {
+                log.warn("Ignoring invalid poll access type {} while reading XML for poll {}", accessType, poll.getId());
+            }
+        }
+
+        Set<String> groupIds = new HashSet<>();
+        if (poll.getTypeOfAccess() == Access.GROUP) {
+            NodeList children = element.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE && GROUP_IDS.equals(child.getNodeName())) {
+                    NodeList groupIdNodes = child.getChildNodes();
+                    for (int j = 0; j < groupIdNodes.getLength(); j++) {
+                        Node groupIdNode = groupIdNodes.item(j);
+                        if (groupIdNode.getNodeType() == Node.ELEMENT_NODE && GROUP_ID.equals(groupIdNode.getNodeName())) {
+                            String groupId = groupIdNode.getTextContent();
+                            if (groupId != null && !groupId.trim().isEmpty()) {
+                                groupIds.add(groupId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        poll.setGroupIds(groupIds);
         return poll;
     }
 
@@ -230,6 +303,22 @@ public class Poll implements PersistableEntity<String> {
         poll.setAttribute(VOTE_CLOSE, dformat.format(Date.from(this.voteClose)));
         poll.setAttribute(LIMIT_VOTING, Boolean.toString(limitVoting));
         poll.setAttribute(DISPLAY_RESULT, this.displayResult);
+        poll.setAttribute(ACCESS_TYPE, (this.typeOfAccess != null ? this.typeOfAccess : Access.SITE).name());
+
+        if (groupIds != null && !groupIds.isEmpty()) {
+            Element groupIdsElement = doc.createElement(GROUP_IDS);
+            for (String groupId : groupIds) {
+                if (groupId == null || groupId.trim().isEmpty()) {
+                    continue;
+                }
+                Element groupIdElement = doc.createElement(GROUP_ID);
+                groupIdElement.setTextContent(groupId);
+                groupIdsElement.appendChild(groupIdElement);
+            }
+            if (groupIdsElement.hasChildNodes()) {
+                poll.appendChild(groupIdsElement);
+            }
+        }
 
         // properties
         //getProperties().toXml(doc, stack);

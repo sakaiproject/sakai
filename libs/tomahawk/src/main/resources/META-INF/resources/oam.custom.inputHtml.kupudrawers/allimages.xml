@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<?oxygen RNGSchema="file:libraries.rng" type="xml"?>
+<collection id="collection-allimages.xml">
+    <uri>kupudrawers/allimages.xml</uri>
+    <icon>kupuimages/kupulibrary.png</icon>
+    <title>All images</title>
+    <src>kupudrawers/allimages.xml</src>
+    <breadcrumbs><crumb href="top">top</crumb><crumb href="sub">Kupubuttons</crumb></breadcrumbs>
+    <items>
+        <collection id="logos">
+            <uri>kupudrawers/logos.xml</uri>
+            <title>Logo's</title>
+            <src>kupudrawers/logos.xml</src>
+            <icon>kupuimages/kupulibrary.png</icon>
+        </collection>
+        <resource id="kupubuttons">
+            <uri>kupudrawers/kupubuttons.xml</uri>
+            <title>Kupu buttons</title>
+            <src>kupudrawers/kupubuttons.xml</src>
+            <icon>kupuimages/kupulibrary.png</icon>
+            <description>Button collection</description>
+        </resource>
+    </items>
+</collection>

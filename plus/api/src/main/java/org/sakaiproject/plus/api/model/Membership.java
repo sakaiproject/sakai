@@ -16,19 +16,19 @@
 
 package org.sakaiproject.plus.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Lob;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Lob;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -48,8 +48,7 @@ public class Membership extends BaseLTI implements PersistableEntity<Long> {
 
 	@Id
 	@Column(name = "MEMBERSHIP_ID")
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "plus_membership_id_sequence")
-	@SequenceGenerator(name = "plus_membership_id_sequence", sequenceName = "PLUS_MEMBERSHIP_S")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "plus_membership_id_sequence", sequenceName = "PLUS_MEMBERSHIP_S"))
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -65,11 +64,11 @@ public class Membership extends BaseLTI implements PersistableEntity<Long> {
 	private Context context;
 
 	@Lob
-	@Column(name = "LTI_ROLES", nullable = true)
+	@Column(name = "LTI_ROLES", nullable = true, length = Length.LONG32)
 	private String ltiRoles;
 
 	@Lob
-	@Column(name = "LTI_ROLES_OVERRIDE", nullable = true)
+	@Column(name = "LTI_ROLES_OVERRIDE", nullable = true, length = Length.LONG32)
 	private String ltiRolesOverride;
 
 	public boolean isInstructor() {

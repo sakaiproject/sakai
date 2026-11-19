@@ -1,11 +1,21 @@
-/**
- * Copyright (c) 2026 The Apereo Foundation
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
  *
- * Licensed under the Educational Community License, Version 2.0.
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.sakaiproject.sitestats.impl.view;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
 import lombok.Setter;
 
@@ -13,12 +23,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 @Setter
-public class SiteStatsReportAccess {
+public class SiteStatsReportAccess implements SiteStatsReportAccessService {
 
 	private StatsAuthz statsAuthz;
 	private ReportManager reportManager;
@@ -26,14 +37,27 @@ public class SiteStatsReportAccess {
 	private SessionManager sessionManager;
 	private SiteStatsWidgetCatalog siteStatsWidgetCatalog;
 
-	ReportDef persistedReportDefinition(long reportId) {
+	@Override
+	public ReportDef persistedReportDefinition(String siteId, long reportId) {
+		assertCanViewAll(siteId);
+		return loadReportDefinition(siteId, reportId, true);
+	}
+
+	@Override
+	public ReportDef persistedSiteReportDefinition(String siteId, long reportId) {
+		assertCanViewAll(siteId);
+		return loadReportDefinition(siteId, reportId, false);
+	}
+
+	private ReportDef loadReportDefinition(String siteId, long reportId, boolean allowPredefined) {
 		if (reportId <= 0) {
 			throw new IllegalArgumentException("Unknown report id: " + reportId);
 		}
 
 		try {
 			ReportDef reportDef = reportManager.getReportDefinition(reportId);
-			if (reportDef != null) {
+			if (reportDef != null && (siteId.equals(reportDef.getSiteId())
+					|| (allowPredefined && StringUtils.isBlank(reportDef.getSiteId())))) {
 				return reportDef;
 			}
 		} catch (EntityNotFoundException e) {
@@ -42,7 +66,9 @@ public class SiteStatsReportAccess {
 		throw new IllegalArgumentException("Unknown report id: " + reportId);
 	}
 
-	ReportDef previewReportDefinition(String siteId, String previewId) {
+	@Override
+	public ReportDef previewReportDefinition(String siteId, String previewId) {
+		assertCanViewAll(siteId);
 		ReportDef reportDef = siteStatsReportPreviewService == null ? null : siteStatsReportPreviewService.get(siteId, currentUserId(), previewId);
 		if (reportDef == null) {
 			throw new IllegalArgumentException("Unknown report preview id: " + previewId);
@@ -50,7 +76,8 @@ public class SiteStatsReportAccess {
 		return reportDef;
 	}
 
-	String currentUserId() {
+	@Override
+	public String currentUserId() {
 		if (sessionManager == null) {
 			throw new SecurityException("Current Sakai session is required to access SiteStats reports");
 		}
@@ -61,7 +88,8 @@ public class SiteStatsReportAccess {
 		return session.getUserId();
 	}
 
-	void assertCanView(String siteId) {
+	@Override
+	public void assertCanView(String siteId) {
 		if (!statsAuthz.isUserAbleToViewSiteStats(siteId)) {
 			throw new SecurityException("Current user cannot view SiteStats for site " + siteId);
 		}
@@ -79,19 +107,25 @@ public class SiteStatsReportAccess {
 		return statsAuthz.isUserAbleToViewSiteStatsAdmin(siteId);
 	}
 
-	void assertCanViewAdmin(String siteId) {
+	@Override
+	public void assertCanViewAdmin(String siteId) {
 		assertCanView(siteId);
 		if (!statsAuthz.isUserAbleToViewSiteStatsAdmin(siteId)) {
 			throw new SecurityException("Current user cannot view admin SiteStats data for site " + siteId);
 		}
 	}
 
-	void assertCanViewAll(String siteId) {
+	@Override
+	public void assertCanViewAll(String siteId) {
 		assertCanView(siteId);
 		assertCanViewAllStats(siteId);
 	}
 
 	void assertCanViewWidget(String siteId, String widgetId) {
+		if (siteStatsWidgetCatalog.isAdminOnlyWidget(widgetId)) {
+			assertCanViewAdmin(siteId);
+			return;
+		}
 		assertCanView(siteId);
 		if (siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId)) {
 			assertCanViewOwn(siteId);
@@ -101,6 +135,11 @@ public class SiteStatsReportAccess {
 	}
 
 	void assertCanViewMetric(String siteId, String widgetId, String metricId) {
+		if (siteStatsWidgetCatalog.isAdminOnlyMetric(widgetId, metricId)
+				|| siteStatsWidgetCatalog.isAdminOnlyWidget(widgetId)) {
+			assertCanViewAdmin(siteId);
+			return;
+		}
 		assertCanView(siteId);
 		if (siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId)) {
 			assertCanViewOwn(siteId);

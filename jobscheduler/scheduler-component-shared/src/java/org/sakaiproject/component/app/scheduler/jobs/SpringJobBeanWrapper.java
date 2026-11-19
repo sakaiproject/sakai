@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

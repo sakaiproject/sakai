@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.elfinder.controller.executors;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.json.JSONObject;
 

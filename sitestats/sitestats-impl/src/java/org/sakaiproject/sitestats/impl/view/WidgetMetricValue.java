@@ -21,6 +21,10 @@ class WidgetMetricValue {
 		return new WidgetMetricValue(primary, null, null);
 	}
 
+	static WidgetMetricValue unavailable(String label) {
+		return new WidgetMetricValue(label, null, null);
+	}
+
 	static WidgetMetricValue withPercentage(String primary, int percentage) {
 		return new WidgetMetricValue(primary, Integer.valueOf(percentage), null);
 	}

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import javax.mail.internet.MimeUtility;
+import jakarta.mail.internet.MimeUtility;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.AliasService;

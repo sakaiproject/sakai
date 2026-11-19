@@ -53,28 +53,22 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Slf4j
 public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroniser {
 
-    private UserFinderOrCreator userFinderOrCreator = null;
-    public void setUserFinderOrCreator(UserFinderOrCreator userFinderOrCreator) {
-        this.userFinderOrCreator = userFinderOrCreator;
-    }
+    @Autowired
+    private UserFinderOrCreator userFinderOrCreator;
 
+    @Autowired
     private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
 
-    private SiteMembershipUpdater siteMembershipUpdater = null;
-    public void setSiteMembershipUpdater(SiteMembershipUpdater siteMembershipUpdater) {
-        this.siteMembershipUpdater = siteMembershipUpdater;
-    }
+    @Autowired
+    private SiteMembershipUpdater siteMembershipUpdater;
 
-    private SiteService siteService = null;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
+    @Autowired
+    private SiteService siteService;
 
 	private void pushAdvisor() {
 
@@ -127,7 +121,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         om.addParameter(OAuth.OAUTH_CONSUMER_KEY, oauth_consumer_key);
         om.addParameter(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
         om.addParameter(OAuth.OAUTH_VERSION, "1.0");
-        om.addParameter(OAuth.OAUTH_TIMESTAMP, new Long((new Date().getTime()) / 1000).toString());
+        om.addParameter(OAuth.OAUTH_TIMESTAMP, Long.valueOf((new Date().getTime()) / 1000).toString());
         om.addParameter(OAuth.OAUTH_NONCE, UUID.randomUUID().toString());
         om.addParameter(LTIConstants.LTI_MESSAGE_TYPE, "basic-lis-readmembershipsforcontext");
         om.addParameter(LTIConstants.LTI_VERSION, "LTI-1p0");
@@ -198,7 +192,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         om.addParameter("oauth_consumer_key", oauth_consumer_key);
         om.addParameter("oauth_signature_method", "HMAC-SHA1");
         om.addParameter("oauth_version", "1.0");
-        om.addParameter("oauth_timestamp", new Long(new Date().getTime()).toString());
+        om.addParameter("oauth_timestamp", Long.valueOf(new Date().getTime()).toString());
 
         OAuthConsumer oc = new OAuthConsumer(null, oauth_consumer_key, oauth_secret, null);
 

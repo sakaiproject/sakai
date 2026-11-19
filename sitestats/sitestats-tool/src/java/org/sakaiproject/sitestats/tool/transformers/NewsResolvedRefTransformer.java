@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.news.FeedData;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -36,10 +35,10 @@ public class NewsResolvedRefTransformer
 	/**
 	 * Transforms FeedData for presentation to the user
 	 * @param feed the data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(FeedData feed, ResourceLoader rl)
+	public static List<EventDetail> transform(FeedData feed, LocalizedMessages rl)
 	{
 		return Collections.singletonList(EventDetail.newText(rl.getString("de_news_feed"), feed.title));
 	}

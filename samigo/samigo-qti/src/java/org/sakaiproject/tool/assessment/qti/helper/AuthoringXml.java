@@ -21,13 +21,14 @@
 
 package org.sakaiproject.tool.assessment.qti.helper;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -179,7 +180,6 @@ public class AuthoringXml
 
     try
     {
-
     Properties props =
         PathInfo.getInstance().getSettingsProperties(SETTINGS_FILE);
     String basePath = props.getProperty("templateBasePath");
@@ -355,7 +355,7 @@ public class AuthoringXml
 
           if (childNode == null)
           {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
           	DocumentBuilder db = dbf.newDocumentBuilder();
           	Document core = db.newDocument();  
             Text newElementText =
@@ -502,12 +502,12 @@ public class AuthoringXml
     }
 
     Document document = null;
-    DocumentBuilderFactory builderFactory =
-      DocumentBuilderFactory.newInstance();
-    builderFactory.setNamespaceAware(true);
 
     try
     {
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+      builderFactory.setNamespaceAware(true);
+
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.newDocument();
       document = documentBuilder.parse(inputStream);
@@ -539,7 +539,7 @@ public class AuthoringXml
     {
       DocumentBuilder docBuilder = null;
 
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
       dbf.setNamespaceAware(false);
       docBuilder = dbf.newDocumentBuilder();
       InputSource inputSource = new InputSource(new StringReader(in));

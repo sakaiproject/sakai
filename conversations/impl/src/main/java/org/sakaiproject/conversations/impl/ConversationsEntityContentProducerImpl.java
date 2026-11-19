@@ -16,6 +16,7 @@
 package org.sakaiproject.conversations.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,12 +31,13 @@ import org.sakaiproject.conversations.api.model.ConversationsPost;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
-import org.sakaiproject.conversations.api.repository.TagRepository;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -51,7 +53,8 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
     @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
     @Autowired private ConversationsPostRepository postRepository;
-    @Autowired private TagRepository tagRepository;
+    @Autowired private TagService tagService;
+    @Autowired private SiteService siteService;
     @Autowired private ConversationsTopicRepository topicRepository;
     @Autowired private UserDirectoryService userDirectoryService;
 
@@ -178,6 +181,11 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
     @Override
     public Iterator<String> getSiteContentIterator(String siteId) {
 
+        if (siteService.getOptionalSite(siteId)
+                .map(site -> site.getToolForCommonId(ConversationsService.TOOL_ID)).isEmpty()) {
+            return Collections.emptyIterator();
+        }
+
         List<String> ids = topicRepository.findBySiteId(siteId).stream().map(t -> {
             return ConversationsReferenceReckoner.reckoner().topic(t).reckon().toString();
         }).collect(Collectors.toList());
@@ -256,9 +264,8 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
                     .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference));
                 if (!topic.getDraft() && !topic.getHidden()) {
                     sb.append(topic.getMessage());
-                    topic.getTagIds().forEach(tagId -> {
-                        tagRepository.findById(tagId).ifPresent(t -> sb.append(" ").append(t.getLabel()));
-                    });
+                    tagService.getAssociatedTagsForItem(topic.getSiteId(), topic.getId())
+                        .forEach(tag -> sb.append(" ").append(tag.getTagLabel()));
                 }
                 break;
             case "p":

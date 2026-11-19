@@ -155,7 +155,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public void deleteAllSecuredIP(PublishedAssessmentIfc assessment);
 
-  public void saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception;
+  public PublishedAssessmentData saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception;
 
   public void delete(PublishedAssessmentIfc assessment);
 
@@ -196,6 +196,12 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String siteId);
+
+  /** Return assessment IDs and creators for assessments owned by the given site. */
+  Map<Long, String> getPublishedAssessmentAuthors(String siteId);
+
+  /** Published summaries owned by the site, independent of learner release permissions. */
+  List<PublishedAssessmentFacade> getBasicInfoOfPublishedAssessmentsForAuthor(String siteId);
 
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId);
   
@@ -325,4 +331,9 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public List<PublishedAssessmentData> getPublishedDeletedAssessments(String siteId);
 
   public void restorePublishedAssessment(Long publishedAssessmentId);
+
+  /**
+   * Published assessment ids whose TO_GRADEBOOK_ID metadata references the given gradebook assignment id.
+   */
+  public List<Long> findPublishedAssessmentIdsLinkedToGradebookItem(String gradebookAssignmentId);
 }

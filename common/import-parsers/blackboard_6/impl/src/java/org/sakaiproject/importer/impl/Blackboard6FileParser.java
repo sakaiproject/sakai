@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.importer.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.FileInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -25,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.sakaiproject.archive.api.ImportMetadata;
@@ -263,9 +264,10 @@ public class Blackboard6FileParser extends IMSFileParser {
 			try {
 				String descriptorFilename = resourceNode.getAttributes().getNamedItem("bb:file").getNodeValue();
 				DocumentBuilder docBuilder;
-				docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			    InputStream fis = new FileInputStream(pathToData + "/" + descriptorFilename);
-			    return (Document) docBuilder.parse(fis);
+				docBuilder = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
+                try (InputStream fis = new FileInputStream(resolvePackageFile(descriptorFilename))) {
+                    return (Document) docBuilder.parse(fis);
+                }
 			} catch (Exception e) {
 				return null;
 			}
@@ -321,13 +323,11 @@ public class Blackboard6FileParser extends IMSFileParser {
 	
 	protected class Bb6FileHelper extends FileHelper {
 		
-		public byte[] getFileBytesForNode(Node node, String contextPath) throws IOException {
-			//for Bb we ignore the contextPath...
-			String basePath = XPathHelper.getNodeValue("./@identifier",node.getParentNode());
-			String fileHref = XPathHelper.getNodeValue("./@href", node).replaceAll("\\\\", "/");
-			String filePath = basePath + "/" + fileHref;
-			return getBytesFromFile(new File(pathToData + "/" + filePath));
-		}	
+        @Override
+        protected File getSourceFileForNode(Node node) throws IOException {
+            String basePath = XPathHelper.getNodeValue("./@identifier", node.getParentNode());
+            return resolvePackageFile(basePath, XPathHelper.getNodeValue("./@href", node));
+        }
 	
 		public String getFilePathForNode(Node node, String contextPath) {
 			// for files that are part of an assessment, we're going to

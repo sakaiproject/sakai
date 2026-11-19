@@ -36,7 +36,6 @@
         <property name="schedulingService"          ref="org.sakaiproject.scheduling.api.SchedulingService"/>
         <property name="toolManager"                ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="entityManager"              ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="memoryService"              ref="org.sakaiproject.memory.api.MemoryService"/>
         <property name="checkDb" value="true"/>
         <property name="autoDdl" value="${auto.ddl}"/>
         <property name="period" value="5"/>
@@ -60,7 +59,6 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="idManager"                  ref="org.sakaiproject.id.api.IdManager"/>
         <property name="sqlService"                 ref="org.sakaiproject.db.api.SqlService"/>
-        <property name="memoryService"              ref="org.sakaiproject.memory.api.MemoryService"/>
 
         <property name="tableName" value="SAKAI_NOTIFICATION"/>
         <property name="locksInDb" value="false"/>
@@ -80,7 +78,7 @@
         <property name="authzGroupService"          ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="idManager"                  ref="org.sakaiproject.id.api.IdManager"/>
         <property name="userDirectoryService"       ref="org.sakaiproject.user.api.UserDirectoryService"/>
-        <property name="memoryService"              ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="cacheManager"                ref="org.sakaiproject.ignite.SakaiCacheManager"/>
 		<property name="autoDdl" value="${auto.ddl}"/>
         <property name="databaseBeans">
            <map>
@@ -98,7 +96,7 @@
           init-method="init"
           destroy-method="destroy">
 	 	<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-	 	<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+	 	<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
 	 	<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
 	 	
 	 </bean>

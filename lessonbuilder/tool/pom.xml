@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>lessonbuilder</artifactId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -117,8 +117,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
@@ -129,12 +133,8 @@
             <artifactId>search-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
 	        <artifactId>hibernate-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -169,12 +169,17 @@
           <artifactId>archive-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
              <groupId>com.opencsv</groupId>
              <artifactId>opencsv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -194,6 +199,56 @@
             <version>3.7.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>OKI</groupId>
+            <artifactId>OkiOSID</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>lessonbuilder-components</artifactId>
+            <version>${project.version}</version>
+            <classifier>test-support</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.videotraining</groupId>
+            <artifactId>video-training-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.videotraining</groupId>
+            <artifactId>video-training-impl</artifactId>
+            <version>${project.version}</version>
+            <classifier>classes</classifier>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -205,13 +260,24 @@
                 </includes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>${basedir}/../components/src/webapp</directory>
+                <includes>
+                    <include>WEB-INF/components.xml</include>
+                </includes>
+            </testResource>
+        </testResources>
     </build>
 
     <profiles>
         <profile>
             <id>optional</id>
             <!-- NOTE: If you enable optional modules, please look at the <properties> section of the main
-             pom file for the settings for yaft, mneme, and assignment2. For the tools you use, make sure
+             pom file for the settings for yaft. For the tools you use, make sure
              to adjust the versions to match the version you are using. For the tools that are not in your
              system, change the scope to "compile". That will cause the API jar file to be included with
              lessons. Without that, the system won't start. For modules you use the API jar files will be
@@ -220,7 +286,7 @@
 
             <repositories>
                 <!--
-                     To enable YAFT, MNEME, and Assignments 2, uncomment the repository, dependencies and plugin below.
+                     To enable YAFT, uncomment the repository, dependencies and plugin below.
                      Look for all comment blocks that start with OPTIONAL. Remove that whole line, and the matching close
                   -->
                 <repository>
@@ -240,18 +306,6 @@
                     <artifactId>yaft-api</artifactId>
                     <version>${sakai.yaft.version}</version>
                     <scope>${sakai.yaft.scope}</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.etudes</groupId>
-                    <artifactId>etudes-mneme-api</artifactId>
-                    <version>${sakai.mneme.version}</version>
-                    <scope>${sakai.mneme.scope}</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.assignment2</groupId>
-                    <artifactId>sakai-assignment2-api</artifactId>
-                    <version>${sakai.assignment2.version}</version>
-                    <scope>${sakai.assignment2.scope}</scope>
                 </dependency>
             </dependencies>
 

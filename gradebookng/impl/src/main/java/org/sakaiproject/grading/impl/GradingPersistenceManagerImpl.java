@@ -28,6 +28,7 @@ import org.sakaiproject.grading.api.model.Comment;
 import org.sakaiproject.grading.api.model.CourseGrade;
 import org.sakaiproject.grading.api.model.CourseGradeRecord;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.grading.api.model.GradableObject;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.grading.api.model.GradebookProperty;
 import org.sakaiproject.grading.api.model.GradeMapping;
@@ -236,7 +237,7 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return commentRepository.save(comment);
     }
 
-    public List<Comment> getCommentsForStudents(GradebookAssignment assignment, Collection<String> studentIds) {
+    public List<Comment> getCommentsForStudents(GradableObject assignment, Collection<String> studentIds) {
         return commentRepository.findByGradableObjectAndStudentIdIn(assignment, studentIds);
     }
 

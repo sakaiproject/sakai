@@ -813,7 +813,18 @@ function resetSelectMenus(){
   }
 }
 
-function clickInsertLink(field){
+function clickInsertLink(field, storeFocus = true){
+  const match = field.id.match(/assessmentForm:parts:(\d+).*:changeQType/);
+  if (match && storeFocus) {
+    const currentQuestionsCount = document.querySelectorAll("[id^='assessmentForm:parts:" + match[1] + ":parts:'][id$=':modify']").length;
+    const targetFocusId = 'assessmentForm:parts:' + match[1] + ':parts:' + currentQuestionsCount + ':modify';
+    try {
+      sessionStorage.setItem('pendingFocusId', targetFocusId);
+    } catch (error) {
+      console.warn("Could not save to sessionStorage:", error);
+    }
+  }
+
   var insertlinkid = field.id.replace("changeQType", "hiddenlink");
   var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
   $(hiddenSelector)[0].click()

@@ -265,7 +265,7 @@ public class TurnitinAPIUtil {
 		in = new BufferedReader(new InputStreamReader(inputStream));
 		Document document = null;
 		try {   
-			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory documentBuilderFactory = Xml.createSecureDocumentBuilderFactory(false);
 			DocumentBuilder  parser = documentBuilderFactory.newDocumentBuilder();
 			document = parser.parse(new org.xml.sax.InputSource(in));
 		}

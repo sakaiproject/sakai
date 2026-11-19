@@ -91,11 +91,11 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 		try {
 			assessment = as.createAssessmentWithoutDefaultSection(
 					importAssessment.getTitle(), importAssessment.getDescription(), SamigoAssessmentHandler.QUIZ_TYPE, SamigoAssessmentHandler.QUIZ_TEMPLATE, siteId);
-			AssessmentData data = new AssessmentData(new Long(SamigoAssessmentHandler.QUIZ_TEMPLATE), importAssessment.getTitle(), new Date());
-			data.setTypeId(new Long(SamigoAssessmentHandler.QUIZ_TYPE));
+			AssessmentData data = new AssessmentData(Long.valueOf(SamigoAssessmentHandler.QUIZ_TEMPLATE), importAssessment.getTitle(), new Date());
+			data.setTypeId(Long.valueOf(SamigoAssessmentHandler.QUIZ_TYPE));
 			data.setTitle(importAssessment.getTitle());
 			data.setDescription(importAssessment.getDescription());
-			data.setAssessmentTemplateId(new Long(SamigoAssessmentHandler.QUIZ_TEMPLATE));
+			data.setAssessmentTemplateId(Long.valueOf(SamigoAssessmentHandler.QUIZ_TEMPLATE));
 			data.setCreatedBy(SessionManager.getCurrentSessionUserId());
 			data.setLastModifiedBy(SessionManager.getCurrentSessionUserId());
 			data.setLastModifiedDate(new Date());
@@ -171,7 +171,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			questionCount++;
 			Set correctAnswerIDs = importableQuestion.getCorrectAnswerIDs();
 			itemFacade = new ItemFacade();
-			itemFacade.setTypeId(new Long(importableQuestion.getQuestionType()));
+			itemFacade.setTypeId(Long.valueOf(importableQuestion.getQuestionType()));
 			textSet = new HashSet();
 			questionTextString = contextualizeUrls(importableQuestion.getQuestionText(), siteId);
 			if (importableQuestion.getQuestionType() == SamigoPoolHandler.MATCHING) {
@@ -192,10 +192,10 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 						answer = new Answer();
 						answer.setItem(itemFacade.getData());
 						answer.setItemText(text);
-						answer.setSequence(new Long(choiceIndex));
+						answer.setSequence(Long.valueOf(choiceIndex));
 						choiceIndex++;
 						// set label A, B, C, D, etc. on answer based on its sequence number
-						answer.setLabel(new Character((char)(64 + choiceIndex)).toString());
+						answer.setLabel(Character.valueOf((char)(64 + choiceIndex)).toString());
 						answer.setText(contextualizeUrls(importableChoice.getAnswerText(), siteId));
 						answer.setIsCorrect(Boolean.valueOf(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
 						answerSet.add(answer);
@@ -222,9 +222,9 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 					answer = new Answer();
 					answer.setItem(itemFacade.getData());
 					answer.setItemText(text);
-					answer.setSequence(new Long(importableAnswer.getPosition()));
+					answer.setSequence(Long.valueOf(importableAnswer.getPosition()));
 					// set label A, B, C, D, etc. on answer based on its sequence number
-					answer.setLabel(new Character((char)(64 + importableAnswer.getPosition())).toString());
+					answer.setLabel(Character.valueOf((char)(64 + importableAnswer.getPosition())).toString());
 					
 					if (importableQuestion.getQuestionType() == SamigoPoolHandler.TRUE_FALSE) {
 						// Samigo only understands True/False answers in lower case
@@ -243,12 +243,12 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 						Matcher matcher = pattern.matcher(questionTextString);
 						if (matcher.find()) questionTextString = questionTextString.replaceFirst(matcher.group(),"{}");
 						text.setText(questionTextString);
-						answer.setSequence(new Long(1));
+						answer.setSequence(Long.valueOf(1));
 					} else {
 						answer.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					}
 					
-					answer.setIsCorrect(new Boolean(correctAnswerIDs.contains(answerId)));
+					answer.setIsCorrect(Boolean.valueOf(correctAnswerIDs.contains(answerId)));
 					answerSet.add(answer);
 				}
 				text.setAnswerSet(answerSet);

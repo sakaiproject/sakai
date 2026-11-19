@@ -116,7 +116,7 @@ public class GradesControllerTests extends BaseControllerTests {
 
         reset(gradingService);
 
-        var controller = new GradesController();
+        GradesController controller = new GradesController();
 
         controller.setAuthzGroupService(authzGroupService);
         controller.setEntityManager(entityManager);
@@ -125,12 +125,15 @@ public class GradesControllerTests extends BaseControllerTests {
         controller.setSecurityService(securityService);
         controller.setSiteService(siteService);
 
-        var session = mock(Session.class);
+        Session session = mock(Session.class);
         when(session.getUserId()).thenReturn(user1Id);
         when(sessionManager.getCurrentSession()).thenReturn(session);
         controller.setSessionManager(sessionManager);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
+
+        when(gradingService.isGradebookDefined(site1Id)).thenReturn(true);
+        when(gradingService.isGradebookDefined(site2Id)).thenReturn(true);
 
         // Setup some mock data
         when(portalService.getPinnedSites()).thenReturn(List.of(site1Id, site2Id));
@@ -177,6 +180,15 @@ public class GradesControllerTests extends BaseControllerTests {
         if (mocks != null) {
             mocks.close();
         }
+    }
+
+    @Test
+    public void uninitializedGradebookReturnsEmptyGrades() throws Exception {
+        when(gradingService.isGradebookDefined(site1Id)).thenReturn(false);
+        mockMvc.perform(get("/sites/{siteId}/grades", site1Id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.grades").isEmpty());
+        verify(gradingService, never()).getViewableAssignmentsForCurrentUser(eq(site1Id), anyString(), any());
     }
 
     @Test

@@ -28,8 +28,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -99,8 +99,8 @@ public class AgentResults
   private List<AssessmentGradingAttachment> assessmentGradingAttachmentList;
   private Integer timeElapsed;
   private int submissionCount=0;
-  private Double scoreSummation=new Double("0");
-  private Double averageScore= new Double("0");
+  private Double scoreSummation=Double.valueOf("0");
+  private Double averageScore= Double.valueOf("0");
   private String alternativeInstructorReviewUrl;
 
   public AgentResults() {

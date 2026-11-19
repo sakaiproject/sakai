@@ -29,16 +29,19 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -62,20 +65,34 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
+import static org.sakaiproject.poll.api.PollConstants.APPLICATION_ID;
+import static org.sakaiproject.poll.api.PollConstants.EVENT_POLL_ADD;
+import static org.sakaiproject.poll.api.PollConstants.EVENT_POLL_DELETE;
+import static org.sakaiproject.poll.api.PollConstants.EVENT_POLL_UPDATE;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_DELETE_ANY;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_DELETE_OWN;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_ANY;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_OWN;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_PREFIX;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_VOTE;
+import static org.sakaiproject.poll.api.PollConstants.REFERENCE_ROOT;
 import org.sakaiproject.poll.api.entity.PollEntity;
-import org.sakaiproject.poll.api.model.VoteCollection;
-import org.sakaiproject.poll.api.service.PollImportError;
-import org.sakaiproject.poll.api.service.PollImportException;
-import org.sakaiproject.poll.api.service.PollsService;
-import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.api.repository.VoteRepository;
+import org.sakaiproject.poll.api.service.PollImportError;
+import org.sakaiproject.poll.api.service.PollImportException;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.util.PollUtil;
 import org.sakaiproject.poll.api.util.PollUtils;
+import org.sakaiproject.poll.impl.importformat.PollImportCsvFormat;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -84,18 +101,21 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.CsvSeparator;
 import org.sakaiproject.util.MergeConfig;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.sakaiproject.poll.api.PollConstants.*;
-
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -115,6 +135,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Setter private EntityManager entityManager;
     @Setter private FunctionManager functionManager;
     @Setter private FormattedText formattedText;
+    @Setter private LocaleService localeService;
     @Setter private PollRepository pollRepository;
     @Setter private VoteRepository voteRepository;
     @Setter private LearningResourceStoreService learningResourceStoreService;
@@ -132,7 +153,6 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Setter private ResourceLoader pollsBundle;
 
     public void init() {
-        entityManager.registerEntityProducer(this, REFERENCE_ROOT);
         functionManager.registerFunction(PERMISSION_VOTE, true);
         functionManager.registerFunction(PERMISSION_ADD, true);
         functionManager.registerFunction(PERMISSION_DELETE_OWN, true);
@@ -169,14 +189,24 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (polls == null) {
             polls = new ArrayList<>();
         }
+        polls.removeIf(p -> !userCanViewPoll(p, userId));
+
         return polls;
     }
 
     @Override
     public Poll savePoll(final Poll poll) throws SecurityException, IllegalArgumentException {
-        if (poll == null
-                || StringUtils.isAnyBlank(poll.getText(), poll.getSiteId(), poll.getVoteOpen().toString(), poll.getVoteClose().toString())) {
-            throw new IllegalArgumentException("you must supply a question, siteId & open and close dates");
+        if (poll == null || StringUtils.isAnyBlank(poll.getText(), poll.getSiteId(), poll.getVoteOpen().toString(), poll.getVoteClose().toString())) {
+            throw new IllegalArgumentException(pollsBundle.getString("poll_error_missing_fields"));
+        }
+        if (poll.getTypeOfAccess() == Poll.Access.GROUP && (poll.getGroupIds() == null || poll.getGroupIds().isEmpty())) {
+            throw new IllegalArgumentException(pollsBundle.getString("poll_error_groups_required"));
+        }
+        if (poll.getTypeOfAccess() == Poll.Access.GROUP) {
+            Set<String> validGroupIds = filterValidGroupIds(poll.getSiteId(), poll.getGroupIds());
+            if (!validGroupIds.equals(poll.getGroupIds())) {
+                throw new IllegalArgumentException(pollsBundle.getString("poll_error_invalid_groups"));
+            }
         }
         String userId = sessionManager.getCurrentSessionUserId();
         String siteRef = siteService.siteReference(poll.getSiteId());
@@ -203,7 +233,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         descMap.put("en-US", "User " + (isNew ? "created" : "updated") + " a poll with text:" + savedPoll.getText());
         lrsObject.setDescription(descMap);
         LearningResourceStoreService.LRS_Statement statement = new LearningResourceStoreService.LRS_Statement(student, verb, lrsObject);
-        String eventType = isNew ? "poll.add" : "poll.update";
+        String eventType = isNew ? EVENT_POLL_ADD : EVENT_POLL_UPDATE;
         // TODO update poll REFERENCE - "/poll/" + poll.getSiteId() + "/poll/" + poll.getId()
         Event event = eventTrackingService.newEvent(eventType, "/poll/" + poll.getSiteId() + "/poll/" + poll.getId(), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
@@ -213,9 +243,10 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public void importPollsFromCsv(List<String> csvContents, String siteId, String ownerId) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         List<ImportedPoll> importedPolls = new ArrayList<>();
         for (String csv : csvContents) {
-            importedPolls.addAll(parseImportedPolls(csv));
+            importedPolls.addAll(parseImportedPolls(csv, locale));
         }
 
         if (importedPolls.isEmpty()) {
@@ -227,23 +258,48 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
     }
 
-    private List<ImportedPoll> parseImportedPolls(String csvContent) {
-        List<ImportedPoll> importedPolls = new ArrayList<>();
+    @Override
+    public String getPollImportSampleCsv(Function<String, String> messageResolver) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
+        return PollImportCsvFormat.buildSampleCsv(PollImportCsvFormat.buildColumnHeaders(messageResolver), locale);
+    }
+
+    private List<ImportedPoll> parseImportedPolls(String csvContent, Locale locale) {
         if (StringUtils.isBlank(csvContent)) {
-            return importedPolls;
+            return new ArrayList<>();
         }
 
-        try (CSVReader reader = new CSVReader(new StringReader(csvContent))) {
+        char preferredDelimiter = CsvSeparator.forLocale(locale);
+        char alternateDelimiter = preferredDelimiter == CSVParser.DEFAULT_SEPARATOR ? ';' : CSVParser.DEFAULT_SEPARATOR;
+
+        try {
+            return parseImportedPolls(csvContent, preferredDelimiter, locale);
+        } catch (PollImportException e) {
+            // Retry with the other common delimiter only if the preferred one did not match the header;
+            // the account's locale doesn't guarantee the delimiter of a file built with another tool/locale.
+            if (e.getError() != PollImportError.INVALID_HEADER) {
+                throw e;
+            }
+            return parseImportedPolls(csvContent, alternateDelimiter, locale);
+        }
+    }
+
+    private List<ImportedPoll> parseImportedPolls(String csvContent, char delimiter, Locale locale) {
+        List<ImportedPoll> importedPolls = new ArrayList<>();
+        int rowNumber = 0;
+        CSVParser csvParser = new CSVParserBuilder().withSeparator(delimiter).build();
+        try (CSVReader reader = new CSVReaderBuilder(new StringReader(csvContent)).withCSVParser(csvParser).build()) {
             boolean headerValidated = false;
             String[] row;
             while ((row = reader.readNext()) != null) {
+                rowNumber++;
                 if (PollImportCsvFormat.isBlankRow(row)) {
                     continue;
                 }
 
                 if (!headerValidated) {
                     if (!PollImportCsvFormat.isValidHeaderRow(row, importHeaderLabelResolver())) {
-                        throw new PollImportException(PollImportError.WRONG_FORMAT);
+                        throw new PollImportException(PollImportError.INVALID_HEADER, rowNumber);
                     }
                     headerValidated = true;
                     continue;
@@ -251,6 +307,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
                 String question = PollImportCsvFormat.cellValue(row, PollImportCsvFormat.COL_QUESTION);
                 String details = PollImportCsvFormat.cellValue(row, PollImportCsvFormat.COL_DESCRIPTION);
+                String accessValue = PollImportCsvFormat.cellValue(row, PollImportCsvFormat.COL_ACCESS);
+                String groupNamesRaw = PollImportCsvFormat.cellValue(row, PollImportCsvFormat.COL_GROUPS);
                 String openDate = PollImportCsvFormat.cellValue(row, PollImportCsvFormat.COL_OPEN_DATE);
                 String openTime = PollImportCsvFormat.cellValue(row, PollImportCsvFormat.COL_OPEN_TIME);
                 String closeDate = PollImportCsvFormat.cellValue(row, PollImportCsvFormat.COL_CLOSE_DATE);
@@ -266,25 +324,55 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                     }
                 }
 
-                if (StringUtils.isBlank(question) || options.size() < 2) {
-                    throw new PollImportException(PollImportError.WRONG_FORMAT);
+                if (StringUtils.isBlank(question)) {
+                    throw new PollImportException(PollImportError.MISSING_QUESTION, rowNumber);
+                }
+                if (options.size() < 2) {
+                    throw new PollImportException(PollImportError.TOO_FEW_OPTIONS, rowNumber);
+                }
+
+                // Determine access type
+                Poll.Access access = Poll.Access.SITE;
+                if (StringUtils.isNotBlank(accessValue)) {
+                    try {
+                        access = Poll.Access.valueOf(accessValue.trim().toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        throw new PollImportException(PollImportError.INVALID_ACCESS, rowNumber, new Object[] { accessValue });
+                    }
+                }
+
+                // Parse group names (comma separated, possibly quoted)
+                Set<String> groupNames = new HashSet<>();
+                if (StringUtils.isNotBlank(groupNamesRaw)) {
+                    String cleaned = groupNamesRaw.trim();
+                    if ((cleaned.startsWith("\"") && cleaned.endsWith("\"")) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+                        cleaned = cleaned.substring(1, cleaned.length() - 1);
+                    }
+                    String[] parts = cleaned.split(",");
+                    for (String p : parts) {
+                        String v = StringUtils.trimToEmpty(p);
+                        if (!v.isEmpty()) groupNames.add(v);
+                    }
                 }
 
                 importedPolls.add(new ImportedPoll(
                     question,
                     details,
-                    parseImportedPollDateTime(openDate, openTime),
-                    parseImportedPollDateTime(closeDate, closeTime),
-                    parseImportedPollInteger(minOptions, 1),
-                    parseImportedPollInteger(maxOptions, 1),
-                    parseImportedPollDisplayResult(displayResult),
-                    options
+                    parseImportedPollDateTime(openDate, openTime, rowNumber, locale),
+                    parseImportedPollDateTime(closeDate, closeTime, rowNumber, locale),
+                    parseImportedPollInteger(minOptions, 1, rowNumber),
+                    parseImportedPollInteger(maxOptions, 1, rowNumber),
+                    parseImportedPollDisplayResult(displayResult, rowNumber),
+                    options,
+                    access,
+                    groupNames,
+                    rowNumber
                 ));
             }
         } catch (PollImportException e) {
             throw e;
         } catch (Exception e) {
-            throw new PollImportException(PollImportError.WRONG_FORMAT, e);
+            throw new PollImportException(PollImportError.WRONG_FORMAT, rowNumber, e);
         }
 
         return importedPolls;
@@ -313,7 +401,34 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         poll.setMaxOptions(maxOptions);
         poll.setLimitVoting(true);
         poll.setPublic(false);
-        // poll.setAccessType("SITE"); // SAK-10208
+        poll.setTypeOfAccess(importedPoll.access());
+        if (importedPoll.groupNames() != null && !importedPoll.groupNames().isEmpty()) {
+            Set<String> resolvedIds = new HashSet<>();
+            List<String> missingGroups = new ArrayList<>();
+            try {
+                Site site = siteService.getSite(siteId);
+                Map<String, String> titleToId = site.getGroups().stream()
+                        .collect(Collectors.toMap(Group::getTitle, Group::getId));
+                for (String name : importedPoll.groupNames()) {
+                    String id = titleToId.get(name);
+                    if (id == null) {
+                        missingGroups.add(name);
+                    } else {
+                        resolvedIds.add(id);
+                    }
+                }
+            } catch (IdUnusedException e) {
+                log.warn("Site {} not found when resolving group names", siteId);
+                missingGroups.addAll(importedPoll.groupNames());
+            }
+
+            if (!missingGroups.isEmpty()) {
+                throw new PollImportException(PollImportError.INVALID_GROUPS, importedPoll.rowNumber(),
+                        new Object[] { String.join(", ", missingGroups) });
+            }
+
+            poll.setGroupIds(new HashSet<>(resolvedIds));
+        }
 
         if (importedPoll.openDate() != null) {
             poll.setVoteOpen(importedPoll.openDate().atZone(userZoneId).toInstant());
@@ -335,19 +450,19 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
 
         if (sanitizedOptions.size() < 2) {
-            throw new PollImportException(PollImportError.WRONG_FORMAT);
+            throw new PollImportException(PollImportError.TOO_FEW_OPTIONS, importedPoll.rowNumber());
         }
 
         if (poll.getMinOptions() > poll.getMaxOptions()) {
-            throw new PollImportException(PollImportError.INVALID_LIMITS);
+            throw new PollImportException(PollImportError.INVALID_LIMITS, importedPoll.rowNumber());
         }
 
         if (poll.getVoteOpen() != null && poll.getVoteClose() != null && poll.getVoteOpen().isAfter(poll.getVoteClose())) {
-            throw new PollImportException(PollImportError.INVALID_DATES);
+            throw new PollImportException(PollImportError.INVALID_DATE_ORDER, importedPoll.rowNumber());
         }
 
         if (poll.getMinOptions() > sanitizedOptions.size() || poll.getMaxOptions() > sanitizedOptions.size()) {
-            throw new PollImportException(PollImportError.INVALID_LIMITS);
+            throw new PollImportException(PollImportError.INVALID_LIMITS, importedPoll.rowNumber());
         }
 
         for (String optionText : sanitizedOptions) {
@@ -359,15 +474,15 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         return poll;
     }
 
-    private LocalDateTime parseImportedPollDateTime(String dateValue, String timeValue) {
+    private LocalDateTime parseImportedPollDateTime(String dateValue, String timeValue, int rowNumber, Locale locale) {
         try {
-            return PollImportCsvFormat.parseDateTime(dateValue, timeValue);
+            return PollImportCsvFormat.parseDateTime(dateValue, timeValue, locale);
         } catch (DateTimeParseException e) {
-            throw new PollImportException(PollImportError.INVALID_DATES, e);
+            throw new PollImportException(PollImportError.INVALID_DATES, rowNumber, new Object[] { e.getParsedString() }, e);
         }
     }
 
-    private int parseImportedPollInteger(String value, int defaultValue) {
+    private int parseImportedPollInteger(String value, int defaultValue, int rowNumber) {
         if (StringUtils.isBlank(value)) {
             return defaultValue;
         }
@@ -375,22 +490,22 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         try {
             int parsed = Integer.parseInt(value);
             if (parsed < 1) {
-                throw new PollImportException(PollImportError.INVALID_LIMITS);
+                throw new PollImportException(PollImportError.INVALID_LIMITS, rowNumber);
             }
             return parsed;
         } catch (NumberFormatException e) {
-            throw new PollImportException(PollImportError.INVALID_NUMBER, e);
+            throw new PollImportException(PollImportError.INVALID_NUMBER, rowNumber, new Object[] { value }, e);
         }
     }
 
-    private String parseImportedPollDisplayResult(String value) {
+    private String parseImportedPollDisplayResult(String value, int rowNumber) {
         String displayResultCode = StringUtils.defaultIfBlank(value, "1");
         return switch (displayResultCode) {
             case "1" -> "open";
             case "2" -> "afterVoting";
             case "3" -> "afterClosing";
             case "4" -> "never";
-            default -> throw new PollImportException(PollImportError.INVALID_DISPLAY_RESULT);
+            default -> throw new PollImportException(PollImportError.INVALID_DISPLAY_RESULT, rowNumber, new Object[] { displayResultCode });
         };
     }
 
@@ -399,8 +514,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         return PollUtils.cleanupHtmlPtags(processed);
     }
 
-    private record ImportedPoll(String question, String details, LocalDateTime openDate, LocalDateTime closeDate,
-                                int minOptions, int maxOptions, String displayResult, List<String> options) { }
+    private record ImportedPoll(String question, String details, LocalDateTime openDate, LocalDateTime closeDate, int minOptions, int maxOptions, String displayResult, List<String> options, Poll.Access access, Set<String> groupNames, int rowNumber) { }
 
     @Override
     public void deletePoll(final String id) throws SecurityException, IllegalArgumentException {
@@ -418,7 +532,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             pollRepository.deleteById(id);
 
             log.debug("Poll id {} deleted", id);
-            eventTrackingService.post(eventTrackingService.newEvent("poll.delete", "/poll/" + poll.getSiteId() + "/" + id, true));
+            eventTrackingService.post(eventTrackingService.newEvent(EVENT_POLL_DELETE, "/poll/" + poll.getSiteId() + "/" + id, true));
         });
     }
 
@@ -445,6 +559,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             String userId = sessionManager.getCurrentSessionUserId();
             if (!securityService.unlock(userId, "site.visit", siteService.siteReference(poll.get().getSiteId()))) {
                 throw new SecurityException("user:" + userId + " can't read poll " + pollId);
+            }
+            if (!userCanViewPoll(poll.get(), userId)) {
+                throw new SecurityException("User cannot view this poll due to group restrictions");
             }
         }
         return poll;
@@ -496,6 +613,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
 
         pollRepository.save(poll);
+        postOptionsChanged(poll);
+    }
+
+    // Options are part of the poll, so changing them outside savePoll has to announce the update as well
+    private void postOptionsChanged(Poll poll) {
+        eventTrackingService.post(eventTrackingService.newEvent(EVENT_POLL_UPDATE, "/poll/" + poll.getSiteId() + "/poll/" + poll.getId(), true));
     }
 
     public Poll saveNewOption(Poll poll, final Option option) {
@@ -508,6 +631,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             poll.addOption(option);
             Poll saved = pollRepository.save(poll);
             log.debug("Option {} successfully saved", option);
+            postOptionsChanged(saved);
             return saved;
         } else {
             log.warn("Cannot save existing option {}", option.getId());
@@ -726,6 +850,15 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                 toPoll.setVoteClose(fromPoll.getVoteClose());
                 toPoll.setDisplayResult(fromPoll.getDisplayResult());
                 toPoll.setLimitVoting(fromPoll.isLimitVoting());
+                if (Objects.equals(fromContext, toContext)) {
+                    toPoll.setTypeOfAccess(fromPoll.getTypeOfAccess());
+                    Set<String> fromGroupIds = fromPoll.getGroupIds();
+                    toPoll.setGroupIds(fromGroupIds != null ? new HashSet<>(fromGroupIds) : new HashSet<>());
+                } else {
+                    // TODO: Cross-site copy resets GROUP access to SITE.
+                    toPoll.setTypeOfAccess(Poll.Access.SITE);
+                    toPoll.setGroupIds(new HashSet<>());
+                }
                 String description = fromPoll.getDescription();
                 description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext, transversalMap);
                 toPoll.setDescription(description);
@@ -948,6 +1081,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll == null) {
             throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
         }
+        if (!userCanViewPoll(poll, userId)) {
+            return false;
+        }
         String siteRef = "/site/" + poll.getSiteId();
         if (securityService.unlock(userId, PERMISSION_VOTE, siteRef)) {
             if (ignoreVoted) {
@@ -967,6 +1103,10 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     public boolean pollIsVotable(Poll poll) {
         // POLL-148 this could be null
         if (poll == null) {
+            return false;
+        }
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (!userCanViewPoll(poll, userId)) {
             return false;
         }
 
@@ -1388,5 +1528,116 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         List<String> siteGroupRefs = new ArrayList<>();
         siteGroupRefs.add(siteService.siteReference(siteId));
         return authzGroupService.getUsersIsAllowed(PERMISSION_VOTE, siteGroupRefs).size();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int getNumberUsersCanVote(Poll poll) {
+        Objects.requireNonNull(poll, "poll cannot be null");
+        List<String> siteRefs = List.of(siteService.siteReference(poll.getSiteId()));
+        return (int) authzGroupService.getUsersIsAllowed(PERMISSION_VOTE, siteRefs).stream()
+                .filter(userId -> userCanViewPoll(poll, userId))
+                .count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean userCanViewPoll(Poll poll, String userId) {
+
+        if (poll == null) {
+            return false;
+        }
+
+        String siteRef = siteService.siteReference(poll.getSiteId());
+        if (userId != null && securityService.unlock(userId, PERMISSION_ADD, siteRef)) {
+            return true;
+        }
+
+        if (poll.isPublic()) {
+            return true;
+        }
+
+        if (poll.getTypeOfAccess() != Poll.Access.GROUP) {
+            return true;
+        }
+
+        return userIsInPollGroup(poll, userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean userIsInPollGroup(Poll poll, String userId) {
+
+        // Strict membership semantics: poll without groups means no group membership match.
+        if (poll == null || userId == null || poll.getGroupIds() == null || poll.getGroupIds().isEmpty()) {
+            return false;
+        }
+
+        String siteId = poll.getSiteId();
+
+        Set<String> userGroupIds;
+        try {
+            userGroupIds = siteService.getSite(siteId)
+                    .getGroupsWithMember(userId)
+                    .stream()
+                    .map(Group::getId)
+                    .map(id -> id.contains("/group/") ? id.substring(id.lastIndexOf("/") + 1) : id)
+                    .collect(Collectors.toSet());
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found when checking group membership for user {}", siteId, userId);
+            return false;
+        }
+
+        return !Collections.disjoint(poll.getGroupIds(), userGroupIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, String> getGroupTitlesForSite(String siteId) {
+        if (siteId == null) return Collections.emptyMap();
+        try {
+            Site site = siteService.getSite(siteId);
+            return site.getGroups().stream()
+                    .collect(Collectors.toMap(Group::getId, Group::getTitle));
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found when getting group titles", siteId);
+            return Collections.emptyMap();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<Group> getSiteGroups(String siteId) {
+        if (siteId == null) return List.of();
+        try {
+            return siteService.getSite(siteId).getGroups();
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found when getting groups", siteId);
+            return List.of();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<String> filterValidGroupIds(String siteId, Set<String> candidateIds) {
+        if (candidateIds == null || candidateIds.isEmpty() || siteId == null) {
+            return new HashSet<>();
+        }
+        try {
+            Set<String> valid = siteService.getSite(siteId).getGroups().stream()
+                    .map(Group::getId)
+                    .collect(Collectors.toSet());
+            return candidateIds.stream().filter(valid::contains).collect(Collectors.toCollection(HashSet::new));
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found when filtering group ids", siteId);
+            return new HashSet<>();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Poll> filterPollsVisibleToUser(Collection<Poll> polls, String userId) {
+        if (polls == null) return new ArrayList<>();
+        return polls.stream().filter(p -> userCanViewPoll(p, userId)).collect(Collectors.toList());
     }
 }

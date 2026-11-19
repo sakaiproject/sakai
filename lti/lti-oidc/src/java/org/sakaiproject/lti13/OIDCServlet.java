@@ -28,13 +28,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 
-import org.apache.commons.codec.binary.Base64;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.lti.api.LTIService;
@@ -52,6 +50,7 @@ import org.tsugi.http.HttpUtil;
 
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.IframeUrlUtil;
 
 /**
  *
@@ -224,7 +223,9 @@ public class OIDCServlet extends HttpServlet {
 		}
 
 		String serverUrl = ServerConfigurationService.getServerUrl();
-		if ( ! forward.startsWith(serverUrl) ) {
+		if (!(StringUtils.startsWithIgnoreCase(forward, "http://")
+				|| StringUtils.startsWithIgnoreCase(forward, "https://"))
+				|| !IframeUrlUtil.isLocalToSakai(forward, serverUrl)) {
 			LTI13Util.return400(response, "Must forward internally");
 			log.error("Must forward internally");
 			return;
@@ -274,7 +275,7 @@ public class OIDCServlet extends HttpServlet {
 		// For an LTI 1.1 response, check the signature and if it passes, re-sign and forward
 		// to the new URL
 		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		Map<String, Object> tool = ltiService.getToolDao(toolKey, null, true);
+		Map<String, Object> tool = ltiService.getTool(toolKey, null, true);
 
 		if ( tool == null ) {
 			LTI13Util.return400(response, "Invalid tool_id");

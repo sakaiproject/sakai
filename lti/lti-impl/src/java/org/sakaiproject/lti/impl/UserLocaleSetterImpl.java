@@ -28,16 +28,16 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.PreferencesService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
 @Slf4j
 public class UserLocaleSetterImpl implements UserLocaleSetter {
 
+    @Autowired
     private PreferencesService preferencesService = null;
-    public void setPreferencesService(PreferencesService  preferencesService) {
-        this.preferencesService = preferencesService;
-    }
      /* Email Trusted consumer case we are not creating the user, we look up the user based on the email address. 
       snd user Locale must already be set and simply return*/
     public void setupUserLocale(Map payload, User user, boolean isTrustedConsumer, boolean isEmailTrustedConsumer) {

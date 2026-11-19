@@ -18,6 +18,7 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
       <sakai-forums
         user-id="${ifDefined(this.userId ? this.userId : undefined)}"
         site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
+        page-size="${this._pageSize()}"
       >
       </sakai-forums>
     `;

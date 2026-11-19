@@ -18,7 +18,7 @@ package org.sakaiproject.postem.controller;
 
 import java.text.MessageFormat;
 import java.util.Locale;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -133,7 +133,7 @@ public class UploadController {
                     return PostemToolConstants.ADD_ITEM;
                 case PostemToolConstants.TITLE_TOO_LONG:
                     literalErrorMessage = MessageFormat.format(messageSource.getMessage(PostemToolConstants.TITLE_TOO_LONG, null, locale),
-                        new Integer(currentGradebook.getTitle().trim().length()), TITLE_MAX_LENGTH);
+                        Integer.valueOf(currentGradebook.getTitle().trim().length()), TITLE_MAX_LENGTH);
                     model.addAttribute("literalErrorMessage", literalErrorMessage);
                     return PostemToolConstants.ADD_ITEM;
                 case PostemToolConstants.INVALID_EXT:
@@ -142,7 +142,7 @@ public class UploadController {
                     break;
                 case PostemToolConstants.HEADING_TOO_LONG:
                     literalErrorMessage = MessageFormat.format(messageSource.getMessage(PostemToolConstants.HEADING_TOO_LONG, null, locale),
-                        new Integer(HEADING_MAX_LENGTH));
+                        Integer.valueOf(HEADING_MAX_LENGTH));
                     break;
                 case PostemToolConstants.RESULT_OK:
                     break;
@@ -156,7 +156,7 @@ public class UploadController {
 
         //to populate verify view
         String hasStudents = MessageFormat.format(messageSource.getMessage(PostemToolConstants.HAS_STUDENTS, null, locale),
-                new Integer(currentGradebook.getStudents().size()));
+                Integer.valueOf(currentGradebook.getStudents().size()));
         model.addAttribute("has_students", hasStudents);
         StudentGrades studentGrades = currentGradebook.studentGrades(currentGradebook.getFirstUploadedUsername());
         model.addAttribute("studentGrades", studentGrades);

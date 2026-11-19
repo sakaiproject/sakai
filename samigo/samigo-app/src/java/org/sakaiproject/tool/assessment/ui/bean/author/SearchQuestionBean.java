@@ -25,21 +25,23 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.bean.ManagedBean;
 
 import org.opensearch.action.search.SearchResponse;
+import org.opensearch.common.document.DocumentField;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.aggregations.bucket.terms.Terms;
 import org.opensearch.search.aggregations.metrics.TopHits;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tags.api.Tag;
@@ -99,7 +101,7 @@ public class SearchQuestionBean   implements Serializable {
         setTextToSearch("");
         setTagToSearch(null);
         setTagToSearchLabel("");
-        setShowTags(serverConfigurationService.getBoolean("samigo.author.usetags",false));
+        setShowTags(serverConfigurationService.getBoolean("samigo.author.usetags", serverConfigurationService.getBoolean("tagservice.enable.integrations", true)));
         if (getShowTags()){
             setTagDisabled("");
         }else{
@@ -134,8 +136,8 @@ public class SearchQuestionBean   implements Serializable {
                 if (more) {
                     tagsLabels += ",";
                 }
-                if (tagService.getTags().getForId(s).isPresent()) {
-                    Tag tag = tagService.getTags().getForId(s).get();
+                if (tagService.getTag(s).isPresent()) {
+                    Tag tag = tagService.getTag(s).get();
                     String tagLabel = tag.getTagLabel();
                     String tagCollectionName = tag.getCollectionName();
                     tagsLabels += " " + tagLabel + "(" + tagCollectionName + ")";
@@ -150,11 +152,7 @@ public class SearchQuestionBean   implements Serializable {
 
         try {
 
-            SearchResponse sr = searchService.searchResponse("", null, null, 0, 0, "questions",additionalSearchInformation);
-            log.debug("This is the search response: " + sr.toString());
-            Terms dedup = sr.getAggregations().get("dedup");
-
-            for (Terms.Bucket entry : dedup.getBuckets()) {
+            for (Terms.Bucket entry : searchQuestionBuckets("", additionalSearchInformation)) {
                 String key = entry.getKeyAsString();                    // bucket key
                 long docCount = entry.getDocCount();            // Doc count
                 log.debug("key [{"+key+"}], doc_count [{"+docCount+"}]");
@@ -164,13 +162,13 @@ public class SearchQuestionBean   implements Serializable {
                     log.debug(" -> id [{"+hit.getId()+"}]");
                     String typeId = hit.field("typeId").getValue();
                     String qText = hit.field("qText").getValue();
-                    Set<String> tagsSet = getTagsFromString(hit.field("tags").getValues());
+                    Set<String> tagsSet = getTagsFromString(hit.field("tags"));
                     ItemSearchResult itemTemp = new ItemSearchResult(hit.getId(),typeId,qText,tagsSet,origin(hit));
                     resultsTemp.put(hit.getId(),itemTemp);
                 }
             }
 
-        }catch (org.sakaiproject.search.api.InvalidSearchQueryException ex){
+        }catch (InvalidSearchQueryException ex){
             log.info("Error in the search: " + ex.getMessage());
             String publish_error= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","tag_tags_error2");
             FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
@@ -219,12 +217,7 @@ public class SearchQuestionBean   implements Serializable {
         this.setTextToSearch(textToSearch);
 
         try {
-            SearchResponse sr = searchService.searchResponse(textToSearch, null, null, 0, 0, "questions", additionalSearchInformation);
-            log.debug("This is the search repsonse: " + sr.toString());
-            Terms dedup = sr.getAggregations().get("dedup");
-            // For each entry
-            for (Terms.Bucket entry : dedup.getBuckets()) {
-
+            for (Terms.Bucket entry : searchQuestionBuckets(textToSearch, additionalSearchInformation)) {
                 String key = entry.getKeyAsString();                    // bucket key
                 long docCount = entry.getDocCount();            // Doc count
                 log.debug("key [{"+key+"}], doc_count [{"+docCount+"}]");
@@ -235,7 +228,7 @@ public class SearchQuestionBean   implements Serializable {
                     log.debug(" -> id [{"+hit.getId()+"}]");
                     String typeId = hit.field("typeId").getValue();
                     String qText = hit.field("qText").getValue();
-                    Set<String> tagsSet = getTagsFromString(hit.field("tags").getValues());
+                    Set<String> tagsSet = getTagsFromString(hit.field("tags"));
                     ItemSearchResult itemTemp = new ItemSearchResult(hit.getId(),typeId,qText,tagsSet,origin(hit));
                     resultsTemp.put(hit.getId(),itemTemp);
                     //resultIds.put(hit.getId(),origin(hit));
@@ -243,7 +236,7 @@ public class SearchQuestionBean   implements Serializable {
             }
 
 
-        }catch (org.sakaiproject.search.api.InvalidSearchQueryException ex){
+        }catch (InvalidSearchQueryException ex){
             log.info("Error in the search: " + ex.getMessage());
             String publish_error= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","tag_text_error3");
             FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
@@ -276,6 +269,24 @@ public class SearchQuestionBean   implements Serializable {
 
     }
 
+
+    private List<? extends Terms.Bucket> searchQuestionBuckets(String query, Map<String, String> options)
+            throws InvalidSearchQueryException {
+        if (searchService.isEnabled()) {
+            SearchResponse response = searchService.searchResponse(query, null, null, 0, 0, "questions", options);
+            Terms dedup = response == null || response.getAggregations() == null
+                ? null : response.getAggregations().get("dedup");
+            if (dedup != null) {
+                return dedup.getBuckets();
+            }
+            log.warn("Question search returned no deduplication aggregation");
+        }
+
+        String message = ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.AuthorMessages", "question_search_unavailable");
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+        return List.of();
+    }
 
     private String origin(SearchHit hit){
         try {
@@ -316,11 +327,13 @@ public class SearchQuestionBean   implements Serializable {
         }
     }
 
-    private Set<String> getTagsFromString(List tags){
+    // a question without tags is indexed without a tags field
+    private Set<String> getTagsFromString(DocumentField tags){
         Set<String> tagSet = new HashSet<>();
-        Iterator<String> iterator = tags.iterator();
-        while (iterator.hasNext()){
-            tagSet.add(iterator.next().toString());
+        if (tags != null) {
+            for (Object tag : tags.getValues()) {
+                tagSet.add(tag.toString());
+            }
         }
         return tagSet;
     }
@@ -345,7 +358,8 @@ public class SearchQuestionBean   implements Serializable {
             HashMap<String, String> additionalSearchInformation = new HashMap<String, String>();
             additionalSearchInformation.put("scope", "own");
             additionalSearchInformation.put("subtype", "item");
-            additionalSearchInformation.put("questionId", questionId);
+            // questions are indexed by their reference
+            additionalSearchInformation.put("questionId", "/sam_item/" + questionId);
 
             try {
 

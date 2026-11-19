@@ -46,10 +46,10 @@ public class CheckAccountsJob implements Job {
 
             for (User u : users) {
                 if ("guest".equals(u.getType())) {
-                    if (!avService.isAccountValidated(u.getReference())) {
+                    if (avService.getValidationAccountByUserId(u.getId()) == null) {
                         log.info("found unvalidated account: {}({})", u.getEid(), u.getId());
-                        ValidationAccount va = avService.createValidationAccount(u.getReference(), ValidationAccount.ACCOUNT_STATUS_LEGACY);
-                        log.info("sent validation token of {}", va.getValidationToken());
+                        ValidationAccount va = avService.createValidationAccount(u.getId(), ValidationAccount.ACCOUNT_STATUS_LEGACY);
+                        log.debug("Created validation {} for user {}", va.getId(), u.getId());
                     }
                 }
             }

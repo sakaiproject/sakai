@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.api;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -462,6 +463,23 @@ public interface SiteService extends EntityProducer
 	 *            if not found.
 	 */
 	Site getSite(String id) throws IdUnusedException;
+
+	/**
+	 * Get the values of a placement-config property across all of a site's tool placements for
+	 * a particular common Tool Id, skipping placements where the property isn't set. Used, for
+	 * example, to find which groups a tool has been split into via one placement per group,
+	 * each placement tagged with a group-id property - without callers needing to know about
+	 * ToolConfiguration/placement-config internals themselves.
+	 *
+	 * @param siteId
+	 *        The site id string.
+	 * @param commonToolId
+	 *        The tool id (String, such as sakai.chat, not a tool configuration / placement uuid) to search for.
+	 * @param propertyName
+	 *        The placement-config property name to read from each matching placement.
+	 * @return The non-null values of propertyName found across the site's placements for commonToolId (may be empty).
+	 */
+	Collection<String> getToolPlacementPropertyValues(String siteId, String commonToolId, String propertyName);
 
 	/**
 	 * Access a site object for purposes of having the user visit the site - visitation permissions are in effect.
@@ -1310,7 +1328,19 @@ public interface SiteService extends EntityProducer
 	 * @return The Group object if found, or null if not.
 	 */
 	Group findGroup(String refOrId);
-	
+
+    /**
+     * Create a group in the destination site with the source title, description and settings.
+     * Source-specific Lessons references, external section IDs, group filters and role-provider
+     * IDs are excluded. Memberships, provider group IDs and locks are not copied.
+     * The caller is responsible for checking permissions and saving the destination site.
+     *
+     * @param source the group whose settings to copy
+     * @param destination the site receiving the new group
+     * @return the newly created, unsaved group
+     */
+    Group copyGroup(Group source, Site destination);
+
 	/**
 	 * Registers a SiteAdvisor with the SiteService.  Each registered advisor will be
 	 * called immediately upon a call to save(Site).

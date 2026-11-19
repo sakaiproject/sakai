@@ -24,12 +24,31 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.BoundingBox;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 class ToolOrderTest extends SakaiUiTestBase {
+
+    @Test
+    void canExpandToolNavigationAfterSwitchingSites() {
+        sakai.login("instructor1");
+        String firstSiteUrl = sakai.createCourse("instructor1", List.of("sakai.announcements"));
+        String secondSiteUrl = sakai.createCourse("instructor1", List.of("sakai.resources"));
+
+        page.navigate(secondSiteUrl);
+        sakai.toolClick("Resources");
+        page.navigate(firstSiteUrl);
+
+        Locator expandButton = page.locator(
+            "li.site-list-item.is-current-site button[data-bs-toggle='collapse']").first();
+        assertThat(expandButton).hasAttribute("aria-expanded", Pattern.compile("true|false"));
+        sakai.toolClick("Announcements");
+        assertThat(page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText("Add")).first()).isVisible();
+    }
 
     @Test
     void toolOrderImmediateActionsPersist() {
@@ -43,11 +62,23 @@ class ToolOrderTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("Tool Order", Pattern.CASE_INSENSITIVE))).first();
         assertThat(toolOrderTab).isVisible();
         toolOrderTab.click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator app = page.locator("#tool-order-app");
         assertThat(app).isVisible();
+        assertThat(app).hasClass(Pattern.compile("sakai-reorder"));
+        assertThat(app.locator(".page-header h1")).isVisible();
+        assertThat(app.locator(".instruction")).containsText(Pattern.compile(
+            "Changes are saved immediately.*Drag tools|move buttons", Pattern.CASE_INSENSITIVE | Pattern.DOTALL));
+        Locator warnings = app.locator(".sak-banner-warn");
+        assertTrue(warnings.count() >= 2);
+        assertThat(warnings.first()).not().containsText(Pattern.compile("^\\s*Warning\\s*:", Pattern.CASE_INSENSITIVE));
+        assertThat(page.locator(".tool-order-row.sakai-reorder-row").first()).isVisible();
+        assertThat(page.locator(".tool-order-row [data-action=\"move-up\"]").first()).isVisible();
+        assertThat(page.locator(".tool-order-row [data-action=\"move-down\"]").first()).isVisible();
+        assertThat(page.locator(".tool-order-row [data-action=\"drag-handle\"]").first()).isVisible();
         Locator statusAlert = page.locator("#tool-order-alert");
+        assertThat(statusAlert).hasClass(Pattern.compile("d-none"));
         Pattern orderSavedMessage = Pattern.compile("order.*saved", Pattern.CASE_INSENSITIVE);
         Pattern toolSettingsSavedMessage = Pattern.compile("tool settings.*saved", Pattern.CASE_INSENSITIVE);
         Pattern removedMessage = Pattern.compile("successfully removed", Pattern.CASE_INSENSITIVE);
@@ -65,9 +96,31 @@ class ToolOrderTest extends SakaiUiTestBase {
         assertThat(statusAlert).containsText(orderSavedMessage);
 
         page.reload();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         String firstTitleAfter = page.locator(".tool-order-row").first().locator(".tool-order-title").innerText();
         assertNotEquals(firstTitleBefore, firstTitleAfter);
+
+        Locator firstRowAfterReload = page.locator(".tool-order-row").first();
+        String titleBeforeMoveDown = firstRowAfterReload.locator(".tool-order-title").innerText();
+        Locator moveDown = firstRowAfterReload.locator("[data-action=\"move-down\"]");
+        assertThat(moveDown).isEnabled();
+        moveDown.click();
+        assertThat(statusAlert).containsText(orderSavedMessage);
+        assertNotEquals(titleBeforeMoveDown,
+            page.locator(".tool-order-row").first().locator(".tool-order-title").innerText());
+
+        Locator secondRowAfterMove = page.locator(".tool-order-row").nth(1);
+        Locator moveUp = secondRowAfterMove.locator("[data-action=\"move-up\"]");
+        assertThat(moveUp).isEnabled();
+        moveUp.click();
+        assertThat(statusAlert).containsText(orderSavedMessage);
+        assertThat(page.locator(".tool-order-row").first().locator(".tool-order-title"))
+            .containsText(titleBeforeMoveDown);
+
+        page.reload();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".tool-order-row").first().locator(".tool-order-title"))
+            .containsText(titleBeforeMoveDown);
 
         Locator editableRow = page.locator(".tool-order-row:has([data-action=\"edit\"])").first();
         assertThat(editableRow).isVisible();
@@ -118,7 +171,7 @@ class ToolOrderTest extends SakaiUiTestBase {
 
         page.getByRole(AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName(Pattern.compile("Done", Pattern.CASE_INSENSITIVE))).click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#tool-order-app")).hasCount(0);
         assertThat(page.locator(".navIntraTool .current")
                 .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Site Information", Pattern.CASE_INSENSITIVE)))

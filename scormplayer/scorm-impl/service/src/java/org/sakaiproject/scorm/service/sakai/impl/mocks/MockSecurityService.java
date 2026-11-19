@@ -76,6 +76,16 @@ public class MockSecurityService implements SecurityService
     }
 
     @Override
+    public void registerAdvisor( SecurityAdvisor advisor )
+    {
+    }
+
+    @Override
+    public void unregisterAdvisor( SecurityAdvisor advisor )
+    {
+    }
+
+    @Override
     public void pushAdvisor( SecurityAdvisor advisor )
     {
     }

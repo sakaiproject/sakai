@@ -36,6 +36,7 @@
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
         <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
         <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
         <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
@@ -66,6 +67,17 @@
         </property>
     </bean>
 
+    <bean id="org.sakaiproject.poll.impl.search.PollsContentProducer"
+          class="org.sakaiproject.poll.impl.search.PollsContentProducer"
+          init-method="init">
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="pollsService" ref="org.sakaiproject.poll.api.service.PollsService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+
     <!-- Job to back-fill Poll options' order -->
     <bean id="pollOrderOptionBackFillJob"
           class="org.sakaiproject.poll.impl.logic.PollOrderOptionBackFillJob">
@@ -91,4 +103,17 @@
             </list>
         </constructor-arg>
     </bean>
+    <!-- Register the completed transactional proxy rather than the target from init(). -->
+    <bean id="org.sakaiproject.poll.api.service.PollsService.entityProducerRegistration"
+          class="org.springframework.beans.factory.config.MethodInvokingBean">
+        <property name="targetObject" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="targetMethod" value="registerEntityProducer"/>
+        <property name="arguments">
+            <list>
+                <ref bean="org.sakaiproject.poll.api.service.PollsService"/>
+                <value>/poll</value>
+            </list>
+        </property>
+    </bean>
+
 </beans>

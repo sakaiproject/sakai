@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * NonPortableSession stores a users session data that can not be 'shared'
- * in a Terracotta (or similar) cluster.
+ * in a cluster.
  */
 public interface NonPortableSession {
 

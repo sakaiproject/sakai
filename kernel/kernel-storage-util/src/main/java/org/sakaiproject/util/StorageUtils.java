@@ -32,12 +32,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,10 +48,7 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 
@@ -63,7 +58,6 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 @Slf4j
 public class StorageUtils {
-	private static volatile SAXParserFactory parserFactory;
 	private static final DocumentBuilderFactory dbFactory = createSecureDocumentBuilderFactory();
 
 	/**
@@ -302,44 +296,14 @@ public class StorageUtils {
 	{
 		InputSource ss = new InputSource(in);
 
-		SAXParser p = null;
-		if (parserFactory == null) {
-			synchronized (StorageUtils.class) {
-				if (parserFactory == null) {
-					SAXParserFactory f = SAXParserFactory.newInstance();
-					f.setNamespaceAware(false);
-					f.setValidating(false);
-					try {
-						f.setXIncludeAware(false);
-					} catch (UnsupportedOperationException e) {
-						log.debug("SAXParserFactory does not support XInclude control; skipping");
-					}
-					try {
-						f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-						f.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-						f.setFeature("http://xml.org/sax/features/external-general-entities", false);
-						f.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-						f.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-					} catch (ParserConfigurationException | SAXNotRecognizedException | SAXNotSupportedException e) {
-						log.warn("Failed to apply secure SAX parser features; continuing with defaults", e);
-					}
-					parserFactory = f;
-				}
-			}
-		}
+		SAXParser p;
 		try
 		{
-			p = parserFactory.newSAXParser();
-			XMLReader reader = p.getXMLReader();
-			try {
-				reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
-				log.warn("Failed to disable external DTD loading on SAX reader; continuing with defaults", e);
-			}
+			p = Xml.createSecureSAXParser(false);
 		}
 		catch (ParserConfigurationException e)
 		{
-			throw new SAXException("Failed to get a parser ", e);
+			throw new SAXException("Failed to create secure XML parser", e);
 		}
 		p.parse(ss, dh);
 	}
@@ -398,7 +362,6 @@ public class StorageUtils {
 	{
 		try
 		{
-			
 			StringWriter sw = new StringWriter();
 			
 			  DocumentBuilder builder = dbFactory.newDocumentBuilder();

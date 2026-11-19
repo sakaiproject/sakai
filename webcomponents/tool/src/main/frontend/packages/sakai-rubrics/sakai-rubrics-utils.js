@@ -6,8 +6,6 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
 
   initLightbox(i18n, siteId) {
 
-    const rubrics = window.top.rubrics;
-
     if (this.lightbox) {
       return;
     }
@@ -48,14 +46,16 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
     el.removeAttribute("evaluated-item-id");
     el.removeAttribute("instructor");
     el.removeAttribute("evaluated-item-owner-id");
-    el.removeAttribute("peer-or-self");
+    el.removeAttribute("is-peer-or-self");
   },
 
-  showRubric(id, attributes, launchingElement) {
+  showRubric(id, attributes) {
 
-    const rubrics = this.windowRef.rubrics;
-
-    const el = this.windowRef.document.querySelector("sakai-rubric-student");
+    const previous = this.lightbox.querySelector("sakai-rubric-student");
+    previous.handleClose?.();
+    const el = this.windowRef.document.createElement("sakai-rubric-student");
+    el.setAttribute("site-id", previous.getAttribute("site-id"));
+    previous.replaceWith(el);
 
     if (!attributes) {
       el.setAttribute("rubric-id", id);
@@ -65,7 +65,7 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
       el.removeAttribute("evaluated-item-id");
       el.removeAttribute("instructor");
       el.removeAttribute("evaluated-item-owner-id");
-      el.removeAttribute("peer-or-self");
+      el.removeAttribute("is-peer-or-self");
     } else {
       el.removeAttribute("rubric-id");
       if (attributes["force-preview"]) {
@@ -75,12 +75,12 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
         // If a dropdown menu of views can be selected, initialize the view with the Grading Rubric
         el.displayGradingTab();
       }
+      el.toggleAttribute("instructor", attributes.instructor === true);
+      el.toggleAttribute("is-peer-or-self", attributes["is-peer-or-self"] === true);
+      el.setAttribute("evaluated-item-owner-id", attributes["evaluated-item-owner-id"]);
       el.setAttribute("tool-id", attributes["tool-id"]);
       el.setAttribute("entity-id", attributes["entity-id"]);
       el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
-      el.setAttribute("instructor", attributes.instructor);
-      el.setAttribute("evaluated-item-owner-id", attributes["evaluated-item-owner-id"]);
-      el.setAttribute("peer-or-self", attributes["peer-or-self"]);
     }
 
     bootstrap.Modal.getOrCreateInstance(this.lightbox).show();

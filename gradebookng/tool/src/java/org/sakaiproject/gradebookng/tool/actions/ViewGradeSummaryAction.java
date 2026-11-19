@@ -60,7 +60,7 @@ public class ViewGradeSummaryAction extends InjectableAction implements Serializ
 		final Component content = new StudentGradeSummaryPanel(window.getContentId(), Model.ofMap(model), window);
 
 		if (window.isShown() && window.isVisible()) {
-			window.replace(content);
+			window.setContent(content);
 			content.setVisible(true);
 			target.add(content);
 		} else {

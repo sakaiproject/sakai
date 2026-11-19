@@ -21,7 +21,7 @@
 
 package org.sakaiproject.jsf.help;
 
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.webapp.UIComponentTag;
 
 /**
  * help set default action tag
@@ -30,7 +30,7 @@ import javax.faces.webapp.UIComponentTag;
 public class HelpSetDefaultActionTag extends UIComponentTag
 {
   /** 
-   * @see javax.faces.webapp.UIComponentTag#getComponentType()
+   * @see jakarta.faces.webapp.UIComponentTag#getComponentType()
    */
   public String getComponentType()
   {
@@ -38,7 +38,7 @@ public class HelpSetDefaultActionTag extends UIComponentTag
   }
 
   /** 
-   * @see javax.faces.webapp.UIComponentTag#getRendererType()
+   * @see jakarta.faces.webapp.UIComponentTag#getRendererType()
    */
   public String getRendererType()
   {

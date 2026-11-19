@@ -19,6 +19,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,7 @@ class PostemTest extends SakaiUiTestBase {
             .first();
         assertThat(addFeedback).isVisible();
         addFeedback.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("body")).containsText(Pattern.compile("Add/Update Feedback File", Pattern.CASE_INSENSITIVE));

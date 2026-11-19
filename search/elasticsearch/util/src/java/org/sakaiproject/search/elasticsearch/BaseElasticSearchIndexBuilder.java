@@ -77,6 +77,7 @@ import org.opensearch.cluster.health.ClusterIndexHealth;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.set.Sets;
 import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.MatchNoneQueryBuilder;
 import org.opensearch.core.rest.RestStatus;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.aggregations.AggregationBuilders;
@@ -126,6 +127,13 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     protected final static SecurityAdvisor allowAllAdvisor =
             (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+
+    /** A search term like tool:wiki targets one of these fields. Any other colon is just text, as in "chapter 1:". */
+    private static final Set<String> SEARCHABLE_FIELDS = Set.of(
+            SearchService.FIELD_CONTAINER, SearchService.FIELD_CONTENTS, SearchService.FIELD_CREATOR_DISPLAY_NAME,
+            SearchService.FIELD_CREATOR_ID, SearchService.FIELD_CREATOR_USER_NAME, SearchService.FIELD_REFERENCE,
+            SearchService.FIELD_SITEID, SearchService.FIELD_TITLE, SearchService.FIELD_TOOL, SearchService.FIELD_TYPE,
+            SearchService.FIELD_URL);
 
 
     protected SecurityService securityService;
@@ -1132,16 +1140,27 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         if (searchTerms == null) {
             query.must(matchAllQuery());
-        } else {
-            Arrays.stream(searchTerms.split(" ")).forEach(term -> {
+            return;
+        }
 
-                if (term.contains(":")) {
-                    String[] fieldTerm = term.split(":");
-                    query.must(termQuery(fieldTerm[0], fieldTerm[1]));
-                } else {
-                    query.must(simpleQueryStringQuery(term));
-                }
-            });
+        // a colon at either end of a word is punctuation, and would stop the word matching titles
+        String[] terms = Arrays.stream(StringUtils.split(searchTerms))
+                .map(term -> StringUtils.strip(term, ":"))
+                .filter(StringUtils::isNotEmpty)
+                .toArray(String[]::new);
+        if (terms.length == 0) {
+            query.must(new MatchNoneQueryBuilder());
+            return;
+        }
+
+        for (String term : terms) {
+            String field = StringUtils.substringBefore(term, ":");
+            String value = StringUtils.substringAfter(term, ":");
+            if (SEARCHABLE_FIELDS.contains(field) && !value.isEmpty()) {
+                query.must(termQuery(field, value));
+            } else {
+                query.must(simpleQueryStringQuery(term));
+            }
         }
     }
 

@@ -173,6 +173,12 @@ public class MockSiteService implements SiteService
     }
 
     @Override
+    public Group copyGroup(Group source, Site destination)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public Group findGroup( String refOrId )
     {
         throw new UnsupportedOperationException( "Not supported yet." );
@@ -276,6 +282,12 @@ public class MockSiteService implements SiteService
 
     @Override
     public Site getSite( String id ) throws IdUnusedException
+    {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    @Override
+    public Collection<String> getToolPlacementPropertyValues( String siteId, String commonToolId, String propertyName )
     {
         throw new UnsupportedOperationException( "Not supported yet." );
     }

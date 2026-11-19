@@ -14,13 +14,18 @@ export class SakaiHomeDashboard extends SakaiElement {
     _data: { state: true },
     _showMotd: { state: true },
     _editing: { state: true },
+    _availableWidgetCount: { state: true },
   };
 
   constructor() {
 
     super();
 
-    this.loadTranslations("dashboard");
+    this._availableWidgetCount = 0;
+    this.loadTranslations({
+      bundle: "dashboard",
+      requiredKeys: [ "widgets_available" ],
+    });
   }
 
   set userId(value) {
@@ -47,24 +52,51 @@ export class SakaiHomeDashboard extends SakaiElement {
 
         this._data = r;
         this._showMotd = this._data.motd;
+        this._updateAvailableWidgetCount();
       })
       .catch(error => console.error(error));
   }
 
+  _updateAvailableWidgetCount() {
+
+    if (!this._data?.widgets || !this._data?.widgetLayout) {
+      this._availableWidgetCount = 0;
+      return;
+    }
+    const inLayout = new Set(
+      (this._data.widgetLayout || []).map(t => (typeof t === "string" ? t : t?.id)).filter(Boolean)
+    );
+    this._availableWidgetCount = (this._data.widgets || []).filter(id => id && !inLayout.has(id)).length;
+  }
+
   widgetLayoutChange(e) {
+
     this._data.widgetLayout = e.detail.layout;
+    if (typeof e.detail.availableCount === "number") {
+      this._availableWidgetCount = e.detail.availableCount;
+    } else {
+      this._updateAvailableWidgetCount();
+    }
+  }
+
+  _availableWidgetsChanged(e) {
+
+    if (typeof e.detail?.count === "number") {
+      this._availableWidgetCount = e.detail.count;
+    }
   }
 
   edit() {
 
     this._editing = !this._editing;
-    this.layoutBackup = [ ...this._data.widgetLayout ];
+    this.layoutBackup = structuredClone(this._data.widgetLayout);
   }
 
   cancel() {
 
     this._editing = false;
-    this._data.widgetLayout = [ ...this.layoutBackup ];
+    this._data.widgetLayout = structuredClone(this.layoutBackup);
+    this._updateAvailableWidgetCount();
     this.requestUpdate();
   }
 
@@ -97,14 +129,31 @@ export class SakaiHomeDashboard extends SakaiElement {
     return this._i18n && this._data;
   }
 
+  _widgetsAvailableLabel() {
+
+    const count = this._availableWidgetCount;
+    if (count <= 0) {
+      return nothing;
+    }
+    const template = this._i18n.widgets_available || "{0} widgets available";
+    return html`
+      <span class="dashboard-widgets-available text-muted small me-2">
+        ${template.replace("{0}", String(count))}
+      </span>
+    `;
+  }
+
   _renderWidgetPanel() {
 
     return html`
       <div class="w-100">
         <sakai-widget-panel
           @changed=${this.widgetLayoutChange}
+          @available-changed=${this._availableWidgetsChanged}
           .widgetIds=${this._data.widgets}
           .layout=${this._data.widgetLayout}
+          .widgetFilters=${this._data.widgetFilters}
+          ?grades-reveal-on-click=${this._data.gradesRevealOnClick !== false}
           site-id=""
           user-id="${ifDefined(this.userId)}"
           ?editing=${this._editing}>
@@ -119,6 +168,7 @@ export class SakaiHomeDashboard extends SakaiElement {
       <div class="row mb-3">
         <h2 class="col-8 my-2">${this._i18n.welcome} ${this._data.givenName}</h2>
         <div class="col-4 d-flex justify-content-end align-items-center">
+          ${this._widgetsAvailableLabel()}
           ${this._editing ? html`
             <div class="mt-1 mx-1 mt-sm-0">
               <button id="dashboard-save-button" type="button"
@@ -140,13 +190,12 @@ export class SakaiHomeDashboard extends SakaiElement {
             </div>
           ` : html`
             <div>
-              <button slot="invoker"
-                  type="button"
-                  class="btn btn-secondary"
+              <button type="button"
+                  class="btn btn-icon"
                   @click=${this.edit}
                   title="${this._i18n.edit_tooltip}"
                   aria-label="${this._i18n.edit_tooltip}">
-                <span>${this._i18n.edit}</span>
+                <span class="si si-edit fs-5" aria-hidden="true"></span>
               </button>
             </div>
           `}

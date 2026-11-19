@@ -7,7 +7,7 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 

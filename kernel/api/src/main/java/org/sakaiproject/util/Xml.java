@@ -21,6 +21,22 @@
 
 package org.sakaiproject.util;
 
+import javax.xml.transform.stream.StreamResult;
+
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.sax.SAXSource;
+import org.w3c.dom.ls.LSInput;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.Source;
+import java.util.List;
+import java.util.ArrayList;
+import java.nio.file.Path;
+import java.net.URI;
+import java.io.File;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import org.xml.sax.XMLReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,7 +49,6 @@ import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Stack;
-
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,12 +56,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.validation.Schema;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.codec.binary.Base64;
-
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,7 +67,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
-
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -77,7 +88,6 @@ public class Xml
 	private static final String LOAD_EXTERNAL_DTD = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
 	private static final String DEFER_NODE_EXPANSION = "http://apache.org/xml/features/dom/defer-node-expansion";
 
-	private static SAXParserFactory parserFactory;
 
 	/**
 	 * Create a new DOM Document.
@@ -109,35 +119,38 @@ public class Xml
 	 */
 	public static Document readDocument(String name)
 	{
+		return readDocument(name, true);
+	}
+
+	/**
+	 * Read a DOM Document from a file with the requested namespace mode.
+	 * Use namespace-unaware mode for legacy formats with unbound prefixes.
+	 * XML security restrictions apply in both modes.
+	 *
+	 * @param name the XML file name
+	 * @param namespaceAware whether the parser should process XML namespaces
+	 * @return the parsed document, or null if parsing fails
+	 */
+	public static Document readDocument(String name, boolean namespaceAware)
+	{
 		Document doc = null;
 		// first try using whatever character encoding the XML itself specifies
-		InputStream fis = null;
-		try
+		try (InputStream fis = new FileInputStream(name))
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
-			fis = new FileInputStream(name);
+			DocumentBuilder docBuilder = createSecureDocumentBuilderFactory(namespaceAware).newDocumentBuilder();
 			doc = docBuilder.parse(fis);
 		}
 		catch (Exception e)
 		{
 			doc = null;
 		}
-		finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (IOException e) {
-				}
-			}
-		}
 
 		if (doc != null) return doc;
 
 		// OK, that didn't work - the document is probably ISO-8859-1
-		try
+		try (InputStreamReader in = new InputStreamReader(new FileInputStream(name), "ISO-8859-1"))
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(name), "ISO-8859-1");
+			DocumentBuilder docBuilder = createSecureDocumentBuilderFactory(namespaceAware).newDocumentBuilder();
 			InputSource inputSource = new InputSource(in);
 			doc = docBuilder.parse(inputSource);
 		}
@@ -149,10 +162,9 @@ public class Xml
 		if (doc != null) return doc;
 
 		// try forcing UTF-8
-		try
+		try (InputStreamReader in = new InputStreamReader(new FileInputStream(name), "UTF-8"))
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(name), "UTF-8");
+			DocumentBuilder docBuilder = createSecureDocumentBuilderFactory(namespaceAware).newDocumentBuilder();
 			InputSource inputSource = new InputSource(in);
 			doc = docBuilder.parse(inputSource);
 		}
@@ -224,21 +236,14 @@ public class Xml
 	{
 		InputSource ss = new InputSource(in);
 
-		SAXParser p = null;
-		if (parserFactory == null)
-		{
-			parserFactory = SAXParserFactory.newInstance();
-			parserFactory.setNamespaceAware(false);
-			parserFactory.setValidating(false);
-		}
+		SAXParser p;
 		try
 		{
-			p = parserFactory.newSAXParser();
-
+			p = createSecureSAXParser(false);
 		}
 		catch (ParserConfigurationException e)
 		{
-			throw new SAXException("Failed to get a parser ", e);
+			throw new SAXException("Failed to create secure XML parser", e);
 		}
 		p.parse(ss, dh);
 	}
@@ -280,11 +285,7 @@ public class Xml
 		try
 		{
 			out = new FileOutputStream(fileName);
-//			 get an instance of the DOMImplementation registry
-			 DocumentBuilderFactory factory 
-			   = DocumentBuilderFactory.newInstance();
-			  DocumentBuilder builder = factory.newDocumentBuilder();
-			  DOMImplementation impl = builder.getDOMImplementation();
+			DOMImplementation impl = doc.getImplementation();
 			  
 			DOMImplementationLS feature = (DOMImplementationLS) impl.getFeature("LS","3.0");
 			LSSerializer serializer = feature.createLSSerializer();
@@ -322,13 +323,9 @@ public class Xml
 	{
 		try
 		{
-			
 			StringWriter sw = new StringWriter();
 			
-			 DocumentBuilderFactory factory 
-			   = DocumentBuilderFactory.newInstance();
-			  DocumentBuilder builder = factory.newDocumentBuilder();
-			  DOMImplementation impl = builder.getDOMImplementation();
+			DOMImplementation impl = doc.getImplementation();
 			  
 			
 			DOMImplementationLS feature = (DOMImplementationLS) impl.getFeature("LS",
@@ -452,6 +449,173 @@ public class Xml
 	public static DocumentBuilderFactory createSecureDocumentBuilderFactory() throws ParserConfigurationException
 	{
 		return createSecureDocumentBuilderFactory(null);
+	}
+
+	/** Creates a hardened DOM factory with the requested namespace mode. */
+	public static DocumentBuilderFactory createSecureDocumentBuilderFactory(boolean namespaceAware) throws ParserConfigurationException
+	{
+		DocumentBuilderFactory factory = createSecureDocumentBuilderFactory();
+		factory.setNamespaceAware(namespaceAware);
+		return factory;
+	}
+
+	/**
+	 * Allows legacy DOCTYPE declarations without loading DTDs or expanding entities.
+	 * Use only for formats whose supported documents contain a DOCTYPE.
+	 */
+	public static DocumentBuilderFactory createSecureDocumentBuilderFactoryWithDoctype(boolean namespaceAware) throws ParserConfigurationException
+	{
+		DocumentBuilderFactory factory = createSecureDocumentBuilderFactory(namespaceAware);
+		setFeature(factory, DISALLOW_DOCTYPE_DECL, false);
+		return factory;
+	}
+
+	/** Allows legacy DOCTYPE declarations while retaining the shared SAX external-resource restrictions. */
+	public static SAXParser createSecureSAXParserWithDoctype(boolean namespaceAware) throws ParserConfigurationException, SAXException
+	{
+		SAXParser parser = createSecureSAXParser(namespaceAware);
+		parser.getXMLReader().setFeature(DISALLOW_DOCTYPE_DECL, false);
+		return parser;
+	}
+
+	/** Creates a new SAX parser; required security settings must succeed. */
+	public static SAXParser createSecureSAXParser(boolean namespaceAware) throws ParserConfigurationException, SAXException
+	{
+		SAXParserFactory factory = SAXParserFactory.newDefaultInstance();
+		factory.setNamespaceAware(namespaceAware);
+		factory.setValidating(false);
+		factory.setXIncludeAware(false);
+		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		factory.setFeature(DISALLOW_DOCTYPE_DECL, true);
+		factory.setFeature(EXTERNAL_GENERAL_ENTITIES, false);
+		factory.setFeature(EXTERNAL_PARAMETER_ENTITIES, false);
+		factory.setFeature(LOAD_EXTERNAL_DTD, false);
+		SAXParser parser = factory.newSAXParser();
+		parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		return parser;
+	}
+
+	/** Creates a hardened reader for SAX consumers, including JDOM adapters. */
+	public static XMLReader createSecureXMLReader(boolean namespaceAware) throws ParserConfigurationException, SAXException
+	{
+		return createSecureSAXParser(namespaceAware).getXMLReader();
+	}
+
+	/** Supplies a hardened SAX reader to APIs that would otherwise parse a StreamSource themselves. */
+	public static SAXSource createSecureSource(InputSource input) throws TransformerException
+	{
+		try
+		{
+			return new SAXSource(createSecureXMLReader(true), input);
+		}
+		catch (ParserConfigurationException | SAXException e)
+		{
+			throw new TransformerException("Unable to create secure XML source", e);
+		}
+	}
+
+	public static SAXSource createSecureSource(InputStream input) throws TransformerException
+	{
+		return createSecureSource(new InputSource(input));
+	}
+
+	/** Resolves a stylesheet dependency within its local directory, using a hardened reader. */
+	public static Source resolveSecureSource(String href, String base) throws TransformerException
+	{
+		try
+		{
+			if (base == null)
+			{
+				throw new IOException("Stylesheet base location is required");
+			}
+			URI baseURI = URI.create(base);
+			if (baseURI.getScheme() == null)
+			{
+				baseURI = new File(base).toURI();
+			}
+			Path directory = new File(baseURI).toPath().toRealPath().getParent();
+			Path resource = new File(baseURI.resolve(href)).toPath().toRealPath();
+			if (!resource.startsWith(directory))
+			{
+				throw new IOException("Stylesheet resource is outside its directory");
+			}
+			return createSecureSource(new InputSource(resource.toUri().toString()));
+		}
+		catch (IOException | IllegalArgumentException e)
+		{
+			throw new TransformerException("Unable to resolve local stylesheet resource", e);
+		}
+	}
+
+	/** Creates a transformer factory with external XML and stylesheet access disabled. */
+	public static TransformerFactory createSecureTransformerFactory()
+	{
+		TransformerFactory factory = TransformerFactory.newDefaultInstance();
+		try
+		{
+			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+		}
+		catch (TransformerConfigurationException | IllegalArgumentException e)
+		{
+			throw new IllegalStateException("Unable to configure secure XML transformation", e);
+		}
+		return factory;
+	}
+
+	/** Creates a schema factory with external DTD and schema access disabled. */
+	public static SchemaFactory createSecureSchemaFactory() throws SAXException
+	{
+		SchemaFactory factory = SchemaFactory.newDefaultInstance();
+		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		return factory;
+	}
+
+	/** Compiles package schemas without allowing network access or reads outside the package. */
+	public static Schema createSecureSchema(File directory, List<File> schemaFiles) throws IOException, SAXException, ParserConfigurationException
+	{
+		Path root = directory.toPath().toRealPath();
+		DocumentBuilder builder = createSecureDocumentBuilderFactory().newDocumentBuilder();
+		DOMImplementationLS implementation = (DOMImplementationLS) builder.getDOMImplementation().getFeature("LS", "3.0");
+		SchemaFactory factory = createSecureSchemaFactory();
+		factory.setResourceResolver((type, namespace, publicId, systemId, baseURI) -> {
+			try
+			{
+				URI location = baseURI == null ? root.toUri().resolve(systemId) : URI.create(baseURI).resolve(systemId);
+				Path file = new File(location).toPath().toRealPath();
+				if (!file.startsWith(root))
+				{
+					throw new IOException("Schema resource is outside the package");
+				}
+				LSInput input = implementation.createLSInput();
+				// Parse imported schemas with the same hardened DOM policy, then supply XML text.
+				StringWriter xml = new StringWriter();
+				createSecureTransformerFactory().newTransformer().transform(new DOMSource(builder.parse(file.toFile())), new StreamResult(xml));
+				input.setStringData(xml.toString());
+				input.setSystemId(file.toUri().toString());
+				input.setBaseURI(file.toUri().toString());
+				return input;
+			}
+			catch (IOException | SAXException | TransformerException | IllegalArgumentException e)
+			{
+				throw new IllegalArgumentException("Unable to resolve package schema", e);
+			}
+		});
+		List<Source> sources = new ArrayList<>();
+		for (File schemaFile : schemaFiles)
+		{
+			Path file = schemaFile.toPath().toRealPath();
+			if (!file.startsWith(root))
+			{
+				throw new IOException("Schema is outside the package");
+			}
+			sources.add(new DOMSource(builder.parse(file.toFile()), file.toUri().toString()));
+		}
+		return factory.newSchema(sources.toArray(new Source[0]));
 	}
 
 	/**

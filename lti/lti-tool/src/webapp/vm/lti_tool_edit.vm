@@ -19,9 +19,10 @@
         #if ($canDeploy)
             <div style="float:right; display: none;" id="lti-deployment-div">
                 <a href="$deployUrl" class="btn btn-primary" target="sakai-lti-admin-iframe" title="$tlang.getString("deploy.tool.site.title")"
-                   role="button" onclick="showIframe(this.title, false);">$tlang.getString("deploy.tool.site.button")
+                   role="button" id="lti-deployment-button" onclick="showIframe(this.title, false);">$tlang.getString("deploy.tool.site.button")
                 </a>
             </div>
+            <input type="hidden" name="openDeploy" id="lti-open-deploy" value="" />
         #end
 
         $formInput
@@ -450,7 +451,28 @@ window.addEventListener('message', function (e) {
             // Add event listeners to radio buttons
             visibleInput.addEventListener('change', updateVisibility);
             stealthInput.addEventListener('change', updateVisibility);
-        });      
+        });
+
+        // The deployment panel reads the saved tool, so save any changes first and
+        // reopen the deployment panel once the save completes
+        window.addEventListener('load', function () {
+            const form = document.forms.customizeForm;
+            const deployButton = document.getElementById('lti-deployment-button');
+            const formState = () => new URLSearchParams(new FormData(form)).toString();
+            const savedState = formState();
+
+            deployButton.addEventListener('click', function (event) {
+                if (formState() === savedState) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                document.getElementById('lti-open-deploy').value = 'true';
+                form.requestSubmit(form.querySelector('input[name="$doToolAction"]'));
+            }, true);
+
+            #if ($openDeploy)
+                deployButton.click();
+            #end
+        });
     #end
 
 </script>
