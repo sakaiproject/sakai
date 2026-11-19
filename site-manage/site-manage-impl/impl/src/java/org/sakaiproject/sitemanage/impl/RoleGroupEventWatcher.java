@@ -15,8 +15,13 @@
  */
 package org.sakaiproject.sitemanage.impl;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -42,12 +47,12 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Keeps the membership of role based groups (groups created in Site Info with a role as member,
  * marked with {@link SiteConstants#GROUP_PROP_ROLE_PROVIDERID}) in sync with the site membership
- * by watching site realm updates. Originally added for SAK-16362, restored for SAK-46387.
+ * by watching site realm updates.
  */
 @Slf4j
 public class RoleGroupEventWatcher implements Observer {
 
-    private static final String CURRENT_EVENT_RESOURCE_REF = "current.event.resource.ref";
+    private static final String SYNC_IN_PROGRESS = RoleGroupEventWatcher.class.getName() + ".syncInProgress";
     private static final String GROUP_REF_SEGMENT = Entity.SEPARATOR + SiteService.GROUP_SUBTYPE;
     private static final String SITE_REF_PREFIX = SiteService.REFERENCE_ROOT + Entity.SEPARATOR;
 
@@ -87,50 +92,77 @@ public class RoleGroupEventWatcher implements Observer {
         if (!realmId.startsWith(SITE_REF_PREFIX)) return;
 
         // guard against the events fired by our own saveGroupMembership below
-        if (threadLocalManager.get(CURRENT_EVENT_RESOURCE_REF) != null) return;
-        threadLocalManager.set(CURRENT_EVENT_RESOURCE_REF, realmId);
+        if (threadLocalManager.get(SYNC_IN_PROGRESS) != null) return;
+        threadLocalManager.set(SYNC_IN_PROGRESS, Boolean.TRUE);
 
         // the sync only propagates changes already made to the site realm, bypass permission checks
         SecurityAdvisor advisor = (userId, sf, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+        securityService.pushAdvisor(advisor);
         try {
-            securityService.pushAdvisor(advisor);
-            try {
-                AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
-                Site site = siteService.getSite(realmId.substring(SITE_REF_PREFIX.length()));
-
-                boolean needSave = false;
-                for (Group group : site.getGroups()) {
-                    if (group.getProperties().getProperty(Group.GROUP_PROP_WSETUP_CREATED) == null) continue;
-                    String roleString = group.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
-                    if (StringUtils.isBlank(roleString)) continue;
-
-                    needSave = true;
-                    for (String role : SiteGroupHelper.unpack(roleString)) {
-                        try {
-                            // replace the members holding this role with the current site users of the role
-                            for (Member member : group.getMembers()) {
-                                if (role.equals(member.getRole().getId())) {
-                                    group.deleteMember(member.getUserId());
-                                }
-                            }
-                            for (String userId : realm.getUsersHasRole(role)) {
-                                group.insertMember(userId, role, true, false);
-                            }
-                        } catch (AuthzRealmLockException e) {
-                            log.warn("Could not sync role {} in locked group {}, {}", role, group.getId(), e.toString());
-                        }
-                    }
-                }
-                if (needSave) {
-                    siteService.saveGroupMembership(site);
-                }
-            } finally {
-                securityService.popAdvisor(advisor);
-            }
+            syncRoleGroups(realmId);
         } catch (Exception e) {
             log.warn("Could not sync role based groups for {}", event.getResource(), e);
         } finally {
-            threadLocalManager.set(CURRENT_EVENT_RESOURCE_REF, null);
+            securityService.popAdvisor(advisor);
+            threadLocalManager.set(SYNC_IN_PROGRESS, null);
         }
+    }
+
+    private void syncRoleGroups(String realmId) throws Exception {
+        Site site = siteService.getSite(realmId.substring(SITE_REF_PREFIX.length()));
+
+        Map<Group, Collection<String>> roleGroups = new LinkedHashMap<>();
+        for (Group group : site.getGroups()) {
+            if (group.getProperties().getProperty(Group.GROUP_PROP_WSETUP_CREATED) == null) continue;
+            String roles = group.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
+            if (StringUtils.isNotBlank(roles)) {
+                roleGroups.put(group, SiteGroupHelper.unpack(roles));
+            }
+        }
+        if (roleGroups.isEmpty()) return;
+
+        AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
+        boolean changed = false;
+        for (Map.Entry<Group, Collection<String>> roleGroup : roleGroups.entrySet()) {
+            Group group = roleGroup.getKey();
+            for (String role : roleGroup.getValue()) {
+                try {
+                    changed |= syncRole(group, role, realm.getUsersHasRole(role));
+                } catch (AuthzRealmLockException e) {
+                    log.warn("Could not sync role {} in locked group {}, {}", role, group.getId(), e.toString());
+                }
+            }
+        }
+
+        // saving touches every changed group realm and clears the site's user cache, so skip no-ops
+        if (changed) {
+            siteService.saveGroupMembership(site);
+        }
+    }
+
+    /**
+     * Makes the group members holding the role match the active site users holding it.
+     *
+     * @return true if the group membership changed
+     */
+    private boolean syncRole(Group group, String role, Set<String> roleUserIds) throws AuthzRealmLockException {
+        boolean changed = false;
+        Set<String> inSync = new HashSet<>();
+        for (Member member : group.getMembers()) {
+            if (!role.equals(member.getRole().getId())) continue;
+            if (member.isActive() && roleUserIds.contains(member.getUserId())) {
+                inSync.add(member.getUserId());
+            } else if (!roleUserIds.contains(member.getUserId())) {
+                group.deleteMember(member.getUserId());
+                changed = true;
+            }
+        }
+        for (String userId : roleUserIds) {
+            if (!inSync.contains(userId)) {
+                group.insertMember(userId, role, true, false);
+                changed = true;
+            }
+        }
+        return changed;
     }
 }

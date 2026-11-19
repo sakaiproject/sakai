@@ -92,7 +92,7 @@
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 	</bean>
 
-	<!-- SAK-46387 keeps role-based group membership in sync with site membership changes -->
+	<!-- Keeps role-based group membership in sync with site membership changes -->
 	<bean id="org.sakaiproject.sitemanage.impl.RoleGroupEventWatcher"
 		class="org.sakaiproject.sitemanage.impl.RoleGroupEventWatcher"
 		init-method="init"

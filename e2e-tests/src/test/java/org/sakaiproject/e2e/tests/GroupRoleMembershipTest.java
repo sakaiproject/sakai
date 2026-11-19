@@ -16,7 +16,6 @@
 package org.sakaiproject.e2e.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
@@ -28,8 +27,8 @@ import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 /**
- * SAK-46387: a group whose membership is based on a site role must keep tracking that role
- * when the site membership changes.
+ * A group whose membership is based on a site role must keep tracking that role when the site
+ * membership changes.
  */
 class GroupRoleMembershipTest extends SakaiUiTestBase {
 
@@ -39,20 +38,28 @@ class GroupRoleMembershipTest extends SakaiUiTestBase {
     private static final double RENDER_TIMEOUT_MS = 30_000;
 
     @Test
-    void roleGroupIncludesParticipantWhoGainsTheRoleLater() {
+    void roleGroupFollowsParticipantsGainingAndLosingTheRole() {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.announcements"));
-        String groupTitle = "SAK-46387 " + sakai.randomId();
+        String groupTitle = "Role group " + sakai.randomId();
 
         openManageGroups(siteUrl);
         createRoleGroup(groupTitle);
         int membersBefore = groupMemberCount(groupTitle);
 
-        promoteAParticipantTo(siteUrl, ROLE);
-
+        openManageParticipants(siteUrl);
+        String participantRoleSelect = participantWithRole(STUDENT_ROLE);
+        changeRole(participantRoleSelect, ROLE);
         openManageGroups(siteUrl);
         assertEquals(membersBefore + 1, groupMemberCount(groupTitle),
             "group built from the " + ROLE + " role did not pick up the new " + ROLE);
+
+        // demoting the participant again also leaves the shared course as it was
+        openManageParticipants(siteUrl);
+        changeRole(participantRoleSelect, STUDENT_ROLE);
+        openManageGroups(siteUrl);
+        assertEquals(membersBefore, groupMemberCount(groupTitle),
+            "group built from the " + ROLE + " role kept a participant who lost the role");
     }
 
     private void openManageGroups(String siteUrl) {
@@ -80,30 +87,37 @@ class GroupRoleMembershipTest extends SakaiUiTestBase {
     }
 
     /**
-     * Gives the role to a participant who does not have it yet. Every demo account is already
-     * enrolled in the course roster, so a participant is promoted rather than added to the site.
+     * The id of the role select of a participant holding the role. Every demo account is already
+     * enrolled in the course roster, so tests change a participant's role rather than add one.
      */
-    private void promoteAParticipantTo(String siteUrl, String role) {
-        sakai.gotoPath(siteUrl);
-        sakai.toolClick("Site Info");
-        clickNav("Manage Participants");
-
-        Locator roleSelects = awaitVisible(page.locator("#siteMembers")).locator("select[id^=\"role\"]");
-        Locator promoted = null;
-        for (int index = roleSelects.count() - 1; index >= 0 && promoted == null; index--) {
-            if (STUDENT_ROLE.equals(roleSelects.nth(index).inputValue())) {
-                promoted = roleSelects.nth(index);
+    private String participantWithRole(String role) {
+        Locator roleSelects = page.locator("#siteMembers select[id^=\"role\"]");
+        for (int index = roleSelects.count() - 1; index >= 0; index--) {
+            if (role.equals(roleSelects.nth(index).inputValue())) {
+                return roleSelects.nth(index).getAttribute("id");
             }
         }
-        assertNotNull(promoted, "no participant with the " + STUDENT_ROLE + " role to promote");
-        String promotedSelectId = promoted.getAttribute("id");
-        promoted.selectOption(new SelectOption().setValue(role));
+        throw new AssertionError("no participant with the " + role + " role");
+    }
+
+    /** Changes a participant's site role on the Manage Participants page. */
+    private void changeRole(String roleSelectId, String role) {
+        page.locator("[id=\"" + roleSelectId + "\"]").selectOption(new SelectOption().setValue(role));
 
         page.locator("input[type=\"button\"].active").first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
 
-        Locator reloaded = awaitVisible(page.locator("[id=\"" + promotedSelectId + "\"]"));
+        Locator reloaded = awaitVisible(page.locator("[id=\"" + roleSelectId + "\"]"));
         assertEquals(role, reloaded.inputValue(), "Site Info did not apply the role change");
+    }
+
+    private void openManageParticipants(String siteUrl) {
+        sakai.gotoPath(siteUrl);
+        sakai.toolClick("Site Info");
+        // Site Info reopens its last view, and the groups pages have no Manage Participants link
+        page.navigate(page.url().replaceFirst("/tool/([^/?#]+).*", "/tool-reset/$1"));
+        clickNav("Manage Participants");
+        awaitVisible(page.locator("#siteMembers"));
     }
 
     private void clickNav(String label) {
