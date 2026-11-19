@@ -142,12 +142,14 @@ export class SakaiCalendar extends LionCalendar {
     this.selectedDate = null;
     this.initCentralDate();
 
-    this.updateComplete.then(() => {
+    this.updateComplete.then(async () => {
 
       const start = new Date().setHours(0, 0, 0, 0);
       this.selectedDate = new Date(start);
       this._selectedDayStart = start;
       this._setDaysEvents(start);
+      await this.updateComplete;
+      await this.focusSelectedDate();
     });
 
   }

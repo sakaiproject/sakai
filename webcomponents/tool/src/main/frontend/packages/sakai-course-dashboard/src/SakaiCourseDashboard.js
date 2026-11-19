@@ -226,15 +226,18 @@ export class SakaiCourseDashboard extends SakaiElement {
     }
 
     const forced = Boolean(this.data.heroWidthForced);
+    const clearingForce = this._siteEditable && Boolean(this.heroWidthForcedBackup) && !forced;
+    const heroWidthToSave = this._normalizeHeroWidth(this.data.heroWidth);
+    const heroWidthBeforeSave = this.heroWidthBackup;
+    const heroWidthForcedBeforeSave = this.heroWidthForcedBackup;
     const data = {
       widgetLayout: this.data.widgetLayout,
-      heroWidth: this._normalizeHeroWidth(this.data.heroWidth),
+      heroWidth: heroWidthToSave,
     };
 
     if (this._heroWidthDirty && !forced) {
       data.updateHeroWidth = true;
     }
-    this._heroWidthDirty = false;
 
     if (this._siteEditable) {
       data.overview = this.data.overview;
@@ -253,7 +256,38 @@ export class SakaiCourseDashboard extends SakaiElement {
       if (!r.ok) {
         throw new Error(`Failed to update dashboard for url ${url}`);
       }
-    }).catch(error => console.error(error.message));
+      this._heroWidthDirty = false;
+      if (clearingForce) {
+        return this._reloadEffectiveHeroWidth();
+      }
+      return undefined;
+    }).catch(error => {
+      console.error(error.message);
+      this.data = {
+        ...this.data,
+        heroWidth: this._normalizeHeroWidth(heroWidthBeforeSave),
+        heroWidthForced: Boolean(heroWidthForcedBeforeSave),
+      };
+      this._heroWidthDirty = false;
+    });
+  }
+
+  _reloadEffectiveHeroWidth() {
+
+    const siteUrl = `/api/sites/${this.siteId}/dashboard`;
+    return fetch(siteUrl, { credentials: "include" })
+      .then(r => (r.ok ? r.json() : null))
+      .then(siteData => {
+        if (!siteData) {
+          return;
+        }
+        this.data = {
+          ...this.data,
+          heroWidth: this._normalizeHeroWidth(siteData.heroWidth),
+          heroWidthForced: Boolean(siteData.heroWidthForced),
+        };
+      })
+      .catch(error => console.error(error));
   }
 
   imageEdited(e) {
