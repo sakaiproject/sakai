@@ -95,6 +95,7 @@ useIdForPath@org.sakaiproject.content.api.FileSystemHandler.blobstore  = true
 cloud.content.signedurl.expiry                                         = 600
 cloud.content.multipart.partsize.mb                                    = 10
 cloud.content.maxblobstream.size                                       = 104857600
+cloud.content.region                                                   = us-east-1
 
 bodyPath@org.sakaiproject.content.api.ContentHostingService  = /content/live/
 bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService = /content/deleted/
