@@ -29,8 +29,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.mockito.ArgumentCaptor;
 
 import org.junit.After;
 import org.junit.Before;
@@ -344,6 +349,134 @@ public class DashboardControllerTests {
     }
 
     @Test
+    public void testSaveSiteDashboardPreservesSiteHeroWidthUnlessForced() throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("instructor");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+
+        String siteId = "site1";
+        Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
+        ResourceProperties properties = mock(ResourceProperties.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getProperties()).thenReturn(properties);
+        when(site.getReference()).thenReturn("/site/site1");
+        when(properties.getProperty("dashboard-config"))
+                .thenReturn("{\"showImage\":true,\"heroWidth\":\"full\",\"heroWidthForced\":false}");
+        when(securityService.isSuperUser()).thenReturn(false);
+        when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(true);
+        when(securityService.unlock(eq(SiteService.SITE_VISIT), anyString())).thenReturn(true);
+        when(formattedText.processFormattedText(anyString(), isNull(), eq(FormattedText.Level.HIGH)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        stubApplyCourseLayoutPrefs("instructor");
+
+        DashboardRestBean bean = new DashboardRestBean();
+        bean.setOverview("Overview");
+        bean.setProgramme("Programme");
+        bean.setWidgetLayout(List.of(DashboardWidgetTile.of("announcements")));
+        bean.setHeroWidth("narrow");
+        bean.setHeroWidthForced(Boolean.FALSE);
+        bean.setShowImage(Boolean.TRUE);
+
+        dashboardController.saveSiteDashboard(siteId, bean);
+
+        ArgumentCaptor<String> configCaptor = ArgumentCaptor.forClass(String.class);
+        verify(properties).addProperty(eq("dashboard-config"), configCaptor.capture());
+        Map<?, ?> saved = new ObjectMapper().readValue(configCaptor.getValue(), Map.class);
+        assertEquals("full", saved.get("heroWidth"));
+        assertEquals(Boolean.FALSE, saved.get("heroWidthForced"));
+    }
+
+    @Test
+    public void testSaveSiteDashboardWritesSiteHeroWidthWhenForced() throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("instructor");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+
+        String siteId = "site1";
+        Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
+        ResourceProperties properties = mock(ResourceProperties.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getProperties()).thenReturn(properties);
+        when(site.getReference()).thenReturn("/site/site1");
+        when(properties.getProperty("dashboard-config"))
+                .thenReturn("{\"showImage\":true,\"heroWidth\":\"full\",\"heroWidthForced\":false}");
+        when(securityService.isSuperUser()).thenReturn(false);
+        when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(true);
+        when(securityService.unlock(eq(SiteService.SITE_VISIT), anyString())).thenReturn(true);
+        when(formattedText.processFormattedText(anyString(), isNull(), eq(FormattedText.Level.HIGH)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        stubApplyCourseLayoutPrefs("instructor");
+
+        DashboardRestBean bean = new DashboardRestBean();
+        bean.setOverview("Overview");
+        bean.setProgramme("Programme");
+        bean.setWidgetLayout(List.of(DashboardWidgetTile.of("announcements")));
+        bean.setHeroWidth("wide");
+        bean.setHeroWidthForced(Boolean.TRUE);
+        bean.setShowImage(Boolean.TRUE);
+
+        dashboardController.saveSiteDashboard(siteId, bean);
+
+        ArgumentCaptor<String> configCaptor = ArgumentCaptor.forClass(String.class);
+        verify(properties).addProperty(eq("dashboard-config"), configCaptor.capture());
+        Map<?, ?> saved = new ObjectMapper().readValue(configCaptor.getValue(), Map.class);
+        assertEquals("wide", saved.get("heroWidth"));
+        assertEquals(Boolean.TRUE, saved.get("heroWidthForced"));
+    }
+
+    @Test
+    public void testSaveSiteDashboardUpdatesPersonalHeroWidthOnlyWhenRequested() throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("student");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+
+        String siteId = "site1";
+        Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getReference()).thenReturn("/site/site1");
+        when(securityService.isSuperUser()).thenReturn(false);
+        when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
+        when(securityService.unlock(eq(SiteService.SITE_VISIT), anyString())).thenReturn(true);
+
+        AtomicReference<String> savedPrefs = new AtomicReference<>();
+        doAnswer(invocation -> {
+            Consumer<PreferencesEdit> consumer = invocation.getArgument(1);
+            PreferencesEdit edit = mock(PreferencesEdit.class);
+            ResourcePropertiesEdit props = mock(ResourcePropertiesEdit.class);
+            when(edit.getPropertiesEdit("dashboard-config")).thenReturn(props);
+            when(props.getProperty("courseLayouts")).thenReturn(
+                    "{\"site1\":{\"widgetLayout\":[{\"id\":\"calendar\",\"w\":1,\"h\":1}],\"heroWidth\":\"narrow\"}}");
+            doAnswer(inner -> {
+                savedPrefs.set(inner.getArgument(1));
+                return null;
+            }).when(props).addProperty(eq("courseLayouts"), anyString());
+            consumer.accept(edit);
+            return true;
+        }).when(preferencesService).applyEditWithAutoCommit(eq("student"), any(Consumer.class));
+
+        DashboardRestBean bean = new DashboardRestBean();
+        bean.setWidgetLayout(List.of(DashboardWidgetTile.of("grades")));
+        bean.setHeroWidth("wide");
+        bean.setUpdateHeroWidth(Boolean.FALSE);
+
+        dashboardController.saveSiteDashboard(siteId, bean);
+
+        Map<?, ?> all = new ObjectMapper().readValue(savedPrefs.get(), Map.class);
+        Map<?, ?> entry = (Map<?, ?>) all.get("site1");
+        assertEquals("narrow", entry.get("heroWidth"));
+        assertEquals(List.of("grades"),
+                ((List<?>) entry.get("widgetLayout")).stream()
+                        .map(tile -> ((Map<?, ?>) tile).get("id"))
+                        .toList());
+    }
+
+    @Test
     public void testGetSiteDashboardIncludesSitestatsAllWidgetsWhenPermitted() throws Exception {
 
         Session session = mock(Session.class);
@@ -362,7 +495,7 @@ public class DashboardControllerTests {
         when(site.getProperties()).thenReturn(properties);
         when(properties.getProperty("dashboard-config")).thenReturn(null);
         when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
-        when(serverConfigurationService.getString("dashboard.course.hero.width", "wide")).thenReturn("wide");
+        when(serverConfigurationService.getString(eq("dashboard.course.hero.width"), eq("full"))).thenReturn("full");
         when(serverConfigurationService.getBoolean("dashboard.course.hero.showImage", true)).thenReturn(true);
         when(securityService.isSuperUser()).thenReturn(false);
         when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(true);
@@ -382,7 +515,7 @@ public class DashboardControllerTests {
         assertTrue(bean.getWidgets().contains("sitestats-submissions"));
         assertTrue(bean.getWidgets().contains("sitestats-grades"));
         assertFalse(bean.getWidgets().contains("sitestats-platform-health"));
-        assertEquals("wide", bean.getHeroWidth());
+        assertEquals("full", bean.getHeroWidth());
         assertTrue(bean.getShowImage());
         assertTrue(bean.getSiteEditable());
         assertTrue(bean.getLayoutEditable());
@@ -416,7 +549,7 @@ public class DashboardControllerTests {
     }
 
     @Test
-    public void testGetSiteDashboardUsesUserCourseLayoutAndHeroOverride() throws Exception {
+    public void testGetSiteDashboardUsesPersonalHeroWidthUnlessForced() throws Exception {
 
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("student");
@@ -433,7 +566,7 @@ public class DashboardControllerTests {
         when(site.getReference()).thenReturn("/site/course1");
         when(site.getProperties()).thenReturn(properties);
         when(properties.getProperty("dashboard-config"))
-                .thenReturn("{\"showImage\":false,\"heroWidth\":\"full\"}");
+                .thenReturn("{\"showImage\":false,\"heroWidth\":\"full\",\"heroWidthForced\":false}");
         when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
         when(securityService.isSuperUser()).thenReturn(false);
         when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
@@ -453,9 +586,53 @@ public class DashboardControllerTests {
         DashboardRestBean bean = dashboardController.getSiteDashboard(siteId);
 
         assertFalse(bean.getShowImage());
+        assertFalse(bean.getHeroWidthForced());
         assertEquals("narrow", bean.getHeroWidth());
         assertFalse(bean.getSiteEditable());
         assertTrue(bean.getLayoutEditable());
+        assertEquals(List.of("grades"),
+                bean.getWidgetLayout().stream().map(DashboardWidgetTile::getId).toList());
+    }
+
+    @Test
+    public void testGetSiteDashboardForcedHeroWidthOverridesPersonalPreference() throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("student");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+
+        String siteId = "course1";
+        Site site = mock(Site.class);
+        when(site.getToolForCommonId(anyString())).thenReturn(mock(org.sakaiproject.site.api.ToolConfiguration.class));
+        ResourceProperties properties = mock(ResourceProperties.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getTitle()).thenReturn("Course 1");
+        when(site.getShortDescription()).thenReturn("Programme");
+        when(site.getDescription()).thenReturn("Overview");
+        when(site.getReference()).thenReturn("/site/course1");
+        when(site.getProperties()).thenReturn(properties);
+        when(properties.getProperty("dashboard-config"))
+                .thenReturn("{\"showImage\":true,\"heroWidth\":\"wide\",\"heroWidthForced\":true}");
+        when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
+        when(securityService.isSuperUser()).thenReturn(false);
+        when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
+
+        Preferences preferences = mock(Preferences.class);
+        ResourceProperties prefProps = mock(ResourceProperties.class);
+        when(preferencesService.getPreferences("student")).thenReturn(preferences);
+        when(preferences.getProperties("dashboard-config")).thenReturn(prefProps);
+        when(prefProps.getProperty("courseLayouts")).thenReturn(
+                "{\"course1\":{\"widgetLayout\":[{\"id\":\"grades\",\"w\":1,\"h\":1}],\"heroWidth\":\"narrow\"}}");
+
+        ReflectionTestUtils.setField(dashboardController, "courseWidgets", List.of("announcements", "grades"));
+        ReflectionTestUtils.setField(dashboardController, "defaultCourseLayoutStudent", List.of("announcements"));
+
+        when(siteStatsViewService.getCourseDashboardWidgetIds(siteId)).thenReturn(List.of());
+
+        DashboardRestBean bean = dashboardController.getSiteDashboard(siteId);
+
+        assertTrue(bean.getHeroWidthForced());
+        assertEquals("wide", bean.getHeroWidth());
         assertEquals(List.of("grades"),
                 bean.getWidgetLayout().stream().map(DashboardWidgetTile::getId).toList());
     }
@@ -479,7 +656,7 @@ public class DashboardControllerTests {
         when(site.getProperties()).thenReturn(properties);
         when(properties.getProperty("dashboard-config")).thenReturn(null);
         when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
-        when(serverConfigurationService.getString("dashboard.course.hero.width", "wide")).thenReturn("wide");
+        when(serverConfigurationService.getString(eq("dashboard.course.hero.width"), eq("full"))).thenReturn("full");
         when(serverConfigurationService.getBoolean("dashboard.course.hero.showImage", true)).thenReturn(true);
         when(securityService.isSuperUser()).thenReturn(false);
         when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
@@ -518,7 +695,7 @@ public class DashboardControllerTests {
         when(site.getProperties()).thenReturn(properties);
         when(properties.getProperty("dashboard-config")).thenReturn(null);
         when(properties.getProperty(Site.PROP_COURSE_IMAGE_URL)).thenReturn(null);
-        when(serverConfigurationService.getString("dashboard.course.hero.width", "wide")).thenReturn("wide");
+        when(serverConfigurationService.getString(eq("dashboard.course.hero.width"), eq("full"))).thenReturn("full");
         when(serverConfigurationService.getBoolean("dashboard.course.hero.showImage", true)).thenReturn(true);
         when(securityService.isSuperUser()).thenReturn(false);
         when(securityService.unlock(eq(SiteService.SECURE_UPDATE_SITE), anyString())).thenReturn(false);
