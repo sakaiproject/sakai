@@ -59,6 +59,9 @@ public class GradebookUserNotificationHandler extends AbstractUserNotificationHa
     // Assignments sends its own notification on grade release (asn.grade.submission)
     public static final String ASSIGNMENTS_APP_NAME = "sakai.assignment.grades";
 
+    // Set on each Gradebook placement when the site has a gradebook per group
+    private static final String GB_GROUP_TOOL_PROPERTY = "gb-group";
+
     // Score events from the grading service: /gradebook/{gradebookUid}/{itemName}/{studentId}/{points}/student
     private static final String SERVICE_REF_PREFIX = "/gradebook/";
 
@@ -116,7 +119,7 @@ public class GradebookUserNotificationHandler extends AbstractUserNotificationHa
             }
 
             Site site = getSite(gradebookUid);
-            ToolConfiguration tool = site != null ? site.getToolForCommonId(GRADEBOOK_TOOL_ID) : null;
+            ToolConfiguration tool = site != null ? getGradebookPlacement(site, gradebookUid) : null;
             if (tool == null
                     || hasUnviewedNotification(studentId, SERVICE_REF_PREFIX + gradebookUid + "/" + itemName + "/" + studentId + "/")) {
                 return Optional.empty();
@@ -150,24 +153,45 @@ public class GradebookUserNotificationHandler extends AbstractUserNotificationHa
     }
 
     /**
+     * The Gradebook placement showing this gradebook: the one whose gb-group is the gradebook uid,
+     * or the site's own Gradebook, whose uid is the site id.
+     */
+    private ToolConfiguration getGradebookPlacement(Site site, String gradebookUid) {
+
+        return site.getTools(GRADEBOOK_TOOL_ID).stream()
+                .filter(tool -> gradebookUid.equals(tool.getPlacementConfig().getProperty(GB_GROUP_TOOL_PROPERTY, site.getId())))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
      * Avoid piling up notifications when an item is re-scored before the student has seen the
      * previous notification for it. Once viewed or cleared, a new score notifies again.
      */
     boolean hasUnviewedNotification(String studentId, String itemRefPrefix) {
 
-        // Item names can contain LIKE wildcards
+        // LIKE narrows the rows; isSameItem rejects other items whose names extend this one.
+        // Item names can contain LIKE wildcards, so escape them.
         String pattern = itemRefPrefix.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
-        Long count = new TransactionTemplate(transactionManager).execute(status -> {
+        List<String> refs = new TransactionTemplate(transactionManager).execute(status -> {
             CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
-            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+            CriteriaQuery<String> cq = cb.createQuery(String.class);
             Root<UserNotification> root = cq.from(UserNotification.class);
-            cq.select(cb.count(root)).where(
+            cq.select(root.get("ref")).where(
                     cb.equal(root.get("toUser"), studentId),
                     cb.equal(root.get("event"), EVENT_UPDATE_ITEM_SCORE),
                     cb.isFalse(root.get("viewed")),
                     cb.like(root.get("ref"), pattern, '!'));
-            return sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
+            return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
         });
-        return count != null && count > 0;
+        return refs != null && refs.stream().anyMatch(ref -> isSameItem(ref, itemRefPrefix));
+    }
+
+    /**
+     * True when the ref is the item's prefix followed only by "{points}/student".
+     */
+    static boolean isSameItem(String ref, String itemRefPrefix) {
+        return ref != null && ref.startsWith(itemRefPrefix)
+                && ref.substring(itemRefPrefix.length()).matches("[^/]*/student");
     }
 }

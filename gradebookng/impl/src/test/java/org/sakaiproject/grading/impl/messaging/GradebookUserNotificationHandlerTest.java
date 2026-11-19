@@ -16,6 +16,7 @@
 package org.sakaiproject.grading.impl.messaging;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +58,20 @@ public class GradebookUserNotificationHandlerTest {
 
     private Gradebook gradebook;
     private GradebookAssignment item;
+    private Site site;
+
+    /** A Gradebook placement; groupId is its gb-group property, null for the site's own Gradebook. */
+    private ToolConfiguration placement(String toolId, String groupId) {
+
+        Properties config = new Properties();
+        if (groupId != null) {
+            config.setProperty("gb-group", groupId);
+        }
+        ToolConfiguration tool = mock(ToolConfiguration.class);
+        when(tool.getId()).thenReturn(toolId);
+        when(tool.getPlacementConfig()).thenReturn(config);
+        return tool;
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -74,11 +90,10 @@ public class GradebookUserNotificationHandlerTest {
         item.setGradebook(gradebook);
         when(gradingPersistenceManager.getAssignmentByNameAndGradebook("Quiz 1", SITE_ID)).thenReturn(Optional.of(item));
 
-        ToolConfiguration tool = mock(ToolConfiguration.class);
-        when(tool.getId()).thenReturn("gbtool");
-        Site site = mock(Site.class);
+        site = mock(Site.class);
         when(site.getId()).thenReturn(SITE_ID);
-        when(site.getToolForCommonId(GradebookUserNotificationHandler.GRADEBOOK_TOOL_ID)).thenReturn(tool);
+        List<ToolConfiguration> sitePlacement = List.of(placement("gbtool", null));
+        when(site.getTools(GradebookUserNotificationHandler.GRADEBOOK_TOOL_ID)).thenReturn(sitePlacement);
         when(siteService.getSite(SITE_ID)).thenReturn(site);
         when(serverConfigurationService.getPortalUrl()).thenReturn("http://localhost/portal");
     }
@@ -137,13 +152,33 @@ public class GradebookUserNotificationHandlerTest {
         when(gradingPersistenceManager.getAssignmentByNameAndGradebook("Quiz 1", "group1")).thenReturn(Optional.of(groupItem));
         when(siteService.getSite("group1")).thenThrow(new IdUnusedException("group1"));
         Group group = mock(Group.class);
-        Site site = siteService.getSite(SITE_ID);
         when(group.getContainingSite()).thenReturn(site);
         when(siteService.findGroup("group1")).thenReturn(group);
+        // Each group's Gradebook is its own placement; link to group1's, not the first one
+        List<ToolConfiguration> groupPlacements = List.of(placement("gbtool0", "group0"), placement("gbtool1", "group1"));
+        when(site.getTools(GradebookUserNotificationHandler.GRADEBOOK_TOOL_ID)).thenReturn(groupPlacements);
 
         List<UserNotificationData> result = handle("/gradebook/group1/Quiz 1/student/8.0/student");
         assertEquals(1, result.size());
         assertEquals(SITE_ID, result.get(0).getSiteId());
+        assertEquals("http://localhost/portal/site/site1/tool/gbtool1", result.get(0).getUrl());
+    }
+
+    @Test
+    public void skipsWhenNoPlacementShowsTheGradebook() {
+
+        List<ToolConfiguration> otherGroupOnly = List.of(placement("gbtool0", "group0"));
+        when(site.getTools(GradebookUserNotificationHandler.GRADEBOOK_TOOL_ID)).thenReturn(otherGroupOnly);
+        assertTrue(handle("/gradebook/site1/Quiz 1/student/8.0/student").isEmpty());
+    }
+
+    @Test
+    public void unviewedCheckMatchesOnlyTheSameItem() {
+
+        String prefix = "/gradebook/site1/Quiz 1/student/";
+        assertTrue(GradebookUserNotificationHandler.isSameItem("/gradebook/site1/Quiz 1/student/8.0/student", prefix));
+        // Item "Quiz 1/student" scored for user "student" shares the prefix of item "Quiz 1"
+        assertFalse(GradebookUserNotificationHandler.isSameItem("/gradebook/site1/Quiz 1/student/student/8.0/student", prefix));
     }
 
     @Test
