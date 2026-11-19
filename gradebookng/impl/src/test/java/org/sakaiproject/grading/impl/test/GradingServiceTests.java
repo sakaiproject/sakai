@@ -57,6 +57,8 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
@@ -88,8 +90,10 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private CourseGradeRepository courseGradeRepository;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
+    @Autowired private EventTrackingService eventTrackingService;
     @Autowired private LocaleService localeService;
     @Autowired private SecurityService securityService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -1030,6 +1034,31 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         assertEquals(grade, gradeDef.getGrade());
         assertEquals(comment, gradeDef.getGradeComment());
+    }
+
+    @Test
+    public void saveLetterGradePostsScoreEventWithStoredPoints() {
+
+        Gradebook gradebook = createGradebook();
+        // Also grants the edit permission the settings update needs
+        Long assId = createAssignment1(gradebook);
+        // The mocks are shared, so keep this stub from changing other tests' grade types
+        when(serverConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true)).thenReturn(true);
+        try {
+            GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+            gbInfo.setGradeType(GradingConstants.GRADE_TYPE_LETTER);
+            gradingService.updateGradebookSettings(gradebook.getUid(), siteId, gbInfo);
+        } finally {
+            when(serverConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true)).thenReturn(false);
+        }
+        clearInvocations(eventTrackingService);
+
+        // "A" can't be parsed as a number, which used to drop the event; the stored points are posted instead
+        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assId, user1, "A", "");
+
+        String prefix = "/gradebook/" + gradebook.getUid() + "/" + ass1Name + "/" + user1 + "/";
+        verify(eventTrackingService).newEvent(eq("gradebook.updateItemScore"),
+                argThat(ref -> ref.startsWith(prefix) && ref.substring(prefix.length()).matches("\\d+\\.\\d+/student")), eq(true));
     }
 
     @Test

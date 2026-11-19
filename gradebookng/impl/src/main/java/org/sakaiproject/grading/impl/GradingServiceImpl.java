@@ -2360,7 +2360,8 @@ public class GradingServiceImpl implements GradingService {
             gradeRecordsToUpdate.forEach(gradingPersistenceManager::saveAssignmentGradeRecord);
             commentsToUpdate.forEach(gradingPersistenceManager::saveComment);
             eventsToAdd.forEach(gradingPersistenceManager::saveGradingEvent);
-            eventsToAdd.forEach(this::sendGradingEvent);
+            // Post the stored points: the entered grade may be a letter or use a locale decimal separator
+            gradeRecordsToUpdate.forEach(gr -> postUpdateGradeEvent(gradebookUid, assignment.getName(), gr.getStudentId(), gr.getPointsEarned()));
         } catch (final HibernateOptimisticLockingFailureException | StaleObjectStateException holfe) {
             // TODO: Adrian How janky is this?
             log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item {}", gradableObjectId);
@@ -2869,40 +2870,6 @@ public class GradingServiceImpl implements GradingService {
      */
     public Long getCourseGradeId(Long gradebookId) {
         return getCourseGrade(gradebookId).getId();
-    }
-
-    /**
-     * Send a GradebookEvent to Sakai's event table
-     *
-     * @param gradebookEvent
-     * @return
-     */
-    private void sendGradingEvent(GradingEvent gradingEvent) {
-        String studentId = gradingEvent.getStudentId();
-        String scoreStr = gradingEvent.getGrade();
-
-        // Null is actually OK.
-        Double score = null;
-        if ( scoreStr != null ) {
-            try {
-                score = Double.valueOf(scoreStr);
-            } catch (Exception e) {
-                log.debug("Could not parse score as number studentId={} score={}", studentId, scoreStr);
-                return;
-            }
-        }
-
-        GradableObject go = gradingEvent.getGradableObject();
-
-        log.debug("sendGradingEventchecking GradableObject studentId={} score={} go={}", studentId, score, go);
-
-        if ( go == null ) return;
-        String assignmentName = go.getName();
-        Gradebook gb = go.getGradebook();
-        if ( gb == null ) return;
-        String gradebookUid = gb.getUid();
-
-        postUpdateGradeEvent(gradebookUid, assignmentName, studentId, score);
     }
 
     /**
@@ -3895,7 +3862,12 @@ public class GradingServiceImpl implements GradingService {
 
         // Insert the new grading events (GradeRecord)
         eventsToAdd.forEach(gradingPersistenceManager::saveGradingEvent);
-        eventsToAdd.forEach(this::sendGradingEvent);
+        // Only the rescaled records got grading events; post their stored points
+        if (!eventsToAdd.isEmpty()) {
+            gradeRecords.stream()
+                .filter(gr -> gr.getPointsEarned() != null)
+                .forEach(gr -> postUpdateGradeEvent(gradebook.getUid(), assignment.getName(), gr.getStudentId(), gr.getPointsEarned()));
+        }
     }
 
     /**
