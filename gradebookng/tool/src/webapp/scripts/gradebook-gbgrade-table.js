@@ -3046,23 +3046,40 @@ GbGradeTable.setupAccessiblityBits = function() {
     $('#gradeTableWrapper').append(caption);
 
     var $captionToggle = $("#captionToggle");
+    const setCaptionExpanded = expanded => {
+      document.getElementById("gradeTableCaption")?.classList.toggle("maximized", expanded);
+      $captionToggle.attr("aria-expanded", String(expanded));
+    };
+
     $captionToggle.on("click", function(event) {
       event.preventDefault();
-      $('#gradeTableCaption').toggleClass("maximized");
+      setCaptionExpanded(!document.getElementById("gradeTableCaption")?.classList.contains("maximized"));
     }).on("keyup", function(event) {
       if (event.keyCode == 27) { //ESC
-        $('#gradeTableCaption').removeClass("maximized");
+        setCaptionExpanded(false);
       }
     });
 
     $("#gradeTableCaption").on("click", function() {
-      $(this).closest("#gradeTableCaption").removeClass("maximized");
+      setCaptionExpanded(false);
       $captionToggle.focus();
     });
   };
 
+  const setupGridRoles = () => {
+    // A grid may only contain rows and rowgroups. Tabulator makes its scrolling holder focusable
+    // without giving it a role, so move the body's rowgroup role up from the inner table to it.
+    const holder = document.querySelector("#gradeTable .tabulator-tableholder");
+    const body = holder?.querySelector(":scope > .tabulator-table");
+    if (!body) return;
+
+    holder.setAttribute("role", "rowgroup");
+    body.setAttribute("role", "none");
+  };
+
   setupWrapperAccessKey();
   setupTableCaption();
+  setupGridRoles();
 };
 
 GbGradeTable.localizeNumber = function(number) {
