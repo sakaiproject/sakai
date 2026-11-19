@@ -23,6 +23,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -40,18 +41,29 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.webapi.beans.GradableObjectRestBean;
 import org.sakaiproject.webapi.beans.GradebookItemRestBean;
 import org.sakaiproject.webapi.beans.GradebookRestBean;
 import org.sakaiproject.webapi.beans.GradeRestBean;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.annotation.Resource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -72,6 +84,9 @@ public class GradesController extends AbstractSakaiApiController {
 
     @Resource
     private SecurityService securityService;
+
+    @Resource
+    private SqlService sqlService;
 
     private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = siteId -> {
 
@@ -368,6 +383,155 @@ public class GradesController extends AbstractSakaiApiController {
         } catch (IdUnusedException e) {
             log.error("Error while trying to get gradebooks for site {} : {}", siteId, e.getMessage());
             return new HashMap<>();
+        }
+    }
+
+    // Returns a single gradebook item by its external id (or the last segment of it), 404 if not found
+    @GetMapping(value = "/grades/gradable-object", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GradableObjectRestBean> getGradableObject(
+        @RequestParam("siteId") String siteId,
+        @RequestParam("externalId") String externalId
+    ) {
+
+        checkSakaiSession();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        Assignment assignment = null;
+        try {
+            assignment = gradingService.getExternalAssignment(siteId, externalId);
+        } catch (Exception e) {
+            log.warn("getExternalAssignment failed for siteId=" + siteId + " externalId=" + externalId + ": " + e.getMessage());
+        }
+
+        if (assignment != null) {
+            String entityId = StringUtils.isNotBlank(assignment.getExternalId()) ? assignment.getExternalId() : externalId;
+            String dueDate = assignment.getDueDate() != null
+                    ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(assignment.getDueDate())
+                    : null;
+            String openDate = findSamigoOpenDate(entityId, formatter);
+            GradableObjectRestBean bean = new GradableObjectRestBean(
+                    siteId, entityId, assignment.getExternalAppName(), assignment.getName(), assignment.getPoints(), dueDate, openDate);
+            return new ResponseEntity<>(bean, HttpStatus.OK);
+        }
+
+        GradableObjectRestBean fromSql = findGradableObjectByReferenceTail(siteId, externalId, formatter);
+        if (fromSql != null) {
+            fromSql.setOpenDate(findSamigoOpenDate(fromSql.getEntityId(), formatter));
+            return new ResponseEntity<>(fromSql, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    // Fallback lookup by EXTERNAL_ID or REFERENCE, matched exactly or by their last path segment
+    private GradableObjectRestBean findGradableObjectByReferenceTail(String siteId, String externalId, DateTimeFormatter formatter) {
+
+        String query = "SELECT gbo.NAME, gbo.EXTERNAL_ID, gbo.EXTERNAL_APP_NAME, gbo.POINTS_POSSIBLE, gbo.DUE_DATE, gbo.REFERENCE " +
+                "FROM GB_GRADABLE_OBJECT_T gbo " +
+                "JOIN GB_GRADEBOOK_T gb ON gbo.GRADEBOOK_ID = gb.ID " +
+                "WHERE gb.GRADEBOOK_UID = ? " +
+                "AND gbo.REMOVED = 0 " +
+                // Assignments store a full path in EXTERNAL_ID, so its last segment is matched too
+                "AND (gbo.EXTERNAL_ID = ? OR gbo.REFERENCE = ? OR gbo.REFERENCE LIKE CONCAT('%/', ?) OR gbo.EXTERNAL_ID LIKE CONCAT('%/', ?)) " +
+                "ORDER BY CASE WHEN gbo.EXTERNAL_ID = ? THEN 0 WHEN gbo.REFERENCE = ? THEN 1 ELSE 2 END, gbo.ID " +
+                "LIMIT 1";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = sqlService.borrowConnection();
+            conn.setReadOnly(true);
+            ps = conn.prepareStatement(query);
+            ps.setString(1, siteId);
+            ps.setString(2, externalId);
+            ps.setString(3, externalId);
+            ps.setString(4, externalId);
+            ps.setString(5, externalId);
+            ps.setString(6, externalId);
+            ps.setString(7, externalId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String storedExternalId = rs.getString("EXTERNAL_ID");
+                String reference = rs.getString("REFERENCE");
+                String entityId = StringUtils.isNotBlank(storedExternalId) ? storedExternalId : reference;
+                if (StringUtils.isNotBlank(entityId)) {
+                    int index = entityId.lastIndexOf("/");
+                    entityId = (index != -1) ? entityId.substring(index + 1) : entityId;
+                }
+                Timestamp due = rs.getTimestamp("DUE_DATE");
+                String dueDate = due != null ? due.toLocalDateTime().format(formatter) : null;
+                return new GradableObjectRestBean(
+                        siteId, entityId, rs.getString("EXTERNAL_APP_NAME"), rs.getString("NAME"),
+                        rs.getDouble("POINTS_POSSIBLE"), dueDate, null);
+            }
+            return null;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                log.error("SQLException in finally block: " + e);
+            }
+            if (conn != null) {
+                sqlService.returnConnection(conn);
+            }
+        }
+    }
+
+    // Samigo open date: the assessment's start date, or its creation date if no start date is set
+    private String findSamigoOpenDate(String externalId, DateTimeFormatter formatter) {
+        if (externalId == null) {
+            return null;
+        }
+        long publishedAssessmentId;
+        try {
+            publishedAssessmentId = Long.parseLong(externalId.trim());
+        } catch (NumberFormatException e) {
+            return null; // not a Samigo published assessment id
+        }
+
+        String query = "SELECT ac.STARTDATE, pa.CREATEDDATE " +
+                "FROM SAM_PUBLISHEDASSESSMENT_T pa " +
+                "JOIN SAM_ASSESSMENTBASE_T ab ON ab.ID = pa.ASSESSMENTID " +
+                "JOIN SAM_ASSESSACCESSCONTROL_T ac ON ab.ID = ac.ASSESSMENTID " +
+                "WHERE pa.ID = ? AND pa.status = 1";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = sqlService.borrowConnection();
+            conn.setReadOnly(true);
+            ps = conn.prepareStatement(query);
+            ps.setLong(1, publishedAssessmentId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                Timestamp open = rs.getTimestamp("STARTDATE");
+                if (open == null) {
+                    open = rs.getTimestamp("CREATEDDATE");
+                }
+                return open != null ? open.toLocalDateTime().format(formatter) : null;
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("findSamigoOpenDate failed for externalId=" + externalId + ": " + e.getMessage());
+            return null;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                log.error("SQLException in finally block: " + e);
+            }
+            if (conn != null) {
+                sqlService.returnConnection(conn);
+            }
         }
     }
 }
