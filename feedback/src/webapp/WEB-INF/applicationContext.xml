@@ -20,8 +20,7 @@
     </bean>
 
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-        class="org.sakaiproject.feedback.tool.entityproviders.FeedbackEntityProvider"
-        init-method="init">
+        class="org.sakaiproject.feedback.tool.entityproviders.FeedbackEntityProvider">
         <property name="db"><ref bean="org.sakaiproject.feedback.db.Database" /></property>
         <property name="sakaiProxy"><ref bean="org.sakaiproject.feedback.util.SakaiProxy" /></property>
 	</bean>
