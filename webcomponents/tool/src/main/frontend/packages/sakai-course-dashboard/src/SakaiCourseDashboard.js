@@ -156,9 +156,23 @@ export class SakaiCourseDashboard extends SakaiElement {
     this.data = { ...this.data, overview: e.detail.content };
   }
 
+  _bumpEditRevision() {
+
+    this._editRevision = (this._editRevision || 0) + 1;
+    return this._editRevision;
+  }
+
+  _isCurrentEditRevision(revision) {
+
+    return revision === (this._editRevision || 0);
+  }
+
   edit() {
 
     this.editing = !this.editing;
+    if (this.editing) {
+      this._bumpEditRevision();
+    }
     this.imageBackup = this.data.image;
     this.overviewBackup = this.data.overview;
     this.programmeBackup = this.data.programme;
@@ -171,6 +185,7 @@ export class SakaiCourseDashboard extends SakaiElement {
 
   cancel() {
 
+    this._bumpEditRevision();
     this.editing = false;
     if (this.data.image !== this.imageBackup) {
       URL.revokeObjectURL(this.data.image);
@@ -197,6 +212,7 @@ export class SakaiCourseDashboard extends SakaiElement {
   save() {
 
     this.editing = !this.editing;
+    const saveRevision = this._editRevision || 0;
 
     const imageBlob = this.newImageBlob;
     this.newImageBlob = undefined;
@@ -220,6 +236,9 @@ export class SakaiCourseDashboard extends SakaiElement {
       })
       .then(newUrl => {
 
+        if (!this._isCurrentEditRevision(saveRevision)) {
+          return;
+        }
         this.data = { ...this.data, image: `${newUrl}?version=${Math.random()}` };
       })
       .catch(error => console.error(error.message));
@@ -256,13 +275,19 @@ export class SakaiCourseDashboard extends SakaiElement {
       if (!r.ok) {
         throw new Error(`Failed to update dashboard for url ${url}`);
       }
+      if (!this._isCurrentEditRevision(saveRevision)) {
+        return undefined;
+      }
       this._heroWidthDirty = false;
       if (clearingForce) {
-        return this._reloadEffectiveHeroWidth();
+        return this._reloadEffectiveHeroWidth(saveRevision);
       }
       return undefined;
     }).catch(error => {
       console.error(error.message);
+      if (!this._isCurrentEditRevision(saveRevision)) {
+        return;
+      }
       this.data = {
         ...this.data,
         heroWidth: this._normalizeHeroWidth(heroWidthBeforeSave),
@@ -272,13 +297,13 @@ export class SakaiCourseDashboard extends SakaiElement {
     });
   }
 
-  _reloadEffectiveHeroWidth() {
+  _reloadEffectiveHeroWidth(saveRevision) {
 
     const siteUrl = `/api/sites/${this.siteId}/dashboard`;
     return fetch(siteUrl, { credentials: "include" })
       .then(r => (r.ok ? r.json() : null))
       .then(siteData => {
-        if (!siteData) {
+        if (!siteData || !this._isCurrentEditRevision(saveRevision)) {
           return;
         }
         this.data = {
