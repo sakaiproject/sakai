@@ -21,6 +21,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +54,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.webapi.controllers.GradesController;
 
 import static org.mockito.Mockito.*;
@@ -85,6 +89,9 @@ public class GradesControllerTests extends BaseControllerTests {
 
     @Mock
     private SiteService siteService;
+
+    @Mock
+    private PublishedAssessmentService publishedAssessmentService;
 
     private AutoCloseable mocks;
 
@@ -124,6 +131,7 @@ public class GradesControllerTests extends BaseControllerTests {
         controller.setPortalService(portalService);
         controller.setSecurityService(securityService);
         controller.setSiteService(siteService);
+        controller.setPublishedAssessmentService(publishedAssessmentService);
 
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn(user1Id);
@@ -423,5 +431,83 @@ public class GradesControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$[0].items[0].id", is(ass1Id.toString())))
             .andExpect(jsonPath("$[0].items[0].name", is(ass1Name)))
             .andDo(document("get-site-items-for-app-user-group"));
+    }
+
+    @Test
+    public void testGetGradableObject() throws Exception {
+
+        Instant dueDate = Instant.parse("2026-11-20T10:30:00Z");
+
+        Assignment essay = new Assignment();
+        essay.setId(3L);
+        essay.setName("Essay");
+        essay.setExternalId("/assignment/a/" + site1Id + "/essay-1");
+        essay.setExternalAppName("sakai.assignment.grades");
+        essay.setPoints(10D);
+        essay.setDueDate(Date.from(dueDate));
+
+        when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(essay));
+
+        // the last path segment of the external id is enough to find the item
+        mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.siteId", is(site1Id)))
+            .andExpect(jsonPath("$.entityId", is("essay-1")))
+            .andExpect(jsonPath("$.toolId", is("sakai.assignment.grades")))
+            .andExpect(jsonPath("$.title", is("Essay")))
+            .andExpect(jsonPath("$.pointsPossible", is(10.0)))
+            .andExpect(jsonPath("$.dueDate").value((double) dueDate.getEpochSecond()))
+            .andExpect(jsonPath("$.openDate").doesNotExist())
+            .andDo(document("get-gradable-object"));
+
+        verifyNoInteractions(publishedAssessmentService);
+    }
+
+    @Test
+    public void testGetGradableObjectPrefersExactMatchAndAddsSamigoOpenDate() throws Exception {
+
+        Instant createdDate = Instant.parse("2026-11-01T09:00:00Z");
+
+        Assignment other = new Assignment();
+        other.setId(1L);
+        other.setName("Other item");
+        other.setExternalId("/other/42");
+
+        Assignment quiz = new Assignment();
+        quiz.setId(2L);
+        quiz.setName("Quiz");
+        quiz.setExternalId("42");
+        quiz.setExternalAppName("sakai.samigo");
+
+        when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(other, quiz));
+
+        // no start date is set, so the creation date is the open date
+        PublishedAssessmentFacade assessment = mock(PublishedAssessmentFacade.class);
+        when(assessment.getCreatedDate()).thenReturn(Date.from(createdDate));
+        when(publishedAssessmentService.getPublishedAssessmentQuick("42")).thenReturn(assessment);
+
+        mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "42"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.entityId", is("42")))
+            .andExpect(jsonPath("$.title", is("Quiz")))
+            .andExpect(jsonPath("$.openDate").value((double) createdDate.getEpochSecond()));
+    }
+
+    @Test
+    public void testGetGradableObjectNotViewable() throws Exception {
+
+        when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of());
+
+        mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetGradableObjectWithoutExternalId() throws Exception {
+
+        mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id))
+            .andExpect(status().isBadRequest());
+
+        verify(gradingService, never()).getViewableAssignmentsForCurrentUser(anyString(), anyString(), any());
     }
 }

@@ -15,7 +15,6 @@
 [DELETE] /users/{userId}/profile/pronunciation AUTHENTICATED ProfileController.removeNamePronunciation | WRITE | ProfileService | authenticated profile reader; owner or administrator for mutation
 [DELETE] /videos/categories/{categoryId} AUTHENTICATED VideoTrainingController.deleteCategory | WRITE | VideoTrainingService | permitted viewer or actual video/category/lesson library manager
 [GET] /assessmentgrading/{assessmentGradingId}/timerinfo/{type}/{itemId} AUTHENTICATED SamigoController.getTimerInfo | READ | AssessmentService + GradingService | actual authorized assessment participant
-[GET] /grades/gradable-object AUTHENTICATED GradesController.getGradableObject | READ | GradingService | site visitor, checked in the handler for the siteId query parameter
 [GET] /keys/sakaipush PUBLIC EventsController.getPushKey | READ | UserMessagingService | authenticated endpoint owner; public VAPID key is deliberate
 [GET] /lti/bearer-probe AUTHENTICATED LtiAuthController.bearerProbe | READ | SakaiAccessTokenService | authenticated session or validated scoped bearer
 [GET] /rubrics/shared AUTHENTICATED RubricsRestController.getSharedRubrics | READ | RubricsService | authenticated reader of explicitly shared rubrics
@@ -41,11 +40,12 @@
 [GET] /sites/{siteId}/entities/resources AUTHENTICATED_SITE SiteEntityController.getSiteResources | READ | owning tool service: PublishedAssessmentService/DiscussionForumManager/AssignmentService/ContentHostingService | assessment author for accommodation metadata; actual tool editor for writes; site visitor for other reads
 [GET] /sites/{siteId}/forums/summary AUTHENTICATED_SITE ForumsController.getSiteForums | READ | DiscussionForumService | actual session user with forum read permissions
 [GET] /sites/{siteId}/grades AUTHENTICATED_SITE GradesController.getSiteGrades | READ | GradingService | gradebook-authorized grader or permitted grade subject
+[GET] /sites/{siteId}/grades/gradable-object AUTHENTICATED_SITE GradesController.getGradableObject | READ | GradingService | gradebook-authorized grader or permitted grade subject
 [GET] /sites/{siteId}/grading/item-data AUTHENTICATED_SITE GradesController.getSiteCategories | READ | GradingService | gradebook-authorized grader or permitted grade subject
 [GET] /sites/{siteId}/items/{appName} AUTHENTICATED_SITE GradesController.getSiteItems | READ | GradingService | gradebook-authorized grader or permitted grade subject
 [GET] /sites/{siteId}/items/{appName}/{userId} AUTHENTICATED_SITE GradesController.getSiteItems | READ | GradingService | gradebook-authorized grader or permitted grade subject
 [GET] /sites/{siteId}/items/{appName}/{userId}/{gbUid} AUTHENTICATED_SITE GradesController.getSiteItems | READ | GradingService | gradebook-authorized grader or permitted grade subject
-[GET] /sites/{siteId}/members/{userId} AUTHENTICATED_SITE SitesController.getSiteMember | READ | SiteService | publication-aware site visitor; site manager for mutations; actual user for site list
+[GET] /sites/{siteId}/members/{userId} AUTHENTICATED_SITE SitesController.getSiteMember | READ | SiteService | site visitor for their own membership; roster viewer for other members
 [GET] /sites/{siteId}/permissions/{tool} AUTHENTICATED_SITE PermissionsController.getPermissions | READ | AuthzGroupService | realm update editor; foreign references additionally require their own realm update permission
 [GET] /sites/{siteId}/rubric-associations/tools/{toolId}/items/{itemId} AUTHENTICATED_SITE RubricsRestController.getAssociationForToolAndAssignment | READ | RubricsService | actual associated-site editor, evaluator or permitted evaluee
 [GET] /sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId} AUTHENTICATED_SITE RubricsRestController.getEvaluationsForItem | READ | RubricsService | actual associated-site evaluator or permitted evaluation subject under evaluation visibility rules

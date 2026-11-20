@@ -196,3 +196,31 @@ include::{snippets}/get-site-items-for-app-user-group/curl-request.adoc[]
 
 ==== Example Success Response
 include::{snippets}/get-site-items-for-app-user-group/response-body.adoc[]
+
+
+=== GET /api/sites/{siteId}/grades/gradable-object
+Returns the gradebook item with the supplied external id, if the current user can view it. The
+externalId parameter can be the item's full external id or the last path segment of it, such as an
+assignment id or a published assessment id.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-gradable-object/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the gradebook item. The dates are in epoch seconds, and openDate is only set for Tests & Quizzes items
+| 400 Bad Request | Error | The externalId parameter is missing.
+| 403 Forbidden | Error | User is not authenticated, or cannot access the supplied site.
+| 404 Not Found | Error | No gradebook item that the current user can view has the supplied external id.
+|===
+
+==== Example Success Response
+include::{snippets}/get-gradable-object/response-body.adoc[]
