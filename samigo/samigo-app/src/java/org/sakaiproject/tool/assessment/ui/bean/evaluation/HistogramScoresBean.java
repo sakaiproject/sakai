@@ -37,11 +37,8 @@ import jakarta.faces.bean.ManagedBean;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -73,6 +70,9 @@ public class HistogramScoresBean implements Serializable {
     @Setter
     @Getter
     private String publishedId;
+
+    @Setter
+    private String assessmentSiteId;
 
     @Setter
     @Getter
@@ -116,6 +116,10 @@ public class HistogramScoresBean implements Serializable {
 
     @Getter
     private String partNumber;//Note: this is sequence number
+
+    @Getter
+    @Setter
+    private boolean trackingQuestion;
 
     @Setter
     @Getter
@@ -608,7 +612,7 @@ public class HistogramScoresBean implements Serializable {
     }
 
     private String exportReportUrl(String type, String format) {
-      return ExportReportServlet.exportReportUrl(assessmentId, type, format);
+      return ExportReportServlet.exportReportUrl(publishedId, assessmentSiteId, type, format);
     }
 
     public String[] getTimeStats() {
@@ -749,11 +753,5 @@ public class HistogramScoresBean implements Serializable {
         }
       }
       return timeStatsVariationArray;
-    }
-
-    public boolean isTrackingQuestion() {
-      PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-      PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(this.getPublishedId());
-      return Boolean.parseBoolean(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
     }
 }

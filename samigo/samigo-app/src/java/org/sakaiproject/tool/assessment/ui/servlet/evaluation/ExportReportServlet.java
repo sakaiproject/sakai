@@ -200,18 +200,15 @@ public class ExportReportServlet extends SamigoBaseServlet {
         out.close();
     }
 
-    public static String exportReportUrl(String assessmentId, String type, String format) {
+    public static String exportReportUrl(String assessmentId, String siteId, String type, String format) {
         log.debug("assessmentId [{}], type [{}] format [{}]", assessmentId, type, format);
-        PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-        PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId);
-
-        if (assessment == null) {
+        if (StringUtils.isAnyBlank(assessmentId, siteId)) {
             return null;
         }
 
         return UriComponentsBuilder.fromPath(SamigoConstants.SERVLET_MAPPING_EXPORT_REPORT)
                 .queryParam(ExportReportServlet.PARAM_ASSESSMENT_ID, assessmentId)
-                .queryParam(ExportReportServlet.PARAM_SITE_ID, assessment.getOwnerSiteId())
+                .queryParam(ExportReportServlet.PARAM_SITE_ID, siteId)
                 .queryParam(ExportReportServlet.PARAM_TYPE, type)
                 .queryParam(ExportReportServlet.PARAM_FORMAT, format)
                 .build().toUriString();
