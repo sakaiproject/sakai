@@ -46,13 +46,23 @@ final class ResourcesRequests implements AutoCloseable {
         userContext = browser.newContext(new Browser.NewContextOptions()
             .setBaseURL(SakaiEnvironment.baseUrl()).setIgnoreHTTPSErrors(true));
         if (username != null) {
-            APIResponse login = userContext.request().post("/portal/xlogin", RequestOptions.create()
-                .setForm(FormData.create().set("eid", username).set("pw", sakai.passwordFor(username))));
             try {
-                assertTrue(login.ok(), "Unable to log in as " + username + ": HTTP " + login.status());
-            } finally {
-                login.dispose();
+                logIn(sakai, username);
+            } catch (RuntimeException | Error e) {
+                // The caller never receives this instance, so it cannot close the context.
+                userContext.close();
+                throw e;
             }
+        }
+    }
+
+    private void logIn(SakaiHelper sakai, String username) {
+        APIResponse login = userContext.request().post("/portal/xlogin", RequestOptions.create()
+            .setForm(FormData.create().set("eid", username).set("pw", sakai.passwordFor(username))));
+        try {
+            assertTrue(login.ok(), "Unable to log in as " + username + ": HTTP " + login.status());
+        } finally {
+            login.dispose();
         }
     }
 
