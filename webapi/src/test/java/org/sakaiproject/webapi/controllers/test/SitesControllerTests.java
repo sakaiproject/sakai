@@ -19,11 +19,16 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -152,5 +157,82 @@ public class SitesControllerTests {
             .andExpect(status().isNotFound());
 
         verifyNoInteractions(userMessagingService, portalService);
+    }
+
+    @Test
+    public void getSiteMemberReturnsOwnMembership() throws Exception {
+        when(session.getUserId()).thenReturn("student");
+        Role role = mock(Role.class);
+        when(role.getId()).thenReturn("Student");
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("student");
+        when(member.getRole()).thenReturn(role);
+        when(member.isActive()).thenReturn(true);
+        Site site = mock(Site.class);
+        when(site.getMember("student")).thenReturn(member);
+        when(siteService.getOptionalSite("course-site")).thenReturn(Optional.of(site));
+
+        mockMvc.perform(get("/sites/course-site/members/student"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.siteId").value("course-site"))
+            .andExpect(jsonPath("$.userId").value("student"))
+            .andExpect(jsonPath("$.role").value("Student"))
+            .andExpect(jsonPath("$.active").value(true));
+
+        verify(siteService, never()).allowViewRoster(anyString());
+    }
+
+    @Test
+    public void getSiteMemberRejectsOtherMemberWithoutRosterAccess() throws Exception {
+        when(session.getUserId()).thenReturn("student");
+        when(siteService.allowViewRoster("course-site")).thenReturn(false);
+
+        mockMvc.perform(get("/sites/course-site/members/other-student"))
+            .andExpect(status().isForbidden());
+
+        verify(siteService, never()).getOptionalSite(anyString());
+    }
+
+    @Test
+    public void getSiteMemberReturnsNotFoundForNonMember() throws Exception {
+        when(session.getUserId()).thenReturn("instructor");
+        when(siteService.allowViewRoster("course-site")).thenReturn(true);
+        when(siteService.getOptionalSite("course-site")).thenReturn(Optional.of(mock(Site.class)));
+
+        mockMvc.perform(get("/sites/course-site/members/non-member"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getSiteDetailsReturnsDatesForSoftlyDeletedSite() throws Exception {
+        when(session.getUserId()).thenReturn("admin");
+        Instant createdOn = Instant.parse("2026-01-10T08:00:00Z");
+        Instant modifiedOn = Instant.parse("2026-06-01T12:30:00Z");
+        Instant softlyDeletedDate = Instant.parse("2026-11-02T00:00:00Z");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("deleted-site");
+        when(site.getTitle()).thenReturn("Deleted Site");
+        when(site.getCreatedDate()).thenReturn(Date.from(createdOn));
+        when(site.getModifiedDate()).thenReturn(Date.from(modifiedOn));
+        // The site service returns the soft delete date as a java.sql.Date
+        when(site.getSoftlyDeletedDate()).thenReturn(new java.sql.Date(softlyDeletedDate.toEpochMilli()));
+        when(siteService.getOptionalSite("deleted-site")).thenReturn(Optional.of(site));
+
+        mockMvc.perform(get("/sites/deleted-site/details"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value("deleted-site"))
+            .andExpect(jsonPath("$.title").value("Deleted Site"))
+            .andExpect(jsonPath("$.createdOn").value((double) createdOn.getEpochSecond()))
+            .andExpect(jsonPath("$.modifiedOn").value((double) modifiedOn.getEpochSecond()))
+            .andExpect(jsonPath("$.softlyDeletedDate").value((double) softlyDeletedDate.getEpochSecond()));
+    }
+
+    @Test
+    public void getSiteDetailsReturnsNotFoundForMissingSite() throws Exception {
+        when(session.getUserId()).thenReturn("member");
+        when(siteService.getOptionalSite("missing-site")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/sites/missing-site/details"))
+            .andExpect(status().isNotFound());
     }
 }
