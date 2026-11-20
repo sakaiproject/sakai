@@ -43,7 +43,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -53,7 +52,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.api.FormattedText;
 import org.tsugi.ags2.objects.Score;
 
 public class SakaiLTIUtilHandleAssignmentTest {
@@ -62,7 +60,6 @@ public class SakaiLTIUtilHandleAssignmentTest {
 	private static final String GROUP_ID = "group1";
 	private static final String GROUP_REF = "/site/" + SITE_ID + "/group/" + GROUP_ID;
 	private static final String ASSIGNMENT_ID = "assignment1";
-	private static final String ASSIGNMENT_REF = "/assignment/a/" + SITE_ID + "/" + ASSIGNMENT_ID;
 
 	private MockedStatic<ComponentManager> componentManager;
 	private MockedStatic<UserDirectoryService> userDirectoryService;
@@ -71,29 +68,23 @@ public class SakaiLTIUtilHandleAssignmentTest {
 	private MockedStatic<ServerConfigurationService> serverConfigurationService;
 
 	private AssignmentService assignmentService;
-	private GradingService gradingService;
 	private SiteService siteService;
 
 	@Before
 	public void setUp() {
 		assignmentService = mock(AssignmentService.class);
-		gradingService = mock(GradingService.class);
 		siteService = mock(SiteService.class);
 		PreferencesService preferencesService = mock(PreferencesService.class);
 		UserTimeService userTimeService = mock(UserTimeService.class);
-		FormattedText formattedText = mock(FormattedText.class);
 
 		when(preferencesService.getLocale(anyString())).thenReturn(Locale.US);
 		when(userTimeService.getLocalTimeZone(anyString())).thenReturn(TimeZone.getTimeZone("UTC"));
-		when(formattedText.convertFormattedTextToPlaintext(any())).thenAnswer(i -> i.getArgument(0));
 
 		componentManager = Mockito.mockStatic(ComponentManager.class);
 		componentManager.when(() -> ComponentManager.get(AssignmentService.class)).thenReturn(assignmentService);
-		componentManager.when(() -> ComponentManager.get(GradingService.class)).thenReturn(gradingService);
 		componentManager.when(() -> ComponentManager.get(SiteService.class)).thenReturn(siteService);
 		componentManager.when(() -> ComponentManager.get(PreferencesService.class)).thenReturn(preferencesService);
 		componentManager.when(() -> ComponentManager.get(UserTimeService.class)).thenReturn(userTimeService);
-		componentManager.when(() -> ComponentManager.get(FormattedText.class)).thenReturn(formattedText);
 
 		userDirectoryService = Mockito.mockStatic(UserDirectoryService.class);
 		userDirectoryService.when(() -> UserDirectoryService.getUser(anyString())).thenAnswer(i -> {
@@ -120,7 +111,7 @@ public class SakaiLTIUtilHandleAssignmentTest {
 	}
 
 	@Test
-	public void autoReleasedGroupScoreIsSentToEveryGroupMember() throws Exception {
+	public void autoReleasedGroupSubmissionIsSyncedToGradebook() throws Exception {
 		Assignment assignment = ltiAssignment(true, true);
 		AssignmentSubmission submission = submission(assignment, "student1", "student2", "student3");
 
@@ -131,34 +122,24 @@ public class SakaiLTIUtilHandleAssignmentTest {
 		when(site.getGroupsWithMember("student1")).thenReturn(List.of(group));
 		when(siteService.getSite(SITE_ID)).thenReturn(site);
 		when(assignmentService.getSubmission(ASSIGNMENT_ID, GROUP_ID)).thenReturn(submission);
-		when(assignmentService.getGradeForSubmitter(submission, "student1")).thenReturn("8");
-		when(assignmentService.getGradeForSubmitter(submission, "student2")).thenReturn("8");
-		when(assignmentService.getGradeForSubmitter(submission, "student3")).thenReturn("9");
 
 		Object result = SakaiLTIUtil.handleAssignment(assignment, "student1", score(8.0, "Nice work"));
 
 		assertEquals(Boolean.TRUE, result);
-		verify(gradingService).updateExternalAssessmentScore(SITE_ID, SITE_ID, ASSIGNMENT_REF, "student1", "8");
-		verify(gradingService).updateExternalAssessmentScore(SITE_ID, SITE_ID, ASSIGNMENT_REF, "student2", "8");
-		verify(gradingService).updateExternalAssessmentScore(SITE_ID, SITE_ID, ASSIGNMENT_REF, "student3", "9");
-		verify(gradingService).updateExternalAssessmentComment(SITE_ID, SITE_ID, ASSIGNMENT_REF, "student2", "Nice work");
-		verify(gradingService).updateExternalAssessmentComment(SITE_ID, SITE_ID, ASSIGNMENT_REF, "student3", "Nice work");
+		verify(assignmentService).syncSubmissionToGradebook(submission);
 	}
 
 	@Test
-	public void autoReleasedIndividualScoreIsSentToTheStudent() throws Exception {
+	public void autoReleasedIndividualSubmissionIsSyncedToGradebook() throws Exception {
 		Assignment assignment = ltiAssignment(false, true);
 		AssignmentSubmission submission = submission(assignment, "student1");
 
 		when(assignmentService.getSubmission(eq(ASSIGNMENT_ID), any(User.class))).thenReturn(submission);
-		when(assignmentService.getGradeForSubmitter(submission, "student1")).thenReturn("8");
-		when(assignmentService.getGradeDisplay("800", Assignment.GradeType.SCORE_GRADE_TYPE, 100)).thenReturn("8");
 
 		Object result = SakaiLTIUtil.handleAssignment(assignment, "student1", score(8.0, "Nice work"));
 
 		assertEquals(Boolean.TRUE, result);
-		verify(gradingService).updateExternalAssessmentScore(SITE_ID, SITE_ID, ASSIGNMENT_REF, "student1", "8");
-		verify(gradingService).updateExternalAssessmentComment(SITE_ID, SITE_ID, ASSIGNMENT_REF, "student1", "Nice work");
+		verify(assignmentService).syncSubmissionToGradebook(submission);
 	}
 
 	@Test
@@ -177,7 +158,7 @@ public class SakaiLTIUtilHandleAssignmentTest {
 		Object result = SakaiLTIUtil.handleAssignment(assignment, "student1", score(8.0, "Nice work"));
 
 		assertEquals(Boolean.TRUE, result);
-		verify(gradingService, never()).updateExternalAssessmentScore(anyString(), anyString(), anyString(), anyString(), any());
+		verify(assignmentService, never()).syncSubmissionToGradebook(any());
 	}
 
 	private Assignment ltiAssignment(boolean isGroup, boolean autoRelease) {
