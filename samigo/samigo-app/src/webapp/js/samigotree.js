@@ -661,7 +661,7 @@ function disableButtons() {
 
 function toggleCheckboxes(checkbox, targetName) {
     const table = checkbox.closest("table");
-    const rowCheckboxes = table.querySelectorAll(`input[type="checkbox"][name$=":${targetName}"]`);
+    const rowCheckboxes = table.querySelectorAll('input[type="checkbox"][name$=":' + targetName + '"]');
     rowCheckboxes.forEach(rowCheckbox => {
         rowCheckbox.checked = checkbox.checked;
     });
