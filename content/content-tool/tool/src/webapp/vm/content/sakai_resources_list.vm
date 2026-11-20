@@ -156,7 +156,7 @@
 
     <div class="container-fluid">
       <div class="row">
-            #if($listActions || $showHotDropboxWidget)
+            #if($listActions || $showHotDropboxWidget || $canZipDownload)
                     <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 act" role="group" style="padding-left:0;">
                         #if($listActions)
                                 #set ($itemsOnLine = 0)
@@ -184,14 +184,13 @@
                                     #end
                                  #end
                                  ####### end SAK-23304, add Show and Hide
+                        #end
                                  #if ($canZipDownload)
                                      <button class="btn btn-secondary" id="zipdownload-button" type="button"
                                          onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='zipDownload';document.getElementById('showForm').submit();"
                                          disabled="disabled">$tlang.getString('avail.zipdownload')
                                     </button>
                                  #end
-
-    					#end
     				</div>
     		#end
         <div class="col-xs-12 col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group-sm form-inline d-flex flex-row-reverse">

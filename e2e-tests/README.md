@@ -50,6 +50,16 @@ profile2.picture.change.enabled=true
 profile2.picture.type=upload
 ```
 
+### Run the Resources ZIP download test
+
+`ResourcesZipTest` downloads a ZIP as a student, which needs ZIP download enabled.
+Set these Sakai properties and pass `-Dresources.test.zipDownload=true`. CI applies both.
+
+```properties
+content.zip.download.maxindividualfilesize=10485760
+content.zip.download.maxtotalsize=104857600
+```
+
 ### Optional browser override:
 
 ```bash
