@@ -19,8 +19,10 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,17 +32,52 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
-/** ZIP download of selected Resources items. */
+/** ZIP compression, expansion and download of selected Resources items. */
 class ResourcesZipTest extends SakaiUiTestBase {
 
     private static final String GROUP_ONE_STUDENT = "student0011";
     private static final String GROUP_TWO_STUDENT = "student0012";
+
+    @Test
+    void instructorCompressesSiteFolderAndExpandsTheArchiveInAnotherSite() throws IOException {
+        ResourcesUi resources = new ResourcesUi(page, sakai);
+        sakai.login("instructor1");
+        String sourceSite = sakai.createFreshCourse("instructor1", List.of("sakai\\.resources"));
+        page.navigate(sourceSite);
+        sakai.toolClick("Resources");
+        resources.openCreateFolders(resources.rootRow(), List.of("Docs", "Images"));
+        resources.createFolders();
+        resources.uploadText("Docs", "a.txt", "Alpha");
+        resources.uploadText("Images", "b.txt", "Beta");
+
+        resources.itemAction(resources.rootRow(), "Compress to ZIP Archive");
+        Locator archiveLink = page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("\\.zip$")));
+        assertThat(archiveLink).hasCount(1);
+        String archiveName = archiveLink.textContent().trim();
+        byte[] archive = download(archiveLink.getAttribute("href"));
+        assertEquals(Map.of("Docs/a.txt", "Alpha", "Images/b.txt", "Beta"), zipEntries(archive));
+
+        String targetSite = sakai.createFreshCourse("instructor1", List.of("sakai\\.resources"));
+        String targetSiteId = sakai.siteIdFromUrl(targetSite);
+        page.navigate(targetSite);
+        sakai.toolClick("Resources");
+        resources.upload(resources.rootRow(), archiveName, "application/zip", archive, false);
+        assertThat(resources.row(archiveName).locator(".resource-access")).hasText("Entire site");
+        resources.itemAction(resources.row(archiveName), "Expand ZIP Archive");
+
+        String folder = archiveName.substring(0, archiveName.length() - ".zip".length());
+        assertThat(resources.row(folder).locator(".resource-access")).hasText("Entire site");
+        assertEquals("Alpha", text(ResourcesUi.accessPath(targetSiteId, folder + "/Docs/a.txt")));
+        assertEquals("Beta", text(ResourcesUi.accessPath(targetSiteId, folder + "/Images/b.txt")));
+    }
 
     @Test
     @EnabledIfSystemProperty(named = "resources.test.zipDownload", matches = "true")
@@ -112,6 +149,20 @@ class ResourcesZipTest extends SakaiUiTestBase {
         // Entry names replace characters outside [a-zA-Z0-9.-/\] with "_" (SAK-49509).
         assertEquals(Map.of("Site_Folder/visible.txt", "Visible", "Group1/g1.txt", "Group one"),
             zipEntries(Files.readAllBytes(zip.path())));
+    }
+
+    private byte[] download(String url) {
+        APIResponse response = page.request().get(url);
+        try {
+            assertTrue(response.ok(), "Unable to download " + url + ": HTTP " + response.status());
+            return response.body();
+        } finally {
+            response.dispose();
+        }
+    }
+
+    private String text(String path) {
+        return new String(download(path), StandardCharsets.UTF_8);
     }
 
     /** File entries of an archive by path, ignoring folder entries. */
