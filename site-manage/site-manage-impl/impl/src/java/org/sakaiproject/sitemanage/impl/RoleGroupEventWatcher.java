@@ -39,7 +39,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteGroupHelper;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RoleGroupEventWatcher implements Observer {
 
-    private static final String SYNC_IN_PROGRESS = RoleGroupEventWatcher.class.getName() + ".syncInProgress";
-    private static final String GROUP_REF_SEGMENT = Entity.SEPARATOR + SiteService.GROUP_SUBTYPE;
+    private static final String GROUP_REF_SEGMENT = Entity.SEPARATOR + SiteService.GROUP_SUBTYPE + Entity.SEPARATOR;
     private static final String SITE_REF_PREFIX = SiteService.REFERENCE_ROOT + Entity.SEPARATOR;
 
     @Setter private AuthzGroupService authzGroupService;
@@ -61,7 +59,6 @@ public class RoleGroupEventWatcher implements Observer {
     @Setter private EventTrackingService eventTrackingService;
     @Setter private SecurityService securityService;
     @Setter private SiteService siteService;
-    @Setter private ThreadLocalManager threadLocalManager;
 
     public void init() {
         eventTrackingService.addLocalObserver(this);
@@ -91,10 +88,6 @@ public class RoleGroupEventWatcher implements Observer {
         }
         if (!realmId.startsWith(SITE_REF_PREFIX)) return;
 
-        // guard against the events fired by our own saveGroupMembership below
-        if (threadLocalManager.get(SYNC_IN_PROGRESS) != null) return;
-        threadLocalManager.set(SYNC_IN_PROGRESS, Boolean.TRUE);
-
         // the sync only propagates changes already made to the site realm, bypass permission checks
         SecurityAdvisor advisor = (userId, sf, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
         securityService.pushAdvisor(advisor);
@@ -104,7 +97,6 @@ public class RoleGroupEventWatcher implements Observer {
             log.warn("Could not sync role based groups for {}", event.getResource(), e);
         } finally {
             securityService.popAdvisor(advisor);
-            threadLocalManager.set(SYNC_IN_PROGRESS, null);
         }
     }
 

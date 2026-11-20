@@ -51,7 +51,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteGroupHelper;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * The kernel services are mocked at the boundary; groups keep real membership state so the tests
@@ -67,7 +66,6 @@ public class RoleGroupEventWatcherTest {
     private AuthzGroupService authzGroupService;
     private EntityManager entityManager;
     private SiteService siteService;
-    private ThreadLocalManager threadLocalManager;
     private AuthzGroup realm;
     private Site site;
 
@@ -76,7 +74,6 @@ public class RoleGroupEventWatcherTest {
         authzGroupService = mock(AuthzGroupService.class);
         entityManager = mock(EntityManager.class);
         siteService = mock(SiteService.class);
-        threadLocalManager = mock(ThreadLocalManager.class);
 
         watcher = new RoleGroupEventWatcher();
         watcher.setAuthzGroupService(authzGroupService);
@@ -84,7 +81,6 @@ public class RoleGroupEventWatcherTest {
         watcher.setEventTrackingService(mock(EventTrackingService.class));
         watcher.setSecurityService(mock(SecurityService.class));
         watcher.setSiteService(siteService);
-        watcher.setThreadLocalManager(threadLocalManager);
 
         realm = mock(AuthzGroup.class);
         when(authzGroupService.getAuthzGroup(SITE_REF)).thenReturn(realm);
@@ -168,12 +164,19 @@ public class RoleGroupEventWatcherTest {
     }
 
     @Test
-    public void ignoresEventsFiredByItsOwnSave() throws Exception {
-        when(threadLocalManager.get(anyString())).thenReturn(Boolean.TRUE);
+    public void siteIdStartingWithGroupIsNotTreatedAsGroupRealm() throws Exception {
+        String siteId = "group-course";
+        AuthzGroup siteRealm = mock(AuthzGroup.class);
+        when(authzGroupService.getAuthzGroup("/site/" + siteId)).thenReturn(siteRealm);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        Map<String, String> members = members();
+        Group group = roleGroup(members, TA);
+        when(site.getGroups()).thenReturn(List.of(group));
+        when(siteRealm.getUsersHasRole(TA)).thenReturn(Set.of("u1"));
 
-        watcher.update(null, realmEvent(SITE_REF));
+        watcher.update(null, realmEvent("/site/" + siteId));
 
-        verify(siteService, never()).getSite(anyString());
+        assertEquals(members("u1", TA), members);
     }
 
     private Event realmEvent(String realmId) {
