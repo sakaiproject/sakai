@@ -156,12 +156,13 @@ class SamigoTest extends SakaiUiTestBase {
         saveQuestionAndWaitForAssessment();
         assertThat(page.locator("#assessmentForm\\:parts .samigo-question-callout")).hasCount(2);
 
-        page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
-            new com.microsoft.playwright.Page.GetByRoleOptions().setName("Settings")).first()
-            .click(new Locator.ClickOptions().setForce(true));
-
-        if (isVisible(page.locator("#assessmentSettingsAction\\:lateHandling\\:0").first(), 3_000)) {
-            page.locator("#assessmentSettingsAction\\:lateHandling\\:0").first().check(new Locator.CheckOptions().setForce(true));
+        page.locator("#assessmentForm").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Settings").setExact(true)).click();
+        assertThat(page.locator("#jqueryui-accordion.ui-accordion")).isVisible();
+        page.locator("#expandLink").click();
+        Locator lateHandling = page.locator("[id='assessmentSettingsAction:lateHandling:0']");
+        if (lateHandling.isVisible()) {
+            lateHandling.check();
         }
 
         DateTimeFormatter dateTime12h = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
@@ -170,12 +171,8 @@ class SamigoTest extends SakaiUiTestBase {
         sakai.selectDate("#assessmentSettingsAction\\:startDate", availableDate);
         sakai.selectDate("#assessmentSettingsAction\\:endDate", dueDate);
 
-        clickFirstVisible(
-            page.locator("button:has-text(\"Save Settings and Publish\"), input[type=\"submit\"][value*=\"Save Settings and Publish\"], input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")")
-        );
-        clickFirstVisibleIfPresent(
-            page.locator("input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\"), input[type=\"submit\"][value*=\"Republish\"], button:has-text(\"Republish\")")
-        );
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Settings and Publish").setExact(true)).click();
+        page.locator("[id='publishAssessmentForm:publish']").click();
 
         ensureAssessmentsTable(testsToolUrl);
         assertAssessmentTableFilteringAndSorting();
