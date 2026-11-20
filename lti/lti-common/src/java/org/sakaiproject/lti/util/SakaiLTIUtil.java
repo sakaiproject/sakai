@@ -3194,7 +3194,7 @@ public class SakaiLTIUtil {
 			 try {
 				assignmentService.updateSubmission(submission);
 				if (submission.getGradeReleased()) {
-					syncReleasedLtiGradeToGradebook(a, submission, userId, assignmentService);
+					syncReleasedLtiGradeToGradebook(a, submission, assignmentService);
 				}
 				log.debug("Submitted submission={} userId={} submitted={} dateSubmitted={} log={}",
 						submission.getId(), userId, submission.getSubmitted(), submission.getDateSubmitted(), logEntry.toString());
@@ -3220,7 +3220,7 @@ public class SakaiLTIUtil {
 	}
 
 	private static void syncReleasedLtiGradeToGradebook(org.sakaiproject.assignment.api.model.Assignment a,
-			org.sakaiproject.assignment.api.model.AssignmentSubmission submission, String userId,
+			org.sakaiproject.assignment.api.model.AssignmentSubmission submission,
 			org.sakaiproject.assignment.api.AssignmentService assignmentService) {
 
 		Map<String, String> properties = a.getProperties();
@@ -3246,12 +3246,6 @@ public class SakaiLTIUtil {
 		String assignmentRef = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
 		String associateGradebookAssignment = properties.get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
-		Integer scaleFactor = a.getScaleFactor();
-		if (scaleFactor == null) {
-			scaleFactor = assignmentService.getScaleFactor();
-		}
-
-		String gradeString = assignmentService.getGradeDisplay(submission.getGrade(), a.getTypeOfGrade(), scaleFactor);
 		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 		String commentString = formattedText.convertFormattedTextToPlaintext(submission.getFeedbackComment());
 
@@ -3262,21 +3256,26 @@ public class SakaiLTIUtil {
 		sess.setUserId(gb_user_id);
 		sess.setUserEid(gb_user_eid);
 		try {
-			if (associateGradebookAssignment != null) {
-				if (gradingService.isExternalAssignmentDefined(siteId, associateGradebookAssignment)) {
-					gradingService.updateExternalAssessmentScore(siteId, siteId, associateGradebookAssignment, userId, gradeString);
-					gradingService.updateExternalAssessmentComment(siteId, siteId, associateGradebookAssignment, userId, commentString);
-				} else if (gradingService.isAssignmentDefined(siteId, siteId, associateGradebookAssignment)) {
-					final Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, siteId, associateGradebookAssignment).getId();
-					gradingService.setAssignmentScoreString(siteId, siteId, associateGradebookAssignmentId, userId, gradeString, "External Outcome", null);
-					gradingService.setAssignmentScoreComment(siteId, associateGradebookAssignmentId, userId, commentString);
+			// Every submitter gets the score: one student for an individual submission, each member for a group one.
+			for (org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+				String userId = submitter.getSubmitter();
+				String gradeString = assignmentService.getGradeForSubmitter(submission, userId);
+				if (associateGradebookAssignment != null) {
+					if (gradingService.isExternalAssignmentDefined(siteId, associateGradebookAssignment)) {
+						gradingService.updateExternalAssessmentScore(siteId, siteId, associateGradebookAssignment, userId, gradeString);
+						gradingService.updateExternalAssessmentComment(siteId, siteId, associateGradebookAssignment, userId, commentString);
+					} else if (gradingService.isAssignmentDefined(siteId, siteId, associateGradebookAssignment)) {
+						final Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, siteId, associateGradebookAssignment).getId();
+						gradingService.setAssignmentScoreString(siteId, siteId, associateGradebookAssignmentId, userId, gradeString, "External Outcome", null);
+						gradingService.setAssignmentScoreComment(siteId, associateGradebookAssignmentId, userId, commentString);
+					}
+				} else {
+					gradingService.updateExternalAssessmentScore(siteId, siteId, assignmentRef, userId, gradeString);
+					gradingService.updateExternalAssessmentComment(siteId, siteId, assignmentRef, userId, commentString);
 				}
-			} else {
-				gradingService.updateExternalAssessmentScore(siteId, siteId, assignmentRef, userId, gradeString);
-				gradingService.updateExternalAssessmentComment(siteId, siteId, assignmentRef, userId, commentString);
 			}
 		} catch (Exception e) {
-			log.warn("Could not sync released LTI grade to gradebook for assignment {} user {}: {}", a.getId(), userId, e.toString());
+			log.warn("Could not sync released LTI grade to gradebook for assignment {} submission {}: {}", a.getId(), submission.getId(), e.toString());
 		} finally {
 			sess.invalidate();
 		}
