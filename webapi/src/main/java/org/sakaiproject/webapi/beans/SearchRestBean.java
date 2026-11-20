@@ -35,10 +35,12 @@ public class SearchRestBean {
     public String siteTitle;
     public String siteUrl;
     public String creatorDisplayName;
+    public boolean censored;
 
     public static SearchRestBean of(SearchResult searchResult, SiteService siteService) {
 
         SearchRestBean bean = new SearchRestBean();
+        bean.censored = searchResult.isCensored();
         bean.reference = searchResult.getReference();
         bean.contentId = searchResult.getId();
         bean.score = searchResult.getScore();
