@@ -50,7 +50,12 @@ final class ResourcesRequests implements AutoCloseable {
                 logIn(sakai, username);
             } catch (RuntimeException | Error e) {
                 // The caller never receives this instance, so it cannot close the context.
-                userContext.close();
+                try {
+                    userContext.close();
+                } catch (RuntimeException closeFailure) {
+                    // Keep the login failure as the reported cause.
+                    e.addSuppressed(closeFailure);
+                }
                 throw e;
             }
         }
