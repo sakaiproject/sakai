@@ -1733,11 +1733,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    @Transactional(rollbackFor = PermissionException.class)
     public void syncSubmissionToGradebook(AssignmentSubmission submission) throws PermissionException {
         syncGradesToGradebook(submission.getAssignment(), Optional.of(submission));
     }
 
     @Override
+    @Transactional(rollbackFor = PermissionException.class)
     public void syncReleasedGradesToGradebook(String assignmentId) throws IdUnusedException, PermissionException {
         Assignment assignment = assignmentRepository.findAssignment(assignmentId);
         if (assignment == null) {
@@ -1837,10 +1839,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     scores.forEach((userId, score) -> {
                         if (!bulk || StringUtils.isNotBlank(score)) {
                             gradingService.setAssignmentScoreString(gradebookUid, siteId, gradebookItem.getId(), userId, score, "", null);
-                            String comment = comments.get(userId);
-                            if (!bulk || StringUtils.isNotBlank(comment)) {
-                                gradingService.setAssignmentScoreComment(gradebookUid, gradebookItem.getId(), userId, comment);
-                            }
+                        }
+                        String comment = comments.get(userId);
+                        if (!bulk || StringUtils.isNotBlank(comment)) {
+                            gradingService.setAssignmentScoreComment(gradebookUid, gradebookItem.getId(), userId, comment);
                         }
                     });
                 }
