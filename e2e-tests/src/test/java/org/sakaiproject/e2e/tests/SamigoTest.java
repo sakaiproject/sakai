@@ -388,6 +388,14 @@ class SamigoTest extends SakaiUiTestBase {
         saveQuestionAndWaitForPoolEditor();
         assertThat(page.locator("#editform\\:questionpool-questions a[title=\"Edit Question\"]")).hasCount(1);
 
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Question").setExact(true)).click();
+        selectQuestionType(Pattern.compile("true false", Pattern.CASE_INSENSITIVE));
+        clickSubmit("Save");
+        page.locator("[id='itemForm:answerptr']").fill("1");
+        page.locator("#itemForm textarea").first().fill("The capital of California is Sacramento.");
+        page.locator("input[name='itemForm:TF']").first().check();
+        saveQuestionAndWaitForPoolEditor();
+
         page.navigate(courseUrl);
         sakai.toolClick("Tests");
         openNewAssessmentForm();
@@ -404,6 +412,23 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("[id='modifyPartForm:numPointsRandom']").fill("1");
         clickSubmit("Save");
         assertThat(page.locator("#assessmentForm")).containsText("Random draw from " + poolName);
+
+        selectQuestionType(Pattern.compile("(select|copy|import).*pool", Pattern.CASE_INSENSITIVE));
+        page.locator("[id='questionpool:TreeTable']").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName(poolName).setExact(true)).click();
+
+        // Filter for a question whose original JSF row index is greater than zero.
+        Locator secondQuestion = page.locator("input[name='editform:questionpool-questions:1:importCheckbox']");
+        Locator table = page.locator("[id='editform:questionpool-questions']");
+        String questionText = table.locator("tbody > tr").filter(new Locator.FilterOptions().setHas(secondQuestion))
+            .locator("td").first().innerText().trim();
+        page.locator("input[aria-controls='editform:questionpool-questions'][type='search']").fill(questionText);
+        assertThat(table.locator("tbody input[type='checkbox']")).hasCount(1);
+        Locator selectAll = table.locator("thead input[type='checkbox']");
+        selectAll.check();
+        assertThat(secondQuestion).isChecked();
+        selectAll.uncheck();
+        assertThat(secondQuestion).not().isChecked();
     }
 
     private void searchQuestionPool(String selectId, String poolName) {
