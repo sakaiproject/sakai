@@ -383,18 +383,16 @@ public class GradesController extends AbstractSakaiApiController {
     @GetMapping(value = "/sites/{siteId}/grades/gradable-object", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GradableObjectRestBean> getGradableObject(@PathVariable("siteId") String siteId, @RequestParam(name = "externalId", required = false) String externalId) {
 
-        checkSakaiSession();
+        String currentUserId = checkSakaiSession().getUserId();
 
         if (StringUtils.isBlank(externalId)) {
             return ResponseEntity.badRequest().build();
         }
 
-        if (!gradingService.isGradebookDefined(siteId)) {
-            return ResponseEntity.notFound().build();
-        }
-
         // graders get the items they are allowed to grade, students only the released ones
-        List<Assignment> items = gradingService.getViewableAssignmentsForCurrentUser(siteId, siteId, SortType.SORT_BY_NONE);
+        List<Assignment> items = getViewableGradebookUids(siteId, currentUserId).stream()
+            .flatMap(gradebookUid -> gradingService.getViewableAssignmentsForCurrentUser(gradebookUid, siteId, SortType.SORT_BY_NONE).stream())
+            .collect(Collectors.toList());
 
         // an exact match wins, then the last path segment, as assignments use a full reference as their external id
         String tail = "/" + externalId;
@@ -404,6 +402,26 @@ public class GradesController extends AbstractSakaiApiController {
 
         return match.map(item -> ResponseEntity.ok(GradableObjectRestBean.of(siteId, getEntityId(item, externalId), item, getSamigoOpenDate(item))))
             .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    private List<String> getViewableGradebookUids(String siteId, String userId) {
+
+        // only the gradebooks that already exist, as a lookup must not create one
+        List<String> gradebookUids = gradingService.getExistingGradebookUids(siteId);
+
+        if (!gradingService.isGradebookGroupEnabled(siteId) || gradingService.currentUserHasGradeAllPerm(siteId)) {
+            return gradebookUids;
+        }
+
+        // a group gradebook is only for the members of its group
+        Set<String> groupIds = siteService.getOptionalSite(siteId).stream()
+            .flatMap(site -> site.getGroupsWithMember(userId).stream())
+            .map(Group::getId)
+            .collect(Collectors.toSet());
+
+        return gradebookUids.stream()
+            .filter(gradebookUid -> gradebookUid.equals(siteId) || groupIds.contains(gradebookUid))
+            .collect(Collectors.toList());
     }
 
     private Optional<Assignment> findItem(List<Assignment> items, Predicate<Assignment> filter) {

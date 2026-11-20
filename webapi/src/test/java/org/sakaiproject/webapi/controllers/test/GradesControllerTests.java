@@ -446,6 +446,7 @@ public class GradesControllerTests extends BaseControllerTests {
         essay.setPoints(10D);
         essay.setDueDate(Date.from(dueDate));
 
+        when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(site1Id));
         when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(essay));
 
         // the last path segment of the external id is enough to find the item
@@ -479,6 +480,7 @@ public class GradesControllerTests extends BaseControllerTests {
         quiz.setExternalId("42");
         quiz.setExternalAppName("sakai.samigo");
 
+        when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(site1Id));
         when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(other, quiz));
 
         // no start date is set, so the creation date is the open date
@@ -496,10 +498,54 @@ public class GradesControllerTests extends BaseControllerTests {
     @Test
     public void testGetGradableObjectNotViewable() throws Exception {
 
+        when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(site1Id));
         when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of());
 
         mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetGradableObjectInGroupGradebook() throws Exception {
+
+        Assignment essay = new Assignment();
+        essay.setId(3L);
+        essay.setName("Essay");
+        essay.setExternalId("/assignment/a/" + site1Id + "/essay-1");
+
+        // there is no site gradebook, the item only exists in the gradebook of a group the user belongs to
+        when(gradingService.isGradebookGroupEnabled(site1Id)).thenReturn(true);
+        when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(group1Id, group2Id));
+        when(site1.getGroupsWithMember(user1Id)).thenReturn(List.of(group1));
+        when(gradingService.getViewableAssignmentsForCurrentUser(group1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(essay));
+
+        mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.entityId", is("essay-1")))
+            .andExpect(jsonPath("$.title", is("Essay")));
+
+        // the gradebook of the other group is not read
+        verify(gradingService, never()).getViewableAssignmentsForCurrentUser(eq(group2Id), anyString(), any());
+    }
+
+    @Test
+    public void testGetGradableObjectInAnyGroupGradebookForGrader() throws Exception {
+
+        Assignment essay = new Assignment();
+        essay.setId(3L);
+        essay.setName("Essay");
+        essay.setExternalId("/assignment/a/" + site1Id + "/essay-1");
+
+        // a user who can grade all reads every group gradebook, without being a member of the groups
+        when(gradingService.isGradebookGroupEnabled(site1Id)).thenReturn(true);
+        when(gradingService.currentUserHasGradeAllPerm(site1Id)).thenReturn(true);
+        when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(group1Id, group2Id));
+        when(gradingService.getViewableAssignmentsForCurrentUser(group2Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(essay));
+
+        mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.entityId", is("essay-1")))
+            .andExpect(jsonPath("$.title", is("Essay")));
     }
 
     @Test
