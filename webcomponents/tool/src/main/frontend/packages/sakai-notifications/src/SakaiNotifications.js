@@ -192,6 +192,8 @@ export class SakaiNotifications extends SakaiElement {
       this._decorateLessonsCommentNotification(decorated);
     } else if (toolEventPrefix === "site") {
       this._decorateSiteImportNotification(decorated);
+    } else if (toolEventPrefix === "gradebook") {
+      this._decorateGradebookNotification(decorated);
     } else if (toolEventPrefix === "test") {
       this._decorateTestNotification(decorated);
     }
@@ -245,6 +247,13 @@ export class SakaiNotifications extends SakaiElement {
 
     if (noti.event === "site.import.end") {
       noti.title = this._i18n.site_import_completed.replace("{0}", () => noti.siteTitle);
+    }
+  }
+
+  _decorateGradebookNotification(noti) {
+
+    if (noti.event === "gradebook.updateItemScore") {
+      noti.title = this._i18n.gradebook_item_graded.replace("{0}", () => noti.title).replace("{1}", () => noti.siteTitle);
     }
   }
 
