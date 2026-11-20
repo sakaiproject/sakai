@@ -255,14 +255,17 @@ public class SiteManageServiceImpl implements SiteManageService {
                             } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
                                 // handle Home tool specially, need to update the site infomration display url if needed
                                 String newSiteInfoUrl = resolveImportedSiteInfoUrl(oSiteId, nSiteId, sourceSiteInfoUrl);
-                                site.setInfoUrl(newSiteInfoUrl);
+                                // Lessons and other importers can change the site structure during this loop.
+                                // Save the current site so those changes are not overwritten by the original copy.
+                                Site currentSite = siteService.getSite(nSiteId);
+                                currentSite.setInfoUrl(newSiteInfoUrl);
 
-                                String description = site.getDescription();
+                                String description = currentSite.getDescription();
                                 if (StringUtils.isNotBlank(description) && description.contains(oSiteId)) {
-                                    site.setDescription(rewriteSiteIdInDescription(description, oSiteId, nSiteId));
+                                    currentSite.setDescription(rewriteSiteIdInDescription(description, oSiteId, nSiteId));
                                 }
 
-                                saveSite(site);
+                                saveSite(currentSite);
                                 toolsCopied.add(toolId);
                             } else if (StringUtils.isNotBlank(toolId)) {
                                 // all other tools
@@ -1124,22 +1127,21 @@ public class SiteManageServiceImpl implements SiteManageService {
         if (transversalMap != null && !transversalMap.isEmpty() && site != null) {
             Set<Map.Entry<String, String>> entrySet = transversalMap.entrySet();
 
-            String msgBody = site.getDescription();
-            if (StringUtils.isNotBlank(msgBody)) {
-                String msgBodyPreMigrate = msgBody;
-                msgBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
+            try {
+                // Earlier tool imports may have updated both the description and navigation.
+                Site currentSite = siteService.getSite(site.getId());
+                String msgBody = currentSite.getDescription();
+                if (StringUtils.isNotBlank(msgBody)) {
+                    String msgBodyPreMigrate = msgBody;
+                    msgBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 
-                if (!msgBody.equals(msgBodyPreMigrate)) {
-                    //update the site b/c some tools (Lessonbuilder) updates the site structure (add/remove pages) and we don't want to
-                    //over write this
-                    try {
-                        site = siteService.getSite(site.getId());
-                        site.setDescription(msgBody);
-                        saveSite(site);
-                    } catch (IdUnusedException iue) {
-                        log.warn("A site with id {} doesn't exist, {}", site.getId(), iue.getMessage());
+                    if (!msgBody.equals(msgBodyPreMigrate)) {
+                        currentSite.setDescription(msgBody);
+                        saveSite(currentSite);
                     }
                 }
+            } catch (IdUnusedException iue) {
+                log.warn("A site with id {} doesn't exist, {}", site.getId(), iue.getMessage());
             }
         }
     }

@@ -386,6 +386,7 @@ public class SiteManageServiceImplImportToolContentTest {
         when(destinationSite.getPages()).thenReturn(List.of(siteInfoPage));
 
         when(siteService.getSite(oldSiteId)).thenReturn(sourceSite);
+        when(siteService.getSite(newSiteId)).thenReturn(destinationSite);
         when(siteService.siteReference(newSiteId)).thenReturn(destinationSiteRef);
 
         AuthzGroup destinationRealm = mock(AuthzGroup.class);
