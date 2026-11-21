@@ -1,0 +1,6 @@
+<Context>
+    <JarScanner>
+        <JarScanFilter defaultPluggabilityScan="false" defaultTldScan="false" tldScan="esapi-*.jar,jakarta.faces-*.jar,jakarta.servlet.jsp.jstl-*.jar,jsf*widgets-27-SNAPSHOT.jar,jsf-widgets-*.jar,pluto-taglib-*.jar,spring-webmvc-*.jar,standard-*.jar,tomahawk-*.jar,serializer-*.jar" />
+    </JarScanner>
+</Context>
+

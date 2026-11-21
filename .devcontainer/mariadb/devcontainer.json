@@ -1,0 +1,48 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+	"name": "Sakai MariaDB Dev Container",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "devcontainer",
+	"workspaceFolder": "/workspaces/app",
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "21.0.7-tem",
+			"installMaven": true,
+			"mavenVersion": "3.9.16",
+			"jdkDistro": "tem"
+		},
+		"ghcr.io/devcontainers-extra/features/tomcat-sdkman:2": {
+			"version": "10.1.55",
+			"jdkVersion": "21.0.7-tem",
+			"jdkDistro": "tem"
+		},
+		"ghcr.io/sliekens/devcontainer-features/opencode:1": {
+			"version": "1.18.28"
+		}		
+	},
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "uname -a",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"sst-dev.opencode",
+				"mtxr.sqltools-driver-mysql"
+			]
+		}
+	},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "vscode",
+	"postCreateCommand": ".devcontainer/setup.sh mariadb"
+}
