@@ -413,11 +413,18 @@ public class AssignmentToolUtils {
                 return;
             }
 
+            if (!"remove".equals(gradeOption)) {
+                try {
+                    assignmentService.syncSubmissionToGradebook(submission);
+                } catch (Exception e) {
+                    log.warn("Could not sync submission {} to Gradebook", submission.getId(), e);
+                }
+                return;
+            }
+
             // update grades in gradebook
             String aReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
             String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-
-            String op = gradeOption.equals("remove") ? "remove" : "update";
 
             String siteId = a.getContext();
 
@@ -428,7 +435,7 @@ public class AssignmentToolUtils {
             if (!isGradebookGroupEnabled) {
                 // In this case, the "associateGradebookAssignment" association is unique,
                 // so no further action is needed.
-                alerts.addAll(integrateGradebook(options, siteId, aReference, associateGradebookAssignment, null, null, -1, null, sReference, op, -1));
+                alerts.addAll(integrateGradebook(options, siteId, aReference, associateGradebookAssignment, null, null, -1, null, sReference, "remove", -1));
             } else {
                 try {
                     // First, we need to retrieve the groups of the submitters of the submission.
@@ -465,7 +472,7 @@ public class AssignmentToolUtils {
 
                             if (isExternalAssignmentDefined) {
                                 // In this case, no further actions are required.
-                                alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, op, -1));
+                                alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, "remove", -1));
                             } else {
                                 // In this case, we need to find the item in the list that matches the group being iterated.
                                 try {
@@ -475,7 +482,7 @@ public class AssignmentToolUtils {
 
                                     if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
                                         gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {
-                                        alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, op, -1));
+                                        alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, "remove", -1));
                                     }
                                 } catch (NumberFormatException e) {
                                     log.error("Exception trying to parse item value {} : {} ", item, e);
@@ -661,41 +668,6 @@ public class AssignmentToolUtils {
                                 } else if (isExternalAssignmentDefined) {
                                     gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, assignmentRef, sm);
                                     gradingService.updateExternalAssessmentComments(gradebookUid, siteId, assignmentRef, cm);
-                                }
-                            }
-                        } else {
-                            // only update one submission
-                            AssignmentSubmission aSubmission = assignmentService.getSubmission(submissionId);
-                            if (aSubmission != null) {
-                                int factor = aSubmission.getAssignment().getScaleFactor();
-                                Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
-                                String gradeString = displayGrade(StringUtils.trimToNull(aSubmission.getGrade()), factor);
-                                for (AssignmentSubmissionSubmitter submitter : submitters) {
-                                    String gradeStringToUse = (a.getIsGroup() && submitter.getGrade() != null) ? displayGrade(StringUtils.trimToNull(submitter.getGrade()), factor) : gradeString;
-                                    //Gradebook only supports plaintext strings
-                                    String commentString = formattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
-                                    if (associateGradebookAssignment != null) {
-                                        if (isExternalAssociateAssignmentDefined) {
-                                            // the associated assignment is externally maintained
-                                            gradingService.updateExternalAssessmentScore(gradebookUid, siteId, associateGradebookAssignment, submitter.getSubmitter(),
-                                                    (gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "");
-                                            gradingService.updateExternalAssessmentComment(gradebookUid, siteId, associateGradebookAssignment, submitter.getSubmitter(),
-                                                    (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
-                                        } else if (isAssignmentDefined) {
-                                            // the associated assignment is internal one, update records
-                                            final Long associateGradebookAssignmentId = gradingService.getAssignment(gradebookUid, siteId, associateGradebookAssignment).getId();
-                                            final String submitterId = submitter.getSubmitter();
-                                            gradingService.setAssignmentScoreString(gradebookUid, siteId, associateGradebookAssignmentId, submitterId,
-                                                    (gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "", "", null);
-                                            gradingService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId,
-                                                    (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
-                                        }
-                                    } else {
-                                        gradingService.updateExternalAssessmentScore(gradebookUid, siteId, assignmentRef, submitter.getSubmitter(),
-                                                (gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "");
-                                        gradingService.updateExternalAssessmentComment(gradebookUid, siteId, assignmentRef, submitter.getSubmitter(),
-                                                (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
-                                    }
                                 }
                             }
                         }

@@ -770,6 +770,59 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void linkedGroupGradebookReceivesTheGroupGradeAndIndividualOverride() throws Exception {
+        String siteId = UUID.randomUUID().toString();
+        String groupId = "group-a";
+        String otherGroupId = "group-b";
+        String otherGroupRef = "/site/" + siteId + "/group/" + otherGroupId;
+        AssignmentSubmission submission = createNewGroupSubmission(siteId, groupId, Set.of("student-a", "student-b"));
+        Assignment assignment = submission.getAssignment();
+        assignment.getGroups().add(otherGroupRef);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setScaleFactor(100);
+        assignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
+        assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "101,102");
+
+        Site site = siteService.getSite(siteId);
+        Group otherGroup = mock(Group.class);
+        when(otherGroup.getId()).thenReturn(otherGroupId);
+        when(site.getGroup(otherGroupRef)).thenReturn(otherGroup);
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("instructor");
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentRef)).thenReturn(true);
+        when(gradingService.currentUserHasGradingPerm(siteId)).thenReturn(true);
+        when(gradingService.isGradebookGroupEnabled(siteId)).thenReturn(true);
+        org.sakaiproject.grading.api.Assignment linkedItem = new org.sakaiproject.grading.api.Assignment();
+        linkedItem.setId(101L);
+        when(gradingService.getAssignment(groupId, siteId, "101")).thenReturn(linkedItem);
+        org.sakaiproject.grading.api.Assignment otherItem = new org.sakaiproject.grading.api.Assignment();
+        otherItem.setId(102L);
+        when(gradingService.getAssignment(otherGroupId, siteId, "102")).thenReturn(otherItem);
+        when(formattedText.convertFormattedTextToPlaintext("<p>Feedback</p>")).thenReturn("Feedback");
+        configureScale(100, Locale.ENGLISH);
+
+        submission.setGrade("800");
+        submission.setGraded(true);
+        submission.setGradeReleased(true);
+        submission.setFeedbackComment("<p>Feedback</p>");
+        submission.getSubmitters().stream().filter(submitter -> "student-b".equals(submitter.getSubmitter()))
+                .findFirst().orElseThrow().setGrade("925");
+        assignmentService.updateSubmission(submission, false);
+
+        assignmentService.syncSubmissionToGradebook(submission);
+        verify(gradingService).setAssignmentScoreString(groupId, siteId, 101L, "student-a", "8.00", "", null);
+        verify(gradingService).setAssignmentScoreString(groupId, siteId, 101L, "student-b", "9.25", "", null);
+        verify(gradingService).setAssignmentScoreComment(groupId, 101L, "student-a", "Feedback");
+        verify(gradingService).setAssignmentScoreComment(groupId, 101L, "student-b", "Feedback");
+
+        assignmentService.syncReleasedGradesToGradebook(assignment.getId());
+        verify(gradingService, Mockito.times(2)).setAssignmentScoreString(groupId, siteId, 101L, "student-a", "8.00", "", null);
+        verify(gradingService, Mockito.times(2)).setAssignmentScoreString(groupId, siteId, 101L, "student-b", "9.25", "", null);
+        verify(gradingService, Mockito.never()).setAssignmentScoreString(eq(otherGroupId), eq(siteId),
+                Mockito.anyLong(), anyString(), anyString(), anyString(), Mockito.isNull());
+    }
+
+    @Test
     public void failedGradebookCreationPreservesTheExistingAssociation() throws Exception {
         Assignment assignment = createPublishableAssignment(false);
         assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
@@ -4359,6 +4412,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         // configure mock group objects
         Site site = mock(Site.class);
         Group group = mock(Group.class);
+        when(group.getId()).thenReturn(groupSubmitter);
         when(group.getReference()).thenReturn(groupRef);
         when(group.getProperties()).thenReturn(new BaseResourceProperties());
         Collection<Group> groups = new HashSet<>();
