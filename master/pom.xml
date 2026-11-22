@@ -18,7 +18,7 @@
     <sakai.test.forks>1</sakai.test.forks>
     <!-- Standard dependency versions -->
     <sakai.commons-io.version>2.22.0</sakai.commons-io.version>
-    <sakai.commons.lang3.version>3.21.0</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.22.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>2.0.0-M5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.15.0</sakai.commons-text.version>
