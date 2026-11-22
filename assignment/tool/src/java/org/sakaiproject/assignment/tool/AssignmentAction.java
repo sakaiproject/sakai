@@ -11371,13 +11371,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
 
-            // add grades into Gradebook
-            String integrateWithGradebook = a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-            if (integrateWithGradebook != null && !integrateWithGradebook.equals(GRADEBOOK_INTEGRATION_NO)) {
-                // integrate with Gradebook
-                String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                String siteId = a.getContext();
-                updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, null, "update", a.getGroups());
+            try {
+                assignmentService.syncReleasedGradesToGradebook(a.getId());
+            } catch (Exception e) {
+                log.warn("Could not sync released grades for assignment {} to Gradebook", a.getId(), e);
             }
         }
     }
@@ -15133,11 +15130,24 @@ public class AssignmentAction extends PagedResourceActionII {
             return;
         }
 
-        String update = StringUtils.equals("update", updateRemoveSubmission) ? updateRemoveSubmission : null;
+        if ("update".equals(updateRemoveSubmission)) {
+            try {
+                String id = submissionId.startsWith("/")
+                        ? AssignmentReferenceReckoner.reckoner().reference(submissionId).reckon().getId() : submissionId;
+                AssignmentSubmission submission = assignmentService.getSubmission(id);
+                if (submission != null) {
+                    assignmentService.syncSubmissionToGradebook(submission);
+                }
+            } catch (Exception e) {
+                log.warn("Could not sync submission {} to Gradebook", submissionId, e);
+            }
+            return;
+        }
+
         String remove = StringUtils.equals("remove", updateRemoveSubmission) ? updateRemoveSubmission : null;
 
         if (!gradingService.isGradebookGroupEnabled(siteId)) {
-            addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), siteId, aReference, associateGradebookAssignment, remove, null, -1, null, submissionId, update, -1));
+            addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), siteId, aReference, associateGradebookAssignment, remove, null, -1, null, submissionId, null, -1));
         } else {
             try {
                 HashSet<String> groupSet = new HashSet<>();
@@ -15160,7 +15170,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         if (isExternalAssignmentDefined) {
                             // In this case, no further actions are required.
-                           addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, remove, null, -1, null, submissionId, update, -1));
+                           addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, remove, null, -1, null, submissionId, null, -1));
                         } else {
                             // In this case, we need to find the item in the list that matches the group being iterated.
                             try {
@@ -15170,7 +15180,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                                 if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
                                     gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {
-                                        addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, remove, null, -1, null, submissionId, update, -1));
+                                        addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, remove, null, -1, null, submissionId, null, -1));
                                 }
                             } catch (NumberFormatException e) {
                                 log.error("Exception trying to parse item value {} : {} ", item, e);

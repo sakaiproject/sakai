@@ -1734,6 +1734,125 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional(rollbackFor = PermissionException.class)
+    public void syncSubmissionToGradebook(AssignmentSubmission submission) throws PermissionException {
+        syncGradesToGradebook(submission.getAssignment(), Optional.of(submission));
+    }
+
+    @Override
+    @Transactional(rollbackFor = PermissionException.class)
+    public void syncReleasedGradesToGradebook(String assignmentId) throws IdUnusedException, PermissionException {
+        Assignment assignment = assignmentRepository.findAssignment(assignmentId);
+        if (assignment == null) {
+            throw new IdUnusedException(assignmentId);
+        }
+        syncGradesToGradebook(assignment, Optional.empty());
+    }
+
+    private void syncGradesToGradebook(Assignment assignment, Optional<AssignmentSubmission> submissionToSync)
+            throws PermissionException {
+        String integration = assignment.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+        if ((!GRADEBOOK_INTEGRATION_ADD.equals(integration) && !GRADEBOOK_INTEGRATION_ASSOCIATE.equals(integration))
+                || assignment.getTypeOfGrade() != Assignment.GradeType.SCORE_GRADE_TYPE) {
+            return;
+        }
+
+        String siteId = assignment.getContext();
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        if (!allowGradeSubmission(assignmentRef) || !gradingService.currentUserHasGradingPerm(siteId)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentRef);
+        }
+
+        String links = StringUtils.trimToNull(assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+        if (links == null && GRADEBOOK_INTEGRATION_ADD.equals(integration)) {
+            links = assignmentRef;
+        }
+        if (links == null) {
+            return;
+        }
+
+        boolean bulk = submissionToSync.isEmpty();
+        List<AssignmentSubmission> grades = submissionToSync.map(List::of)
+                .orElseGet(() -> getSubmissions(assignment).stream().filter(AssignmentSubmission::getGradeReleased).toList());
+        if (grades.isEmpty()) {
+            return;
+        }
+
+        if (!gradingService.isGradebookGroupEnabled(siteId)) {
+            syncGradesToGradebookItems(siteId, siteId, List.of(links), grades, bulk);
+            return;
+        }
+
+        try {
+            Site site = siteService.getSite(siteId);
+            List<String> items = Arrays.stream(links.split(",")).map(String::trim).filter(StringUtils::isNotEmpty).distinct().toList();
+            for (String groupRef : assignment.getGroups()) {
+                Group group = site.getGroup(groupRef);
+                if (group == null) {
+                    continue;
+                }
+
+                Set<String> members = assignment.getIsGroup() ? Collections.emptySet() : group.getUsers();
+                List<AssignmentSubmission> groupGrades = grades.stream()
+                        .filter(submission -> assignment.getIsGroup()
+                                ? group.getId().equals(submission.getGroupId())
+                                : submission.getSubmitters().stream().anyMatch(submitter -> members.contains(submitter.getSubmitter())))
+                        .toList();
+                syncGradesToGradebookItems(siteId, group.getId(), items, groupGrades, bulk);
+            }
+        } catch (IdUnusedException e) {
+            log.warn("Cannot synchronize grades for assignment {} because site {} was not found", assignment.getId(), siteId, e);
+        }
+    }
+
+    private void syncGradesToGradebookItems(String siteId, String gradebookUid, List<String> items,
+            Collection<AssignmentSubmission> submissions, boolean bulk) {
+        Map<String, String> scores = new HashMap<>();
+        Map<String, String> comments = new HashMap<>();
+        for (AssignmentSubmission submission : submissions) {
+            String comment = submission.getGradeReleased()
+                    ? formattedText.convertFormattedTextToPlaintext(submission.getFeedbackComment()) : "";
+            for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                String userId = submitter.getSubmitter();
+                String score = submission.getGradeReleased() ? getGradeForSubmitter(submission, userId) : "";
+                scores.put(userId, bulk ? StringUtils.trimToNull(score) : score);
+                comments.put(userId, comment);
+            }
+        }
+        if (scores.isEmpty()) {
+            return;
+        }
+
+        for (String item : items) {
+            if (gradingService.isExternalAssignmentDefined(gradebookUid, item)) {
+                if (bulk) {
+                    gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, item, scores);
+                    gradingService.updateExternalAssessmentComments(gradebookUid, siteId, item, comments);
+                } else {
+                    scores.forEach((userId, score) -> {
+                        gradingService.updateExternalAssessmentScore(gradebookUid, siteId, item, userId, score);
+                        gradingService.updateExternalAssessmentComment(gradebookUid, siteId, item, userId, comments.get(userId));
+                    });
+                }
+            } else {
+                org.sakaiproject.grading.api.Assignment gradebookItem = gradingService.getAssignment(gradebookUid, siteId, item);
+                if (gradebookItem != null && !Boolean.TRUE.equals(gradebookItem.getExternallyMaintained())) {
+                    scores.forEach((userId, score) -> {
+                        boolean writeScore = !bulk || StringUtils.isNotBlank(score);
+                        if (writeScore) {
+                            gradingService.setAssignmentScoreString(gradebookUid, siteId, gradebookItem.getId(), userId, score, "", null);
+                        }
+                        String comment = comments.get(userId);
+                        if (writeScore || StringUtils.isNotBlank(comment)) {
+                            gradingService.setAssignmentScoreComment(gradebookUid, gradebookItem.getId(), userId, comment);
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = PermissionException.class)
     public void updateAssignmentWithGradebook(Assignment assignment, String integration,
             Map<String, Long> categories, Map<String, String> items) throws PermissionException {
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
