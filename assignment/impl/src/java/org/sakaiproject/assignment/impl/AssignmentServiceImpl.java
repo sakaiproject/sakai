@@ -1837,11 +1837,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 org.sakaiproject.grading.api.Assignment gradebookItem = gradingService.getAssignment(gradebookUid, siteId, item);
                 if (gradebookItem != null && !Boolean.TRUE.equals(gradebookItem.getExternallyMaintained())) {
                     scores.forEach((userId, score) -> {
-                        if (!bulk || StringUtils.isNotBlank(score)) {
+                        boolean writeScore = !bulk || StringUtils.isNotBlank(score);
+                        if (writeScore) {
                             gradingService.setAssignmentScoreString(gradebookUid, siteId, gradebookItem.getId(), userId, score, "", null);
                         }
                         String comment = comments.get(userId);
-                        if (!bulk || StringUtils.isNotBlank(comment)) {
+                        if (writeScore || StringUtils.isNotBlank(comment)) {
                             gradingService.setAssignmentScoreComment(gradebookUid, gradebookItem.getId(), userId, comment);
                         }
                     });

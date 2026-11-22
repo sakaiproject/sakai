@@ -820,6 +820,20 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         verify(gradingService, Mockito.times(2)).setAssignmentScoreString(groupId, siteId, 101L, "student-b", "9.25", "", null);
         verify(gradingService, Mockito.never()).setAssignmentScoreString(eq(otherGroupId), eq(siteId),
                 Mockito.anyLong(), anyString(), anyString(), anyString(), Mockito.isNull());
+
+        submission.setFeedbackComment(null);
+        assignmentService.updateSubmission(submission, false);
+        assignmentService.syncReleasedGradesToGradebook(assignment.getId());
+        verify(gradingService).setAssignmentScoreComment(groupId, 101L, "student-a", null);
+
+        submission.setGrade(null);
+        submission.setFeedbackComment("<p>Feedback</p>");
+        assignmentService.updateSubmission(submission, false);
+        Mockito.clearInvocations(gradingService);
+        assignmentService.syncReleasedGradesToGradebook(assignment.getId());
+        verify(gradingService).setAssignmentScoreComment(groupId, 101L, "student-a", "Feedback");
+        verify(gradingService, Mockito.never()).setAssignmentScoreString(eq(groupId), eq(siteId), eq(101L),
+                eq("student-a"), Mockito.nullable(String.class), eq(""), Mockito.isNull());
     }
 
     @Test
