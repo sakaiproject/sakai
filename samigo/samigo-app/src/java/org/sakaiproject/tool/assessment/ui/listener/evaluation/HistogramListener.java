@@ -63,6 +63,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -272,6 +273,8 @@ public class HistogramListener
 		  }
 		  
 		  histogramScores.setPublishedId(publishedId);
+		  histogramScores.setAssessmentSiteId(siteId);
+		  histogramScores.setTrackingQuestion(Boolean.parseBoolean(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS)));
 		  int callerName = TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER;
 		  String isFromStudent = ContextUtil.lookupParam("isFromStudent");
 		  if ("true".equals(isFromStudent)) {
