@@ -53,6 +53,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
@@ -1123,7 +1125,9 @@ implements ActionListener
 					} catch (Exception e) {
 						String gbConflict_error = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 						context.addMessage(null, new FacesMessage(gbConflict_error));
-						evaluation.setToGradeBook("0");
+						if (!(e instanceof ConflictingAssignmentNameException) && !(e instanceof GradeItemNameTooLongException)) {
+							evaluation.setToGradeBook("0");
+						}
 						log.warn("Exception thrown in updateGB():" + e.getMessage());
 						return false;
 					}

@@ -32,6 +32,7 @@ import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
@@ -486,10 +487,10 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         gradingService.addExternalAssessment(gradebook.getUid(), siteId, "first", null, title,
                 10D, null, "sakai.samigo", null, false, null, null);
         String tooLong = title + "x";
-        assertThrows(InvalidGradeItemNameException.class,
+        assertThrows(GradeItemNameTooLongException.class,
                 () -> gradingService.addExternalAssessment(gradebook.getUid(), siteId, "second", null, tooLong,
                         10D, null, "sakai.samigo", null, false, null, null));
-        assertThrows(InvalidGradeItemNameException.class,
+        assertThrows(GradeItemNameTooLongException.class,
                 () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", "new-link", "new-data",
                         tooLong, null, 20D, new Date(), true));
         sessionFactory.getCurrentSession().flush();
@@ -498,6 +499,23 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         Assignment item = gradingService.getExternalAssignment(gradebook.getUid(), "first");
         assertEquals(title, item.getName());
         assertEquals(Double.valueOf(10D), item.getPoints());
+    }
+
+    @Test
+    public void reservedGradebookNameIsNotReportedAsALengthRejection() {
+        Gradebook gradebook = createGradebook();
+        switchToInstructor();
+        InvalidGradeItemNameException rejection = assertThrows(InvalidGradeItemNameException.class,
+                () -> gradingService.addExternalAssessment(gradebook.getUid(), siteId, "reserved", null,
+                        GradingService.INVALID_CHARS_AT_START_OF_GB_ITEM_NAME[0] + "reserved", 10D, null,
+                        "sakai.samigo", null, false, null, null));
+        assertEquals(InvalidGradeItemNameException.class, rejection.getClass());
+        addCancellationAssessment(gradebook, "first", null, 10D);
+        rejection = assertThrows(InvalidGradeItemNameException.class,
+                () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", null, null,
+                        GradingService.INVALID_CHARS_AT_START_OF_GB_ITEM_NAME[0] + "reserved", null, 10D, null, false));
+        assertEquals(InvalidGradeItemNameException.class, rejection.getClass());
+        assertEquals("first", gradingService.getExternalAssignment(gradebook.getUid(), "first").getName());
     }
 
     @Test

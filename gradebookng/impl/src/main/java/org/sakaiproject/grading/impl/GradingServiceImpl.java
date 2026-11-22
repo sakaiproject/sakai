@@ -80,7 +80,7 @@ import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.GradingEventStatus;
 import org.sakaiproject.grading.api.InvalidCategoryException;
-import org.sakaiproject.grading.api.InvalidGradeItemNameException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.InvalidGradeException;
 import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.SortType;
@@ -4263,7 +4263,7 @@ public class GradingServiceImpl implements GradingService {
         String validatedTitle = GradebookHelper.validateGradeItemName(title);
         // GB_GRADABLE_OBJECT_T.NAME is VARCHAR(255); count characters, not UTF-16 units.
         if (validatedTitle.codePointCount(0, validatedTitle.length()) > 255) {
-            throw new InvalidGradeItemNameException("Grade item titles must not exceed 255 characters");
+            throw new GradeItemNameTooLongException("Grade item titles must not exceed 255 characters");
         }
         return validatedTitle;
     }

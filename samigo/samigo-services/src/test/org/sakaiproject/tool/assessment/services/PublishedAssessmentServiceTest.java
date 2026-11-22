@@ -37,6 +37,8 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -428,6 +430,29 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
                 .updateExternalAssessment(anyString(), anyString(), any(), any(), anyString(), any(), any(), any(), any());
         assertThrows(InvalidCategoryException.class, () -> service.updateGradebook(data()));
         assertEquals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), data().getEvaluationModel().getToGradeBook());
+    }
+
+    @Test
+    public void rejectedGradebookTitleDoesNotDisableExport() {
+        PublishedAssessmentData current = data();
+        when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(true);
+        for (RuntimeException rejection : List.of(new ConflictingAssignmentNameException("duplicate"),
+                new GradeItemNameTooLongException("too long"))) {
+            doThrow(rejection).when(gradebookService)
+                    .updateExternalAssessment(anyString(), anyString(), any(), any(), anyString(), any(), any(), any(), any());
+            assertSame(rejection, assertThrows(rejection.getClass(), () -> service.updateGradebook(current)));
+            assertEquals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), current.getEvaluationModel().getToGradeBook());
+        }
+    }
+
+    @Test
+    public void invalidGradebookNameKeepsExistingExportFailureBehavior() {
+        PublishedAssessmentData current = data();
+        when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(true);
+        doThrow(new InvalidGradeItemNameException("reserved prefix")).when(gradebookService)
+                .updateExternalAssessment(anyString(), anyString(), any(), any(), anyString(), any(), any(), any(), any());
+        service.updateGradebook(current);
+        assertEquals("0", current.getEvaluationModel().getToGradeBook());
     }
 
     @Test

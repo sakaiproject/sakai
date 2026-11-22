@@ -26,6 +26,8 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
@@ -1031,7 +1033,7 @@ public class PublishedAssessmentService extends AssessmentService{
         if (updateGradebookCategoryMap.size() >= 1) {
           try {
             gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingService);
-          } catch (InvalidCategoryException e) {
+          } catch (InvalidCategoryException | ConflictingAssignmentNameException | GradeItemNameTooLongException e) {
             throw e;
           } catch (Exception e) {
             evaluation.setToGradeBook("0");
