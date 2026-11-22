@@ -161,7 +161,7 @@ public class ICalRecurrence
 		
 		Integer i = recur.getInterval();
 		if (i.equals(-1)) {
-			i= new Integer(1);
+			i= Integer.valueOf(1);
 		}
 		return i;
 	}

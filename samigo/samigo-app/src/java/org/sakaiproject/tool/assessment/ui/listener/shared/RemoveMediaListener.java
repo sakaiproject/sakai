@@ -77,7 +77,7 @@ public class RemoveMediaListener extends SpringBeanAutowiringSupport implements 
     // #1. get all the info need from bean
     String mediaId = mediaBean.getMediaId();
     Long itemGradingId = mediaBean.getItemGradingId();
-    Long mediaIdLong = new Long(mediaId);
+    Long mediaIdLong = Long.valueOf(mediaId);
 
     ItemGradingData itemGradingData = assessmentGradingFacadeQueries.getItemGradingData(itemGradingId);
     if (itemGradingData == null) {

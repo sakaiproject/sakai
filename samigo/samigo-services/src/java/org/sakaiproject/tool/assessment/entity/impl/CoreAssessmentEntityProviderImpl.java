@@ -82,7 +82,7 @@ public class CoreAssessmentEntityProviderImpl implements CoreAssessmentEntityPro
 	Long coreId = null;
 	if (id != null) {
 	    try {
-		coreId = new Long(id);
+		coreId = Long.valueOf(id);
 	    } catch (Exception e) {
 		return false;
 	    }

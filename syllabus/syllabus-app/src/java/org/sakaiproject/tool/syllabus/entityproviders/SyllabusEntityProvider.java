@@ -322,7 +322,7 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 							published = ServerConfigurationService.getBoolean("syllabus.new.published.default", false) ? SyllabusData.ITEM_POSTED : SyllabusData.ITEM_DRAFT; 
 						}
 
-						SyllabusData data = syllabusManager.createSyllabusDataObject(title, new Integer(initPosition), null, null, published, "none", null, null, Boolean.FALSE, null, null, item);
+						SyllabusData data = syllabusManager.createSyllabusDataObject(title, Integer.valueOf(initPosition), null, null, published, "none", null, null, Boolean.FALSE, null, null, item);
 						data.setView("no");
 						String content = (String) params.get("content");
 						if (StringUtils.isNotBlank(content)) {

@@ -471,7 +471,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
  public boolean poolIsUnique(String questionPoolId, String title, String parentPoolId, String agentId) {
-    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().poolIsUnique(new Long(questionPoolId), title, new Long(parentPoolId), agentId);
+    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().poolIsUnique(Long.valueOf(questionPoolId), title, Long.valueOf(parentPoolId), agentId);
   }
 
 

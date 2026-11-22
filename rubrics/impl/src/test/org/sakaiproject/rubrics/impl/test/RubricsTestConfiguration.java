@@ -117,6 +117,8 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
         FormattedText formattedText = mock(FormattedText.class);
         when(formattedText.processFormattedText(anyString(), isNull(), any(FormattedText.Level.class)))
             .thenAnswer(invocation -> invocation.getArgument(0));
+        when(formattedText.stripUnsupportedCharacters(anyString()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(formattedText.stripHtmlFromText(anyString(), anyBoolean()))
             .thenAnswer(invocation -> invocation.getArgument(0));
         return formattedText;

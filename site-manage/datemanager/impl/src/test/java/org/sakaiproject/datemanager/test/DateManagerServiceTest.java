@@ -81,6 +81,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -508,6 +509,62 @@ public class DateManagerServiceTest {
         Assert.assertEquals(1, validation.getErrors().size());
         Assert.assertEquals(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, validation.getErrors().get(0).field);
         Assert.assertEquals("Feedback start is required", validation.getErrors().get(0).msg);
+        Assert.assertEquals(0, validation.getUpdates().size());
+    }
+
+    @Test
+    public void validateAssessmentsRejectsFeedbackBeforeExceptionDueDate() throws Exception {
+        String siteId = toolSession.getAttribute(DateManagerService.STATE_SITE_ID).toString();
+        String openDate = "2026-06-01";
+        String dueDate = "2026-06-25";
+        String feedbackStart = "2026-06-26";
+        when(userTimeService.parseISODateInUserTimezone(openDate)).thenReturn(Date.from(
+                LocalDate.parse(openDate).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        when(userTimeService.parseISODateInUserTimezone(dueDate)).thenReturn(Date.from(
+                LocalDate.parse(dueDate).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        when(userTimeService.parseISODateInUserTimezone(feedbackStart)).thenReturn(Date.from(
+                LocalDate.parse(feedbackStart).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        when(resourceLoader.getString("error.feedback.start.before.due.date"))
+                .thenReturn("Feedback start before due/exception");
+
+        AssessmentAccessControlIfc control = Mockito.mock(AssessmentAccessControlIfc.class);
+        when(control.getLateHandling()).thenReturn(AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION);
+
+        AssessmentFeedbackIfc feedback = Mockito.mock(AssessmentFeedbackIfc.class);
+        when(feedback.getFeedbackDelivery()).thenReturn(AssessmentFeedbackIfc.FEEDBACK_BY_DATE);
+
+        AssessmentData assessmentData = Mockito.mock(AssessmentData.class);
+        AssessmentFacade assessment = Mockito.mock(AssessmentFacade.class);
+        when(assessment.getAssessmentAccessControl()).thenReturn(control);
+        when(assessment.getAssessmentFeedback()).thenReturn(feedback);
+        when(assessment.getData()).thenReturn(assessmentData);
+
+        ExtendedTime exception = new ExtendedTime();
+        exception.setDueDate(Date.from(LocalDate.parse("2026-06-28").atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        when(persistenceService.getExtendedTimeFacade().getEntriesForAss(assessmentData))
+                .thenReturn(List.of(exception));
+
+        AssessmentFacadeQueriesAPI facadeQueries = persistenceService.getAssessmentFacadeQueries();
+        when(facadeQueries.getAssessment(790L)).thenReturn(assessment);
+
+        JSONObject jsonAssessment = new JSONObject();
+        jsonAssessment.put(DateManagerConstants.JSON_ID_PARAM_NAME, 790L);
+        jsonAssessment.put(DateManagerConstants.JSON_IDX_PARAM_NAME, 0);
+        jsonAssessment.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, openDate);
+        jsonAssessment.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, dueDate);
+        jsonAssessment.put(DateManagerConstants.JSON_ACCEPTUNTIL_PARAM_NAME, "");
+        jsonAssessment.put(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, feedbackStart);
+        jsonAssessment.put(DateManagerConstants.JSON_FEEDBACKEND_PARAM_NAME, "");
+        jsonAssessment.put(DateManagerConstants.JSON_ISDRAFT_PARAM_NAME, true);
+
+        JSONArray assessments = new JSONArray();
+        assessments.add(jsonAssessment);
+
+        DateManagerValidation validation = dateManagerService.validateAssessments(siteId, assessments);
+
+        Assert.assertEquals(1, validation.getErrors().size());
+        Assert.assertEquals(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, validation.getErrors().get(0).field);
+        Assert.assertEquals("Feedback start before due/exception", validation.getErrors().get(0).msg);
         Assert.assertEquals(0, validation.getUpdates().size());
     }
 

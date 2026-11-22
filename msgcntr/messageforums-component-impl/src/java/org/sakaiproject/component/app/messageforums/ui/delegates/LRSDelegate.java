@@ -97,7 +97,7 @@ public class LRSDelegate
 	{
 		// the Sakai gradebook allows scores greater than the points possible,
 		// so pass null for the max
-		LRS_Result result = new LRS_Result(new Float(score), new Float(0.0), null, null);
+		LRS_Result result = new LRS_Result(Float.valueOf((float) score), Float.valueOf(0.0f), null, null);
 		result.setCompletion(true);
 		return result;
 	}

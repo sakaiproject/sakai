@@ -1298,7 +1298,7 @@ public class GradingService
       double totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore(totalAutoScore);
      
-      if (Double.compare((totalAutoScore + data.getTotalOverrideScore()), new Double("0"))<0){
+      if (Double.compare((totalAutoScore + data.getTotalOverrideScore()), Double.valueOf("0"))<0){
     	  data.setFinalScore( Double.valueOf("0"));
       }else{
     	  data.setFinalScore(totalAutoScore + data.getTotalOverrideScore());
@@ -1357,7 +1357,7 @@ public class GradingService
           return true;
         }
     } else if(TypeIfc.IMAGEMAP_QUESTION.equals(type)) {
-        if (StringUtils.isNotEmpty(data.getAnswerText()) && data.getAnswerText().matches("\\{\"x\":-?\\d+,\"y\":-?\\d+\\}")) {
+        if (ImageMapCoordinates.parseStudentPoint(data.getAnswerText()).isPresent()) {
           return true;
         }
     } else {

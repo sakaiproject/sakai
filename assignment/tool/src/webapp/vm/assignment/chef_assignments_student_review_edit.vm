@@ -53,7 +53,7 @@
 		         style="width:70%;line-height:1.4em">
 				 		
 				<h3>
-					$formattedText.escapeHtml($!assignment.title)
+					$formattedText.escapeHtml($formattedText.unEscapeHtml($!assignment.title))
 					#assignmentIcons($assignment)
 					<span class="highlight"> -
 					$tlang.getString("gen.reviewing"):&nbsp;

@@ -34,7 +34,7 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     Assignment findAssignment(String id);
 
-    /** Load the current assignment and lock it until the calling transaction completes. */
+    /** Lock the assignment until transaction completion and read its current deleted flag. */
     Assignment findAssignmentForUpdate(String id);
 
     /** Lock the assignment and read its deleted flag without flushing pending submission edits. */

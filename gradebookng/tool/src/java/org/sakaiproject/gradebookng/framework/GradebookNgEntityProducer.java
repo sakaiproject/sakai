@@ -397,8 +397,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 				if (!copyOnlySettings) {
 					// remove assignments in 'to' site
-					final List<Assignment> assignments = this.gradingService.getAssignments(gradebook.getUid(), toContext, SortType.SORT_BY_NONE);
-					assignments.forEach(a -> this.gradingService.removeAssignment(a.getId()));
+					this.gradingService.removeAssignmentsForSiteImport(gradebook.getUid(), toContext);
 				}
 
 				if (copySettings) {
@@ -430,8 +429,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 							if (gradebookGroupTo != null) {
 								if (!copyOnlySettings) {
-									List<Assignment> groupAssignmentsTo = gradingService.getAssignments(gradebookGroupTo.getUid(), toContext, SortType.SORT_BY_NONE);
-									groupAssignmentsTo.forEach(a -> this.gradingService.removeAssignment(a.getId()));
+									gradingService.removeAssignmentsForSiteImport(gradebookGroupTo.getUid(), toContext);
 								}
 
 								if (copySettings) {

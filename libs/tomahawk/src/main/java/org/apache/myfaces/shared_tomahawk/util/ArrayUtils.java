@@ -259,19 +259,19 @@ public class ArrayUtils
 //    {
 //        // test code
 //        System.out.println(concat(new String[] {"a"}, new Object[] {"b"}));
-//        System.out.println(concat(new String[] {"a"}, new Integer[] {new Integer(0)}));
-//        System.out.println(concat(new Number[] {new Double(0)}, new Integer[] {new Integer(0)}));
+//        System.out.println(concat(new String[] {"a"}, new Integer[] {Integer.valueOf(0)}));
+//        System.out.println(concat(new Number[] {Double.valueOf(0)}, new Integer[] {Integer.valueOf(0)}));
 //        System.out.println(concat(new Number[] {}, new Integer[0]));
-//        System.out.println(concat(new Integer[] {new Integer(0)}, new Number[0]));
-//        System.out.println(concat(new Integer[] {new Integer(0)}, new Number[0], new int[0]));
+//        System.out.println(concat(new Integer[] {Integer.valueOf(0)}, new Number[0]));
+//        System.out.println(concat(new Integer[] {Integer.valueOf(0)}, new Number[0], new int[0]));
 //        System.out.println(
-//            concat(new Integer[] {new Integer(0)}, new Number[] {new Double(0)}, new int[0]));
+//            concat(new Integer[] {Integer.valueOf(0)}, new Number[] {Double.valueOf(0)}, new int[0]));
 //        System.out.println(concat(new int[] {1}, new int[] {2}));
 //        System.out.println(
-//            concat(new String[] {"a"}, new Integer[] {new Integer(0)}, new Object[] {"b"}));
+//            concat(new String[] {"a"}, new Integer[] {Integer.valueOf(0)}, new Object[] {"b"}));
 //        System.out.println(
 //            concat(new String[0], new Object[] {new String[] {"a"}, new Object[] {"b"}}));
 //        System.out.println(
-//            concat(new Integer[] {new Integer(0)}, new Number[] {new Double(0)}, new int[] {1}));
+//            concat(new Integer[] {Integer.valueOf(0)}, new Number[] {Double.valueOf(0)}, new int[] {1}));
 //    }
 }

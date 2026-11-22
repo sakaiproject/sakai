@@ -390,6 +390,17 @@ public interface AssignmentService extends EntityProducer {
      */
     public void updateAssignment(Assignment assignment) throws PermissionException;
 
+    /** Synchronize one saved submission's score and feedback, clearing them when its grade is withdrawn. */
+    void syncSubmissionToGradebook(AssignmentSubmission submission) throws PermissionException;
+
+    /** Publish all released submissions for the assignment to its linked Gradebook items. */
+    void syncReleasedGradesToGradebook(String assignmentId) throws IdUnusedException, PermissionException;
+
+    /** Establish or validate Gradebook destinations before saving a published Assignment and its association. */
+    void updateAssignmentWithGradebook(Assignment assignment, String integration,
+            Map<String, Long> categories, Map<String, String> items) throws PermissionException;
+
+
     /**
      * Publishes an assignment, synchronizes its peer review schedule, and performs first-publish integrations.
      *

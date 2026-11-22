@@ -471,6 +471,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
             <sakai-sitestats-widget
               id="${r}"
               sitestats-widget-id="${r.substring("sitestats-".length)}"
+              ?reveal-on-click=${this.gradesRevealOnClick !== false}
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
               user-id="${ifDefined(this.userId ? this.userId : undefined)}"
               class="widget"

@@ -33,7 +33,7 @@ public class UpdateRandomPoolQuestionsListener  implements ActionListener{
 		.getExternalContext().getRequestParameterMap().get("assessmentForm:randomQuestionsSectionId");
 
 		AssessmentService assessmentService = new AssessmentService();
-		AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessmentFromSectionId(new Long(sectionId));
+		AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessmentFromSectionId(Long.valueOf(sectionId));
 		Long assessmentId = af.getAssessmentBaseId();
 		String createdBy = af.getCreatedBy();
 		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");

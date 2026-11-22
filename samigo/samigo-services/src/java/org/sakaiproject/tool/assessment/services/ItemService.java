@@ -252,7 +252,7 @@ public class ItemService
   public ItemFacade getItem(String itemId) {
     try{
       return PersistenceService.getInstance().getItemFacadeQueries().
-          getItem(new Long(itemId));
+          getItem(Long.valueOf(itemId));
     }
     catch(Exception e)
     {

@@ -173,6 +173,12 @@ public class MockSiteService implements SiteService
     }
 
     @Override
+    public Group copyGroup(Group source, Site destination)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public Group findGroup( String refOrId )
     {
         throw new UnsupportedOperationException( "Not supported yet." );

@@ -126,8 +126,7 @@ class SamigoQuestionSearchTest extends SakaiUiTestBase {
     }
 
     private void createAssessment(String siteUrl, String title) {
-        page.navigate(siteUrl);
-        sakai.toolClick("Tests");
+        page.navigate(siteUrl + "/samigo?sakai.state.reset=true");
         page.locator("#authorIndexForm a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add$"))).click();
         page.locator("#authorIndexForm\\:title").fill(title);
         page.locator("#authorIndexForm\\:createnew").click();

@@ -15,6 +15,7 @@ export class SakaiGrades extends SakaiPageableElement {
     savedFilters: { attribute: false, type: Object },
     saveFilters: { attribute: "save-filters", type: Boolean },
     filtersOpen: { attribute: "filters-open", type: Boolean },
+    _revealedScores: { state: true },
     _canGradeAny: { state: true },
     _currentSort: { state: true },
     _pickerSiteId: { state: true },
@@ -25,6 +26,7 @@ export class SakaiGrades extends SakaiPageableElement {
     super();
 
     this.showPager = true;
+    this._revealedScores = new Set();
     this._currentSort = UNGRADED_LEAST_TO_MOST;
     this.filtersOpen = false;
     this.loadTranslations({ bundle: "grades", requiredKeys: [ "no_grades" ] });
@@ -185,15 +187,6 @@ export class SakaiGrades extends SakaiPageableElement {
     this.sortChanged({ target: { value: UNGRADED_LEAST_TO_MOST } });
   }
 
-  firstUpdated() {
-
-    if (this.dataPage.length === 0 || !this.secret) return;
-
-    this.shadowRoot.getElementById("grades").addEventListener("click", () => {
-      this.secret = false;
-    }, { once: true });
-  }
-
   shouldUpdate(changedProperties) {
     return this._i18n && super.shouldUpdate(changedProperties);
   }
@@ -256,18 +249,30 @@ export class SakaiGrades extends SakaiPageableElement {
     `;
   }
 
+  _toggleScore(grade) {
+
+    const revealed = new Set(this._revealedScores);
+    if (!revealed.delete(grade)) {
+      revealed.add(grade);
+    }
+    this._revealedScores = revealed;
+  }
+
   statusMessage() {
-    return this.secret ? this._i18n.score_reveal_msg : null;
+    return this.secret && this.dataPage.some(a => !this._revealedScores.has(a)) ? this._i18n.score_reveal_msg : null;
   }
 
   content() {
 
+    const message = this.statusMessage();
+
     return html`
       <div class="dashboard-widget-body">
-        <div class="dashboard-widget-main ${this.filtersOpen ? "is-blurred" : ""}">
+        <div class="dashboard-widget-main ${this.filtersOpen ? "is-blurred" : ""}" ?inert=${this.filtersOpen}>
           ${this.dataPage.length === 0 ? html`
             <div class="sak-banner-info">${this._i18n.no_grades}</div>
           ` : html`
+          ${message ? html`<p id="score-reveal-instruction" class="small mb-2">${message}</p>` : nothing}
           <div id="grades" aria-live="polite">
             <div class="header">${this._i18n.course_assignment}</div>
             <div class="header score">${this._i18n.score}</div>
@@ -283,8 +288,18 @@ export class SakaiGrades extends SakaiPageableElement {
               <div class="course title">${a.siteTitle} / ${a.name}</div>
               `}
             </div>
-            <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret ? " blurred" : ""}" aria-hidden="${this.secret ? "true" : "false"}">
+            <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret && !this._revealedScores.has(a) ? " blurred" : ""}">
+              ${this.secret ? html`
+                <button type="button" class="score-toggle"
+                    aria-label="${this.siteId ? a.name : `${a.siteTitle} / ${a.name}`}: ${this._i18n.score}"
+                    aria-describedby=${this._revealedScores.has(a) ? `score-value-${i}` : nothing}
+                    aria-pressed="${this._revealedScores.has(a)}"
+                    @click=${() => this._toggleScore(a)}>
+                  <span id="score-value-${i}" aria-hidden="${!this._revealedScores.has(a)}">${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
+                </button>
+              ` : html`
                 <span>${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.canGrade ? html`${this._i18n.course_score}` : nothing}</span>
+              `}
             </div>
             <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
               <a href="${a.url}"
@@ -433,6 +448,16 @@ export class SakaiGrades extends SakaiPageableElement {
           display: flex;
           justify-content: right;
           align-items: center;
+        }
+        .score-toggle {
+          min-width: 24px;
+          min-height: 24px;
+          border: 0;
+          padding: 0;
+          background: transparent;
+          color: inherit;
+          font: inherit;
+          cursor: pointer;
         }
         .blurred span {
           filter: blur(3px);

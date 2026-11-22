@@ -300,7 +300,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
             if (ud.port.length() > 0) {
                 // only if port is set and a number
                 try {
-                    this.serverPort = new Integer(ud.port);
+                    this.serverPort = Integer.valueOf(ud.port);
                 } catch (NumberFormatException e) {
                     // set to default if it cannot be set and is not set
                     if (this.serverPort <= 0) {
@@ -656,7 +656,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         String header = getHeader(name);
         if (header != null) {
             try {
-                date = new Long(header).longValue();
+                date = Long.valueOf(header).longValue();
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Cannot convert header value ("+header+") to long (timestamp)");
             }
@@ -669,7 +669,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         String header = getHeader(name);
         if (header != null) {
             try {
-                num = new Integer(header).intValue();
+                num = Integer.valueOf(header).intValue();
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Cannot convert header value ("+header+") to integer");
             }

@@ -195,11 +195,11 @@ public abstract class AbstractHtmlDataList
                 //regular row index, update request scope variables
                 if (rowIndexVar != null)
                 {
-                    requestMap.put(getRowIndexVar(), new Integer(rowIndex));
+                    requestMap.put(getRowIndexVar(), Integer.valueOf(rowIndex));
                 }
                 if (rowCountVar != null)
                 {
-                    requestMap.put(getRowCountVar(), new Integer(getRowCount()));
+                    requestMap.put(getRowCountVar(), Integer.valueOf(getRowCount()));
                 }
             }
             else

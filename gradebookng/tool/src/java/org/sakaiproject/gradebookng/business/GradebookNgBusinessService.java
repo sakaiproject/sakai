@@ -630,7 +630,7 @@ public class GradebookNgBusinessService {
 
 		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
-			Double newGradePercentage = new Double("0.0");
+			Double newGradePercentage = Double.valueOf("0.0");
 
 			if(StringUtils.isNotBlank(newGrade)){
 				newGradePercentage = FormatHelper.validateDouble(newGrade);
@@ -772,7 +772,7 @@ public class GradebookNgBusinessService {
 		final Integer gradingType = getGradebook(gradebookUid, siteId).getGradeType();
 		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			// the stored grade represents points so the number needs to be adjusted back to percentage
-			Double storedGradePoints = new Double("0.0");
+			Double storedGradePoints = Double.valueOf("0.0");
 			if (StringUtils.isNotBlank(storedGrade)) {
 				storedGradePoints = FormatHelper.validateDouble(storedGrade);
 			}
@@ -2349,11 +2349,11 @@ public class GradebookNgBusinessService {
 	 */
 	public void removeAssignment(final String gradebookUid, final String siteId, final Long assignmentId) {
 
+		this.gradingService.removeAssignment(assignmentId);
 		// Delete task
 		String reference =  GradingConstants.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + siteId + Entity.SEPARATOR + assignmentId; 
 		taskService.removeTaskByReference(reference);
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assignmentId.toString(), RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
-		this.gradingService.removeAssignment(assignmentId);
 
 		EventHelper.postDeleteAssignmentEvent(getGradebook(gradebookUid, siteId), assignmentId, getUserRoleOrNone(siteId));
 	}

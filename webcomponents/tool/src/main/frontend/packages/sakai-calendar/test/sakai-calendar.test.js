@@ -64,6 +64,29 @@ describe("sakai-calendar tests", () => {
     });
   });
 
+  it ("keeps focus outside the dashboard calendar when events load", async () => {
+
+    const today = new Date().setHours(0, 0, 0, 0);
+    events = [ { title: "Today's event", start: today } ];
+    const container = await fixture(html`
+      <div>
+        <a href="#content">Jump to content</a>
+        <sakai-calendar dashboard defer></sakai-calendar>
+      </div>
+    `);
+    const calendar = container.querySelector("sakai-calendar");
+    await waitUntil(() => calendar.renderRoot.querySelector(".calendar__day-button[today]"));
+    const link = container.querySelector("a");
+    link.focus();
+
+    calendar.loadData();
+    await waitUntil(() => calendar.renderRoot.querySelector("#days-events")?.textContent.includes("Today's event"));
+    await elementUpdated(calendar);
+
+    expect(document.activeElement).to.equal(link);
+    expect(calendar.selectedDate.getTime()).to.equal(today);
+  });
+
   it ("renders in user mode correctly", async () => {
 
     // In user mode, we'd expect to get announcements from multiple sites.

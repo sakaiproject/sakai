@@ -193,6 +193,9 @@ TrimPathFragmentCache.prototype.setHTML = function (target, values) {
 
 $(document).ready(function() {
   // need TrimPath to load before parsing templates
+  TrimPath.parseTemplate_etc.modifierDef.escapeAttribute = value =>
+    TrimPath.parseTemplate_etc.modifierDef.escape(value).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
   GbGradeTable.templates = {
     cell: new TrimPathFragmentCache('cell', TrimPath.parseTemplate(
         $("#cellTemplate").html().trim().toString())),
@@ -711,6 +714,59 @@ GbGradeTable.studentCellFormatter = function(cell, formatterParams, onRendered) 
   return td.innerHTML;
 };
 
+// Cell elements carry a data-row-index, but Tabulator doesn't reformat cells when the
+// student filter or a sort changes, so that index goes stale. Resolve the cell from its
+// row element instead.
+GbGradeTable.cellComponentForElement = function(cellElement) {
+  const rowElement = cellElement?.closest(".tabulator-row");
+  if (!rowElement) return null;
+
+  const row = GbGradeTable.instance.getRow(rowElement);
+  if (!row) return null;
+  return row.getCells().find(c => c.getElement() === cellElement) || null;
+};
+
+// Select a single cell. Tabulator sets a new range's bounds (and its CSS classes) in a
+// timeout, so until then the range reads as row 0 / column 0; remember the cell until
+// a range is added (see the rangeAdded listener in renderTable).
+GbGradeTable.selectSingleCell = function(cell) {
+  GbGradeTable.instance.getRanges().forEach(range => range.remove());
+  GbGradeTable.instance.addRange(cell, cell);
+  GbGradeTable._pendingSelection = cell.getElement();
+};
+
+// The single selected cell. Range navigation doesn't move DOM focus, so the focused
+// element can be stale; read the range itself.
+GbGradeTable.selectedCellElement = function() {
+  if (GbGradeTable._pendingSelection?.isConnected) return GbGradeTable._pendingSelection;
+
+  const ranges = GbGradeTable.instance.getRanges();
+  if (ranges.length === 1) {
+    const cells = ranges[0].getCells().flat();
+    if (cells.length === 1) return cells[0].getElement();
+  }
+  return document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-range-only-cell-selected");
+};
+
+// Select the cell in the same column on the next displayed (filtered and sorted) row
+GbGradeTable.selectCellBelow = function(cell) {
+  // getNextRow() returns false, not null, on the last row
+  const nextRow = cell.getRow().getNextRow();
+  const nextCell = nextRow ? nextRow.getCell(cell.getColumn()) : null;
+  if (nextCell) {
+    GbGradeTable.selectSingleCell(nextCell);
+    nextCell.getElement().focus();
+  }
+};
+
+// Tabulator's editable callback gets no event, so note clicks on a cell's menu, flags or links,
+// and range-extending clicks, which must not start an edit (see the grade columns' editable)
+GbGradeTable.noteCellControlClick = function(event) {
+  GbGradeTable.clickOnCellControl = !!event.target.closest?.(".dropdown-menu, .gb-notification, .gb-comment-notification, a, button")
+    || event.shiftKey || event.ctrlKey || event.metaKey;
+  setTimeout(() => GbGradeTable.clickOnCellControl = false, 0);
+};
+
 GbGradeTable.cellSelector = function (rowIndex, colIndex) {
   GbGradeTable.instance.getRanges().forEach(range => range.remove());
   const cell = GbGradeTable.instance.getRows()[rowIndex]?.getCells()[colIndex];
@@ -854,7 +910,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
       input.addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
+          // The edit is finished here; don't let the table's keydown handler reopen an editor
+          e.stopPropagation();
           success(input.value);
+          GbGradeTable.selectCellBelow(cell);
         } else if (e.key === "Escape") {
           cancel();
         }
@@ -863,6 +922,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       return inputContainer;
     }
   });
+
+  document.addEventListener("click", GbGradeTable.noteCellControlClick, true);
 
   GbGradeTable.container = document.getElementById("gradebookSpreadsheet");
 
@@ -882,7 +943,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
-    editTriggerEvent:"dblclick",
+    editTriggerEvent:"click",
     selectableRange:1,
     selectableRangeColumns:true,
     selectableRangeClearCells:true,
@@ -894,6 +955,27 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       rowElement.classList.add("border-bottom");
     }
   });
+
+  // Tabulator blocks redraws while an editor is open, and on close always rebuilds the
+  // virtual columns, even with no redraw pending. That replaces the cell under a click
+  // that moves to another cell, so the click is lost. Only rebuild when one was requested.
+  const columnManager = GbGradeTable.instance.columnManager;
+  const rerenderColumns = columnManager.rerenderColumns.bind(columnManager);
+  const restoreRedraw = columnManager.restoreRedraw.bind(columnManager);
+  let columnRerenderPending = false;
+  columnManager.rerenderColumns = (update, silent) => {
+    columnRerenderPending ||= columnManager.redrawBlock;
+    rerenderColumns(update, silent);
+  };
+  columnManager.restoreRedraw = () => {
+    if (columnRerenderPending) {
+      columnRerenderPending = false;
+      restoreRedraw();
+    } else {
+      columnManager.redrawBlock = false;
+      columnManager.verticalAlignHeaders();
+    }
+  };
 
   GbGradeTable.instance.on("headerClick", (e, column) => {
     if (e.target.classList.contains('gb-title')) {
@@ -1027,6 +1109,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     });
   });
 
+  // A range now has real bounds (a click, arrow keys, or one added by selectSingleCell
+  // has settled), so read the selection from the range API again
+  GbGradeTable.instance.on("rangeAdded", () => GbGradeTable._pendingSelection = null);
+
   // Ignore the transient top-left range Tabulator fires on mousedown before the pressed cell
   let pressedCell = null;
   GbGradeTable.instance.on("cellMouseDown", (event, cell) => {
@@ -1035,14 +1121,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
    GbGradeTable.instance.on("rangeChanged", function (range) {
-    const colIndex = range._range.end.col;
-    const rowIndex = range._range.end.row;
-    const table = GbGradeTable.instance;
+    const { end } = range.getBounds();
+    if (!end) return;
 
-    const cell = table.getRows()[rowIndex]?.getCells()[colIndex];
-    if (!cell) return;
-
-    const cellElement = cell.getElement();
+    const cellElement = end.getElement();
     if (pressedCell && cellElement !== pressedCell) return;
 
     
@@ -1076,7 +1158,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       }
     }
 
-    cellElement.focus();
+    // Don't take focus from an editor that was just opened in this cell
+    if (!cellElement.contains(document.activeElement)) {
+      cellElement.focus();
+    }
   });
   
 
@@ -1864,6 +1949,7 @@ GbGradeTable.getFilteredColumns = function() {
         width: 180,
         sorter: (a, b) => GbGradeTable.parseGradeValue(a) - GbGradeTable.parseGradeValue(b),
         editor: column.type === 'category' || column.externallyMaintained ? false : "GbGradeTableEditor",
+        editable: () => !GbGradeTable.clickOnCellControl,
       }))
   );
 };
@@ -2457,7 +2543,7 @@ GbGradeTable.setupDragAndDrop = function () {
   });
 };
 
-GbGradeTable.isBoundaryCell = function(rowIndex, colIndex) {
+GbGradeTable.isBoundaryCell = function(colIndex) {
   const totalColumns = GbGradeTable.instance.getColumns().length;
 
   return colIndex === 0 || colIndex === totalColumns - 1;
@@ -2480,7 +2566,20 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
   let inBoundaryCell = false;
 
-  document.querySelector("#gradeTableWrapper").addEventListener("keydown", function(event) {
+  const wrapper = document.querySelector("#gradeTableWrapper");
+
+  // Handle Enter before Tabulator, which edits non-editable cells and swallows Enter on links.
+  // https://github.com/tabulator-tables/tabulator/issues/4839
+  wrapper.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter" || !event.target.closest(".tabulator-tableholder")
+        || event.target.closest(".tabulator-editing, .dropdown-menu")) return;
+    event.stopPropagation();
+    handleKeydown(event);
+  }, true);
+
+  wrapper.addEventListener("keydown", handleKeydown);
+
+  function handleKeydown(event) {
     let handled = false;
 
     function iGotThis(allowDefault) {
@@ -2491,7 +2590,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
       handled = true;
     }
 
-    const current = document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-range-only-cell-selected");
+    const current = GbGradeTable.selectedCellElement();
     const focus = document.activeElement;
 
     // Focused summary links must activate themselves, not edit the selected score cell.
@@ -2521,12 +2620,13 @@ GbGradeTable.setupKeyboardNavigation = function() {
         return iGotThis(true);
       }
 
-      const rowIndex = +current.getAttribute("data-row-index");
-      const colIndex = +current.getAttribute("data-col-index");
-      const totalColumns = GbGradeTable.instance.getColumns().length;
-      const totalRows = GbGradeTable.instance.getRows().length;
-  
-      if (GbGradeTable.isBoundaryCell(rowIndex, colIndex)) {
+      // Use the column's position: not every fixed column's cells set data-col-index
+      // (Student Number, Sections), and a missing one reads as the first column.
+      const columns = GbGradeTable.instance.getColumns();
+      const colIndex = columns.indexOf(GbGradeTable.cellComponentForElement(current)?.getColumn());
+      const totalColumns = columns.length;
+
+      if (GbGradeTable.isBoundaryCell(colIndex)) {
         if (!inBoundaryCell) {
           inBoundaryCell = true;
           // Only skip navigation on entry; grade editing must handle the first key.
@@ -2535,17 +2635,21 @@ GbGradeTable.setupKeyboardNavigation = function() {
           }
         }
   
+        const currentRow = GbGradeTable.cellComponentForElement(current)?.getRow();
+
         if ((event.key === "Tab" || event.key === "ArrowRight") && colIndex === totalColumns - 1) {
-          if (rowIndex < totalRows - 1) {
-            GbGradeTable.instance.addRange(GbGradeTable.instance.getRows()[rowIndex + 1].getCells()[0]);
+          const nextRow = currentRow?.getNextRow();
+          if (nextRow) {
+            GbGradeTable.selectSingleCell(nextRow.getCells()[0]);
             event.preventDefault();
           }
         }
-  
+
         if (((event.shiftKey && event.key === "Tab") || event.key === "ArrowLeft") && colIndex === 0) {
-          if (rowIndex > 0) {
+          const prevRow = currentRow?.getPrevRow();
+          if (prevRow) {
             GbGradeTable.instance.scrollToColumn(totalColumns - 1, "end", true);
-            GbGradeTable.instance.addRange(GbGradeTable.instance.getRows()[rowIndex - 1].getCells()[totalColumns - 1]);
+            GbGradeTable.selectSingleCell(prevRow.getCells()[totalColumns - 1]);
             event.preventDefault();
           }
         }
@@ -2569,43 +2673,30 @@ GbGradeTable.setupKeyboardNavigation = function() {
         }
       }
       // Handle input and navigation
-      if (!editing && (/^[0-9]$/.test(event.key) || event.key === "Enter")) {
-        const rowIndex = +current.getAttribute("data-row-index");
-        const colIndex = +current.getAttribute("data-col-index");
-      
-        const row = GbGradeTable.instance.getRows()?.[rowIndex];
-        const cell = row?.getCells()?.[colIndex];
+      const cell = !editing && current.classList.contains("tabulator-editable")
+        && (/^[0-9]$/.test(event.key) || event.key === "Enter")
+        && GbGradeTable.cellComponentForElement(current);
 
+      if (cell) {
         iGotThis();
         cell.edit();
-  
-        setTimeout(() => {
-          const editorInput = cell.getElement()?.querySelector("input");
-          if (editorInput) {
-            if (event.key === "Enter") {
-              editorInput.focus();
-            } else {
-              editorInput.value = event.key;
-            }
-            editorInput.addEventListener("blur", () => {
-              // Announce save success
-              const announcement = document.createElement("div");
-              announcement.setAttribute("role", "status");
-              announcement.textContent = GbGradeTable.i18n["message.edititem.success"].replace("{0}", cell.getColumn().getDefinition().formatterParams._data_.title);
-              document.body.appendChild(announcement);
-              setTimeout(() => document.body.removeChild(announcement), 1000);
 
-              const nextRow = GbGradeTable.instance.getRows()[rowIndex + 1];
-              if (nextRow) {
-                const nextCell = nextRow.getCells()[colIndex];
-                if (nextCell) {
-                  GbGradeTable.instance.addRange(nextCell, nextCell);
-                  nextCell.getElement().focus();
-                }
-              }
-            }, { once: true });
+        // The editor is in the DOM as soon as edit() returns. Seed it now rather than
+        // in a timeout, or a fast second keystroke lands first and gets overwritten.
+        const editorInput = cell.getElement().querySelector("input");
+        if (editorInput) {
+          if (event.key !== "Enter") {
+            editorInput.value = event.key;
           }
-        }, 0);
+          editorInput.addEventListener("blur", () => {
+            // Announce save success
+            const announcement = document.createElement("div");
+            announcement.setAttribute("role", "status");
+            announcement.textContent = GbGradeTable.i18n["message.edititem.success"].replace("{0}", cell.getColumn().getDefinition().formatterParams._data_.title);
+            document.body.appendChild(announcement);
+            setTimeout(() => document.body.removeChild(announcement), 1000);
+          }, { once: true });
+        }
       }
       
       if (!editing && event.key.toLowerCase() === "s") {
@@ -2623,7 +2714,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
       }
 
     }
-  });
+  }
 };
 
 GbGradeTable.clearMetadata = function() {
@@ -2636,8 +2727,7 @@ GbGradeTable.hideMetadata = function() {
 
 GbGradeTable.setupCellMetaDataSummary = function() {
 
-  GbGradeTable.initializeMetadataSummary = function(row, col) {
-    const cell = GbGradeTable.instance.getRows()[row].getCell(col).getElement?.();
+  GbGradeTable.initializeMetadataSummary = function(cell, col) {
 
     if (cell) {
       const cellKey = $(cell).data('cell-initialized');
@@ -2668,7 +2758,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
 
         $("#"+cellKey).hide().on("click", ".gb-metadata-close", function() {
           GbGradeTable.hideMetadata();
-          GbGradeTable.cellSelector(row, col);
+          GbGradeTable.cellSelector(GbGradeTable.rowForStudent(metadata.student?.userId), col);
         });
 
         $("#"+cellKey).hide().on("click", ".gb-revert-score", function(event) {
@@ -2678,6 +2768,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
           var assignmentId = metadata.assignment.assignmentId;
           if (GbGradeTable.lastValidGrades[studentId] && GbGradeTable.lastValidGrades[studentId][assignmentId]) {
             var validScore = GbGradeTable.lastValidGrades[studentId][assignmentId];
+            var row = GbGradeTable.rowForStudent(studentId);
             GbGradeTable.syncScore(studentId, [assignmentId], validScore);
             GbGradeTable.setCellState('reverted', row, col);
             GbGradeTable.redrawTable(true);
@@ -2795,9 +2886,8 @@ GbGradeTable.setupCellMetaDataSummary = function() {
     const $cell = $(event.target).closest(".tabulator-cell, .tabulator-col");
     if ($cell[0]) {
       const cellKey = $cell.data('cell-initialized');
-      const rowIndex = $cell.data("row-index");
       const colIndex = $cell.data("col-index");
-      GbGradeTable.initializeMetadataSummary(rowIndex, colIndex);
+      GbGradeTable.initializeMetadataSummary($cell[0], colIndex);
       var showCellNotifications = $(event.target).is(".gb-notification");
       var showCommentNotification = $(event.target).is(".gb-comment-notification");
       var showCourseCommentNotification = $(event.target).is(".gb-course-comment-notification");
@@ -2959,23 +3049,40 @@ GbGradeTable.setupAccessiblityBits = function() {
     $('#gradeTableWrapper').append(caption);
 
     var $captionToggle = $("#captionToggle");
+    const setCaptionExpanded = expanded => {
+      document.getElementById("gradeTableCaption")?.classList.toggle("maximized", expanded);
+      $captionToggle.attr("aria-expanded", String(expanded));
+    };
+
     $captionToggle.on("click", function(event) {
       event.preventDefault();
-      $('#gradeTableCaption').toggleClass("maximized");
+      setCaptionExpanded(!document.getElementById("gradeTableCaption")?.classList.contains("maximized"));
     }).on("keyup", function(event) {
       if (event.keyCode == 27) { //ESC
-        $('#gradeTableCaption').removeClass("maximized");
+        setCaptionExpanded(false);
       }
     });
 
     $("#gradeTableCaption").on("click", function() {
-      $(this).closest("#gradeTableCaption").removeClass("maximized");
+      setCaptionExpanded(false);
       $captionToggle.focus();
     });
   };
 
+  const setupGridRoles = () => {
+    // A grid may only contain rows and rowgroups. Tabulator makes its scrolling holder focusable
+    // without giving it a role, so move the body's rowgroup role up from the inner table to it.
+    const holder = document.querySelector("#gradeTable .tabulator-tableholder");
+    const body = holder?.querySelector(":scope > .tabulator-table");
+    if (!body) return;
+
+    holder.setAttribute("role", "rowgroup");
+    body.setAttribute("role", "none");
+  };
+
   setupWrapperAccessKey();
   setupTableCaption();
+  setupGridRoles();
 };
 
 GbGradeTable.localizeNumber = function(number) {

@@ -592,7 +592,7 @@ public class DavServlet extends HttpServlet
 		try
 		{
 			value = getServletConfig().getInitParameter("readonly");
-			if (value != null) readOnly = (new Boolean(value)).booleanValue();
+			if (value != null) readOnly = (Boolean.valueOf(value)).booleanValue();
 		}
 		catch (Throwable t)
 		{
@@ -612,7 +612,7 @@ public class DavServlet extends HttpServlet
 		try
 		{
 			value = getServletConfig().getInitParameter("doprotected");
-			if (value != null) doProtected = (new Boolean(value)).booleanValue();
+			if (value != null) doProtected = (Boolean.valueOf(value)).booleanValue();
 		}
 		catch (Throwable t)
 		{
@@ -2918,7 +2918,7 @@ public class DavServlet extends HttpServlet
 		{
 			if (lockDurationStr.startsWith("Second-"))
 			{
-				lockDuration = (new Integer(lockDurationStr.substring(7))).intValue();
+				lockDuration = (Integer.valueOf(lockDurationStr.substring(7))).intValue();
 			}
 			else
 			{
@@ -2930,7 +2930,7 @@ public class DavServlet extends HttpServlet
 				{
 					try
 					{
-						lockDuration = (new Integer(lockDurationStr)).intValue();
+						lockDuration = (Integer.valueOf(lockDurationStr)).intValue();
 					}
 					catch (NumberFormatException e)
 					{
@@ -3992,7 +3992,7 @@ public class DavServlet extends HttpServlet
 		dest = fixDirPathSAKAI(dest);
 
 		if (prohibited(source) || prohibited(dest)) {
-		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		
@@ -4020,80 +4020,80 @@ public class DavServlet extends HttpServlet
 		catch (EntityPropertyNotDefinedException e)
 		{
 		    log.error("propnotdef " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 		catch (EntityPropertyTypeException e)
 		{
 		    log.error("propntype " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 		catch (IdUsedException e)
 		    // internal error because caller checked for this
 		{
 		    log.error("idunused " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 		catch (IdUniquenessException e)
 		{
 		    log.error("iduniqu " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 		catch (IdLengthException e)
 		{
 		    log.error("idlen " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (InconsistentException e)
 		{
 		    log.error("inconsis " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_CONFLICT));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_CONFLICT));
 		    return false;
 		}
 		catch (PermissionException e)
 		{
 		    log.error("perm " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (InUseException e)
 		{
 		    log.error("in use " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_CONFLICT));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_CONFLICT));
 		    return false;
 		}
 		catch (IdUnusedException e)
 		{
 		    log.error("unused " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_NOT_FOUND));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_NOT_FOUND));
 		    return false;
 		}
 		catch (OverQuotaException e)
 		{
 		    log.error("quota " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (IdInvalidException e)
 		{
 		    log.error("id invalid " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (TypeException e)
 		{
 		    log.error("type " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (ServerOverloadException e)
 		{
 		    log.error("overload " + e);
-		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    errorList.put(source, Integer.valueOf(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 

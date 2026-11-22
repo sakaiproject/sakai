@@ -81,7 +81,7 @@ public class HtmlDetailStampRowRenderer extends Renderer
                             childCount++;
                         }
                     }
-                    writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(
+                    writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(
                             childCount), null);
                 }
 

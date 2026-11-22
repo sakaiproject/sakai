@@ -138,7 +138,7 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 			for (Map cat: categories) {
 			    String rowText = String.valueOf(cat.get("rowText"));
 			    String rowId = String.valueOf(cat.get("id"));
-			    rowMap.put(new Long(rowId), rowText);
+			    rowMap.put(Long.valueOf(rowId), rowText);
 			}
 
 			makePeerRubric(tofill,item);

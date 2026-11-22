@@ -656,6 +656,11 @@
           }
 
           var modalConfirm = function(callback){
+            const modalConfirmEl = document.getElementById("modal-confirm");
+            // Focus must leave the modal before Bootstrap sets aria-hidden on it
+            modalConfirmEl.addEventListener('hide.bs.modal', () => document.activeElement.blur());
+            modalConfirmEl.addEventListener('hidden.bs.modal', () => $('#submit-form-button').trigger('focus'));
+
             $('#date-manager-form').on('submit', function(e){
               e.preventDefault();
               bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).show();

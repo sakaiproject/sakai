@@ -509,7 +509,7 @@ public class HtmlTree extends HtmlPanelGroup implements TreeModelListener
 
     public void setExpireListeners(long expireListeners)
     {
-        this.expireListeners = new Long(expireListeners);
+        this.expireListeners = Long.valueOf(expireListeners);
     }
 
 
@@ -667,10 +667,10 @@ public class HtmlTree extends HtmlPanelGroup implements TreeModelListener
         values[14] = var;
         values[15] = nodeClass;
         values[16] = selectedNodeClass;
-        values[17] = new Integer(uniqueIdCounter);
+        values[17] = Integer.valueOf(uniqueIdCounter);
         values[18] = selectedPath;
         values[19] = iconClass;
-        values[20] = new Integer(internalId);
+        values[20] = Integer.valueOf(internalId);
         values[21] = expireListeners;
         values[22] = rowClasses;
         values[23] = columnClasses;

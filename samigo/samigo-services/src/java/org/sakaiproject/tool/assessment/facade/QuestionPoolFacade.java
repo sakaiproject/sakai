@@ -133,8 +133,8 @@ public class QuestionPoolFacade
     questionPool = (QuestionPool)questionPoolImpl;
     try {
       questionPool.updateData(this.data);
-      setQuestionPoolId(new Long(id.getIdString()));
-      setParentPoolId(new Long(parentId.getIdString()));
+      setQuestionPoolId(Long.valueOf(id.getIdString()));
+      setParentPoolId(Long.valueOf(parentId.getIdString()));
     }
     catch (QuestionPoolException ex) {
       throw new DataFacadeException(ex.getMessage());
@@ -432,7 +432,7 @@ public class QuestionPoolFacade
   {
     this.parentId = parentId;
     try {
-      setParentPoolId(new Long(parentId.getIdString()));
+      setParentPoolId(Long.valueOf(parentId.getIdString()));
     }
     catch (SharedException ex) {
       log.warn(ex.getMessage());

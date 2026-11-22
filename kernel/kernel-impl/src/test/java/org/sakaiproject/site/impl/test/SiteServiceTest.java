@@ -18,6 +18,9 @@ package org.sakaiproject.site.impl.test;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.TreeSet;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -177,6 +181,60 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		
 	}
 	
+    @Test
+    public void testCopyGroupPreservesSettingsWithoutSourceReferencesOrMemberships() throws Exception {
+        SiteService service = getService(SiteService.class);
+        workAsAdmin();
+        Site source = service.addSite(UUID.randomUUID().toString(), "test");
+        Site destination = service.addSite(UUID.randomUUID().toString(), "test");
+        Map<String, Map<String, String>> settings = Map.of(
+            "Section", Map.of("sections_category", "lecture", "sections_max_enrollments", "25",
+                "sections_location", "Room 52946", "sections_monday", "true", "sections_start_time", "9:00 AM"),
+            "Joinable", Map.of(Group.GROUP_PROP_JOINABLE_SET, "Study groups",
+                Group.GROUP_PROP_JOINABLE_SET_MAX, "7", Group.GROUP_PROP_JOINABLE_SET_PREVIEW, "true",
+                Group.GROUP_PROP_JOINABLE_UNJOINABLE, "true"),
+            "Ordinary", Map.of(Group.GROUP_PROP_VIEW_MEMBERS, "true"));
+        for (Map.Entry<String, Map<String, String>> entry : settings.entrySet()) {
+            Group group = source.addGroup();
+            group.setTitle(entry.getKey());
+            group.setDescription(entry.getKey() + " description");
+            entry.getValue().forEach(group.getProperties()::addProperty);
+            group.getProperties().addProperty("lessonbuilder_ref", "/lessonbuilder/source/item/123");
+            group.getProperties().addProperty("sections_eid", "source-section");
+            group.getProperties().addProperty(Group.GROUP_PROP_FILTERED_BY, "source-group");
+            group.getProperties().addProperty("group_prop_role_providerid", "source-role-provider");
+            group.addMember("admin", "maintain", true, false);
+            group.setProviderGroupId("source-provider");
+            group.setLockForReference("source-assignment", RealmLockMode.ALL);
+        }
+        service.save(source);
+        source = service.getSite(source.getId());
+        Map<String, String> copiedIds = new HashMap<>();
+        for (Group original : source.getGroups()) {
+            Group copy = service.copyGroup(original, destination);
+            Assert.assertNotEquals(original.getId(), copy.getId());
+            copiedIds.put(copy.getTitle(), copy.getId());
+            assertEquals("/lessonbuilder/source/item/123", original.getProperties().getProperty("lessonbuilder_ref"));
+        }
+        service.save(destination);
+        destination = service.getSite(destination.getId());
+        assertEquals(3, destination.getGroups().size());
+        for (Map.Entry<String, Map<String, String>> entry : settings.entrySet()) {
+            Group copy = destination.getGroup(copiedIds.get(entry.getKey()));
+            assertEquals(entry.getKey(), copy.getTitle());
+            assertEquals(entry.getKey() + " description", copy.getDescription());
+            entry.getValue().forEach((key, value) -> assertEquals(value, copy.getProperties().getProperty(key)));
+            Assert.assertNull(copy.getProperties().getProperty("lessonbuilder_ref"));
+            Assert.assertNull(copy.getProperties().getProperty("sections_eid"));
+            Assert.assertNull(copy.getProperties().getProperty(Group.GROUP_PROP_FILTERED_BY));
+            Assert.assertNull(copy.getProperties().getProperty("group_prop_role_providerid"));
+            assertEquals("true", copy.getProperties().getProperty(Group.GROUP_PROP_WSETUP_CREATED));
+            Assert.assertTrue(copy.getMembers().isEmpty());
+            Assert.assertTrue(copy.getProviderGroupId() == null || copy.getProviderGroupId().isEmpty());
+            assertEquals(RealmLockMode.NONE, copy.getRealmLock());
+        }
+    }
+
 	@Test
 	public void testGroupSave() throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
 		SiteService siteService = (SiteService) getService(SiteService.class);

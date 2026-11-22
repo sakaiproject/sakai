@@ -104,7 +104,7 @@ public class ReflectUtilTest extends TestCase {
      * String[] sArray = {"1","2"} <br/>
      */
     public class TestEntity {
-        private Long id = new Long(3);
+        private Long id = Long.valueOf(3);
         private String entityId = "33";
         private String extra = null;
         private Boolean bool = null;
@@ -243,7 +243,7 @@ public class ReflectUtilTest extends TestCase {
 
         value = reflectUtil.getFieldValue( thing, "id");
         assertNotNull(value);
-        assertEquals(new Long(3), value);
+        assertEquals(Long.valueOf(3), value);
 
         TestNesting nested = new TestNesting(10, "100", new String[] {"A", "B"});
         value = reflectUtil.getFieldValue( nested, "id");
@@ -252,7 +252,7 @@ public class ReflectUtilTest extends TestCase {
 
         value = reflectUtil.getFieldValue( nested, "testEntity.id");
         assertNotNull(value);
-        assertEquals(new Long(3), value);
+        assertEquals(Long.valueOf(3), value);
 
         // get list value
         value = reflectUtil.getFieldValue( nested, "sList[0]");
@@ -348,7 +348,7 @@ public class ReflectUtilTest extends TestCase {
 
         thing = new TestEntity();
         reflectUtil.setFieldValue(thing, "id", "6");
-        assertEquals(new Long(6), ((TestEntity)thing).getId());
+        assertEquals(Long.valueOf(6), ((TestEntity)thing).getId());
 
         thing = new TestEntity();
         reflectUtil.setFieldValue(thing, "sArray", "A, B, C");
@@ -364,15 +364,15 @@ public class ReflectUtilTest extends TestCase {
 
         thing = new TestEntity();
         reflectUtil.setFieldValue(thing, "id", "10");
-        assertEquals(new Long(10), ((TestEntity)thing).getId());
+        assertEquals(Long.valueOf(10), ((TestEntity)thing).getId());
 
         thing = new TestEntity();
         reflectUtil.setFieldValue(thing, "id", 10);
-        assertEquals(new Long(10), ((TestEntity)thing).getId());
+        assertEquals(Long.valueOf(10), ((TestEntity)thing).getId());
 
         thing = new TestEntity();
         reflectUtil.setFieldValue(thing, "id", new String[] {"10"});
-        assertEquals(new Long(10), ((TestEntity)thing).getId());
+        assertEquals(Long.valueOf(10), ((TestEntity)thing).getId());
 
         thing = new TestEntity();
         reflectUtil.setFieldValue(thing, "bool", true);
@@ -485,7 +485,7 @@ public class ReflectUtilTest extends TestCase {
         assertTrue(m.containsKey("sArray"));
         assertTrue(m.containsKey("bool"));
         assertTrue(m.containsKey("prefix"));
-        assertEquals(new Long(3), m.get("id"));
+        assertEquals(Long.valueOf(3), m.get("id"));
         assertEquals("33", m.get("entityId"));
         assertEquals(null, m.get("extra"));
         assertEquals("crud", m.get("prefix"));
@@ -650,7 +650,7 @@ public class ReflectUtilTest extends TestCase {
         assertEquals("OLD,BLUE", target.getMyString());
 
         // objects
-        properties.put("myInt", new Long(222));
+        properties.put("myInt", Long.valueOf(222));
         properties.put("myString", 55555);
         results = reflectUtil.populate(target, properties);
         assertNotNull(results);
@@ -674,7 +674,7 @@ public class ReflectUtilTest extends TestCase {
         assertNotNull(results);
         assertEquals(3, results.size());
         assertNotNull(target);
-        assertEquals(new Long(1000), target.getId());
+        assertEquals(Long.valueOf(1000), target.getId());
         assertEquals("OLD", target.getExtra());
         assertEquals("33", target.getEntityId());
         assertEquals(null, target.getBool());
@@ -761,13 +761,13 @@ public class ReflectUtilTest extends TestCase {
         assertEquals(String.class, result);
 
         HashSet<Object> s = new HashSet<Object>();
-        s.add(new Double(22.0));
+        s.add(Double.valueOf(22.0));
         result = ReflectUtils.getClassFromCollection(s);
         assertNotNull(result);
         assertEquals(Double.class, result);
 
         List v = new Vector<Object>();
-        v.add( new Integer(30) );
+        v.add( Integer.valueOf(30) );
         result = ReflectUtils.getClassFromCollection(v);
         assertNotNull(result);
         assertEquals(Integer.class, result);

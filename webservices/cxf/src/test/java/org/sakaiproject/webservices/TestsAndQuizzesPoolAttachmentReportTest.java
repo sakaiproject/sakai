@@ -28,7 +28,7 @@ public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
 	private static final String SOAP_OPERATION = "poolAttachmentReport";
 	private static final String MOCK_USER = "mockUser";
 	private static final String MOCK_USER_ID = "mockUserId";
-	private static final Long MOCK_POOL_ID = new Long(25);
+	private static final Long MOCK_POOL_ID = Long.valueOf(25);
 	private static final String MOCK_CONTEXT_TO_REPLACE = "mockContext";
 
 	@Override

@@ -61,12 +61,12 @@
     <sakai.spring.hateoas.version>3.1.1</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>3.0.0</sakai.spring.plugin.version>
     <sakai.tika.version>3.3.3</sakai.tika.version>
-    <sakai.tomcat.version>10.1.61</sakai.tomcat.version>
+    <sakai.tomcat.version>10.1.62</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.1.5.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>2.4.1</sakai.velocity.version>
     <sakai.log4j.version>2.26.1</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.5.1</sakai.poi.version>
+    <sakai.poi.version>6.0.0</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.15.1</joda.time.version>
@@ -2618,6 +2618,48 @@
                so having a JAR of the local files speeds things up. -->
           <archiveClasses>true</archiveClasses>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>3.6.0</version>
+        <dependencies>
+          <!-- The plugin's default Checkstyle (9.x) does not fully support Java 21 syntax -->
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>10.26.1</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>sakai-checks</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <!-- Reset the google_checks.xml inherited from pluginManagement: inline checkstyleRules
+                   are only accepted when configLocation is the plugin default -->
+              <configLocation>sun_checks.xml</configLocation>
+              <consoleOutput>true</consoleOutput>
+              <failOnViolation>true</failOnViolation>
+              <violationSeverity>error</violationSeverity>
+              <includeTestSourceDirectory>true</includeTestSourceDirectory>
+              <checkstyleRules>
+                <module name="Checker">
+                  <property name="severity" value="error"/>
+                  <module name="TreeWalker">
+                    <!-- Boxed primitive constructors are deprecated for removal: use valueOf() instead -->
+                    <module name="IllegalInstantiation">
+                      <property name="classes" value="java.lang.Boolean, java.lang.Integer, java.lang.Long, java.lang.Short, java.lang.Byte, java.lang.Character, java.lang.Double, java.lang.Float"/>
+                    </module>
+                  </module>
+                </module>
+              </checkstyleRules>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

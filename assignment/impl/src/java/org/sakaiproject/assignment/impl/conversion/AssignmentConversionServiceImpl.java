@@ -180,7 +180,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
             } catch (Exception e) {
                 log.warn("Assignment conversion exception for {}", assignmentId, e);
             }
-            int percent = new Double(((assignmentsConverted + assignmentsFailed) / (double) assignmentsTotal) * 100).intValue();
+            int percent = Double.valueOf(((assignmentsConverted + assignmentsFailed) / (double) assignmentsTotal) * 100).intValue();
             if (progress != percent) {
                 progress = percent;
                 log.info("<===== Assignments conversion completed {}% =====>", percent);

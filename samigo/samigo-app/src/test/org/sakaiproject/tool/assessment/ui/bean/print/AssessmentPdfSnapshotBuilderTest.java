@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -334,6 +335,8 @@ public class AssessmentPdfSnapshotBuilderTest {
         ImageMapQuestionBean imageMapBean = new ImageMapQuestionBean();
         imageMapBean.setText("1. Heart");
         imageMapBean.setIsCorrect(Boolean.TRUE);
+        imageMapBean.setItemGradingData(new ItemGradingData());
+        imageMapBean.setResponse("{\"click\":true,\"x\":10,\"y\":10}");
 
         ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, imageMapBean);
         item.setImageSrc("/group/site/hotspot.png");
@@ -352,6 +355,8 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertEquals(1, question.getImageMapRows().size());
         assertEquals("1. Heart", question.getImageMapRows().get(0).getText());
         assertEquals(Boolean.TRUE, question.getImageMapRows().get(0).getCorrect());
+        assertEquals(Integer.valueOf(1), question.getImageMapRows().get(0).getCorrectArea());
+        assertEquals(Integer.valueOf(1), question.getImageMapRows().get(0).getStudentArea());
     }
 
     @Test
@@ -381,6 +386,54 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertEquals("{\"x\":10,\"y\":20}", click.getAnswerText());
         assertEquals(Long.valueOf(9001L), click.getPublishedItemTextId());
         assertEquals(Integer.valueOf(1), click.getSequence());
+    }
+
+    @Test
+    public void buildStudentReportModelMarksImageMapClickResponseAsAnswered() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, null);
+        ItemGradingData grading = new ItemGradingData();
+        grading.setAnswerText("{\"click\":true,\"x\":105,\"y\":105}");
+        item.setItemGradingDataArray(new java.util.ArrayList<>(List.of(grading)));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+
+        assertFalse(model.getParts().get(0).getQuestions().get(0).isUnanswered());
+    }
+
+    @Test
+    public void buildStudentReportModelMarksLegacyImageMapResponseAsAnswered() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, null);
+        ItemGradingData grading = new ItemGradingData();
+        grading.setAnswerText("{\"x\":96,\"y\":97}");
+        item.setItemGradingDataArray(new java.util.ArrayList<>(List.of(grading)));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+
+        assertFalse(model.getParts().get(0).getQuestions().get(0).isUnanswered());
+    }
+
+    @Test
+    public void buildStudentReportModelMarksUnparseableImageMapResponseAsUnanswered() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, null);
+        ItemGradingData grading = new ItemGradingData();
+        grading.setAnswerText("undefined");
+        item.setItemGradingDataArray(new java.util.ArrayList<>(List.of(grading)));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+
+        assertTrue(model.getParts().get(0).getQuestions().get(0).isUnanswered());
     }
 
     @Test
@@ -425,6 +478,7 @@ public class AssessmentPdfSnapshotBuilderTest {
         when(answer.getIsCorrect()).thenReturn(Boolean.TRUE);
 
         ItemTextIfc itemTextIfc = mock(ItemTextIfc.class);
+        when(itemTextIfc.getId()).thenReturn(9001L);
         when(itemTextIfc.getText()).thenReturn(itemText);
         when(itemTextIfc.getAnswerArraySorted()).thenReturn(List.of(answer));
 
@@ -440,6 +494,7 @@ public class AssessmentPdfSnapshotBuilderTest {
         item.setSequence("1");
         item.setItemGradingDataArray(new java.util.ArrayList<>());
         if (imageMapRow != null) {
+            imageMapRow.setItemText(itemTextIfc);
             item.setMatchingArray(new java.util.ArrayList<>(List.of(imageMapRow)));
         }
         return item;

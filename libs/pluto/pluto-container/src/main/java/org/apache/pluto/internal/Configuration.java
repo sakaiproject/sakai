@@ -66,7 +66,7 @@ public class Configuration {
         if (buffering == null) {
             try {
                 String buffer = BUNDLE.getString(BUFFER_SUPPORT);
-                buffering = new Boolean(buffer);
+                buffering = Boolean.valueOf(buffer);
             } catch (MissingResourceException mre) {
                 buffering = Boolean.FALSE;
             }
@@ -80,7 +80,7 @@ public class Configuration {
         if (prevent == null) {
             try {
                 String test = BUNDLE.getString(PREVENT_UNECESSARY_CROSS_CONTEXT);
-                prevent = new Boolean(test);
+                prevent = Boolean.valueOf(test);
             } catch (MissingResourceException mre) {
                 prevent = Boolean.FALSE;
             }

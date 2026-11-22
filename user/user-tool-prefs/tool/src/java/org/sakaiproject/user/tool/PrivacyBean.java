@@ -294,7 +294,7 @@ public class PrivacyBean {
 		// if user checked the checkbox
 		if (changeStatus) {
 			processChoice(isMyWorkspace() ? curSite : getContextId(), 
-							new Boolean(SHOW_ME.equals(checkboxText)));
+							Boolean.valueOf(SHOW_ME.equals(checkboxText)));
 
 			// Reset the checkbox to not checked
 			changeStatus = false;

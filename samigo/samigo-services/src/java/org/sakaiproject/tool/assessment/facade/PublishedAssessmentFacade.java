@@ -789,7 +789,7 @@ public class PublishedAssessmentFacade
         ArrayList randomsample = new ArrayList();
         Integer numberToBeDrawn= Integer.valueOf(0);
         if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-          numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+          numberToBeDrawn= Integer.valueOf(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
         }
 
         int samplesize = numberToBeDrawn.intValue();
@@ -804,7 +804,7 @@ public class PublishedAssessmentFacade
           List<ItemDataIfc> randomsample = new ArrayList();
           Integer numberToBeDrawn= Integer.valueOf(0);
           if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-            numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+            numberToBeDrawn= Integer.valueOf(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
           }
 
           int samplesize = numberToBeDrawn.intValue();

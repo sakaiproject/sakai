@@ -93,7 +93,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
             getSiteById(siteId);
 		    requireMemberUser(siteId);
 		    boolean inAdmin = inAdmin(siteId);
-            Map<String,Object> tool = ltiService.getTool(new Long(toolId), siteId);
+            Map<String,Object> tool = ltiService.getTool(Long.valueOf(toolId), siteId);
 		    adjustMap(tool, inAdmin, siteId, "tool");
             return tool;
         }
@@ -160,7 +160,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		    getSiteById(siteId);
 		    requireMemberUser(siteId);
 		    boolean inAdmin = inAdmin(siteId);
-            Map<String,Object> content = ltiService.getContent(new Long(contentId), siteId);
+            Map<String,Object> content = ltiService.getContent(Long.valueOf(contentId), siteId);
 		    adjustMap(content, inAdmin, siteId, "content");
             return content;
         }

@@ -309,8 +309,8 @@ public class SaveAssessmentSettingsListener
 		if (!scoreThresholdError) {
 			String submittedScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
 			try {
-				Double doubleInput = new Double(submittedScoreThreshold);
-				if(doubleInput.compareTo(new Double("0.0")) == -1 || doubleInput.compareTo(new Double("100.0")) == 1){
+				Double doubleInput = Double.valueOf(submittedScoreThreshold);
+				if(doubleInput.compareTo(Double.valueOf("0.0")) == -1 || doubleInput.compareTo(Double.valueOf("100.0")) == 1){
 					throw new Exception();
 				}
 			} catch(Exception ex) {

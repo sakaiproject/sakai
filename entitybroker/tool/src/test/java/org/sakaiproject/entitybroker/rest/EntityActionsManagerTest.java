@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.entitybroker.rest;
 
+import java.util.Map;
+
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.After;
@@ -27,6 +29,8 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.config.EntityRestTestConfiguration;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
@@ -35,6 +39,7 @@ import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -111,6 +116,49 @@ public class EntityActionsManagerTest {
         // exceptions
         assertThrows(IllegalArgumentException.class,
                 () -> entityActionsManager.handleCustomActionRequest(actionProvider, null, "clear", request, res, null));
+    }
+
+    @Test
+    public void testStringResponseHeadersBeforeCommit() throws Exception {
+        DownloadEntityProvider provider = new DownloadEntityProvider();
+        entityProviderManager.registerEntityProvider(provider);
+        String url = "/download/export";
+        EntityHttpServletRequest request = new EntityHttpServletRequest("GET", url);
+        MockHttpServletResponse response = new MockHttpServletResponse() {
+            @Override
+            public void setCommitted(boolean committed) {
+                if (committed) {
+                    assertEquals("text/csv;charset=UTF-8", getContentType());
+                    assertEquals("UTF-8", getCharacterEncoding());
+                    assertEquals(HttpServletResponse.SC_CREATED, getStatus());
+                    assertEquals("attachment; filename=export.csv", getHeader("Content-Disposition"));
+                }
+                super.setCommitted(committed);
+            }
+        };
+        response.setBufferSize(1024);
+
+        ActionReturn result = entityActionsManager.handleCustomActionRequest(provider,
+                new EntityView(new EntityReference(url), EntityView.VIEW_SHOW, null),
+                "export", request, response, null);
+
+        assertTrue(response.isCommitted());
+        assertEquals(result.outputString, response.getContentAsString());
+    }
+
+    public static class DownloadEntityProvider implements ActionsExecutable {
+        @Override
+        public String getEntityPrefix() {
+            return "download";
+        }
+
+        @EntityCustomAction(action="export", viewKey=EntityView.VIEW_SHOW)
+        public ActionReturn export() {
+            ActionReturn result = new ActionReturn("UTF-8", "text/csv", "name\n" + "row\n".repeat(4096));
+            result.responseCode = HttpServletResponse.SC_CREATED;
+            result.headers = Map.of("Content-Disposition", "attachment; filename=export.csv");
+            return result;
+        }
     }
 
     @Test

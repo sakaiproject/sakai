@@ -902,7 +902,7 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 			{
 				try
 				{
-					cmiData.normalScore = (new Double(objScore));
+					cmiData.normalScore = (Double.valueOf(objScore));
 					sequencer.setAttemptObjMeasure(cmiData.activityId, objID, cmiData.normalScore);
 
 					if (foundPrimaryObj)
@@ -1031,7 +1031,7 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 			{
 				try
 				{
-					cmiData.normalScore = (new Double(cmiData.score));
+					cmiData.normalScore = (Double.valueOf(cmiData.score));
 					sequencer.setAttemptObjMeasure(cmiData.activityId, cmiData.primaryObjectiveId, cmiData.normalScore);
 				}
 				catch (Exception e)

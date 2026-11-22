@@ -48,7 +48,7 @@ import org.apache.myfaces.shared_tomahawk.renderkit.html.HtmlRendererUtils;
 public class HtmlTreeImageCommandLinkRenderer
     extends ExtendedHtmlLinkRenderer {
 
-    private static final Integer ZERO = new Integer(0);
+    private static final Integer ZERO = Integer.valueOf(0);
 
 
     public void decode(FacesContext facesContext, UIComponent component) {

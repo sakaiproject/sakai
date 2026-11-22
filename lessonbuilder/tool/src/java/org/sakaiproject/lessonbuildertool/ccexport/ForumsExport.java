@@ -132,7 +132,7 @@ public class ForumsExport {
 
         int i = forumRef.indexOf("/");
         String forumString = forumRef.substring(i + 1);
-        Long forumId = new Long(forumString);
+        Long forumId = Long.valueOf(forumString);
 
         Topic topic = forumManager.getTopicById(true, forumId);
         if (topic == null) return null;

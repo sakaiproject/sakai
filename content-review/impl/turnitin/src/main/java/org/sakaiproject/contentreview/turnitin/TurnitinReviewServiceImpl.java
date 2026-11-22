@@ -1195,7 +1195,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			firstparams.put("fcmd", "2");
 			Document firstSaveDocument = turnitinConn.callTurnitinReturnDocument(firstparams);
 			Element root = firstSaveDocument.getDocumentElement();
-			int rcode = new Integer(
+			int rcode = Integer.valueOf(
 					((CharacterData) (root.getElementsByTagName("rcode").item(0).getFirstChild())).getData().trim())
 							.intValue();
 			String rmessage = ((CharacterData) (root.getElementsByTagName("rmessage").item(0).getFirstChild())).getData().trim();
@@ -1217,7 +1217,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 		Element root = document.getDocumentElement();
 		String rmessage = ((CharacterData) (root.getElementsByTagName("rmessage").item(0).getFirstChild())).getData().trim();
-		int rcode = new Integer(
+		int rcode = Integer.valueOf(
 				((CharacterData) (root.getElementsByTagName("rcode").item(0).getFirstChild())).getData().trim())
 						.intValue();
 		if ((rcode > 0 && rcode < 100) || rcode == 419) {
@@ -2065,7 +2065,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		}
 
 		Element root = document.getDocumentElement();
-		int rcode = new Integer(
+		int rcode = Integer.valueOf(
 				((CharacterData) (root.getElementsByTagName("rcode").item(0).getFirstChild())).getData().trim())
 						.intValue();
 		if ((rcode > 0 && rcode < 100) || rcode == 419) {

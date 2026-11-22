@@ -1044,15 +1044,11 @@ $Id$
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
       </h:panelGroup>
-      
-      <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
- 		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
- 			value="#imageMapContainer" 
- 			onclick="javascript:loadAnswer('#{description.answer}');" 
- 			onkeypress="javascript:loadAnswer('#{description.answer}');">
- 			
- 			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
- 		</h:outputLink>
+      <h:panelGroup rendered="#{questionScores.typeId == '16'}">
+        <h:panelGroup styleClass="hotspot-response-data"><h:inputHidden value="#{description.answer}" /></h:panelGroup>
+        <h:outputLink title="#{evaluationMessages.t_hotspotanswer}" value="#imageMapContainer" styleClass="hotspot-response-link" onclick="loadAnswerFromLink(this)">
+          <h:outputText value="#{evaluationMessages.show_hotspotanswer}"/>
+        </h:outputLink>
       </h:panelGroup>
       
     </h:column>
@@ -1117,14 +1113,11 @@ $Id$
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
       </h:panelGroup>
-       <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
-		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
-			value="#imageMapContainer" 
-			onclick="javascript:loadAnswer('#{description.answer}');" 
-			onkeypress="javascript:loadAnswer('#{description.answer}');">
-			
-			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
-		</h:outputLink>
+      <h:panelGroup rendered="#{questionScores.typeId == '16'}">
+        <h:panelGroup styleClass="hotspot-response-data"><h:inputHidden value="#{description.answer}" /></h:panelGroup>
+        <h:outputLink title="#{evaluationMessages.t_hotspotanswer}" value="#imageMapContainer" styleClass="hotspot-response-link" onclick="loadAnswerFromLink(this)">
+          <h:outputText value="#{evaluationMessages.show_hotspotanswer}"/>
+        </h:outputLink>
       </h:panelGroup>
     </h:column>    
     
@@ -1185,14 +1178,11 @@ $Id$
           <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
         </f:subview>
       </h:panelGroup>
-      <h:panelGroup rendered="#{questionScores.typeId == '16'}" >
-		<h:outputLink title="#{evaluationMessages.t_hotspotanswer}"      
-			value="#imageMapContainer" 
-			onclick="javascript:loadAnswer('#{description.answer}');" 
-			onkeypress="javascript:loadAnswer('#{description.answer}');">
-			
-			<h:outputText  value="#{evaluationMessages.show_hotspotanswer}"/>
-		</h:outputLink>
+      <h:panelGroup rendered="#{questionScores.typeId == '16'}">
+        <h:panelGroup styleClass="hotspot-response-data"><h:inputHidden value="#{description.answer}" /></h:panelGroup>
+        <h:outputLink title="#{evaluationMessages.t_hotspotanswer}" value="#imageMapContainer" styleClass="hotspot-response-link" onclick="loadAnswerFromLink(this)">
+          <h:outputText value="#{evaluationMessages.show_hotspotanswer}"/>
+        </h:outputLink>
       </h:panelGroup>
     </h:column>
      

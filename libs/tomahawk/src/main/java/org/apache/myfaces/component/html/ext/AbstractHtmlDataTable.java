@@ -100,7 +100,7 @@ public abstract class AbstractHtmlDataTable extends HtmlDataTableHack
     private static final boolean DEFAULT_DETAILSTAMP_EXPANDED = false;
     private static final Class OBJECT_ARRAY_CLASS = (new Object[0]).getClass();
 
-    private static final Integer DEFAULT_NEWSPAPER_COLUMNS = new Integer(1);
+    private static final Integer DEFAULT_NEWSPAPER_COLUMNS = Integer.valueOf(1);
     private static final String DEFAULT_NEWSPAPER_ORIENTATION = "vertical";
     private static final String DEFAULT_DETAILSTAMP_LOCATION = "after";
 
@@ -620,12 +620,12 @@ public abstract class AbstractHtmlDataTable extends HtmlDataTableHack
                 //regular row index, update request scope variables
                 if (rowIndexVar != null)
                 {
-                    requestMap.put(rowIndexVar, new Integer(rowIndex));
+                    requestMap.put(rowIndexVar, Integer.valueOf(rowIndex));
                 }
 
                 if (rowCountVar != null)
                 {
-                    requestMap.put(rowCountVar, new Integer(getRowCount()));
+                    requestMap.put(rowCountVar, Integer.valueOf(getRowCount()));
                 }
             }
             else
@@ -2110,7 +2110,7 @@ public abstract class AbstractHtmlDataTable extends HtmlDataTableHack
     {
         Boolean expanded = (getValueExpression("rowKey") != null) ?
                 (Boolean) getExpandedNode(getContainerClientId(getFacesContext())) :
-                (Boolean) getExpandedNode(new Integer(getRowIndex()).toString());
+                (Boolean) getExpandedNode(Integer.valueOf(getRowIndex()).toString());
         if (expanded != null)
         {
             return expanded.booleanValue();
@@ -2177,7 +2177,7 @@ public abstract class AbstractHtmlDataTable extends HtmlDataTableHack
     public void toggleDetail()
     {
         String derivedRowKey = (getValueExpression("rowKey") != null) ?
-                getContainerClientId(getFacesContext()) : new Integer(getRowIndex()).toString();
+                getContainerClientId(getFacesContext()) : Integer.valueOf(getRowIndex()).toString();
 
         // get the current expanded state of the row
         boolean expanded = isDetailExpanded();
@@ -2222,7 +2222,7 @@ public abstract class AbstractHtmlDataTable extends HtmlDataTableHack
     {
         Boolean expanded = (getValueExpression("rowKey") != null) ?
                 getExpandedNode(getContainerClientId(getFacesContext())) :
-                getExpandedNode(new Integer(getRowIndex()).toString());
+                getExpandedNode(Integer.valueOf(getRowIndex()).toString());
         if (expanded == null)
         {
             return isDetailStampExpandedDefault();
@@ -2322,7 +2322,7 @@ public abstract class AbstractHtmlDataTable extends HtmlDataTableHack
                     }
                     else
                     {
-                        setExpandedNode(new Integer(rowIndex).toString(), Boolean.TRUE);
+                        setExpandedNode(Integer.valueOf(rowIndex).toString(), Boolean.TRUE);
                     }
                 }
             }
@@ -2376,7 +2376,7 @@ public abstract class AbstractHtmlDataTable extends HtmlDataTableHack
                     }
                     else
                     {
-                        setExpandedNode(new Integer(rowIndex).toString(), Boolean.FALSE);
+                        setExpandedNode(Integer.valueOf(rowIndex).toString(), Boolean.FALSE);
                     }
                 }
             }

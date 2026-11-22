@@ -294,6 +294,31 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
                 argThat(config -> extractionRoot.equals(config.archiveRoot)));
 
     }
+    @Test
+    public void mergesArchivesFromConfiguredStorageOutsideTomcat() throws Exception {
+        Path tomcat = folder.newFolder("storage-test-tomcat").toPath();
+        when(serverConfigurationService.getSakaiHomePath()).thenReturn(tomcat.resolve("sakai").toString());
+        Path storage = folder.newFolder("external-storage").toPath();
+        Path archive = Files.createDirectory(storage.resolve("external-archive"));
+        Path fixture = Path.of(Objects.requireNonNull(getClass().getResource("/archive/rubrics.xml")).toURI());
+        Files.copy(fixture, archive.resolve("rubrics.xml"));
+        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService))
+                .setStoragePath(storage.toString() + File.separator);
+
+        String target = "external-storage-target";
+        when(siteService.getSite(target)).thenReturn(mock(Site.class));
+        EntityProducer producer = mock(EntityProducer.class);
+        when(producer.getLabel()).thenReturn("rubrics");
+        when(entityManager.getEntityProducers()).thenReturn(List.of(producer));
+
+        String result = archiveService.merge("external-archive", target, "admin");
+        assertFalse(result, result.contains("not permitted"));
+        result = archiveService.merge(archive.toString(), target, "admin");
+        assertFalse(result, result.contains("not permitted"));
+        verify(producer, times(2)).merge(any(), any(), any(), any(),
+                argThat(config -> config.archiveRoot == null));
+    }
+
     /** Trusted cartridge roots admit extracted archives outside Tomcat without admitting sibling paths or symlinks. */
     @Test
     public void confinesEmbeddedArchivesToTrustedExtractionRoot() throws Exception {

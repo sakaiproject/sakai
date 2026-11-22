@@ -306,7 +306,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
 
 	  if(topicId != null && !"".equals(topicId)){
 		  List<Message> messages =
-			  forumManager.getTopicByIdWithMessagesAndAttachments(new Long(topicId)).getMessages();
+			  forumManager.getTopicByIdWithMessagesAndAttachments(Long.valueOf(topicId)).getMessages();
 
 		  DiscussionTopic dTopic = forumManager.getTopicById(Long.valueOf(topicId));
 		  DiscussionForum dForum = forumManager.getForumById(dTopic.getBaseForum().getId());
@@ -343,10 +343,10 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
 								  readStatus = Boolean.FALSE;
 
 							  DecoratedMessage dMessage = new DecoratedMessage(message
-									  .getId(), new Long(topicId), message.getTitle(),
+									  .getId(), Long.valueOf(topicId), message.getTitle(),
 									  message.getBody(), "" + message.getModified().getTime(),
 									  attachments, findReplies(messages, message.getId(),
-											  new Long(topicId), msgIdReadStatusMap), message.getAuthor(), message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
+											  Long.valueOf(topicId), msgIdReadStatusMap), message.getAuthor(), message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
 									  getProfileImageURL(message.getAuthorId()),
 													  "" + message.getCreated().getTime(), readStatus.booleanValue(), "", "");				  
 
@@ -426,14 +426,14 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   
   public void markAsRead(String userId, String siteId, String readMessageId, int numOfAttempts) {
 	  try {
-		  Message msg = getMessageManager().getMessageById(new Long(readMessageId));
+		  Message msg = getMessageManager().getMessageById(Long.valueOf(readMessageId));
 		  if(msg instanceof PrivateMessage){
 			  String toolId = DiscussionForumService.MESSAGES_TOOL_ID;				  
 			  getPrivateMessageManager().markMessageAsReadForUser((PrivateMessage) msg, siteId, userId, toolId);					  
 		  }else{
 			  String toolId = DiscussionForumService.FORUMS_TOOL_ID;
 			  String topicId = msg.getTopic().getId().toString();
-			  messageManager.markMessageNotReadForUser(new Long(topicId), new Long(readMessageId), false, userId, siteId, toolId); 
+			  messageManager.markMessageNotReadForUser(Long.valueOf(topicId), Long.valueOf(readMessageId), false, userId, siteId, toolId); 
 		  }
 	  } catch (HibernateOptimisticLockingFailureException holfe) {
 

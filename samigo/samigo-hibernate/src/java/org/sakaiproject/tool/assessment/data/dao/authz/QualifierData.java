@@ -55,7 +55,7 @@ public class QualifierData
     String qualifierTypeId)
   {
 //    this.qualifierId = qualifierId;
-    this.qualifierId = (new Long(qualifierId)).longValue();
+    this.qualifierId = (Long.valueOf(qualifierId)).longValue();
     this.referenceName = referenceName;
     this.displayName = displayName;
     this.description = description;

@@ -529,7 +529,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 			HashSet sh = new HashSet();
 			SectionData section = new SectionData(
 					null,
-					new Integer("1"), // FIRST section
+					Integer.valueOf("1"), // FIRST section
 					"Default", "", TypeD.DEFAULT_SECTION,
 					SectionData.ACTIVE_STATUS, AgentFacade.getAgentString(),
 					new Date(), AgentFacade.getAgentString(), new Date());
@@ -1884,10 +1884,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 						groupsAuthorized.add(existingGroup.get().getId());
                     } else {
 						// create group
-						targetGroup = targetSite.addGroup();
-						targetGroup.setTitle(sourceGroup.getTitle());
-						targetGroup.setDescription(sourceGroup.getDescription());
-						targetGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
+						targetGroup = SiteService.copyGroup(sourceGroup, targetSite);
 						groupsAuthorized.add(targetGroup.getId());
 						siteChanged = true;
                     }
@@ -2068,14 +2065,14 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 
 		AssessmentData newAssessment = null;
 		if (originalDateAndModifiedBy) {
-			newAssessment = new AssessmentData(new Long("0"), a
+			newAssessment = new AssessmentData(Long.valueOf("0"), a
 				.getTitle(), a.getDescription(), a.getComments(), a.getAssessmentTemplateId(),
 				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
 						.getTesteeNotification(), a.getMultipartAllowed(), a
 						.getStatus(), a.getCreatedBy(), a.getCreatedDate(), a
 						.getLastModifiedBy(), a.getLastModifiedDate());
 		} else {
-			newAssessment = new AssessmentData(new Long("0"), a
+			newAssessment = new AssessmentData(Long.valueOf("0"), a
 				.getTitle(), a.getDescription(), a.getComments(), a.getAssessmentTemplateId(),
 				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
 						.getTesteeNotification(), a.getMultipartAllowed(), a

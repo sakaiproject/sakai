@@ -990,11 +990,11 @@ public class ExtractionHelper
       control.setUnlimitedSubmissions(Boolean.FALSE);
       try
       {
-        control.setSubmissionsAllowed(new Integer(maxAttempts));
+        control.setSubmissionsAllowed(Integer.valueOf(maxAttempts));
       }
       catch (NumberFormatException ex1)
       {
-        control.setSubmissionsAllowed(new Integer("1"));
+        control.setSubmissionsAllowed(Integer.valueOf("1"));
       }
     }
     log.debug("Set: control.getSubmissionsAllowed()="+control.getSubmissionsAllowed());

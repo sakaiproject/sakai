@@ -201,4 +201,13 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
         Assert.assertNull(cleaned);
     }
 
+    /**
+     * A caller whose editUser() call failed has no UserEdit to cancel, so cancelEdit(null) must be a no-op.
+     */
+    @Test
+    public void testCancelEditIgnoresNullUserEdit() {
+        UserDirectoryService directoryService = (UserDirectoryService) getService(UserDirectoryService.class.getName());
+        directoryService.cancelEdit(null);
+    }
+
 }

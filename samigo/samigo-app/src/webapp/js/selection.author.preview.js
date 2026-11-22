@@ -51,3 +51,151 @@ function selectionAuthor(className, anchor){
 		divJObj.show();
 	}
 }
+(function() {
+/**
+ * Places Hot Spot badges around their anchors without overlapping each other or leaving the image.
+ * @param {string} containerId image-map container element id
+ */
+function placeImageMapBadges(containerId) {
+	var container = document.getElementById(containerId);
+	if (!container) {
+		return;
+	}
+	var containerRect = container.getBoundingClientRect();
+	var image = container.querySelector('img');
+	var imageRect = image ? image.getBoundingClientRect() : containerRect;
+	var bounds = {
+		left: imageRect.left - containerRect.left,
+		top: imageRect.top - containerRect.top,
+		right: imageRect.left - containerRect.left + imageRect.width,
+		bottom: imageRect.top - containerRect.top + imageRect.height
+	};
+
+	container.querySelectorAll('.imageMapBadgeLeader').forEach(function(line) {
+		line.remove();
+	});
+
+	var labels = [];
+	container.querySelectorAll('.selectiondiv').forEach(function(region) {
+		var badge = region.querySelector('.textContainer');
+		if (!badge || badge.offsetWidth === 0) {
+			return;
+		}
+		var rect = region.getBoundingClientRect();
+		var anchorX = rect.left - containerRect.left + rect.width / 2;
+		var anchorY = rect.top - containerRect.top + rect.height / 2;
+		labels.push({badge: badge, parent: region, kind: 'area', anchorX: anchorX, anchorY: anchorY,
+			obstacle: boxAround(anchorX, anchorY, 3)});
+	});
+	container.querySelectorAll('.pointerClass, .pointerClass_selected').forEach(function(pointer) {
+		var badge = pointer.querySelector('.selectionText');
+		if (!badge || badge.offsetWidth === 0) {
+			return;
+		}
+		var rect = pointer.getBoundingClientRect();
+		var anchorX = rect.left - containerRect.left + rect.width / 2;
+		var anchorY = rect.top - containerRect.top + rect.height / 2;
+		labels.push({badge: badge, parent: pointer, kind: 'marker', anchorX: anchorX, anchorY: anchorY,
+			obstacle: boxAround(anchorX, anchorY, 5)});
+	});
+
+	labels.forEach(function(label) {
+		label.badge.style.transform = 'none';
+		label.badge.style.right = 'auto';
+		label.badge.style.left = '0px';
+		label.badge.style.top = '0px';
+		label.width = label.badge.offsetWidth;
+		label.height = label.badge.offsetHeight;
+	});
+
+	var occupied = labels.map(function(label) { return label.obstacle; });
+	labels.forEach(function(label) {
+		var box = findImageMapBadgeBox(label, occupied, bounds);
+		var parentRect = label.parent.getBoundingClientRect();
+		label.badge.style.left = (box.left - (parentRect.left - containerRect.left)) + 'px';
+		label.badge.style.top = (box.top - (parentRect.top - containerRect.top)) + 'px';
+		occupied.push(box);
+		addImageMapBadgeLeader(container, label, box);
+	});
+}
+
+/**
+ * @param {number} x centre x
+ * @param {number} y centre y
+ * @param {number} half half width and height
+ * @returns {{left:number,top:number,right:number,bottom:number}} box around the point
+ */
+function boxAround(x, y, half) {
+	return {left: x - half, top: y - half, right: x + half, bottom: y + half};
+}
+
+/**
+ * Finds the nearest free position for a badge.
+ * @param {Object} label badge, anchor and size
+ * @param {Array<Object>} occupied boxes already taken
+ * @param {Object} bounds image bounds
+ * @returns {{left:number,top:number,right:number,bottom:number}} chosen box
+ */
+function findImageMapBadgeBox(label, occupied, bounds) {
+	var gap = 2;
+	var width = label.width;
+	var height = label.height;
+	var directions = label.kind === 'area'
+		? [[0, -1], [1, 0], [0, 1], [-1, 0], [1, -1], [1, 1], [-1, 1], [-1, -1]]
+		: [[1, 0], [0, -1], [-1, 0], [0, 1], [1, -1], [1, 1], [-1, 1], [-1, -1]];
+	for (var ring = 0; ring < 8; ring++) {
+		for (var d = 0; d < directions.length; d++) {
+			var direction = directions[d];
+			var left = label.anchorX - width / 2
+				+ direction[0] * (width / 2 + gap + ring * (width * 0.75 + gap));
+			var top = label.anchorY - height / 2
+				+ direction[1] * (height / 2 + gap + ring * (height * 0.75 + gap));
+			left = Math.max(bounds.left, Math.min(left, bounds.right - width));
+			top = Math.max(bounds.top, Math.min(top, bounds.bottom - height));
+			var box = {left: left, top: top, right: left + width, bottom: top + height};
+			if (!occupied.some(function(other) { return boxesOverlap(box, other); })) {
+				return box;
+			}
+		}
+	}
+	var left = Math.max(bounds.left, Math.min(label.anchorX - width / 2, bounds.right - width));
+	var top = Math.max(bounds.top, Math.min(label.anchorY - height / 2, bounds.bottom - height));
+	return {left: left, top: top, right: left + width, bottom: top + height};
+}
+
+/**
+ * @param {Object} first box
+ * @param {Object} second box
+ * @returns {boolean} true when the boxes intersect
+ */
+function boxesOverlap(first, second) {
+	return first.left < second.right && first.right > second.left
+		&& first.top < second.bottom && first.bottom > second.top;
+}
+
+/**
+ * Draws a leader line when the badge had to move away from its anchor.
+ * @param {HTMLElement} container image-map container
+ * @param {Object} label badge anchor
+ * @param {Object} box badge box
+ */
+function addImageMapBadgeLeader(container, label, box) {
+	var endX = Math.max(box.left, Math.min(label.anchorX, box.right));
+	var endY = Math.max(box.top, Math.min(label.anchorY, box.bottom));
+	var dx = endX - label.anchorX;
+	var dy = endY - label.anchorY;
+	var length = Math.sqrt(dx * dx + dy * dy);
+	if (length < 8) {
+		return;
+	}
+	var line = document.createElement('div');
+	line.className = 'imageMapBadgeLeader';
+	line.style.left = label.anchorX + 'px';
+	line.style.top = label.anchorY + 'px';
+	line.style.width = length + 'px';
+	line.style.transform = 'rotate(' + Math.atan2(dy, dx) + 'rad)';
+	container.appendChild(line);
+}
+
+window.placeImageMapBadges = placeImageMapBadges;
+})();

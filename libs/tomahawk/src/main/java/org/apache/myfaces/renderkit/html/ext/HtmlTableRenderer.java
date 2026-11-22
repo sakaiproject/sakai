@@ -324,7 +324,7 @@ public class HtmlTableRenderer extends HtmlTableRendererBase {
                                 childCount++;
                             }
                         }
-                        writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(
+                        writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(
                                 childCount), null);
                     }
     
@@ -425,7 +425,7 @@ public class HtmlTableRenderer extends HtmlTableRendererBase {
             if (child instanceof HtmlSimpleColumn) {
                 currentColumn = (HtmlSimpleColumn) child;
                 if (currentColumn.isGroupBy()) {
-                    groupHashTable.put(new Integer(j), null);
+                    groupHashTable.put(Integer.valueOf(j), null);
                 }
             }
         }
@@ -472,7 +472,7 @@ public class HtmlTableRenderer extends HtmlTableRendererBase {
 
             for (int j = 0, size = nChildren; j < size; j++) {
                 columnInfo = new ColumnInfo();
-                if (groupHashTable.containsKey(new Integer(j)))  // Column is groupBy
+                if (groupHashTable.containsKey(Integer.valueOf(j)))  // Column is groupBy
                 {
                     if (currentRowSpan > 0) {
                         if (groupEndReached) {
@@ -522,7 +522,7 @@ public class HtmlTableRenderer extends HtmlTableRendererBase {
         // do further processing if we've found at least one row
         if (currentRowInfoIndex > -1) {
             for (int j = 0, size = nChildren; j < size; j++) {
-                if (groupHashTable.containsKey(new Integer(j)))  // Column is groupBy
+                if (groupHashTable.containsKey(Integer.valueOf(j)))  // Column is groupBy
                 {
                     ((ColumnInfo)
                         ((RowInfo)
@@ -826,7 +826,7 @@ public class HtmlTableRenderer extends HtmlTableRendererBase {
             }
 
             if (columnInfo.getRowSpan() > 1) {
-                writer.writeAttribute("rowspan", new Integer(columnInfo.getRowSpan()).toString(), null);
+                writer.writeAttribute("rowspan", Integer.valueOf(columnInfo.getRowSpan()).toString(), null);
                 if (columnInfo.getStyle() == null) {
                     writer.writeAttribute(HTML.STYLE_ATTR, "vertical-align:top", null);
                 }
@@ -930,7 +930,7 @@ public class HtmlTableRenderer extends HtmlTableRendererBase {
             }
 
             if (colspan > 1) {
-                writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(colspan),
+                writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(colspan),
                     null);
             }
             String styleClass = ((HtmlColumn) uiComponent)
@@ -966,7 +966,7 @@ public class HtmlTableRenderer extends HtmlTableRendererBase {
             }
             writer.startElement(HTML.TD_ELEM, uiComponent);
             if (colspan > 1) {
-                writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(colspan),
+                writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(colspan),
                     null);
             }
             String styleClass = ((HtmlColumn) uiComponent)

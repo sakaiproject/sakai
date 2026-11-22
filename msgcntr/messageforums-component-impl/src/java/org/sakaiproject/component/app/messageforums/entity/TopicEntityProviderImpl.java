@@ -115,7 +115,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	public boolean entityExists(String id) {
 		Topic topic = null;
 		try {
-			topic = forumManager.getTopicById(new Long(id));
+			topic = forumManager.getTopicById(Long.valueOf(id));
 		}
 		catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -149,7 +149,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 			}
 			// TODO: need a way to generate the url with out having siteId in search
 			if (forumId != null && userId != null) {
-				DiscussionForum forum = forumManager.getForumByIdWithTopics(new Long(forumId));
+				DiscussionForum forum = forumManager.getForumByIdWithTopics(Long.valueOf(forumId));
 				List<Topic> topics = forum.getTopics();
 				for (int i = 0; i < topics.size(); i++) {
 					// TODO: authz is way too basic, someone more hip to message center please improve...
@@ -180,7 +180,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	public Map<String, String> getProperties(String reference) {
 		Map<String, String> props = new HashMap<String, String>();
 		Topic topic =
-			forumManager.getTopicById(new Long(reference.substring(reference.lastIndexOf("/") + 1)));
+			forumManager.getTopicById(Long.valueOf(reference.substring(reference.lastIndexOf("/") + 1)));
 
 		props.put("title", topic.getTitle());
 		props.put("author", topic.getCreatedBy());
@@ -337,7 +337,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 				List<DiscussionForum> forums = new ArrayList<DiscussionForum>();
 				if(forumId != null && !"".equals(forumId)){
-					DiscussionForum forum = forumManager.getForumByIdWithTopicsAttachmentsAndMessages(new Long(forumId));
+					DiscussionForum forum = forumManager.getForumByIdWithTopicsAttachmentsAndMessages(Long.valueOf(forumId));
 					if (forum != null ) {
 						siteId = forumManager.getContextForForumById(forum.getId());
 						forums.add(forum);

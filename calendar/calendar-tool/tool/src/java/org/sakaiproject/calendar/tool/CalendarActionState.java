@@ -462,7 +462,7 @@ public class CalendarActionState
 		
 		public int getYearInt()
 		{
-			return new Integer(year).intValue ();
+			return Integer.valueOf(year).intValue ();
 		}
 
 		

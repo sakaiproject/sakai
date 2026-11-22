@@ -77,9 +77,9 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 
     protected Integer lockId;
 
-    protected Boolean released = new Boolean(false);
+    protected Boolean released = Boolean.valueOf(false);
 
-    protected Boolean releaseStatistics = new Boolean(false);
+    protected Boolean releaseStatistics = Boolean.valueOf(false);
 
     protected List<String> usernames;
 
@@ -271,7 +271,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
     }
 
     public void setRelease(boolean release) {
-        this.released = new Boolean(release);
+        this.released = Boolean.valueOf(release);
     }
 
     public Boolean getReleaseStatistics() {
@@ -287,7 +287,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
     }
 
     public void setReleaseStats(boolean releaseStats) {
-        this.releaseStatistics = new Boolean(releaseStats);
+        this.releaseStatistics = Boolean.valueOf(releaseStats);
     }
 
     public void setFirstUploadedUsername(String firstUploadedUsername) {
@@ -462,15 +462,15 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
             }
 
         }
-        aggregateData.add(new Pair("Average", new Double(stats.getMean())));
-        aggregateData.add(new Pair("Std. Dev.", new Double(stats
+        aggregateData.add(new Pair("Average", Double.valueOf(stats.getMean())));
+        aggregateData.add(new Pair("Std. Dev.", Double.valueOf(stats
                 .getStandardDeviation())));
-        aggregateData.add(new Pair("Highest", new Double(stats.getMax())));
-        aggregateData.add(new Pair("Lowest", new Double(stats.getMin())));
-        aggregateData.add(new Pair("Range", new Double(stats.getMax()
+        aggregateData.add(new Pair("Highest", Double.valueOf(stats.getMax())));
+        aggregateData.add(new Pair("Lowest", Double.valueOf(stats.getMin())));
+        aggregateData.add(new Pair("Range", Double.valueOf(stats.getMax()
                 - stats.getMin())));
-        aggregateData.add(new Pair("N=count(non-blank)", new Double(stats.getN())));
-        aggregateData.add(new Pair("count(blank)", new Integer(blanks)));*/
+        aggregateData.add(new Pair("N=count(non-blank)", Double.valueOf(stats.getN())));
+        aggregateData.add(new Pair("count(blank)", Integer.valueOf(blanks)));*/
 
         return aggregateData;
     }

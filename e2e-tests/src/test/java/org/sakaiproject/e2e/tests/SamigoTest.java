@@ -20,6 +20,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -155,12 +156,13 @@ class SamigoTest extends SakaiUiTestBase {
         saveQuestionAndWaitForAssessment();
         assertThat(page.locator("#assessmentForm\\:parts .samigo-question-callout")).hasCount(2);
 
-        page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
-            new com.microsoft.playwright.Page.GetByRoleOptions().setName("Settings")).first()
-            .click(new Locator.ClickOptions().setForce(true));
-
-        if (isVisible(page.locator("#assessmentSettingsAction\\:lateHandling\\:0").first(), 3_000)) {
-            page.locator("#assessmentSettingsAction\\:lateHandling\\:0").first().check(new Locator.CheckOptions().setForce(true));
+        page.locator("#assessmentForm").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Settings").setExact(true)).click();
+        assertThat(page.locator("#jqueryui-accordion.ui-accordion")).isVisible();
+        page.locator("#expandLink").click();
+        Locator lateHandling = page.locator("[id='assessmentSettingsAction:lateHandling:0']");
+        if (lateHandling.isVisible()) {
+            lateHandling.check();
         }
 
         DateTimeFormatter dateTime12h = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
@@ -169,12 +171,8 @@ class SamigoTest extends SakaiUiTestBase {
         sakai.selectDate("#assessmentSettingsAction\\:startDate", availableDate);
         sakai.selectDate("#assessmentSettingsAction\\:endDate", dueDate);
 
-        clickFirstVisible(
-            page.locator("button:has-text(\"Save Settings and Publish\"), input[type=\"submit\"][value*=\"Save Settings and Publish\"], input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")")
-        );
-        clickFirstVisibleIfPresent(
-            page.locator("input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\"), input[type=\"submit\"][value*=\"Republish\"], button:has-text(\"Republish\")")
-        );
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Settings and Publish").setExact(true)).click();
+        page.locator("[id='publishAssessmentForm:publish']").click();
 
         ensureAssessmentsTable(testsToolUrl);
         assertAssessmentTableFilteringAndSorting();
@@ -195,12 +193,17 @@ class SamigoTest extends SakaiUiTestBase {
 
     @Test
     @Order(3)
-    void canPreviewDraftAssessmentWithoutLeavingExtraAssessmentsBehind() {
+    void canPreviewTimedPartWithLinearNavigationWithoutLeavingExtraAssessmentsBehind() {
         String previewTitle = "Playwright Preview " + System.currentTimeMillis();
 
         String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
         page.navigate(courseUrl);
+        sakai.toolClick("Site Info");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Manage Tools").setExact(true)).click();
+        page.locator("#isMathJaxEnabledForSite").check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Finish").setExact(true)).click();
         sakai.toolClick("Tests");
         String testsUrl = page.url();
 
@@ -208,17 +211,50 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm\\:title").fill(previewTitle);
         page.locator("#authorIndexForm\\:createnew").click(new Locator.ClickOptions().setForce(true));
 
-        addMultipleChoiceQuestion(
-            "10.00",
-            "Preview flow smoke question",
-            List.of("Option A", "Option B"),
-            0
-        );
+        for (int question = 1; question <= 3; question++) {
+            addMultipleChoiceQuestion("10.00", "Timed preview question " + question + " $$x^2$$",
+                List.of("Option A", "Option B"), 0);
+        }
 
-        page.locator(".navViewAction").filter(new Locator.FilterOptions().setHasText("Preview")).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator("[id='assessmentForm:parts:0:editPart']").click();
+        page.locator("input[name='modifyPartForm:selTimed'][value='true']").check();
+        page.locator("[id='modifyPartForm:timeSection'] input[type='number']").nth(1).fill("3");
+        clickSubmit("Save");
+        assertThat(page.locator("#assessmentForm\\:parts")).isVisible();
 
-        clickFirstVisibleIfPresent(page.locator("input[type=\"submit\"][value*=\"Begin Assessment\"]"));
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).click();
+        page.getByText("Layout and Appearance", new Page.GetByTextOptions().setExact(true)).click();
+        page.locator("input[name='assessmentSettingsAction:itemNavigation'][value='1']").check();
+        page.locator("input[name='assessmentSettingsAction:assessmentFormat'][value='1']").check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
+        assertThat(page.locator("#assessmentForm\\:parts")).isVisible();
+
+        List<String> previewErrors = new ArrayList<>();
+        page.onPageError(previewErrors::add);
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Preview").setExact(true)).click();
+        assertThat(page.locator("#takeAssessmentForm")).isVisible();
+        Locator begin = page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Begin Assessment").setExact(true));
+        Locator honorPledge = page.locator("[id='takeAssessmentForm:honor_pledge']");
+        if (honorPledge.isVisible()) {
+            assertThat(begin).isDisabled();
+            honorPledge.check();
+        }
+        begin.click();
+
+        assertThat(page.locator("body")).containsText("Timed preview question 1");
+        assertTrue(previewErrors.isEmpty(), "Preview JavaScript errors: " + previewErrors);
+        assertThat(page.locator(".MathJax, .MathJax_CHTML").first()).isVisible();
+        Locator progress = page.locator("#questionProgressPanel table[id$=':tocquestions']");
+        assertThat(progress.locator(".progressItem .linearButton")).hasCount(3);
+        assertThat(progress.locator(".progressItem img[alt='unanswered icon']")).hasCount(3);
+        Locator next = page.locator("input[id$=':next']");
+        assertThat(next).isEnabled();
+        next.click();
+        assertThat(page.locator("body")).containsText("Timed preview question 2");
+        assertThat(page.locator(".MathJax, .MathJax_CHTML").first()).isVisible();
+        assertThat(progress.locator(".currentQuestion")).containsText("2");
+        assertTrue(previewErrors.isEmpty(), "Preview JavaScript errors: " + previewErrors);
 
         if (!clickFirstVisibleIfPresent(page.locator(".exit-preview-button, button:has-text(\"Exit\"), a:has-text(\"Exit\"), a:has-text(\"Assessments\")"))) {
             page.navigate(testsUrl);
@@ -352,6 +388,14 @@ class SamigoTest extends SakaiUiTestBase {
         saveQuestionAndWaitForPoolEditor();
         assertThat(page.locator("#editform\\:questionpool-questions a[title=\"Edit Question\"]")).hasCount(1);
 
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Question").setExact(true)).click();
+        selectQuestionType(Pattern.compile("true false", Pattern.CASE_INSENSITIVE));
+        clickSubmit("Save");
+        page.locator("[id='itemForm:answerptr']").fill("1");
+        page.locator("#itemForm textarea").first().fill("The capital of California is Sacramento.");
+        page.locator("input[name='itemForm:TF']").first().check();
+        saveQuestionAndWaitForPoolEditor();
+
         page.navigate(courseUrl);
         sakai.toolClick("Tests");
         openNewAssessmentForm();
@@ -368,6 +412,23 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("[id='modifyPartForm:numPointsRandom']").fill("1");
         clickSubmit("Save");
         assertThat(page.locator("#assessmentForm")).containsText("Random draw from " + poolName);
+
+        selectQuestionType(Pattern.compile("(select|copy|import).*pool", Pattern.CASE_INSENSITIVE));
+        page.locator("[id='questionpool:TreeTable']").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName(poolName).setExact(true)).click();
+
+        // Filter for a question whose original JSF row index is greater than zero.
+        Locator secondQuestion = page.locator("input[name='editform:questionpool-questions:1:importCheckbox']");
+        Locator table = page.locator("[id='editform:questionpool-questions']");
+        String questionText = table.locator("tbody > tr").filter(new Locator.FilterOptions().setHas(secondQuestion))
+            .locator("td").first().innerText().trim();
+        page.locator("input[aria-controls='editform:questionpool-questions'][type='search']").fill(questionText);
+        assertThat(table.locator("tbody input[type='checkbox']")).hasCount(1);
+        Locator selectAll = table.locator("thead input[type='checkbox']");
+        selectAll.check();
+        assertThat(secondQuestion).isChecked();
+        selectAll.uncheck();
+        assertThat(secondQuestion).not().isChecked();
     }
 
     private void searchQuestionPool(String selectId, String poolName) {
@@ -448,10 +509,6 @@ class SamigoTest extends SakaiUiTestBase {
         page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
         assertThat(page.getByText(tagLabel, new Page.GetByTextOptions().setExact(true))).isVisible();
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag").setExact(true)).click();
-        page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(tagLabel + " second");
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag").setExact(true)).click();
-
         sakai.toolClick("Tests");
         openNewAssessmentForm();
         page.locator("#authorIndexForm\\:title").fill("Question tags " + RUN_ID);
@@ -461,19 +518,7 @@ class SamigoTest extends SakaiUiTestBase {
         Locator edit = page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify");
         edit.click();
         Locator picker = page.locator(".samigo-tag-picker sakai-tag-selector");
-        // The real endpoint normalizes a zero page limit to one result per page.
-        String tagSearchRoute = "**/getTagsPaginatedByPrefixInLabel.json?*";
-        page.route(tagSearchRoute, route -> route.resume(new Route.ResumeOptions()
-            .setUrl(route.request().url().replace("pagelimit=20", "pagelimit=0"))));
-        sakai.waitForPortalFocus();
-        picker.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
-        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Load more tags").setExact(true)).click();
-        assertThat(picker.getByRole(AriaRole.OPTION)).hasCount(2);
-        assertThat(picker.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName("Load more tags").setExact(true))).hasCount(0);
-        picker.getByRole(AriaRole.OPTION, new Locator.GetByRoleOptions()
-            .setName(tagLabel + " (" + collectionName + ")").setExact(true)).click();
-        page.unroute(tagSearchRoute);
+        selectQuestionTag(picker, tagLabel, collectionName);
         Locator removeTag = picker.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel + " (" + collectionName + ")").setExact(true));
         saveQuestionAndWaitForAssessment();
@@ -516,6 +561,7 @@ class SamigoTest extends SakaiUiTestBase {
         Locator input = picker.getByRole(AriaRole.COMBOBOX);
         assertThat(input).isVisible();
         sakai.waitForPortalFocus();
+        page.waitForFunction("picker => typeof picker.searchTags === 'function'", picker.elementHandle());
         Response response = page.waitForResponse(r -> r.url().contains("/getTagsPaginatedByPrefixInLabel.json"),
             () -> input.fill(tag));
         assertEquals(200, response.status(), response.url());

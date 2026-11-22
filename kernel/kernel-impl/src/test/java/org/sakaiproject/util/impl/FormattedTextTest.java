@@ -1263,6 +1263,18 @@ public class FormattedTextTest {
     }
 
     @Test
+    public void plainTextFiltersUnsupportedCharactersOnlyForUtf8mb3() {
+        String title = "Café 漢字 😀 🧪 𐐀 & &#128512;";
+        Assert.assertEquals(title, formattedText.stripUnsupportedCharacters(title));
+        formattedText.setCleanUTF8(true);
+        Assert.assertEquals("Café 漢字    & &#128512;", formattedText.stripUnsupportedCharacters(title));
+        Assert.assertEquals("", formattedText.stripUnsupportedCharacters("😀🧪"));
+        Assert.assertNull(formattedText.stripUnsupportedCharacters(null));
+        formattedText.setCleanUTF8(false);
+        Assert.assertEquals(title, formattedText.stripUnsupportedCharacters(title));
+    }
+
+    @Test
     public void testFourByteEmojiEscaping() {
         String html = "An 😀 awesome 😃 string with a few 😉 emojis!";
         String ret = formattedText.removeSurrogates(html);

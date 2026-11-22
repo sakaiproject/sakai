@@ -16,10 +16,7 @@
 		</p>
 	#end
 	<div class="card mb-3 p-3">
-		<p>$tlang.getString("ical_opaqueurl_webcal")<br/>
-			<a href="$!webcalUrl" target="_new_">$webcalUrl</a>
-		</p>
-		<p>$tlang.getString("ical_opaqueurl_http")<br/>
+		<p>$tlang.getString("ical_opaqueurl_subscription")<br/>
 			<a href="$!opaqueUrl" target="_new_">$opaqueUrl</a>
 		</p>
 	</div>

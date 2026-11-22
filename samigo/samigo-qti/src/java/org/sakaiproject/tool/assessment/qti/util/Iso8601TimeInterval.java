@@ -149,7 +149,7 @@ public class Iso8601TimeInterval
       if(tmp != null)
       {
         years = Integer.parseInt(tmp);
-        this.years = new Integer(tmp);
+        this.years = Integer.valueOf(tmp);
       }
 
       /* months */
@@ -157,7 +157,7 @@ public class Iso8601TimeInterval
       tmp = matcher.group(2);
       if(tmp != null)
       {
-        this.months = new Integer(tmp);
+        this.months = Integer.valueOf(tmp);
         months = this.months.intValue();
       }
 
@@ -166,7 +166,7 @@ public class Iso8601TimeInterval
       tmp = matcher.group(3);
       if(tmp != null)
       {
-        this.weeks = new Integer(tmp);
+        this.weeks = Integer.valueOf(tmp);
         weeks = this.weeks.intValue();
       }
 
@@ -175,7 +175,7 @@ public class Iso8601TimeInterval
       tmp = matcher.group(4);
       if(tmp != null)
       {
-        this.days = new Integer(tmp);
+        this.days = Integer.valueOf(tmp);
         days = this.days.intValue();
       }
 
@@ -184,7 +184,7 @@ public class Iso8601TimeInterval
       tmp = matcher.group(5);
       if(tmp != null)
       {
-        this.hours = new Integer(tmp);
+        this.hours = Integer.valueOf(tmp);
         hours = this.hours.intValue();
       }
 
@@ -193,7 +193,7 @@ public class Iso8601TimeInterval
       tmp = matcher.group(6);
       if(tmp != null)
       {
-        this.minutes = new Integer(tmp);
+        this.minutes = Integer.valueOf(tmp);
         minutes = this.minutes.intValue();
       }
 
@@ -202,7 +202,7 @@ public class Iso8601TimeInterval
       tmp = matcher.group(7);
       if(tmp != null)
       {
-        this.seconds = new Integer(tmp);
+        this.seconds = Integer.valueOf(tmp);
         seconds = this.seconds.intValue();
       }
 

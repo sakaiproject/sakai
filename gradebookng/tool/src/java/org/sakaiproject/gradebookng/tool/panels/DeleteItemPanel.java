@@ -64,9 +64,12 @@ public class DeleteItemPanel extends BasePanel {
 				final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentIdToDelete);
 				final String assignmentTitle = assignment.getName();
 
-				DeleteItemPanel.this.businessService.removeAssignment(currentGradebookUid, currentSiteId, assignmentIdToDelete);
-
-				getSession().success(MessageFormat.format(getString("delete.success"), assignmentTitle));
+				try {
+					DeleteItemPanel.this.businessService.removeAssignment(currentGradebookUid, currentSiteId, assignmentIdToDelete);
+					getSession().success(MessageFormat.format(getString("delete.success"), assignmentTitle));
+				} catch (org.sakaiproject.grading.api.AssessmentInUseException e) {
+					getSession().error(getString("delete.inUse"));
+				}
 				setResponsePage(GradebookPage.class);
 			}
 

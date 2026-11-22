@@ -792,11 +792,11 @@ public class ServiceServlet extends HttpServlet {
 				responsePayload = new DeleteResultResponse();
 				message = "Result deleted";
 			} else {
-				dGrade = new Double(result_resultscore_textstring);
+				dGrade = Double.valueOf(result_resultscore_textstring);
 				if ( dGrade < 0.0 || dGrade > 1.0 ) {
 					throw new Exception("Grade out of range");
 				}
-				dGrade = new Double(result_resultscore_textstring);
+				dGrade = Double.valueOf(result_resultscore_textstring);
 				retval = SakaiLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 				if ( retval instanceof String ) {
 					doErrorXML(request, response, pox, ERROR_OUTCOMES_FAIL, (String) retval, null);

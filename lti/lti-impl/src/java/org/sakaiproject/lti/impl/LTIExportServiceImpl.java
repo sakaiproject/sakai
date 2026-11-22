@@ -131,7 +131,7 @@ public class LTIExportServiceImpl implements LTIExportService {
 				String url = (String)content.get("launch");
 				if(StringUtils.isEmpty(url)) {
 					try {
-						url = (String)(ltiService.getTool(new Long(content.get(LTIService.LTI_TOOL_ID).toString()), siteId).get("launch"));
+						url = (String)(ltiService.getTool(Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString()), siteId).get("launch"));
 					} catch(Exception e) {
 						url = "-";
 					}

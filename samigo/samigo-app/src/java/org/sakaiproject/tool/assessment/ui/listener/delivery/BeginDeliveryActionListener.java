@@ -380,7 +380,7 @@ public class BeginDeliveryActionListener extends SpringBeanAutowiringSupport imp
     delivery.setBeginTime(null);
     delivery.setFeedbackOnDate(false);
 		ExtendedTimeDeliveryService extTimeService = null;
-		if (!delivery.isFromPrint()) {
+		if (!delivery.isFromPrint() && delivery.getActionMode() != DeliveryBean.PREVIEW_ASSESSMENT) {
 			extTimeService = new ExtendedTimeDeliveryService(delivery.getPublishedAssessment());
 		}
 		PublishedAssessmentFacade paFacade = delivery.getPublishedAssessment();

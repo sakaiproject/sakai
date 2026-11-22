@@ -279,7 +279,7 @@ public class HtmlNewspaperTableRenderer
         // span all the table's columns
         int totalColumns = newspaperTable.getNewspaperColumns() * tableColumns;
         if(newspaperTable.getSpacer() != null) totalColumns = totalColumns + getNewspaperColumns() - 1;
-        writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(totalColumns), null);
+        writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(totalColumns), null);
 
         // write the actual cell contents
         if(facet != null) RendererUtils.renderChild(facesContext, facet);

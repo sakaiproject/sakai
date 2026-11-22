@@ -796,7 +796,7 @@ public class QuestionPoolFacadeQueries
       qpp.setLastModifiedById(AgentFacade.getAgentString());
       int retryCount = persistenceHelper.getRetryCount();
       if (qpp.getQuestionPoolId() == null ||
-          qpp.getQuestionPoolId().equals(new Long("0"))) { // indicate a new pool
+          qpp.getQuestionPoolId().equals(Long.valueOf("0"))) { // indicate a new pool
         insert = true;
       }
       while (retryCount > 0){
@@ -1124,7 +1124,7 @@ public class QuestionPoolFacadeQueries
       Long questionPoolId = instance.add();
     }
     if (args[0].equals("getQPItems")) {
-      List items = instance.getAllItems(new Long(args[1])); // poolId
+      List items = instance.getAllItems(Long.valueOf(args[1])); // poolId
       for (int i = 0; i < items.size(); i++) {
         ItemData item = (ItemData) items.get(i);
       }
@@ -1491,7 +1491,7 @@ public class QuestionPoolFacadeQueries
   		  
   		  // Get remove child-parent relationship list
   		  Long poolIdRemoveParent = poolTransfer.getParentPoolId();
-  		  if (!poolIdRemoveParent.equals(new Long("0")) && !transferPoolIds.contains(poolIdRemoveParent)) {
+  		  if (!poolIdRemoveParent.equals(Long.valueOf("0")) && !transferPoolIds.contains(poolIdRemoveParent)) {
   			  needUpdatedPoolParentIdList.add(poolId);
   		  }
   	  }
@@ -1536,7 +1536,7 @@ public class QuestionPoolFacadeQueries
 	  for (QuestionPoolData pooldata : transferPoolsData) {
 		  Long poolId = pooldata.getQuestionPoolId();
 		  String title = pooldata.getTitle();
-		  boolean isUnique = poolIsUnique(poolId, title, new Long("0"), ownerId);
+		  boolean isUnique = poolIsUnique(poolId, title, Long.valueOf("0"), ownerId);
 		  if (!isUnique) {
 			  synchronized (title) {
 				  log.debug("Questionpool " + title + " is not unique.");
@@ -1547,7 +1547,7 @@ public class QuestionPoolFacadeQueries
 					  log.debug("renameDuplicate (title): " + title);
 					  
 					  // Recheck to confirm that new title is not a dplicate too
-					  isUnique = poolIsUnique(poolId, title, new Long("0"), ownerId);	      	  
+					  isUnique = poolIsUnique(poolId, title, Long.valueOf("0"), ownerId);	      	  
 					  if (count++ > 99) {
 						  break; // Exit condition in case bug is introduced
 					  }
@@ -1557,7 +1557,7 @@ public class QuestionPoolFacadeQueries
 			  pooldata.setTitle(title);
 			  pooldata.setOwnerId(ownerId);
               if (needUpdatedPoolParentIdList.contains(poolId)) {
-				  pooldata.setParentPoolId(new Long("0"));
+				  pooldata.setParentPoolId(Long.valueOf("0"));
 			  }
 			  updatePool(pooldata);
 		  }		  

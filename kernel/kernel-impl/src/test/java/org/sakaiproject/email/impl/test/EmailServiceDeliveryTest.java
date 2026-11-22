@@ -16,12 +16,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.activation.FileDataSource;
 import jakarta.mail.Multipart;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -136,6 +140,26 @@ public class EmailServiceDeliveryTest {
         assertEquals(HTML, parts.getBodyPart(0).getContent());
         assertArrayEquals(data, parts.getBodyPart(1).getInputStream().readAllBytes());
         assertEquals("meeting.bin", parts.getBodyPart(1).getFileName());
+    }
+
+    @Test
+    public void deliversAttachmentAfterSourceFileIsDeleted() throws Exception {
+        byte[] data = {0, 1, 2, 10, 13, 127, (byte) 255};
+        Path upload = Files.createTempFile("email-attachment-", ".bin");
+        try {
+            Files.write(upload, data);
+            EmailMessage message = message(TEXT);
+            // Feedback also uses a DataSource that opens its request-scoped upload file on demand.
+            message.addAttachment(new Attachment(new FileDataSource(upload.toFile())));
+            emailService.send(message, true);
+        } finally {
+            Files.delete(upload);
+        }
+
+        Multipart parts = (Multipart) receive(1).getContent();
+        try (InputStream input = parts.getBodyPart(1).getInputStream()) {
+            assertArrayEquals(data, input.readAllBytes());
+        }
     }
 
     @Test

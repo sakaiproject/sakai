@@ -232,6 +232,9 @@ public interface GradingService extends EntityProducer {
      */
     public void removeAssignment(Long assignmentId) throws StaleObjectModificationException;
 
+    /** Clears the destination Gradebook items for a replace-mode site import. */
+    void removeAssignmentsForSiteImport(String gradebookUid, String siteId);
+
     /**
      *
      * Get the categories for the given gradebook. This method cannot be used outside of the gradebook because it returns the

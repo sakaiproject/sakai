@@ -290,7 +290,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	// assessment based on that core. If we find one, we fix up the sakaiids, and we're ok.
 	if (o != null && ref.startsWith("/sam_core/")) {
 	    Object fields[] = new Object[1];
-	    fields[0] = new Long(ref.substring("/sam_core/".length()));
+	    fields[0] = Long.valueOf(ref.substring("/sam_core/".length()));
 
 	    // assessmentid is indexed, so this is a pretty lightweight query
 	    List <String> publishedIds = SqlService.dbRead("select ID from SAM_PUBLISHEDASSESSMENT_T where ASSESSMENTID=?", fields, null);

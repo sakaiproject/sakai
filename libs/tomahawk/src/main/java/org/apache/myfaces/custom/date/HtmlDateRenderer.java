@@ -355,7 +355,7 @@ public class HtmlDateRenderer extends HtmlRenderer
         String[] ampm_choices = symbols.getAmPmStrings();
         writer.write("\t\t");
         writer.startElement(HTML.OPTION_ELEM, uiComponent);
-        writer.writeAttribute(HTML.VALUE_ATTR, new Integer(calendar_ampm), null);
+        writer.writeAttribute(HTML.VALUE_ATTR, Integer.valueOf(calendar_ampm), null);
         if (calendar_ampm == selected)
             writer.writeAttribute(HTML.SELECTED_ATTR, HTML.SELECTED_ATTR, null);
         writer.writeText(ampm_choices[calendar_ampm], null);

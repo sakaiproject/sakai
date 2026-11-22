@@ -56,10 +56,12 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.AssessmentInUseException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.CategoryPointsMismatchException;
 import org.sakaiproject.grading.api.CategoryScoreData;
 import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
@@ -803,19 +805,46 @@ public class GradingServiceImpl implements GradingService {
         return transferAssignment;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void removeAssignment(Long assignmentId) throws StaleObjectModificationException {
-
         Optional<GradebookAssignment> optAsn = gradingPersistenceManager.getAssignmentById(assignmentId);
-        if (optAsn.isPresent()) {
-            optAsn.get().setRemoved(true);
-            Gradebook gradebook = optAsn.get().getGradebook();
-            gradingPersistenceManager.saveAssignment(optAsn.get());
-            log.info("GradebookAssignment {} has been removed from {}", optAsn.get().getName(), gradebook);
-        } else {
+        if (optAsn.isEmpty()) {
             log.warn("No assignment for id {}", assignmentId);
+            return;
         }
+
+        GradebookAssignment assignment = optAsn.get();
+        Assignment item = getAssignmentDefinition(assignment);
+        String gradebookUid = assignment.getGradebook().getUid();
+        if (getExternalAssignmentProviders().values().stream()
+                .anyMatch(provider -> provider.isGradebookItemInUse(gradebookUid, item))) {
+            throw new AssessmentInUseException("Gradebook item is in use: " + assignmentId);
+        }
+        markAssignmentRemoved(assignment);
+    }
+
+    @Override
+    @Transactional
+    public void removeAssignmentsForSiteImport(String gradebookUid, String siteId) {
+        if (!gradingAuthz.isUserAbleToEditAssessments(siteId)) {
+            throw new GradingSecurityException();
+        }
+        if (!Objects.equals(gradebookUid, siteId)) {
+            Group group = siteService.findGroup(gradebookUid);
+            if (group == null || !Objects.equals(group.getContainingSite().getId(), siteId)) {
+                throw new GradingSecurityException();
+            }
+        }
+
+        // Gradebook replacement runs before the destination Assignments are replaced.
+        Gradebook gradebook = getGradebook(gradebookUid, siteId);
+        getAssignments(gradebook.getId()).forEach(this::markAssignmentRemoved);
+    }
+
+    private void markAssignmentRemoved(GradebookAssignment assignment) {
+        assignment.setRemoved(true);
+        gradingPersistenceManager.saveAssignment(assignment);
+        log.info("GradebookAssignment {} has been removed from {}", assignment.getName(), assignment.getGradebook());
     }
 
     @Override
@@ -1129,9 +1158,9 @@ public class GradingServiceImpl implements GradingService {
         if (gradeRecs == null || countedAssigns == null) {
             log.debug("getTotalPointsEarnedInternal for studentId={} returning 0 because null gradeRecs or countedAssigns", studentId);
             List<Double> returnList = new ArrayList<>();
-            returnList.add(new Double(0));
-            returnList.add(new Double(0));
-            returnList.add(new Double(0)); // 3rd one is for the pre-adjusted course grade
+            returnList.add(Double.valueOf(0));
+            returnList.add(Double.valueOf(0));
+            returnList.add(Double.valueOf(0)); // 3rd one is for the pre-adjusted course grade
             return returnList;
         }
 
@@ -2857,7 +2886,7 @@ public class GradingServiceImpl implements GradingService {
         Double score = null;
         if ( scoreStr != null ) {
             try {
-                score = new Double(scoreStr);
+                score = Double.valueOf(scoreStr);
             } catch (Exception e) {
                 log.debug("Could not parse score as number studentId={} score={}", studentId, scoreStr);
                 return;
@@ -4443,8 +4472,7 @@ public class GradingServiceImpl implements GradingService {
         if (category.isDropScores() && !category.getEqualWeightAssignments()) {
             for (GradebookAssignment peer : getAssignmentsForCategory(categoryId)) {
                 if (!Objects.equals(peer.getId(), assignmentId) && !Objects.equals(peer.getPointsPossible(), points)) {
-                    throw new InvalidCategoryException("Assignment points must match the selected Gradebook category ("
-                            + peer.getPointsPossible() + ")");
+                    throw new CategoryPointsMismatchException(peer.getPointsPossible());
                 }
             }
         }
@@ -5055,8 +5083,8 @@ public class GradingServiceImpl implements GradingService {
     private GradebookAssignment getAssignmentWithoutStats(String gradebookUid, String assignmentName) {
         // Check if assignmentName is really an assignmentId. If not get assignment by assignmentName (i.e., title).
         if (NumberUtils.isCreatable(assignmentName)) {
-            final Long assignmentId = new Long(NumberUtils.toLong(assignmentName));
-            return getAssignmentWithoutStatsByID(gradebookUid, new Long(assignmentId));
+            final Long assignmentId = Long.valueOf(NumberUtils.toLong(assignmentName));
+            return getAssignmentWithoutStatsByID(gradebookUid, Long.valueOf(assignmentId));
         }
         return gradingPersistenceManager.getAssignmentByNameAndGradebook(assignmentName, gradebookUid).orElse(null);
     }
@@ -5727,7 +5755,7 @@ public class GradingServiceImpl implements GradingService {
 
         // Avoid dividing by zero
         if (pointsEarned.compareTo(BigDecimal.ZERO) == 0 || pointsPossible.compareTo(BigDecimal.ZERO) == 0) {
-            return new Double(0);
+            return Double.valueOf(0);
         }
 
         final BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradingConstants.MATH_CONTEXT).multiply(new BigDecimal("100"));

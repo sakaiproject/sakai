@@ -535,6 +535,12 @@ public class SiteService
 		return service.merge(param0, param1, param2);
 	}
 
+    public static org.sakaiproject.site.api.Group copyGroup(
+            org.sakaiproject.site.api.Group source, org.sakaiproject.site.api.Site destination)
+    {
+        return getInstance().copyGroup(source, destination);
+    }
+
 	public static org.sakaiproject.site.api.Group findGroup(java.lang.String param0)
 	{
 		org.sakaiproject.site.api.SiteService service = getInstance();

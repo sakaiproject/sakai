@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.APIResponse;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
@@ -86,7 +87,19 @@ class AuthnPortalTest extends SakaiUiTestBase {
     @CsvSource({"/authn/,false", "/authn/login,false", "/authn/login,true"})
     void loginPreservesReturnDestination(String path, boolean relative) {
         String username = sakai.resolveUsername(USERNAME);
-        String returnUrl = URI.create(SakaiEnvironment.baseUrl()).resolve("/portal/site/~" + username).toString();
+        sakai.login(username);
+        sakai.gotoPath(sakai.createCourse(username, List.of()));
+        sakai.toolClick("Site Info");
+        Locator courseTitle = page.locator("main#content").getByRole(AriaRole.ROW)
+            .filter(new Locator.FilterOptions().setHas(
+                page.getByText("Site Title", new Page.GetByTextOptions().setExact(true))))
+            .getByRole(AriaRole.CELL);
+        assertThat(courseTitle).isVisible();
+        String expectedTitle = courseTitle.innerText();
+        String returnUrl = page.url();
+
+        page.navigate("about:blank");
+        context.clearCookies();
         String destination = relative ? URI.create(returnUrl).getRawPath() : returnUrl;
         Response response = page.navigate(path + "?url=" + URLEncoder.encode(destination, StandardCharsets.UTF_8));
         assertEquals(200, response.status());
@@ -95,9 +108,9 @@ class AuthnPortalTest extends SakaiUiTestBase {
         page.locator("input[name=\"pw\"]").fill(sakai.passwordFor(username));
         page.locator("input[name=\"pw\"]").press("Enter");
 
-        assertThat(page).hasURL(returnUrl);
-        assertThat(page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName("Home").setExact(true)).first()).isVisible();
+        assertThat(page.locator("main#content").getByRole(AriaRole.HEADING,
+            new Locator.GetByRoleOptions().setName("Site Information").setExact(true))).isVisible();
+        assertThat(courseTitle).hasText(expectedTitle);
     }
 
     static Stream<Arguments> untrustedReturnDestinations() {

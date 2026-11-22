@@ -18,6 +18,7 @@
 package org.sakaiproject.tool.assessment.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
  * the cutoff move to the cutoff (due date or late-submission deadline), the end
  * date keeps the original window when possible, and feedback is removed entirely
  * when no cutoff exists because the assessment has no due date.</p>
+ *
+ * <p>When exception (extended time) due/retract dates are supplied, the effective
+ * cutoff for ordering checks is the latest among the assessment cutoff and each
+ * exception cutoff. Exception retract dates count even without assessment late
+ * handling. Scheduled feedback still requires an assessment due date of its own;
+ * an exception cutoff cannot substitute for a missing assessment due date.</p>
  */
 public final class AssessmentFeedbackDateRules {
 
@@ -84,10 +91,22 @@ public final class AssessmentFeedbackDateRules {
     }
   }
 
+  @Getter
+  @RequiredArgsConstructor
+  public static final class DueRetract {
+    private final Date dueDate;
+    private final Date retractDate;
+  }
+
   private AssessmentFeedbackDateRules() {
   }
 
   public static List<Violation> validate(Date dueDate, Date retractDate, Integer lateHandling, Date feedbackStartDate, Date feedbackEndDate) {
+    return validate(dueDate, retractDate, lateHandling, feedbackStartDate, feedbackEndDate, null);
+  }
+
+  public static List<Violation> validate(Date dueDate, Date retractDate, Integer lateHandling, Date feedbackStartDate,
+      Date feedbackEndDate, Collection<DueRetract> exceptionDates) {
     List<Violation> violations = new ArrayList<>();
 
     if (feedbackStartDate != null && feedbackEndDate != null && feedbackStartDate.after(feedbackEndDate)) {
@@ -95,14 +114,15 @@ public final class AssessmentFeedbackDateRules {
     }
 
     boolean hasFeedbackDate = feedbackStartDate != null || feedbackEndDate != null;
-    Date cutoffDate = getFeedbackCutoffDate(dueDate, retractDate, lateHandling);
-    if (cutoffDate == null) {
+    Date assessmentCutoffDate = singleFeedbackCutoffDate(dueDate, retractDate, lateHandling);
+    if (assessmentCutoffDate == null) {
       if (hasFeedbackDate) {
         violations.add(violation(Error.MISSING_DUE_DATE));
       }
       return violations;
     }
 
+    Date cutoffDate = getFeedbackCutoffDate(dueDate, retractDate, lateHandling, exceptionDates);
     if (feedbackStartDate != null && feedbackStartDate.before(cutoffDate)) {
       violations.add(violation(Error.FEEDBACK_START_BEFORE_DUE_DATE));
     }
@@ -115,15 +135,39 @@ public final class AssessmentFeedbackDateRules {
   }
 
   public static Date getFeedbackCutoffDate(Date dueDate, Date retractDate, Integer lateHandling) {
-    if (dueDate == null) {
-      return null;
+    return getFeedbackCutoffDate(dueDate, retractDate, lateHandling, null);
+  }
+
+  public static Date getFeedbackCutoffDate(Date dueDate, Date retractDate, Integer lateHandling,
+      Collection<DueRetract> exceptionDates) {
+    Date cutoffDate = singleFeedbackCutoffDate(dueDate, retractDate, lateHandling);
+    if (exceptionDates == null) {
+      return cutoffDate;
     }
 
-    if (AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(lateHandling) && retractDate != null && retractDate.after(dueDate)) {
-      return retractDate;
+    for (DueRetract exceptionDate : exceptionDates) {
+      if (exceptionDate == null) {
+        continue;
+      }
+      Date exceptionCutoff = exceptionFeedbackCutoffDate(exceptionDate.getDueDate(), exceptionDate.getRetractDate());
+      if (exceptionCutoff != null && (cutoffDate == null || exceptionCutoff.after(cutoffDate))) {
+        cutoffDate = exceptionCutoff;
+      }
     }
 
-    return dueDate;
+    return cutoffDate;
+  }
+
+  /**
+   * True when an exception's effective cutoff is after the Show Feedback Date.
+   */
+  public static boolean isExceptionCutoffAfterFeedbackDate(Date exceptionDueDate, Date exceptionRetractDate, Date feedbackStartDate) {
+    if (feedbackStartDate == null) {
+      return false;
+    }
+
+    Date exceptionCutoff = exceptionFeedbackCutoffDate(exceptionDueDate, exceptionRetractDate);
+    return exceptionCutoff != null && exceptionCutoff.after(feedbackStartDate);
   }
 
   public static ImportNormalization normalizeForImport(Date dueDate, Date retractDate, Integer lateHandling,
@@ -139,6 +183,31 @@ public final class AssessmentFeedbackDateRules {
 
     Date normalizedEndDate = normalizeImportedFeedbackEndDate(cutoffDate, feedbackStartDate, feedbackEndDate);
     return ImportNormalization.apply(cutoffDate, normalizedEndDate);
+  }
+
+  private static Date singleFeedbackCutoffDate(Date dueDate, Date retractDate, Integer lateHandling) {
+    if (dueDate == null) {
+      return null;
+    }
+
+    if (AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(lateHandling) && retractDate != null
+        && retractDate.after(dueDate)) {
+      return retractDate;
+    }
+
+    return dueDate;
+  }
+
+  private static Date exceptionFeedbackCutoffDate(Date dueDate, Date retractDate) {
+    if (dueDate == null) {
+      return retractDate;
+    }
+
+    if (retractDate != null && retractDate.after(dueDate)) {
+      return retractDate;
+    }
+
+    return dueDate;
   }
 
   private static Date normalizeImportedFeedbackEndDate(Date cutoffDate, Date feedbackStartDate, Date feedbackEndDate) {

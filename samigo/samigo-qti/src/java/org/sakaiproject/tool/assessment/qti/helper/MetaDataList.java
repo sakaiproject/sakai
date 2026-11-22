@@ -126,10 +126,10 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
       {
         value = st.nextToken().trim();
         if (key.equalsIgnoreCase("TIMEALLOWED")){
-        	item.setDuration(new Integer(value));
+        	item.setDuration(Integer.valueOf(value));
         }
         else if (key.equalsIgnoreCase("NUM_OF_ATTEMPTS")){
-        	item.setTriesAllowed(new Integer(value));
+        	item.setTriesAllowed(Integer.valueOf(value));
         	
         }
   /*

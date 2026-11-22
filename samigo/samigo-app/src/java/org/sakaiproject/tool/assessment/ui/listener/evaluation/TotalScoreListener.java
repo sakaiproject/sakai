@@ -625,7 +625,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
     		   // If the student took the assessment, then provide a view of their proctoring (if available)
     		  if (StringUtils.isNotBlank(moduleId)) {
-    			  results.setAlternativeInstructorReviewUrl( secureDelivery.getInstructorReviewUrl(moduleId, new Long(p.getPublishedAssessmentId()), gdata.getAgentId()).orElse("") );
+    			  results.setAlternativeInstructorReviewUrl( secureDelivery.getInstructorReviewUrl(moduleId, Long.valueOf(p.getPublishedAssessmentId()), gdata.getAgentId()).orElse("") );
     		  }
     		  
     	  }

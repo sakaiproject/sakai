@@ -194,7 +194,7 @@ public class TotalScoreUpdateListener
   		  
         if (update){
         	log.debug("update is true");
-        	Double newScore = new Double(0d);
+        	Double newScore = Double.valueOf(0d);
         	AssessmentGradingData data = new AssessmentGradingData();
         	try {
         		if (!agentResults.getAssessmentGradingId().equals(Long.valueOf(-1)) ) {

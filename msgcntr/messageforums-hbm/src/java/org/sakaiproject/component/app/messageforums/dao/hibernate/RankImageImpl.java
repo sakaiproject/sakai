@@ -103,7 +103,7 @@ public class RankImageImpl extends MutableEntityImpl implements RankImage {
 	}
 
 	public long getAttachmentSizeInKB() {
-		 long sizeInBytes = new Long(this.attachmentSize);
+		 long sizeInBytes = Long.valueOf(this.attachmentSize);
 		 return ((sizeInBytes - 1) / 1024) + 1;
 		 
 	}

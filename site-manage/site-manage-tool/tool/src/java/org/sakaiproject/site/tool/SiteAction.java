@@ -6608,6 +6608,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		toolGroup.put(defaultGroupName, combinedList);
 	}
 	
+	// Show Dashboard first while preserving the order of the remaining tools.
+	for (List<MyTool> tools : toolGroup.values()) {
+		tools.sort(Comparator.comparing(tool -> !"sakai.dashboard".equals(tool.getId())));
+	}
+
 	if (checkHome) {
 		// Home page should be auto-selected
 		state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.TRUE);
@@ -6745,7 +6750,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 			}
 		}
-		log.debug(groupName + ": loaded " + new Integer(toolsInGroup.size()).toString() + " tools");
+		log.debug(groupName + ": loaded " + Integer.valueOf(toolsInGroup.size()).toString() + " tools");
 		return toolsInGroup;
 		
 	}
@@ -10594,7 +10599,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 												ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
 												resourceProperties.addProperty(
 														ResourceProperties.PROP_COLLECTION_BODY_QUOTA,
-														new Long(oldSiteQuota)
+														Long.valueOf(oldSiteQuota)
 																.toString());
 												contentHostingService.commitCollection(col);
 

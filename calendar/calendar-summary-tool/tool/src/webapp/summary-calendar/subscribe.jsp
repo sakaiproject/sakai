@@ -18,11 +18,7 @@
 	
 	<%/* We render the URL(s) itself around about here... */%>
 	<h:panelGroup rendered="#{SubscribeBean.opaqueUrlExists}">
-		<sakai:instruction_message value="#{msgs.ical_opaqueurl_webcal}"/>
-		<h:outputLink value="#{SubscribeBean.url.webcalForm}" target="_new_">
-			<h:outputText value="#{SubscribeBean.url.webcalForm}" />
-		</h:outputLink>
-		<sakai:instruction_message value="#{msgs.ical_opaqueurl_http}"/>
+		<sakai:instruction_message value="#{msgs.ical_opaqueurl_subscription}"/>
 		<h:outputLink value="#{SubscribeBean.url.httpForm}" target="_new_">
 			<h:outputText value="#{SubscribeBean.url.httpForm}" />
 		</h:outputLink>	

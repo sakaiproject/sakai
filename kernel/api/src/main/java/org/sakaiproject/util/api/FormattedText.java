@@ -237,6 +237,13 @@ public interface FormattedText {
     public String encodeUnicode(String value);
 
     /**
+     * Remove supplementary Unicode characters from plain text when the database uses utf8mb3.
+     * Unlike formatted-text cleaning, this does not encode characters as HTML entities.
+     * Returns the original value (including null) when filtering is unnecessary.
+     */
+    public String stripUnsupportedCharacters(String value);
+
+    /**
      * For converting plain-text URLs in a String to HTML &lt;a&gt; tags
      * Any URLs in the source text that happen to be already in a &lt;a&gt; tag will be unaffected.
      * 

@@ -37,13 +37,9 @@ class PreferencesTest extends SakaiUiTestBase {
     void userCanSaveATimeZoneAndReadItInANewSession() {
         try (TestUser user = sakai.createUser("timezone")) {
             String username = user.username();
-            openUserTimeZone(username);
-            Locator timeZones = page.locator("[id='timezone_form'] select");
             String selected = "Europe/Paris";
-            timeZones.selectOption(selected);
-            page.locator("[id='timezone_form:submit']").click();
-            assertThat(page.getByText("Your preferences have been updated successfully.",
-                    new Page.GetByTextOptions().setExact(true))).isVisible();
+            sakai.login(username);
+            sakai.setUserTimeZone(username, selected);
             openUserTimeZone(username);
             assertThat(page.locator("[id='timezone_form'] select")).hasValue(selected);
         }

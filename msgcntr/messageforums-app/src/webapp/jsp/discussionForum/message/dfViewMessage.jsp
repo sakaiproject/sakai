@@ -115,7 +115,7 @@
 			<h:panelGroup layout="block" styleClass="topicBloc">
 				<h:panelGroup layout="block" styleClass="textPanel">
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.availability == 'false'}">
-						<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
+						<span class="bi bi-calendar-week" aria-hidden="true" style="margin-right:.5em"></span>
 					</h:panelGroup>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.locked =='true'}">
 						<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>

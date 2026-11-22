@@ -439,10 +439,10 @@ public class LTIServiceImpl implements LTIService {
 		Object oToolId = (Object) foorm.getField(newProps, LTI_TOOL_ID);
 		Long newToolKey = null;
 		if ( oToolId != null && oToolId instanceof Number ) {
-			newToolKey = new Long( ((Number) oToolId).longValue());
+			newToolKey = Long.valueOf( ((Number) oToolId).longValue());
 		} else if ( oToolId != null ) {
 			try {
-				newToolKey = new Long((String) oToolId);
+				newToolKey = Long.valueOf((String) oToolId);
 			} catch (Exception e) {
 				return rb.getString("error.invalid.toolid");
 			}
@@ -458,7 +458,7 @@ public class LTIServiceImpl implements LTIService {
 		// If the user is not an admin, they cannot switch to
 		// a tool that is stealthed
 		Long visible = LTIUtil.toLongNull(tool.get(LTI_VISIBLE));
-		if ( visible == null ) visible = new Long(0);
+		if ( visible == null ) visible = Long.valueOf(0);
 		if ( ( !isAdminRole ) && ( oldToolKey == null || ! oldToolKey.equals(newToolKey) )  ) {
 			// Tool is stealthed and not deployed to the site.
 			if ( visible == 1 && !toolDeployed(newToolKey, siteId)) {
@@ -494,7 +494,7 @@ public class LTIServiceImpl implements LTIService {
 	private static int getInt(Object o) {
 		if (o instanceof String) {
 			try {
-				return new Integer((String) o);
+				return Integer.valueOf((String) o);
 			} catch (Exception e) {
 				return -1;
 			}
@@ -518,7 +518,7 @@ public class LTIServiceImpl implements LTIService {
 			frameHeight = toolHeight;
 		if (contentHeight > 0)
 			frameHeight = contentHeight;
-		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(frameHeight));
+		content.put(LTIService.LTI_FRAMEHEIGHT, Integer.valueOf(frameHeight));
 
 		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
 		if ( debug == 2 ) debug = getInt(content.get(LTIService.LTI_DEBUG));
@@ -1045,7 +1045,7 @@ public class LTIServiceImpl implements LTIService {
 			return rb.getString("error.missing.toolid");
 		Long toolKey = null;
 		try {
-			toolKey = new Long(toolId);
+			toolKey = Long.valueOf(toolId);
 		} catch (Exception e) {
 			return rb.getString("error.invalid.toolid");
 		}
@@ -1059,7 +1059,7 @@ public class LTIServiceImpl implements LTIService {
 		}
 
 		Long visible = LTIUtil.toLongNull(tool.get(LTI_VISIBLE));
-		if ( visible == null ) visible = new Long(0);
+		if ( visible == null ) visible = Long.valueOf(0);
 		if ( ! isAdminRole ) {
 			// Tool is stealthed and not deployed to the site.
 			if ( visible == 1 && !toolDeployed(toolKey, siteId)) {
@@ -1240,7 +1240,7 @@ public class LTIServiceImpl implements LTIService {
 		String returnUrl = reqProps.getProperty("returnUrl");
 
 		Long contentKey = null;
-		Long toolKey = new Long(toolId);
+		Long toolKey = Long.valueOf(toolId);
 		Map<String,Object> tool = getTool(toolKey, siteId, isAdminRole);
 		if ( tool == null ) {
 			retval = rb.getString("error.tool.not.found");
@@ -1291,7 +1291,7 @@ public class LTIServiceImpl implements LTIService {
 			// insertContentDao checks to make sure that the TOOL_ID in reqProps is suitable
 			retval = insertContent(reqProps, siteId, isAdminRole, isMaintainRole);
 		} else {
-			contentKey = new Long(id);
+			contentKey = Long.valueOf(id);
 			if ( returnUrl != null ) {
 				if ( LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_SECRET)) &&
 						LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_CONSUMERKEY)) ) {
@@ -1334,7 +1334,7 @@ public class LTIServiceImpl implements LTIService {
 			return retval;
 		}
 
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 		Map<String,Object> content = getContent(key, siteId, isAdminRole);
 		if ( content == null ) {
 			retval = new String("1" + rb.getString("error.content.not.found"));
@@ -1413,7 +1413,7 @@ public class LTIServiceImpl implements LTIService {
 	{
 		if ( ! isMaintain(siteId) ) {
 			log.error("Must be maintain to transferToolContentLinks {}", siteId);
-			return new Long(0);
+			return Long.valueOf(0);
 		}
 
 		// Make sure the current user can retrieve both the source and destination URLs.

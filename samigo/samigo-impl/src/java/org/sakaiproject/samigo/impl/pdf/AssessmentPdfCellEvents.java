@@ -16,6 +16,7 @@
 package org.sakaiproject.samigo.impl.pdf;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.lowagie.text.Element;
@@ -113,7 +114,27 @@ public final class AssessmentPdfCellEvents {
      * Overlays image-map answer regions and markers on a PDF cell.
      */
     public static class ImageMapQuestionCellEvent implements PdfPCellEvent {
+        private static final float AREA_FILL_OPACITY = 0.18f;
+        private static final float AREA_HALO_WIDTH = 3.5f;
+        private static final float AREA_LINE_WIDTH = 1.2f;
+        private static final float MARKER_RADIUS = 4.2f;
+        private static final float MARKER_DOT_RADIUS = 1.4f;
+        private static final float MARKER_LINE_WIDTH = 1.2f;
+        private static final float LABEL_FONT_SIZE = 8f;
+        private static final float LABEL_PADDING_X = 2.5f;
+        private static final float LABEL_PADDING_Y = 1.8f;
+        private static final float LABEL_ICON_SIZE = 4f;
+        private static final float LABEL_ICON_GAP = 2f;
+        private static final float LABEL_BORDER_WIDTH = 0.8f;
+        private static final float LEADER_HALO_WIDTH = 3f;
+        private static final float LEADER_LINE_WIDTH = 0.8f;
+
+        private static final Color AREA_COLOR = AssessmentPdfStyle.TEXT_LINK;
+        private static final Color MARKER_COLOR = AssessmentPdfStyle.TEXT_PRIMARY;
+        private static final Color LEADER_COLOR = AssessmentPdfStyle.TEXT_SECONDARY;
+
         private final List<Rectangle> answerRectangles;
+        private final List<Integer> answerRectangleIndexes;
         private final List<ImageMapCircle> answerCircles;
         private final float originalWidth;
         private final float originalHeight;
@@ -128,9 +149,11 @@ public final class AssessmentPdfCellEvents {
          * @param drawnHeight    height the image actually occupies on the page after scaling
          */
         public ImageMapQuestionCellEvent(List<ImageMapCircle> answerCircles, List<Rectangle> answerRectangles,
-                float originalWidth, float originalHeight, float drawnWidth, float drawnHeight) {
+                List<Integer> answerRectangleIndexes, float originalWidth, float originalHeight, float drawnWidth,
+                float drawnHeight) {
             this.answerCircles = answerCircles;
             this.answerRectangles = answerRectangles;
+            this.answerRectangleIndexes = answerRectangleIndexes;
             this.originalWidth = originalWidth;
             this.originalHeight = originalHeight;
             this.drawnWidth = drawnWidth;
@@ -139,6 +162,10 @@ public final class AssessmentPdfCellEvents {
 
         public List<Rectangle> getAnswerRectangles() {
             return answerRectangles;
+        }
+
+        public List<Integer> getAnswerRectangleIndexes() {
+            return answerRectangleIndexes;
         }
 
         public List<ImageMapCircle> getAnswerCircles() {
@@ -159,84 +186,257 @@ public final class AssessmentPdfCellEvents {
 
             float scaleX = drawnWidth / originalWidth;
             float scaleY = drawnHeight / originalHeight;
-            for (Rectangle answerRectangle : answerRectangles) {
-                PdfGState transparentState = new PdfGState();
-                transparentState.setFillOpacity(0.65f);
-                transparentState.setStrokeOpacity(1f);
-                float transformedX = x + answerRectangle.getLeft() * scaleX;
-                float transformedY = y + drawnHeight - answerRectangle.getTop() * scaleY;
-                float transformedW = answerRectangle.getWidth() * scaleX;
-                float transformedH = answerRectangle.getHeight() * scaleY;
-                canvas.rectangle(transformedX, transformedY, transformedW, transformedH);
-                canvas.setColorFill(Color.BLUE);
-                canvas.setColorStroke(Color.BLACK);
-                canvas.setGState(transparentState);
-            }
-            canvas.fillStroke();
-            canvas.fill();
+            Rectangle imageBounds = new Rectangle(x, y, x + drawnWidth, y + drawnHeight);
 
-            float radius = 3f;
-            for (ImageMapCircle answerCircle : answerCircles) {
-                PdfGState transparentState = new PdfGState();
-                transparentState.setFillOpacity(0.3f);
-                transparentState.setStrokeOpacity(0.8f);
-                float transformedX = x + answerCircle.getX() * scaleX;
-                float transformedY = y + drawnHeight - answerCircle.getY() * scaleY;
-                if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
-                    canvas.circle(transformedX, transformedY, radius);
-                    canvas.setGState(transparentState);
-                    canvas.circle(transformedX, transformedY, 0.3f);
-                    canvas.setColorFill(Color.YELLOW);
-                    canvas.setColorStroke(Color.YELLOW);
+            List<RegionBox> regionBoxes = transformedRegions(x, y, scaleX, scaleY);
+            List<Marker> markers = transformedMarkers(x, y, scaleX, scaleY);
+
+            drawRegions(canvas, regionBoxes);
+            drawMarkers(canvas, markers);
+            drawLabels(canvas, regionBoxes, markers, imageBounds);
+            resetGraphicsState(canvas);
+        }
+
+        private List<RegionBox> transformedRegions(float x, float y, float scaleX, float scaleY) {
+            List<RegionBox> boxes = new ArrayList<>();
+            for (int i = 0; i < answerRectangles.size(); i++) {
+                Rectangle region = answerRectangles.get(i);
+                float left = x + region.getLeft() * scaleX;
+                float right = x + region.getRight() * scaleX;
+                float bottom = y + drawnHeight - region.getTop() * scaleY;
+                float top = y + drawnHeight - region.getBottom() * scaleY;
+                if (right > left && top > bottom) {
+                    int areaIndex = answerRectangleIndexes != null && i < answerRectangleIndexes.size()
+                            ? answerRectangleIndexes.get(i)
+                            : i + 1;
+                    boxes.add(new RegionBox(new Rectangle(left, bottom, right, top), areaIndex));
                 }
             }
-            canvas.fillStroke();
-            canvas.fill();
+            return boxes;
+        }
 
-            int questionIndex = 1;
-            for (Rectangle answerRectangle : answerRectangles) {
-                PdfGState transparentState = new PdfGState();
-                transparentState.setFillOpacity(1f);
-                transparentState.setStrokeOpacity(1f);
-                float transformedX = x + answerRectangle.getLeft() * scaleX;
-                float transformedY = y + drawnHeight - answerRectangle.getTop() * scaleY;
-                float transformedW = answerRectangle.getWidth() * scaleX;
-                canvas.setGState(transparentState);
-                try {
-                    canvas.beginText();
-                    canvas.setColorFill(Color.BLUE);
-                    canvas.setFontAndSize(BaseFont.createFont(), 9);
-                    canvas.showTextAligned(Element.ALIGN_LEFT, String.valueOf(questionIndex), transformedX + transformedW + 1, transformedY, 0);
-                    canvas.endText();
-                    questionIndex++;
-                } catch (Exception ex) {
-                    log.error("Cannot write the number of the ImageMap.", ex);
+        private List<Marker> transformedMarkers(float x, float y, float scaleX, float scaleY) {
+            List<Marker> markers = new ArrayList<>();
+            for (ImageMapCircle circle : answerCircles) {
+                if (circle.getX() == 0f || circle.getY() == 0f) {
+                    continue;
                 }
+                float markerX = x + circle.getX() * scaleX;
+                float markerY = y + drawnHeight - circle.getY() * scaleY;
+                markers.add(new Marker(markerX, markerY, circle.getSequence()));
             }
+            return markers;
+        }
 
-            for (ImageMapCircle answerCircle : answerCircles) {
-                float transformedX = x + answerCircle.getX() * scaleX;
-                float transformedY = y + drawnHeight - answerCircle.getY() * scaleY;
-                if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
-                    try {
-                        canvas.beginText();
-                        canvas.setColorFill(Color.YELLOW);
-                        canvas.setFontAndSize(BaseFont.createFont(), 9);
-                        canvas.showTextAligned(Element.ALIGN_LEFT, String.valueOf(answerCircle.getSequence()), transformedX + 4, transformedY - 3, 0);
-                        canvas.endText();
-                        canvas.fill();
-                    } catch (Exception ex) {
-                        log.error("Cannot write the number of the ImageMap.", ex);
+        private static void drawRegions(PdfContentByte canvas, List<RegionBox> regionBoxes) {
+            for (RegionBox regionBox : regionBoxes) {
+                Rectangle region = regionBox.getBox();
+                canvas.saveState();
+                PdfGState fillState = new PdfGState();
+                fillState.setFillOpacity(AREA_FILL_OPACITY);
+                canvas.setGState(fillState);
+                canvas.setColorFill(AREA_COLOR);
+                addRectangle(canvas, region);
+                canvas.fill();
+                canvas.restoreState();
+
+                // White halo first so the outline stays visible on dark or busy images, then a
+                // thinner coloured line on top of it.
+                canvas.setLineWidth(AREA_HALO_WIDTH);
+                canvas.setColorStroke(Color.WHITE);
+                addRectangle(canvas, region);
+                canvas.stroke();
+                canvas.setLineWidth(AREA_LINE_WIDTH);
+                canvas.setColorStroke(AREA_COLOR);
+                addRectangle(canvas, region);
+                canvas.stroke();
+            }
+        }
+
+        private static void drawMarkers(PdfContentByte canvas, List<Marker> markers) {
+            for (Marker marker : markers) {
+                // White disc with dark border and centre dot stays readable on any image colour.
+                canvas.setColorFill(Color.WHITE);
+                canvas.circle(marker.getX(), marker.getY(), MARKER_RADIUS);
+                canvas.fill();
+                canvas.setLineWidth(MARKER_LINE_WIDTH);
+                canvas.setColorStroke(MARKER_COLOR);
+                canvas.circle(marker.getX(), marker.getY(), MARKER_RADIUS);
+                canvas.stroke();
+                canvas.setColorFill(MARKER_COLOR);
+                canvas.circle(marker.getX(), marker.getY(), MARKER_DOT_RADIUS);
+                canvas.fill();
+            }
+        }
+
+        private void drawLabels(PdfContentByte canvas, List<RegionBox> regionBoxes, List<Marker> markers,
+                Rectangle imageBounds) {
+            try {
+                BaseFont font = BaseFont.createFont();
+                List<ImageMapLabelLayout.Label> labels = new ArrayList<>();
+                List<Rectangle> obstacles = new ArrayList<>();
+
+                for (RegionBox regionBox : regionBoxes) {
+                    Rectangle region = regionBox.getBox();
+                    float centerX = (region.getLeft() + region.getRight()) / 2f;
+                    float centerY = (region.getBottom() + region.getTop()) / 2f;
+                    obstacles.add(anchorBox(centerX, centerY, 2.5f));
+                    labels.add(newLabel(String.valueOf(regionBox.getAreaIndex()), centerX, centerY, font, true));
+                }
+                for (Marker marker : markers) {
+                    obstacles.add(anchorBox(marker.getX(), marker.getY(), MARKER_RADIUS + 1f));
+                    labels.add(newLabel(String.valueOf(marker.getSequence()), marker.getX(), marker.getY(), font, false));
+                }
+
+                List<ImageMapLabelLayout.Placement> placements =
+                        ImageMapLabelLayout.place(labels, obstacles, imageBounds);
+                // Leader lines first so no line is ever drawn over a previously painted badge.
+                for (ImageMapLabelLayout.Placement placement : placements) {
+                    if (placement.isLeaderLineVisible()) {
+                        drawLeaderLine(canvas, placement);
                     }
                 }
+                for (ImageMapLabelLayout.Placement placement : placements) {
+                    drawBadge(canvas, font, placement);
+                }
+            } catch (Exception ex) {
+                log.error("Cannot write the number of the ImageMap.", ex);
+            }
+        }
+
+        private static ImageMapLabelLayout.Label newLabel(String text, float anchorX, float anchorY, BaseFont font,
+                boolean areaLabel) {
+            float textWidth = font.getWidthPoint(text, LABEL_FONT_SIZE);
+            float width = LABEL_PADDING_X * 2f + LABEL_ICON_SIZE + LABEL_ICON_GAP + textWidth;
+            float height = Math.max(LABEL_FONT_SIZE, LABEL_ICON_SIZE) + LABEL_PADDING_Y * 2f;
+            float clearance = areaLabel ? 1f : MARKER_RADIUS + 0.8f;
+            return new ImageMapLabelLayout.Label(text, anchorX, anchorY, width, height, areaLabel, clearance);
+        }
+
+        private static void drawLeaderLine(PdfContentByte canvas, ImageMapLabelLayout.Placement placement) {
+            ImageMapLabelLayout.Label label = placement.getLabel();
+            Rectangle box = placement.getBox();
+            float endX = Math.min(Math.max(label.getAnchorX(), box.getLeft()), box.getRight());
+            float endY = Math.min(Math.max(label.getAnchorY(), box.getBottom()), box.getTop());
+            float dx = endX - label.getAnchorX();
+            float dy = endY - label.getAnchorY();
+            if (dx * dx + dy * dy < 1f) {
+                return;
+            }
+            canvas.setLineWidth(LEADER_HALO_WIDTH);
+            canvas.setColorStroke(Color.WHITE);
+            canvas.moveTo(label.getAnchorX(), label.getAnchorY());
+            canvas.lineTo(endX, endY);
+            canvas.stroke();
+            canvas.setLineWidth(LEADER_LINE_WIDTH);
+            canvas.setColorStroke(LEADER_COLOR);
+            canvas.moveTo(label.getAnchorX(), label.getAnchorY());
+            canvas.lineTo(endX, endY);
+            canvas.stroke();
+        }
+
+        private static void drawBadge(PdfContentByte canvas, BaseFont font,
+                ImageMapLabelLayout.Placement placement) {
+            ImageMapLabelLayout.Label label = placement.getLabel();
+            Rectangle box = placement.getBox();
+
+            canvas.setColorFill(Color.WHITE);
+            addRectangle(canvas, box);
+            canvas.fill();
+            canvas.setLineWidth(LABEL_BORDER_WIDTH);
+            canvas.setColorStroke(MARKER_COLOR);
+            if (!label.isAreaLabel()) {
+                // Dashed border for student markers, solid for correct areas, so both stay
+                // distinguishable without relying on colour.
+                canvas.setLineDash(2f, 1.2f, 0f);
+            }
+            addRectangle(canvas, box);
+            canvas.stroke();
+            canvas.setLineDash(0f);
+
+            float centerY = (box.getBottom() + box.getTop()) / 2f;
+            float iconLeft = box.getLeft() + LABEL_PADDING_X;
+            if (label.isAreaLabel()) {
+                canvas.setColorFill(AREA_COLOR);
+                canvas.rectangle(iconLeft, centerY - LABEL_ICON_SIZE / 2f, LABEL_ICON_SIZE, LABEL_ICON_SIZE);
+                canvas.fill();
+            } else {
+                canvas.setColorFill(MARKER_COLOR);
+                canvas.circle(iconLeft + LABEL_ICON_SIZE / 2f, centerY, LABEL_ICON_SIZE / 2f);
+                canvas.fill();
             }
 
-            PdfGState transparentState = new PdfGState();
-            transparentState.setFillOpacity(1f);
-            transparentState.setStrokeOpacity(1f);
-            canvas.setGState(transparentState);
+            float textStart = iconLeft + LABEL_ICON_SIZE + LABEL_ICON_GAP;
+            float textEnd = box.getRight() - LABEL_PADDING_X;
+            float baseline = centerY
+                    - (font.getAscentPoint(label.getText(), LABEL_FONT_SIZE)
+                            + font.getDescentPoint(label.getText(), LABEL_FONT_SIZE)) / 2f;
+            canvas.beginText();
+            canvas.setFontAndSize(font, LABEL_FONT_SIZE);
+            canvas.setColorFill(MARKER_COLOR);
+            canvas.showTextAligned(Element.ALIGN_CENTER, label.getText(), (textStart + textEnd) / 2f, baseline, 0);
+            canvas.endText();
+        }
+
+        private static Rectangle anchorBox(float centerX, float centerY, float halfSize) {
+            return new Rectangle(centerX - halfSize, centerY - halfSize, centerX + halfSize, centerY + halfSize);
+        }
+
+        private static void addRectangle(PdfContentByte canvas, Rectangle box) {
+            canvas.rectangle(box.getLeft(), box.getBottom(), box.getWidth(), box.getHeight());
+        }
+
+        private static void resetGraphicsState(PdfContentByte canvas) {
+            PdfGState opaqueState = new PdfGState();
+            opaqueState.setFillOpacity(1f);
+            opaqueState.setStrokeOpacity(1f);
+            canvas.setGState(opaqueState);
+            canvas.setLineDash(0f);
+            canvas.setLineWidth(1f);
             canvas.setColorFill(Color.BLACK);
             canvas.setColorStroke(Color.BLACK);
+        }
+
+        private static final class RegionBox {
+            private final Rectangle box;
+            private final int areaIndex;
+
+            private RegionBox(Rectangle box, int areaIndex) {
+                this.box = box;
+                this.areaIndex = areaIndex;
+            }
+
+            private Rectangle getBox() {
+                return box;
+            }
+
+            private int getAreaIndex() {
+                return areaIndex;
+            }
+        }
+
+        private static final class Marker {
+            private final float x;
+            private final float y;
+            private final int sequence;
+
+            private Marker(float x, float y, int sequence) {
+                this.x = x;
+                this.y = y;
+                this.sequence = sequence;
+            }
+
+            private float getX() {
+                return x;
+            }
+
+            private float getY() {
+                return y;
+            }
+
+            private int getSequence() {
+                return sequence;
+            }
         }
     }
 
@@ -245,16 +445,29 @@ public final class AssessmentPdfCellEvents {
      */
     public static class CheckOrCrossCellEvent implements PdfPCellEvent {
         private final boolean isCheckIcon;
+        private final boolean centered;
 
         public CheckOrCrossCellEvent(boolean isCheckIcon) {
+            this(isCheckIcon, false);
+        }
+
+        public CheckOrCrossCellEvent(boolean isCheckIcon, boolean centered) {
             this.isCheckIcon = isCheckIcon;
+            this.centered = centered;
         }
 
         @Override
         public void cellLayout(PdfPCell cell, Rectangle position, PdfContentByte[] canvases) {
             PdfContentByte canvas = canvases[PdfPTable.TEXTCANVAS];
-            float xAux = position.getLeft() + 2;
-            float yAux = position.getTop() - 10;
+            float xAux;
+            float yAux;
+            if (centered) {
+                xAux = (position.getLeft() + position.getRight()) / 2f - 1.5f;
+                yAux = (position.getTop() + position.getBottom()) / 2f - (isCheckIcon ? 2f : 0f);
+            } else {
+                xAux = position.getLeft() + 2;
+                yAux = position.getTop() - 10;
+            }
 
             if (isCheckIcon) {
                 canvas.setLineWidth(2.5f);

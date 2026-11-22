@@ -17,6 +17,7 @@ package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -73,10 +74,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         if (assignment != null) {
             // Persist a newly created assignment before locking its row in the same transaction.
             geCurrentSession().flush();
-            // Lock the assignment row before refresh, which can join related tables under Hibernate 6.
-            lockAssignmentAndCheckDeleted(id);
-            // Reload the deleted flag too, in case this request loaded the assignment before deletion.
-            geCurrentSession().refresh(assignment);
+            // Read the current deleted flag without refreshing the assignment's submission graph.
+            assignment.setDeleted(lockAssignmentAndCheckDeleted(id));
         }
         return assignment;
     }
@@ -214,17 +213,21 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         if (assignment != null) {
             AssignmentSubmission submission = new AssignmentSubmission();
             submission.setDateCreated(Instant.now());
-            submitters.ifPresent(submission::setSubmitters);
-            submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
             feedbackAttachments.ifPresent(submission::setFeedbackAttachments);
             submittedAttachments.ifPresent(submission::setAttachments);
             properties.ifPresent(submission::setProperties);
             if (assignment.getIsGroup()) { groupId.ifPresent(submission::setGroupId); }
 
             submission.setAssignment(assignment);
+            Session session = geCurrentSession();
+            // Assign the UUID before hashing either relationship's elements.
+            session.persist(submission);
+            submitters.ifPresent(members -> members.forEach(member -> {
+                member.setSubmission(submission);
+                session.persist(member);
+                submission.getSubmitters().add(member);
+            }));
             assignment.getSubmissions().add(submission);
-
-            geCurrentSession().persist(assignment);
             return submission;
         }
         return null;
@@ -394,11 +397,16 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                     cb.equal(root.get("context"), context),
                     cb.equal(properties.key(),
                         AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT),
-                    cb.equal(properties.value(), linkId)
+                    cb.isFalse(root.get("deleted"))
                 )
             );
 
-        return geCurrentSession().createQuery(cq).getResultList();
+        return geCurrentSession().createQuery(cq).getResultList().stream()
+                .filter(assignment -> {
+                    String links = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                    return linkId.equals(links) || Arrays.asList(StringUtils.defaultString(links).split(",")).contains(linkId);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

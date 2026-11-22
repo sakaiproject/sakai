@@ -92,6 +92,8 @@ class GradebookTest extends SakaiUiTestBase {
         page.waitForFunction("() => Boolean(window.Wicket && window.Wicket.Ajax)");
         addButton.click();
         assertThat(dialog).isVisible();
+        // The dialog focuses its first field 500 ms after opening; wait for it before moving focus
+        assertThat(dialog.locator("input[name$=\"title\"]")).isFocused();
 
         Locator closeLink = dialog.locator(".gb-modal-close");
         String originalTheme = page.locator("html").getAttribute("class");

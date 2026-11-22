@@ -785,7 +785,7 @@ public class PodcastServiceImpl implements PodcastService {
 		cr.setReleaseInstant(Instant.ofEpochMilli(displayDate.getTime()));
 		
 		resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH,
-				new Integer(body.length).toString());
+				Integer.valueOf(body.length).toString());
 
 		// now to commit the changes
 		contentHostingService.commitResource(cr, NotificationService.NOTI_NONE);
@@ -957,7 +957,7 @@ public class PodcastServiceImpl implements PodcastService {
 				podcastResourceEditable.removeProperty(ResourceProperties.PROP_CONTENT_LENGTH);
 
 				podcastResourceEditable.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, 
-														new Integer(body.length).toString());
+														Integer.valueOf(body.length).toString());
 
 				// If title = filename, since filename changed, change title to match 
 				if (oldFilename == podcastResourceEditable.getProperty(ResourceProperties.PROP_DISPLAY_NAME)) {

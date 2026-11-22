@@ -183,7 +183,7 @@ public class MultipartRequestWrapper
             request.setAttribute(
                     "org.apache.myfaces.custom.fileupload.exception","fileSizeLimitExceeded");
             request.setAttribute("org.apache.myfaces.custom.fileupload.maxSize",
-                    new Integer((int)maxFileSize));
+                    Integer.valueOf((int)maxFileSize));
             
             if (log.isWarnEnabled())
                 log.warn("FileSizeLimitExceededException while uploading file.", e);
@@ -200,7 +200,7 @@ public class MultipartRequestWrapper
             request.setAttribute(
                 "org.apache.myfaces.custom.fileupload.exception","sizeLimitExceeded");
             request.setAttribute("org.apache.myfaces.custom.fileupload.maxSize",
-                new Integer((int)maxSize));
+                Integer.valueOf((int)maxSize));
             
             if (log.isWarnEnabled())
                 log.warn("SizeLimitExceededException while uploading file.", e);

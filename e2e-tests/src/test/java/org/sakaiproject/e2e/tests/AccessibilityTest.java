@@ -16,7 +16,6 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.WaitForSelectorState;
@@ -35,25 +34,20 @@ class AccessibilityTest extends SakaiUiTestBase {
 
     @Test
     void canJumpToNewContentViaKeyboardOnly() {
+        sakai.waitForPortalFocus();
         Locator jumpLink = page.locator("a[href=\"#tocontent\"][title*=\"jump to content\" i], a[href=\"#tocontent\"]").first();
 
-        boolean focusedJumpLink = false;
-        for (int attempt = 0; attempt < 4; attempt++) {
+        // System alerts can add focusable links before the skip navigation.
+        for (int attempt = 0; attempt < 20; attempt++) {
             page.keyboard().press("Tab");
-            Boolean focused = (Boolean) page.evaluate("() => {"
-                + "const focused = document.activeElement;"
-                + "if (!(focused instanceof HTMLAnchorElement)) return false;"
-                + "const title = focused.getAttribute('title') || '';"
-                + "return focused.getAttribute('href') === '#tocontent' || /jump to content/i.test(title);"
-                + "}");
-            if (Boolean.TRUE.equals(focused)) {
-                focusedJumpLink = true;
+            if (Boolean.TRUE.equals(jumpLink.evaluate("link => link === document.activeElement"))) {
                 break;
             }
         }
-
-        assertTrue(focusedJumpLink);
+        assertThat(jumpLink).isFocused();
         assertThat(jumpLink).containsText(Pattern.compile("jump to content", Pattern.CASE_INSENSITIVE));
+        page.keyboard().press("Enter");
+        assertThat(page.locator("#tocontent")).isFocused();
     }
 
     @Test

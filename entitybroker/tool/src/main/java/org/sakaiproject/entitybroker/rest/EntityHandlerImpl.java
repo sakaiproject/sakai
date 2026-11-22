@@ -1072,7 +1072,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                 lastModified = ((Long)lm);
             } else if (String.class.isAssignableFrom(c)) {
                 try {
-                    lastModified = new Long((String)lm);
+                    lastModified = Long.valueOf((String)lm);
                 } catch (NumberFormatException e) {
                     // nothing to do here
                 }

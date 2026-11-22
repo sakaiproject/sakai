@@ -87,7 +87,7 @@ public class HtmlTreeRenderer extends HtmlTableRendererBase
     private static final String DEFAULT_RESOURCE_ICON_NODE_CLOSE_MIDDLE = "node_close_middle.gif";
     private static final String DEFAULT_RESOURCE_ICON_NODE_CLOSE_LAST = "node_close_last.gif";
 
-    private static final Integer ZERO = new Integer(0);
+    private static final Integer ZERO = Integer.valueOf(0);
 
     private static final String DEFAULT_IMAGE_ICON_FOLDER = "images/folder.gif";
     private static final String DEFAULT_RESOURCE_ICON_FOLDER = "folder.gif";
@@ -541,7 +541,7 @@ public class HtmlTreeRenderer extends HtmlTableRendererBase
 
         // node label
         writer.startElement(HTML.TD_ELEM, tree);
-        writer.writeAttribute(HTML.COLSPAN_ATTR, new Integer(labelColSpan), null);
+        writer.writeAttribute(HTML.COLSPAN_ATTR, Integer.valueOf(labelColSpan), null);
         if (child.isSelected() && tree.getSelectedNodeClass() != null)
         {
             writer.writeAttribute(HTML.CLASS_ATTR, tree.getSelectedNodeClass(), null);
