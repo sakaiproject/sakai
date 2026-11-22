@@ -768,7 +768,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.23.0</version>
+        <version>1.22.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
