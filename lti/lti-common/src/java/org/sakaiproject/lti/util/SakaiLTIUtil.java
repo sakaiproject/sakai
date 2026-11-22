@@ -3164,14 +3164,12 @@ public class SakaiLTIUtil {
 		String assignmentRef = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
 		String associateGradebookAssignment = properties.get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
-		Integer scaleFactor = a.getScaleFactor();
-		if (scaleFactor == null) {
-			scaleFactor = assignmentService.getScaleFactor();
-		}
-
-		String gradeString = assignmentService.getGradeDisplay(submission.getGrade(), a.getTypeOfGrade(), scaleFactor);
 		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 		String commentString = formattedText.convertFormattedTextToPlaintext(submission.getFeedbackComment());
+
+		List<String> recipients = a.getIsGroup()
+				? submission.getSubmitters().stream().map(submitter -> submitter.getSubmitter()).toList()
+				: List.of(userId);
 
 		// Gradebook writes require a grader user; LTI score posts have no instructor session.
 		Session sess = SessionManager.getCurrentSession();
@@ -3180,21 +3178,24 @@ public class SakaiLTIUtil {
 		sess.setUserId(gb_user_id);
 		sess.setUserEid(gb_user_eid);
 		try {
-			if (associateGradebookAssignment != null) {
-				if (gradingService.isExternalAssignmentDefined(siteId, associateGradebookAssignment)) {
-					gradingService.updateExternalAssessmentScore(siteId, siteId, associateGradebookAssignment, userId, gradeString);
-					gradingService.updateExternalAssessmentComment(siteId, siteId, associateGradebookAssignment, userId, commentString);
-				} else if (gradingService.isAssignmentDefined(siteId, siteId, associateGradebookAssignment)) {
-					final Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, siteId, associateGradebookAssignment).getId();
-					gradingService.setAssignmentScoreString(siteId, siteId, associateGradebookAssignmentId, userId, gradeString, "External Outcome", null);
-					gradingService.setAssignmentScoreComment(siteId, associateGradebookAssignmentId, userId, commentString);
+			for (String recipient : recipients) {
+				String gradeString = assignmentService.getGradeForSubmitter(submission, recipient);
+				if (associateGradebookAssignment != null) {
+					if (gradingService.isExternalAssignmentDefined(siteId, associateGradebookAssignment)) {
+						gradingService.updateExternalAssessmentScore(siteId, siteId, associateGradebookAssignment, recipient, gradeString);
+						gradingService.updateExternalAssessmentComment(siteId, siteId, associateGradebookAssignment, recipient, commentString);
+					} else if (gradingService.isAssignmentDefined(siteId, siteId, associateGradebookAssignment)) {
+						final Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, siteId, associateGradebookAssignment).getId();
+						gradingService.setAssignmentScoreString(siteId, siteId, associateGradebookAssignmentId, recipient, gradeString, "External Outcome", null);
+						gradingService.setAssignmentScoreComment(siteId, associateGradebookAssignmentId, recipient, commentString);
+					}
+				} else {
+					gradingService.updateExternalAssessmentScore(siteId, siteId, assignmentRef, recipient, gradeString);
+					gradingService.updateExternalAssessmentComment(siteId, siteId, assignmentRef, recipient, commentString);
 				}
-			} else {
-				gradingService.updateExternalAssessmentScore(siteId, siteId, assignmentRef, userId, gradeString);
-				gradingService.updateExternalAssessmentComment(siteId, siteId, assignmentRef, userId, commentString);
 			}
 		} catch (Exception e) {
-			log.warn("Could not sync released LTI grade to gradebook for assignment {} user {}: {}", a.getId(), userId, e.toString());
+			log.warn("Could not sync released LTI grade to gradebook for assignment {} submission {}: {}", a.getId(), submission.getId(), e.toString());
 		} finally {
 			sess.invalidate();
 		}
