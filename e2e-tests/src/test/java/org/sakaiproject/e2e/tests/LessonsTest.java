@@ -124,9 +124,8 @@ class LessonsTest extends SakaiUiTestBase {
         Locator checklist = page.locator(".portletBody .item")
             .filter(new Locator.FilterOptions().setHasText("Checklist"));
         assertThat(checklist.locator("input[type=checkbox].checklist-checkbox")).hasCount(4);
-        for (String entry : List.of("A", "B", "C", "D")) {
-            assertThat(checklist).containsText(entry);
-        }
+        assertThat(checklist.locator("input.checklist-checkbox + label"))
+            .hasText(new String[] {"A", "B", "C", "D"});
     }
 
     @Test
@@ -328,13 +327,14 @@ class LessonsTest extends SakaiUiTestBase {
         }
     }
 
-    /** Waits for the page that follows the save, so the next navigation cannot be interrupted by it. */
+    /** Saving a top-level page goes through ReloadPage, whose script starts a second navigation. */
     private void savePageSettings(Locator settings) {
         page.waitForResponse(response -> response.request().isNavigationRequest()
-            && response.frame().equals(page.mainFrame()) && response.status() < 300,
+            && response.frame().equals(page.mainFrame()) && response.status() < 300
+            && "GET".equals(response.request().method()) && !response.url().contains("ReloadPage"),
             () -> settings.locator("input[type=submit]").click());
+        page.waitForURL(url -> !url.contains("ReloadPage"));
         assertThat(settings).isHidden();
-        page.waitForLoadState();
     }
 
     private void restoreTopLevelPageAfterRemoval(String title, java.util.function.Consumer<String> removePage) {
