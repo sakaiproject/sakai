@@ -50,6 +50,8 @@ class ResourcesCreateItemsTest extends SakaiUiTestBase {
         resources.itemAction(resources.rootRow(), "Add Web Links (URLs)");
         Locator addLinks = page.locator("#saveChanges");
         assertThat(addLinks).isDisabled();
+        // The inputs render before the script that installs the handlers enabling the submit button.
+        page.waitForFunction("document.getElementById('content_0').oninput !== null");
         page.locator("#displayName_0").fill("Apereo");
         assertThat(addLinks).isDisabled();
         page.locator("#content_0").fill(APEREO);
