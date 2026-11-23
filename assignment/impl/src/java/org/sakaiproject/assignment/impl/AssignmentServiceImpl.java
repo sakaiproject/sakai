@@ -1861,11 +1861,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         Set<String> links = new LinkedHashSet<>();
         if (GRADEBOOK_INTEGRATION_ADD.equals(integration)) {
+            String gradebookTitle = formattedText.unEscapeHtml(assignment.getTitle());
             for (Map.Entry<String, Long> entry : categories.entrySet()) {
                 String gradebookUid = entry.getKey();
                 if (!gradingService.isExternalAssignmentDefined(gradebookUid, reference)) {
                     gradingService.addExternalAssessment(gradebookUid, assignment.getContext(), reference, null,
-                            assignment.getTitle(), assignment.getMaxGradePoint() / (double) assignment.getScaleFactor(),
+                            gradebookTitle, assignment.getMaxGradePoint() / (double) assignment.getScaleFactor(),
                             Date.from(assignment.getDueDate()), getToolId(), null, false,
                             entry.getValue() == -1L ? null : entry.getValue(), reference);
                 }

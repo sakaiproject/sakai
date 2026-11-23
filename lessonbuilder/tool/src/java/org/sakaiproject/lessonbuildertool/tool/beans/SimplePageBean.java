@@ -8294,8 +8294,11 @@ public class SimplePageBean {
 				List<String> deletedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "DELETE");
 
 				if (gradebookTitle != null) {
-					createGradebookItem(addedGroups, item, pointsInt);
-					updateGradebookItem(updatedGroups, item, pointsInt);
+					boolean created = createGradebookItem(addedGroups, item, pointsInt);
+					boolean updated = updateGradebookItem(updatedGroups, item, pointsInt);
+					if (created && updated) {
+						item.setGradebookTitle(gradebookTitle);
+					}
 					deleteGradebookItem(deletedGroups, item, questionGroupList);
 				} else {
 					deleteGradebookItem(questionGroupList, item, questionGroupList);
@@ -8303,9 +8306,13 @@ public class SimplePageBean {
 				}
 			} else {
 				if (gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
-					createGradebookItem(gradebookUids, item, pointsInt);
+					if (createGradebookItem(gradebookUids, item, pointsInt)) {
+						item.setGradebookTitle(gradebookTitle);
+					}
 				} else if (gradebookTitle != null) {
-					updateGradebookItem(gradebookUids, item, pointsInt);
+					if (updateGradebookItem(gradebookUids, item, pointsInt)) {
+						item.setGradebookTitle(gradebookTitle);
+					}
 				} else if(gradebookTitle == null && (item.getGradebookId() != null && !item.getGradebookId().equals(""))) {
 					deleteGradebookItem(gradebookUids, item, new ArrayList<>());
 				}
@@ -8381,7 +8388,10 @@ public class SimplePageBean {
 		}
 	}
 
-	private void createGradebookItem(List<String> creatableList, SimplePageItem item, Integer pointsInt) {
+	private boolean createGradebookItem(List<String> creatableList, SimplePageItem item, Integer pointsInt) {
+		if (creatableList.isEmpty()) {
+			return true;
+		}
 		if (itemId != null && itemId < 0) {
 			saveItem(item);
 		}
@@ -8399,21 +8409,21 @@ public class SimplePageBean {
 				setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 			} else {
 				item.setGradebookId(gradebookId);
-				item.setGradebookTitle(title);
 			}
+			return add;
 		} catch(ConflictingAssignmentNameException cane) {
 			setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
+			return false;
 		}
 	}
 
-	private void updateGradebookItem(List<String> updateableList, SimplePageItem item, Integer pointsInt) {
-		if (updateableList != null && updateableList.size() > 0) {
-			if (gradebookIfc.updateExternalAssessment(updateableList, item.getGradebookId(), null, gradebookTitle, pointsInt, null)) {
-				item.setGradebookTitle(gradebookTitle);
-			} else {
-				setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
-			}
+	private boolean updateGradebookItem(List<String> updateableList, SimplePageItem item, Integer pointsInt) {
+		if (updateableList != null && updateableList.size() > 0
+				&& !gradebookIfc.updateExternalAssessment(updateableList, item.getGradebookId(), null, gradebookTitle, pointsInt, null)) {
+			setErrMessage(messageLocator.getMessage("simplepage.gradebook-update-failed"));
+			return false;
 		}
+		return true;
 	}
 
 	private void deleteGradebookItem(List<String> deleteableList, SimplePageItem item, List<String> newGroupList) {

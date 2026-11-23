@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.time.Instant;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.AbortProcessingException;
 import jakarta.faces.event.ActionEvent;
@@ -30,6 +31,8 @@ import jakarta.faces.model.SelectItem;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
@@ -110,7 +113,13 @@ public class RepublishAssessmentListener extends SpringBeanAutowiringSupport imp
         eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId + ", sendNotification=" + sendNotification, true));
         emitAvailabilityEvents(assessment, publishedAssessmentSettings, sendNotification);
         // Keep gradebook update position unchanged
-        publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
+        try {
+            publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
+        } catch (ConflictingAssignmentNameException | GradeItemNameTooLongException e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, rl.getString("republish_gradebook_title_warning"), null));
+            log.warn("Gradebook title rejected while republishing assessment {}", publishedAssessmentId, e);
+        }
 
 		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
 		String subject = publishRepublishNotification.getNotificationSubject();

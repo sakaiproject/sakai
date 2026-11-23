@@ -889,6 +889,24 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void updatingAssignmentWithGradebookDecodesTheStoredTitleOnce() throws Exception {
+        Assignment assignment = createPublishableAssignment(false);
+        String storedTitle = "Cami&oacute;n &amp; &quot;quotes&quot; &amp;lt;literal&amp;gt;";
+        String plainTitle = "Camión & \"quotes\" &lt;literal&gt;";
+        assignment.setTitle(storedTitle);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setMaxGradePoint(10000);
+        assignment.setScaleFactor(100);
+        when(formattedText.unEscapeHtml(storedTitle)).thenReturn(plainTitle);
+        assignmentService.updateAssignmentWithGradebook(assignment, AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+                Map.of(assignment.getContext(), -1L), Map.of());
+        verify(gradingService).addExternalAssessment(eq(assignment.getContext()), eq(assignment.getContext()),
+                anyString(), Mockito.isNull(), eq(plainTitle), eq(100D), Mockito.any(),
+                eq(assignmentService.getToolId()), Mockito.isNull(), eq(false), Mockito.isNull(), anyString());
+        Assert.assertEquals(storedTitle, assignment.getTitle());
+    }
+
+    @Test
     public void failedGradebookCreationPreservesTheExistingAssociation() throws Exception {
         Assignment assignment = createPublishableAssignment(false);
         assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
@@ -897,6 +915,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "existing-item");
         assignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
         assignmentService.updateAssignment(assignment);
+        when(formattedText.unEscapeHtml(assignment.getTitle())).thenReturn(assignment.getTitle());
         Mockito.doThrow(new org.sakaiproject.grading.api.ConflictingAssignmentNameException("Duplicate title"))
                 .when(gradingService).addExternalAssessment(eq(assignment.getContext()), eq(assignment.getContext()),
                         anyString(), Mockito.isNull(), eq(assignment.getTitle()), Mockito.any(), Mockito.any(),
