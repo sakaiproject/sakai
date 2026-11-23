@@ -433,14 +433,23 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     }
 
     @Test
-    public void rejectedGradebookTitleDoesNotDisableExport() {
+    public void rejectedGradebookTitleExportsTheCurrentScoreBeforeRethrowing() {
         PublishedAssessmentData current = data();
         when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(true);
+        AssessmentGradingData grade = sessionFactory.getCurrentSession()
+                .createQuery("from AssessmentGradingData where publishedAssessmentId = :id", AssessmentGradingData.class)
+                .setParameter("id", current.getPublishedAssessmentId()).getSingleResult();
+        grade.setFinalScore(3D);
+        sessionFactory.getCurrentSession().flush();
+        when(applicationContext.getBean(org.sakaiproject.util.api.LocaleService.class)
+                .formatDouble(eq(3D), eq(siteId), any())).thenReturn("3");
         for (RuntimeException rejection : List.of(new ConflictingAssignmentNameException("duplicate"),
                 new GradeItemNameTooLongException("too long"))) {
+            clearInvocations(gradebookService);
             doThrow(rejection).when(gradebookService)
                     .updateExternalAssessment(anyString(), anyString(), any(), any(), anyString(), any(), any(), any(), any());
             assertSame(rejection, assertThrows(rejection.getClass(), () -> service.updateGradebook(current)));
+            verify(gradebookService).updateExternalAssessmentScore(siteId, siteId, assessment.getId(), "student", "3");
             assertEquals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), current.getEvaluationModel().getToGradeBook());
         }
     }

@@ -1033,7 +1033,14 @@ public class PublishedAssessmentService extends AssessmentService{
         if (updateGradebookCategoryMap.size() >= 1) {
           try {
             gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingService);
-          } catch (InvalidCategoryException | ConflictingAssignmentNameException | GradeItemNameTooLongException e) {
+          } catch (ConflictingAssignmentNameException | GradeItemNameTooLongException e) {
+            try {
+              gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
+            } catch (RuntimeException syncFailure) {
+              e.addSuppressed(syncFailure);
+            }
+            throw e;
+          } catch (InvalidCategoryException e) {
             throw e;
           } catch (Exception e) {
             evaluation.setToGradeBook("0");
