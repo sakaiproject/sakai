@@ -596,10 +596,9 @@ public class AssignmentToolUtils {
                             log.warn("integrateGradebook: {}", e.toString());
                         }
                     } else if ("update".equals(addUpdateRemoveAssignment)) {
-                        if (isExternalAssociateAssignmentDefined) {
-                            // if there is an external entry created in Gradebook based on this assignment, update it
+                        // Only the Assignment that owns the Gradebook item can change its settings.
+                        if (isExternalAssociateAssignmentDefined && assignmentRef.equals(associateGradebookAssignment)) {
                             try {
-                                // update attributes if the GB assignment was created for the assignment
                                 gradingService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, null, gradebookTitle, null, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
                             } catch (Exception e) {
                                 alerts.add(resourceLoader.getFormattedMessage("cannotfin_assignment", assignmentRef));

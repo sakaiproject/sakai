@@ -833,4 +833,66 @@ class AssignmentTest extends SakaiUiTestBase {
                 .filter(new Locator.FilterOptions().setHasText(corrected))).isVisible();
     }
 
+    @Test
+    void postingToSharedGradebookItemKeepsSelectionAndOriginalItem() {
+        sakai.login("instructor1");
+        String course = sakai.createFreshCourse("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.gradebookng"));
+        String original = "Original item " + sakai.randomId();
+        String linked = "Linked assignment " + sakai.randomId();
+        sakai.gotoPath(course);
+        sakai.toolClick("Assignments");
+
+        openPointAssignmentForGradebook(original, "100");
+        page.locator("#create-gradebook-item").check();
+        page.locator("input[name=post]").click();
+        assertThat(page.locator("#assignments-list")).containsText(original);
+
+        sakai.toolClick("Gradebook");
+        Locator originalColumn = page.locator(".tabulator-col[data-assignment-id]")
+                .filter(new Locator.FilterOptions().setHasText(original));
+        assertThat(originalColumn).isVisible();
+        String itemId = originalColumn.getAttribute("data-assignment-id");
+
+        sakai.toolClick("Assignments");
+        openPointAssignmentForGradebook(linked, "50");
+        page.locator("#associate-gradebook-item").check();
+        Locator items = page.locator("#gradebookItemSelect");
+        String selected = items.locator("option").filter(new Locator.FilterOptions().setHasText(original))
+                .getAttribute("value");
+        items.selectOption(selected);
+        page.locator("input[name=post]").click();
+
+        assertThat(page.locator("body")).containsText("scores might be overwritten");
+        assertThat(page.locator("#associate-gradebook-item")).isChecked();
+        assertThat(items).hasValue(selected);
+        page.locator("input[name=post]").click();
+        assertThat(page.locator("#assignments-list")).containsText(linked);
+
+        com.microsoft.playwright.APIResponse response = page.request().get(
+                "/direct/assignment/site/" + sakai.siteIdFromUrl(course) + ".json");
+        assertTrue(response.ok());
+        com.google.gson.JsonArray assignments = com.google.gson.JsonParser.parseString(response.text())
+                .getAsJsonObject().getAsJsonArray("assignment_collection");
+        assertEquals(2, assignments.size());
+        for (com.google.gson.JsonElement assignment : assignments) {
+            assertEquals(itemId, assignment.getAsJsonObject().get("gradebookItemId").getAsString());
+        }
+
+        sakai.toolClick("Gradebook");
+        assertThat(originalColumn).isVisible();
+        assertThat(originalColumn).hasAttribute("data-assignment-id", itemId);
+        assertThat(originalColumn.locator(".gb-total-points")).hasText(Pattern.compile("\\s*100(?:\\.0+)?\\s*"));
+        assertThat(page.locator(".tabulator-col[data-assignment-id]")
+                .filter(new Locator.FilterOptions().setHasText(linked))).hasCount(0);
+    }
+
+    private void openPointAssignmentForGradebook(String title, String points) {
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(title);
+        page.locator("#gradeAssignment").check();
+        page.locator("#new_assignment_grade_points").fill(points);
+        sakai.typeCkEditor("new_assignment_instructions", "<p>Shared Gradebook association.</p>");
+        page.locator("#new_assignment_send_to_gradebook").check();
+    }
+
 }
