@@ -17,6 +17,7 @@ import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.webapi.beans.SearchRestBean;
+import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +60,8 @@ public class SearchController extends AbstractSakaiApiController {
             List<String> tools = tool == null ? null : Collections.singletonList(tool);
 
             return ResponseEntity.ok(searchService.search(terms, sites, tools, start, limit)
-                .stream().map(sr -> SearchRestBean.of(sr, siteService)).collect(Collectors.toList()));
+                .stream().filter(sr -> !sr.isCensored() || StringUtils.isNotBlank(sr.getSiteId()))
+                .map(sr -> SearchRestBean.of(sr, siteService)).collect(Collectors.toList()));
 
         } catch (InvalidSearchQueryException e) {
             return ResponseEntity.badRequest().build();
