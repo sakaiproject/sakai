@@ -257,6 +257,10 @@ $(document).ready(function () {
       return false;
     }
   });
+  // The Change pickers in Edit Item are separate pages; unsaved changes are carried across the round trip
+  const EDIT_RETURN_KEY = "lessons-edit-item-return";
+  const isToggle = el => el.type === "checkbox" || el.type === "radio";
+
   // We don't need to run all of this javascript if the user isn't an admin
   if ($("#subpage-dialog").length > 0) {
     //Only number allowed for twitter height
@@ -2020,9 +2024,6 @@ $(document).ready(function () {
       return false;
     });
 
-    // The Change pickers are separate pages; carry unsaved Edit Item changes across the round trip
-    const EDIT_RETURN_KEY = "lessons-edit-item-return";
-    const isToggle = el => el.type === "checkbox" || el.type === "radio";
     const readEditFields = () => Object.fromEntries($("#edit-item-dialog")
       .find("input[id], textarea[id], select[id]").not("[type=hidden], [type=button], [type=submit]").get()
       .map(el => [el.id, isToggle(el) ? el.checked : $(el).val()]));
@@ -2038,30 +2039,6 @@ $(document).ready(function () {
         sessionStorage.setItem(EDIT_RETURN_KEY, JSON.stringify({ itemId: $("#item-id").val(), time: Date.now(), changed }));
       } catch {}
     });
-
-    let editReturn = null;
-    try {
-      editReturn = JSON.parse(sessionStorage.getItem(EDIT_RETURN_KEY));
-      sessionStorage.removeItem(EDIT_RETURN_KEY);
-    } catch {}
-    if (editReturn && Date.now() - editReturn.time < 30 * 60 * 1000) {
-      const editLink = $(".edit-link").filter(function () {
-        return $(this).parent().parent().parent().find(".current-item-id2").text() === editReturn.itemId;
-      }).first();
-      if (editLink.length) {
-        editLink.click();
-        Object.entries(editReturn.changed || {}).forEach(([id, value]) => {
-          const el = $("#edit-item-dialog").find(`#${CSS.escape(id)}`);
-          if (!el.length) return;
-          isToggle(el[0]) ? el.prop("checked", value) : el.val(value);
-          el.trigger("change");
-        });
-        // Their own handlers are click-only or registered later in this file
-        setUpRequirements();
-        fixitemshows();
-        bootstrap.Modal.getOrCreateInstance(document.getElementById("edit-item-dialog")).show();
-      }
-    }
 
     document.getElementById("add-twitter-dialog")?.addEventListener("shown.bs.modal", () => {
 
@@ -2992,6 +2969,31 @@ $(document).ready(function () {
 		console.debug('Patching LTI Launch to open with JS', this.href);
 		this.onclick = function () { window.open(this.href,'_blank');return false; };
 	});
+
+  // Restore after the startup resets above so they don't hide the restored controls
+  let editReturn = null;
+  try {
+    editReturn = JSON.parse(sessionStorage.getItem(EDIT_RETURN_KEY));
+    sessionStorage.removeItem(EDIT_RETURN_KEY);
+  } catch {}
+  if (editReturn && Date.now() - editReturn.time < 30 * 60 * 1000) {
+    const editLink = $(".edit-link").filter(function () {
+      return $(this).parent().parent().parent().find(".current-item-id2").text() === editReturn.itemId;
+    }).first();
+    if (editLink.length) {
+      editLink.click();
+      Object.entries(editReturn.changed || {}).forEach(([id, value]) => {
+        const el = $("#edit-item-dialog").find(`#${CSS.escape(id)}`);
+        if (!el.length) return;
+        isToggle(el[0]) ? el.prop("checked", value) : el.val(value);
+        el.trigger("change");
+      });
+      // Their own handlers are click-only
+      setUpRequirements();
+      fixitemshows();
+      bootstrap.Modal.getOrCreateInstance(document.getElementById("edit-item-dialog")).show();
+    }
+  }
 
   return false;
 }); // document.ready

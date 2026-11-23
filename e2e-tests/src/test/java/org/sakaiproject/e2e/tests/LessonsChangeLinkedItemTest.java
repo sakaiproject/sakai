@@ -63,6 +63,10 @@ class LessonsChangeLinkedItemTest extends SakaiUiTestBase {
         assertThat(dialog.locator("#name")).hasValue(replacement);
         assertThat(dialog.locator("#description")).hasValue(description);
         assertThat(dialog.locator("#item-required")).isChecked();
+        dialog.locator("[data-bs-target='#prereqstuffbody']").click();
+        awaitVisible(dialog.locator("#item-required"));
+        assertThat(dialog.locator("#require-label2")).isVisible();
+        assertThat(dialog.locator("#item-required2")).isVisible();
         assertThat(dialog.locator("#item-required2")).isChecked();
         assertThat(dialog.locator("#item-required2")).isEnabled();
         assertThat(dialog.locator("#assignment-points")).isEnabled();
