@@ -154,10 +154,14 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
             @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
         try {
-
-    		Session s = establishSession(sessionId);
-    		Assignment assign = assignmentService.getAssignment(assignmentId);
-    		Set<AssignmentSubmission> subs = assignmentService.getSubmissions(assign);
+            Session s = establishSession(sessionId);
+            Assignment assign = assignmentService.getAssignment(assignmentId);
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assign).reckon().getReference();
+            if (!assignmentService.allowGradeSubmission(assignmentReference)) {
+                log.warn("User {} is not allowed to read submissions for assignment {}", s.getUserId(), assignmentId);
+                return "<submissions />";
+            }
+            Set<AssignmentSubmission> subs = assignmentService.getSubmissions(assign);
 
     		//build the xml
     		log.debug("about to start building xml doc");
