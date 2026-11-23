@@ -32,7 +32,6 @@ import jakarta.jws.WebService;
 import jakarta.jws.soap.SOAPBinding;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
@@ -55,7 +54,6 @@ import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.ConflictingExternalIdException;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.Xml;
@@ -83,10 +81,8 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "context", partName = "context") @QueryParam("context") String context) {
 
         try {
-            establishSession(sessionid);
-            if (!siteService.allowAccessSite(context) || !assignmentService.allowGetAssignment(context)) {
-                return "<assignments />";
-            }
+    		//establish the session
+    		Session s = establishSession(sessionid);
 
     		//ok will this give me a list of assignments for the course
     		log.info("assignment list requested for " + context);
@@ -158,14 +154,10 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
             @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
         try {
-            Session s = establishSession(sessionId);
-            Assignment assign = assignmentService.getAssignment(assignmentId);
-            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assign).reckon().getReference();
-            if (!assignmentService.allowGradeSubmission(assignmentReference)) {
-                log.warn("User {} is not allowed to read submissions for assignment {}", s.getUserId(), assignmentId);
-                return "<submissions />";
-            }
-            Set<AssignmentSubmission> subs = assignmentService.getSubmissions(assign);
+
+    		Session s = establishSession(sessionId);
+    		Assignment assign = assignmentService.getAssignment(assignmentId);
+    		Set<AssignmentSubmission> subs = assignmentService.getSubmissions(assign);
 
     		//build the xml
     		log.debug("about to start building xml doc");
@@ -266,12 +258,8 @@ public class Assignments extends AbstractWebService {
 				integrateGradebook(aReference, associateGradebookAssignment, null, null, -1, null, sReference, "update", context, context);
     		} else {
 				
-                Site site = siteService.getSite(context);
-                List<String> gradebookUids = gradingService.getExistingGradebookUids(context);
-                for (String gradebookUid : gradebookUids) {
-                    if (!isGroupGradebookForSite(site, gradebookUid)) {
-                        continue;
-                    }
+				List<String> gradebookUids = gradingService.getGradebookGroupInstancesIds(context);
+				for (String gradebookUid : gradebookUids) {
 				
 					// Since there is a possibility that the "associateGradebookAssignment"
 					// variable is comma-separated, we need to split it into a list.
@@ -327,21 +315,13 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "subType", partName = "subType") @QueryParam("subType") int subType) {
 
 
-        try {
-            establishSession(sessionId);
-            Site site = siteService.getSite(context);
-            context = site.getId();
-            if (!assignmentService.allowAddAssignment(context)) {
-                return "failure: no permission";
-            }
-            if (gradebookUid == null) {
-                gradebookUid = context;
-            }
-            if (!context.equals(gradebookUid) && (!isGroupGradebookForSite(site, gradebookUid)
-                    || !gradingService.getExistingGradebookUids(context).contains(gradebookUid))) {
-                return "failure: gradebook is outside the assignment site";
-            }
-            Assignment assign = assignmentService.addAssignment(context);
+    	if (gradebookUid == null) {
+			gradebookUid = context;
+    	}
+    	log.info("creating assignment in " + gradebookUid);
+    	try {
+    		Session s = establishSession(sessionId);
+    		Assignment assign = assignmentService.addAssignment(context);
 
     		Instant dt = Instant.ofEpochMilli(dueTime);
     		Instant ot = Instant.ofEpochMilli(openTime);
@@ -508,10 +488,6 @@ public class Assignments extends AbstractWebService {
     		return e.getClass().getName() + " : " + e.getMessage();
     	}
     	return "success";
-    }
-
-    private boolean isGroupGradebookForSite(Site site, String gradebookUid) {
-        return site.getGroup(gradebookUid) != null && siteService.getOptionalSite(gradebookUid).isEmpty();
     }
 
     // This is a (probably outdated) copy of the code in AssignmentToolUtils.java - it would be a good idea to compare it or move it to the service and call it directly - SAK-50340
@@ -742,44 +718,6 @@ public class Assignments extends AbstractWebService {
 
     }	// integrateGradebook
 
-    /**
-     * Starts a submission for the current learner. Add attachments to the returned draft
-     * before calling createSubmission to submit it.
-     */
-    @WebMethod
-    @Path("/createSubmissionDraft")
-    @Produces("text/plain")
-    @POST
-    public String createSubmissionDraft(
-            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
-            @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
-        try {
-            Session session = establishSession(sessionId);
-            String callerId = session.getUserId();
-            if (StringUtils.isBlank(callerId)) {
-                return "failure: no permission";
-            }
-
-            Assignment assignment = assignmentService.getAssignment(assignmentId);
-            if (!assignmentService.canSubmit(assignment, callerId)) {
-                return "failure: no permission";
-            }
-
-            String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, callerId);
-            if (StringUtils.isBlank(submitterId)) {
-                return "failure: submission unavailable";
-            }
-            AssignmentSubmission submission = assignmentService.addSubmission(assignment.getId(), submitterId);
-            if (submission == null || !isSubmissionDraft(submission)) {
-                return "failure: draft unavailable";
-            }
-            return submission.getId();
-        } catch (Exception e) {
-            log.warn("Could not start submission draft for assignment {}", assignmentId, e);
-            return "failure: draft unavailable";
-        }
-    }
-
     @WebMethod
     @Path("/createSubmission")
     @Produces("text/plain")
@@ -792,30 +730,33 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "time", partName = "time") @QueryParam("time") long time) {
         log.info("Creating submission context={} assignmentId={} userId={} time={}", context, assignmentId, userId, time);
         try {
-            Session session = establishSession(sessionId);
-            String callerId = session.getUserId();
-            Assignment assignment = assignmentService.getAssignment(assignmentId);
-            User user = userDirectoryService.getUserByEid(userId);
-            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-            boolean canGrade = assignmentService.allowGradeSubmission(assignmentReference);
-            if (StringUtils.isBlank(callerId) || (!canGrade
-                    && (!callerId.equals(user.getId()) || !assignmentService.canSubmit(assignment, callerId)))) {
-                return "failure: no permission";
-            }
+    		//establish the session
+    		Session s = establishSession(sessionId);
+    		Assignment assign = assignmentService.getAssignment(assignmentId);
 
-            Instant submittedAt = canGrade ? Instant.ofEpochMilli(time) : Instant.now();
-            String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, user.getId());
-            if (StringUtils.isBlank(submitterId)) {
-                return "failure: submission unavailable";
-            }
-            AssignmentSubmission ase = assignmentService.addSubmission(assignment.getId(), submitterId);
-            if (ase == null) {
-                return "failure: submission unavailable";
-            }
-            ase.setSubmitted(true);
-            ase.setDateSubmitted(submittedAt);
-            assignmentService.updateSubmission(ase);
-            return ase.getId();
+
+    		User user = userDirectoryService.getUserByEid(userId);
+    		if (user == null)
+    		{
+    			return "user does not exit";
+    		} else {
+    			log.info("Got user " + userId);
+    		}
+    		//s.setUserId(user.getId());
+    		//s.setUserEid(userId);
+
+    		AssignmentSubmission ase = assignmentService.addSubmission(assignmentId, userDirectoryService.getUserId(userId));
+
+    		AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
+    		submitter.setSubmitter(user.getId());
+    		submitter.setSubmittee(true);
+    		ase.setSubmitted(true);
+
+    		Instant subTime = Instant.ofEpochMilli(time);
+    		log.info("Setting time to " + time);
+    		ase.setDateSubmitted(subTime);
+    		assignmentService.updateSubmission(ase);
+    		return ase.getId();
     	}
     	catch(Exception e) {
     		log.error("WS createSubmission(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -840,23 +781,7 @@ public class Assignments extends AbstractWebService {
         try {
     		// establish the session
     		Session s = establishSession(sessionId);
-            AssignmentSubmission sub = assignmentService.getSubmission(submissionId);
-            if (sub == null || StringUtils.isBlank(s.getUserId())) {
-                return "failure: no permission";
-            }
-
-            Assignment assignment = sub.getAssignment();
-            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-            boolean isSubmitter = sub.getSubmitters().stream()
-                    .anyMatch(submitter -> s.getUserId().equals(submitter.getSubmitter()));
-            if (!assignmentService.allowGradeSubmission(assignmentReference)) {
-                String groupId = sub.getGroupId();
-                if (!isSubmitter || !isSubmissionDraft(sub)
-                        || (groupId != null && !groupId.equals(assignmentService.getSubmitterIdForAssignment(assignment, s.getUserId())))
-                        || !assignmentService.canSubmit(assignment, s.getUserId())) {
-                    return "failure: no permission";
-                }
-            }
+    		AssignmentSubmission sub = assignmentService.getSubmission(submissionId);
 
     		// create the attachmment
     		Base64 decode = new Base64();
@@ -871,7 +796,7 @@ public class Assignments extends AbstractWebService {
     		rpe.addProperty(rpe.PROP_DISPLAY_NAME, attachmentName);
 
     		ContentResource file = contentHostingService.addAttachmentResource(attachmentName,
-                    assignment.getContext(), "Assignments", attachmentMimeType, content, rpe);
+    				context, "Assignments", attachmentMimeType, content, rpe);
     		log.info("attachment name is : " + attachmentName);
     		log.info("file has lenght of: " + file.getContentLength());
 
@@ -886,10 +811,6 @@ public class Assignments extends AbstractWebService {
 
     }
 
-
-    private boolean isSubmissionDraft(AssignmentSubmission submission) {
-        return submission.getDateSubmitted() == null && !Boolean.TRUE.equals(submission.getSubmitted());
-    }
 
     /**
      * display grade properly - copied from AssignmentAction

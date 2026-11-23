@@ -51,9 +51,8 @@ public class SakaiScriptGetPlacementIdTest extends AbstractCXFTest {
 		when(mockSite.getToolForCommonId("tool")).thenReturn(mockToolConfig);
 		when(mockSite.getToolForCommonId("tool_fail")).thenReturn(null);
 		when(mockToolConfig.getId()).thenReturn("tool_config_id");
-		when(service.toolManager.isVisible(mockSite, mockToolConfig)).thenReturn(true);
 		try {
-			when(service.siteService.getSiteVisit("site")).thenReturn(mockSite);
+			when(service.siteService.getSite("site")).thenReturn(mockSite);
 		} catch (Exception e) {
 		}
 	}

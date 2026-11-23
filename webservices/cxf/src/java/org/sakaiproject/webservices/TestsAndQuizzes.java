@@ -18,7 +18,6 @@ package org.sakaiproject.webservices;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +50,6 @@ import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.util.Zip;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -65,8 +63,6 @@ import lombok.extern.slf4j.Slf4j;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 @Slf4j
 public class TestsAndQuizzes extends AbstractWebService {	
-
-	private static final String IMPORT_DIRECTORY_PROPERTY = "webservices.samigo.import.directory";
 
 	private void requireImportAdministrator(String sessionId) {
 		Session session = establishSession(sessionId);
@@ -180,7 +176,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 	 * @param	String sessionid		the id of a valid admin session
 	 * @param	String siteid			the enterprise/sakai id of the site to be archived
 	 * @param	String siteproperty		the property that holds the enterprise site id
-	 * @param	String xmlfile			path to the IMS QTI document relative to the configured import directory
+	 * @param	String xmlfile			path to the IMS QTI document containing the assessment
 	 * @return	boolean	       		 	returns true if assessment created successfully, false if assessment is null
 	 * 
 	 * @throws	AxisFault			WS TestsAndQuizzes.createAssessmentFromXml(): XmlUtil.createDocument() returned a null QTI Document
@@ -199,22 +195,20 @@ public class TestsAndQuizzes extends AbstractWebService {
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
             @WebParam(name = "siteproperty", partName = "siteproperty") @QueryParam("siteproperty") String siteproperty,
             @WebParam(name = "xmlfile", partName = "xmlfile") @QueryParam("xmlfile") String xmlfile) {
-		requireImportAdministrator(sessionid);
-		String importDirectory = serverConfigurationService.getString(IMPORT_DIRECTORY_PROPERTY, "");
-		if (StringUtils.isBlank(importDirectory)) {
-			throw new IllegalStateException("Assessment import from a server file is disabled");
-		}
+        requireImportAdministrator(sessionid);
+		Document document = null;
 
-		Document document;
 		try {
-			java.nio.file.Path source = Zip.resolveContainedPath(java.nio.file.Path.of(importDirectory), xmlfile);
-			if (!Files.isRegularFile(source)) {
-				throw new IOException("Import source is not a regular file");
-			}
-			document = XmlUtil.readDocument(source.toString(), true);
-		} catch (IOException | ParserConfigurationException | SAXException e) {
-			log.warn("Could not read assessment import file", e);
-			throw new IllegalArgumentException("Could not read assessment import file");
+			document = XmlUtil.readDocument(xmlfile, true);
+		} catch (ParserConfigurationException pce) {
+			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() ParserConfigurationException: " + pce.getMessage(), pce);
+			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() ParserConfigurationException: " + pce.getMessage());
+		} catch (SAXException saxe) {
+			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() SaxException: " + saxe.getMessage(), saxe);
+			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() SaxException: " + saxe.getMessage());
+		} catch (IOException ioe) {
+			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() IOException: " + ioe.getMessage(), ioe);
+			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() IOException: " + ioe.getMessage());
 		}
 		if (document == null) {
 			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() returned a null QTI Document");

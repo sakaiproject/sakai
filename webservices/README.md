@@ -21,9 +21,3 @@ The RemoteHostFilter is still on all calls so this stuff is secured in the same 
 webservices.allowlogin=true
 webservices.allow = .*
 ```
-
-## Start a submission with attachments
-
-1. Call `createSubmissionDraft` with the learner’s session and the assignment ID.
-2. Call `addSubmissionAttachment` for each file using the returned submission ID.
-3. Call `createSubmission` with the same learner and assignment to submit the draft.
