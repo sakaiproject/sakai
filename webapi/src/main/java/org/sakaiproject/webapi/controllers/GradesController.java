@@ -409,19 +409,30 @@ public class GradesController extends AbstractSakaiApiController {
         // only the gradebooks that already exist, as a lookup must not create one
         List<String> gradebookUids = gradingService.getExistingGradebookUids(siteId);
 
-        if (!gradingService.isGradebookGroupEnabled(siteId) || gradingService.currentUserHasGradeAllPerm(siteId)) {
+        if (gradingService.currentUserHasGradeAllPerm(siteId)) {
             return gradebookUids;
         }
 
-        // a group gradebook is only for the members of its group
-        Set<String> groupIds = siteService.getOptionalSite(siteId).stream()
-            .flatMap(site -> site.getGroupsWithMember(userId).stream())
-            .map(Group::getId)
-            .collect(Collectors.toSet());
+        if (gradingService.isGradebookGroupEnabled(siteId)) {
+            // a group gradebook is only for the members of its group
+            Set<String> groupIds = siteService.getOptionalSite(siteId).stream()
+                .flatMap(site -> site.getGroupsWithMember(userId).stream())
+                .map(Group::getId)
+                .collect(Collectors.toSet());
 
-        return gradebookUids.stream()
-            .filter(gradebookUid -> gradebookUid.equals(siteId) || groupIds.contains(gradebookUid))
-            .collect(Collectors.toList());
+            gradebookUids = gradebookUids.stream()
+                .filter(gradebookUid -> gradebookUid.equals(siteId) || groupIds.contains(gradebookUid))
+                .collect(Collectors.toList());
+        }
+
+        if (!gradingService.currentUserHasGradingPerm(siteId)) {
+            // a student only sees the items of a gradebook that displays its released items to students
+            gradebookUids = gradebookUids.stream()
+                .filter(gradebookUid -> gradingService.getGradebook(gradebookUid).getAssignmentsDisplayed())
+                .collect(Collectors.toList());
+        }
+
+        return gradebookUids;
     }
 
     private Optional<Assignment> findItem(List<Assignment> items, Predicate<Assignment> filter) {

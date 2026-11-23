@@ -447,6 +447,7 @@ public class GradesControllerTests extends BaseControllerTests {
         essay.setDueDate(Date.from(dueDate));
 
         when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(site1Id));
+        mockGradebook(site1Id, true);
         when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(essay));
 
         // the last path segment of the external id is enough to find the item
@@ -481,6 +482,7 @@ public class GradesControllerTests extends BaseControllerTests {
         quiz.setExternalAppName("sakai.samigo");
 
         when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(site1Id));
+        mockGradebook(site1Id, true);
         when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(other, quiz));
 
         // no start date is set, so the creation date is the open date
@@ -499,6 +501,7 @@ public class GradesControllerTests extends BaseControllerTests {
     public void testGetGradableObjectNotViewable() throws Exception {
 
         when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(site1Id));
+        mockGradebook(site1Id, true);
         when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of());
 
         mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
@@ -517,6 +520,7 @@ public class GradesControllerTests extends BaseControllerTests {
         when(gradingService.isGradebookGroupEnabled(site1Id)).thenReturn(true);
         when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(group1Id, group2Id));
         when(site1.getGroupsWithMember(user1Id)).thenReturn(List.of(group1));
+        mockGradebook(group1Id, true);
         when(gradingService.getViewableAssignmentsForCurrentUser(group1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(essay));
 
         mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
@@ -549,11 +553,57 @@ public class GradesControllerTests extends BaseControllerTests {
     }
 
     @Test
+    public void testGetGradableObjectNotDisplayedToStudents() throws Exception {
+
+        Assignment essay = new Assignment();
+        essay.setId(3L);
+        essay.setName("Essay");
+        essay.setExternalId("/assignment/a/" + site1Id + "/essay-1");
+        essay.setReleased(true);
+
+        // the item is released, but the gradebook does not display its released items to students
+        when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(site1Id));
+        mockGradebook(site1Id, false);
+        when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(essay));
+
+        mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetGradableObjectNotDisplayedToStudentsForGrader() throws Exception {
+
+        Assignment essay = new Assignment();
+        essay.setId(3L);
+        essay.setName("Essay");
+        essay.setExternalId("/assignment/a/" + site1Id + "/essay-1");
+        essay.setReleased(true);
+
+        // the setting only hides the items from students
+        when(gradingService.currentUserHasGradingPerm(site1Id)).thenReturn(true);
+        when(gradingService.getExistingGradebookUids(site1Id)).thenReturn(List.of(site1Id));
+        mockGradebook(site1Id, false);
+        when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(essay));
+
+        mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "essay-1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.entityId", is("essay-1")))
+            .andExpect(jsonPath("$.title", is("Essay")));
+    }
+
+    @Test
     public void testGetGradableObjectWithoutExternalId() throws Exception {
 
         mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id))
             .andExpect(status().isBadRequest());
 
         verify(gradingService, never()).getViewableAssignmentsForCurrentUser(anyString(), anyString(), any());
+    }
+
+    private void mockGradebook(String gradebookUid, boolean assignmentsDisplayed) {
+
+        Gradebook gradebook = mock(Gradebook.class);
+        when(gradebook.getAssignmentsDisplayed()).thenReturn(assignmentsDisplayed);
+        when(gradingService.getGradebook(gradebookUid)).thenReturn(gradebook);
     }
 }
