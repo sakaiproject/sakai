@@ -173,6 +173,7 @@ function mySetMainFrameHeightViewCell(id)
 			
 			<t:div styleClass="table px-3" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}" style="margin-top:1em;">
 				<t:dataTable id="myWorkspaceTable" value="#{mfSynopticBeanLite.contents}" var="eachSite" 
+						rowStyleClass="#{eachSite.newMessagesCount == 0 && eachSite.newForumCount == 0 ? 'synoptic-no-unread' : ''}"
 						styleClass="table table-striped table-bordered table-hover workspaceTable">
 
 					<t:column headerstyleClass="hideHeader">

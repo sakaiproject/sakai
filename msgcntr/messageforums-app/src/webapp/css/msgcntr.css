@@ -643,6 +643,11 @@ img.authorImage {
 	width:60%;
 }
 
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .synoptic-no-unread {
+	display: none;
+	visibility: hidden;
+}
+
 /* Styles for modal */
 .close-button {
 	float: right;
