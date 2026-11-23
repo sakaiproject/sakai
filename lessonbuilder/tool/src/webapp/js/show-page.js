@@ -2024,21 +2024,26 @@ $(document).ready(function () {
       return false;
     });
 
-    const readEditFields = () => Object.fromEntries($("#edit-item-dialog")
-      .find("input[id], textarea[id], select[id]").not("[type=hidden], [type=button], [type=submit]").get()
-      .map(el => [el.id, isToggle(el) ? el.checked : $(el).val()]));
+    const readEditFields = () => Object.fromEntries([...document.querySelectorAll(
+      "#edit-item-dialog input[id], #edit-item-dialog textarea[id], #edit-item-dialog select[id]")]
+      .filter(el => !["hidden", "button", "submit"].includes(el.type))
+      .map(el => [el.id, isToggle(el) ? el.checked : el.value]));
     let editInitialValues = {};
 
     // Must stay after the .edit-link handler above so it captures the populated values
-    $(".edit-link").click(() => { editInitialValues = readEditFields(); });
+    document.querySelectorAll(".edit-link").forEach(link => link.addEventListener("click", () => {
+      editInitialValues = readEditFields();
+    }));
 
-    $("#change-assignment, #change-quiz, #change-forum, #change-blti, #change-scorm").click(() => {
-      const changed = Object.fromEntries(Object.entries(readEditFields())
-        .filter(([id, value]) => JSON.stringify(value) !== JSON.stringify(editInitialValues[id])));
-      try {
-        sessionStorage.setItem(EDIT_RETURN_KEY, JSON.stringify({ itemId: $("#item-id").val(), time: Date.now(), changed }));
-      } catch {}
-    });
+    document.querySelectorAll("#change-assignment, #change-quiz, #change-forum, #change-blti, #change-scorm")
+      .forEach(link => link.addEventListener("click", () => {
+        const changed = Object.fromEntries(Object.entries(readEditFields())
+          .filter(([id, value]) => value !== editInitialValues[id]));
+        try {
+          sessionStorage.setItem(EDIT_RETURN_KEY, JSON.stringify({
+            itemId: document.getElementById("item-id").value, time: Date.now(), changed }));
+        } catch {}
+      }));
 
     document.getElementById("add-twitter-dialog")?.addEventListener("shown.bs.modal", () => {
 
@@ -2977,21 +2982,21 @@ $(document).ready(function () {
     sessionStorage.removeItem(EDIT_RETURN_KEY);
   } catch {}
   if (editReturn && Date.now() - editReturn.time < 30 * 60 * 1000) {
-    const editLink = $(".edit-link").filter(function () {
-      return $(this).parent().parent().parent().find(".current-item-id2").text() === editReturn.itemId;
-    }).first();
-    if (editLink.length) {
+    const editLink = [...document.querySelectorAll(".current-item-id2")]
+      .find(el => el.textContent === editReturn.itemId)?.closest("div.item")?.querySelector(".edit-link");
+    if (editLink) {
       editLink.click();
+      const editDialog = document.getElementById("edit-item-dialog");
       Object.entries(editReturn.changed || {}).forEach(([id, value]) => {
-        const el = $("#edit-item-dialog").find(`#${CSS.escape(id)}`);
-        if (!el.length) return;
-        isToggle(el[0]) ? el.prop("checked", value) : el.val(value);
-        el.trigger("change");
+        const el = editDialog.querySelector(`#${CSS.escape(id)}`);
+        if (!el) return;
+        el[isToggle(el) ? "checked" : "value"] = value;
+        el.dispatchEvent(new Event("change", { bubbles: true }));
       });
       // Their own handlers are click-only
       setUpRequirements();
       fixitemshows();
-      bootstrap.Modal.getOrCreateInstance(document.getElementById("edit-item-dialog")).show();
+      bootstrap.Modal.getOrCreateInstance(editDialog).show();
     }
   }
 
