@@ -257,10 +257,6 @@ $(document).ready(function () {
       return false;
     }
   });
-  // The Change pickers in Edit Item are separate pages; unsaved changes are carried across the round trip
-  const EDIT_RETURN_KEY = "lessons-edit-item-return";
-  const isToggle = el => el.type === "checkbox" || el.type === "radio";
-
   // We don't need to run all of this javascript if the user isn't an admin
   if ($("#subpage-dialog").length > 0) {
     //Only number allowed for twitter height
@@ -2024,27 +2020,6 @@ $(document).ready(function () {
       return false;
     });
 
-    const readEditFields = () => Object.fromEntries([...document.querySelectorAll(
-      "#edit-item-dialog input[id], #edit-item-dialog textarea[id], #edit-item-dialog select[id]")]
-      .filter(el => !["hidden", "button", "submit"].includes(el.type))
-      .map(el => [el.id, isToggle(el) ? el.checked : el.value]));
-    let editInitialValues = {};
-
-    // Must stay after the .edit-link handler above so it captures the populated values
-    document.querySelectorAll(".edit-link").forEach(link => link.addEventListener("click", () => {
-      editInitialValues = readEditFields();
-    }));
-
-    document.querySelectorAll("#change-assignment, #change-quiz, #change-forum, #change-blti, #change-scorm")
-      .forEach(link => link.addEventListener("click", () => {
-        const changed = Object.fromEntries(Object.entries(readEditFields())
-          .filter(([id, value]) => value !== editInitialValues[id]));
-        try {
-          sessionStorage.setItem(EDIT_RETURN_KEY, JSON.stringify({
-            itemId: document.getElementById("item-id").value, time: Date.now(), changed }));
-        } catch {}
-      }));
-
     document.getElementById("add-twitter-dialog")?.addEventListener("shown.bs.modal", () => {
 
       $('#twitter-error-container').hide();
@@ -2975,29 +2950,45 @@ $(document).ready(function () {
 		this.onclick = function () { window.open(this.href,'_blank');return false; };
 	});
 
-  // Restore after the startup resets above so they don't hide the restored controls
-  let editReturn = null;
-  try {
-    editReturn = JSON.parse(sessionStorage.getItem(EDIT_RETURN_KEY));
-    sessionStorage.removeItem(EDIT_RETURN_KEY);
-  } catch {}
-  if (editReturn && Date.now() - editReturn.time < 30 * 60 * 1000) {
-    const editLink = [...document.querySelectorAll(".current-item-id2")]
-      .find(el => el.textContent === editReturn.itemId)?.closest("div.item")?.querySelector(".edit-link");
-    if (editLink) {
-      editLink.click();
-      const editDialog = document.getElementById("edit-item-dialog");
-      Object.entries(editReturn.changed || {}).forEach(([id, value]) => {
-        const el = editDialog.querySelector(`#${CSS.escape(id)}`);
-        if (!el) return;
-        el[isToggle(el) ? "checked" : "value"] = value;
-        el.dispatchEvent(new Event("change", { bubbles: true }));
-      });
-      // Their own handlers are click-only
-      setUpRequirements();
-      fixitemshows();
-      bootstrap.Modal.getOrCreateInstance(editDialog).show();
-    }
+  // The Change pickers in Edit Item are separate pages, so unsaved edits are carried across the round trip.
+  // This runs last so the startup resets above don't hide the restored controls.
+  const EDIT_DRAFT_KEY = "lessons-edit-item-draft";
+  const editDialog = document.getElementById("edit-item-dialog");
+  const isToggle = el => el.type === "checkbox" || el.type === "radio";
+  const readEditFields = () => Object.fromEntries([...editDialog.querySelectorAll("input, textarea, select")]
+    .filter(el => el.id && !["hidden", "button", "submit"].includes(el.type))
+    .map(el => [el.id, isToggle(el) ? el.checked : el.value]));
+  let editInitialValues = {};
+
+  document.querySelectorAll(".edit-link").forEach(link => link.addEventListener("click", () => {
+    editInitialValues = readEditFields();
+  }));
+
+  document.querySelectorAll("#change-assignment, #change-quiz, #change-forum, #change-blti, #change-scorm")
+    .forEach(link => link.addEventListener("click", () => {
+      const changed = Object.fromEntries(Object.entries(readEditFields())
+        .filter(([id, value]) => value !== editInitialValues[id]));
+      sessionStorage.setItem(EDIT_DRAFT_KEY, JSON.stringify({ itemId: document.getElementById("item-id").value, changed }));
+    }));
+
+  const editDraft = JSON.parse(sessionStorage.getItem(EDIT_DRAFT_KEY));
+  sessionStorage.removeItem(EDIT_DRAFT_KEY);
+  const draftEditLink = editDraft && [...document.querySelectorAll(".current-item-id2")]
+    .find(el => el.textContent === editDraft.itemId)?.closest("div.item").querySelector(".edit-link");
+  if (draftEditLink) {
+    draftEditLink.click();
+    Object.entries(editDraft.changed).forEach(([id, value]) => {
+      const field = editDialog.querySelector(`#${CSS.escape(id)}`);
+      if (isToggle(field)) {
+        field.checked = value;
+      } else {
+        field.value = value;
+      }
+      field.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    // The requirement checkboxes only react to click
+    setUpRequirements();
+    bootstrap.Modal.getOrCreateInstance(editDialog).show();
   }
 
   return false;

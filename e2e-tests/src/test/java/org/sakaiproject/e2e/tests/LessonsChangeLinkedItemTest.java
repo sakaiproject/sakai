@@ -34,23 +34,7 @@ class LessonsChangeLinkedItemTest extends SakaiUiTestBase {
         String replacement = "SAK-49295 replacement " + suffix;
         String description = "Unsaved description " + suffix;
 
-        sakai.login("instructor1");
-        String courseUrl = sakai.createFreshCourse("instructor1", List.of(
-            "sakai\\.assignment\\.grades", "sakai\\.lessonbuildertool"));
-        sakai.createAssignment(courseUrl, original);
-        sakai.createAssignment(courseUrl, replacement);
-        page.navigate(courseUrl);
-        sakai.toolClick("Lessons");
-
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content").setExact(true)).click();
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Link to an Assignment").setExact(true)).click();
-        pickAssignment(original);
-
-        Locator item = awaitVisible(page.locator("div.item").filter(new Locator.FilterOptions().setHasText(original)));
-        item.hover();
-        item.locator(".edit-link").click(new Locator.ClickOptions().setForce(true));
-
-        Locator dialog = awaitVisible(page.locator("#edit-item-dialog"));
+        Locator dialog = openEditItem(original, replacement);
         dialog.locator("#description").fill(description);
         dialog.locator("[data-bs-target='#prereqstuffbody']").click();
         awaitVisible(dialog.locator("#item-required")).check();
@@ -75,6 +59,55 @@ class LessonsChangeLinkedItemTest extends SakaiUiTestBase {
         dialog.locator("#edit-item").click();
         assertThat(page.locator(".rowdescription").filter(new Locator.FilterOptions().setHasText(description)))
             .hasCount(1);
+
+        page.reload();
+        awaitVisible(page.locator("div.item").filter(new Locator.FilterOptions().setHasText(replacement)));
+        assertThat(dialog).isHidden();
+    }
+
+    @Test
+    void cancellingThePickerReturnsToEditItemWithUnsavedEdits() {
+        String suffix = sakai.randomId();
+        String original = "SAK-49295 kept " + suffix;
+        String renamed = "SAK-49295 renamed " + suffix;
+        String description = "Unsaved description " + suffix;
+
+        Locator dialog = openEditItem(original, "SAK-49295 unused " + suffix);
+        dialog.locator("#name").fill(renamed);
+        dialog.locator("#description").fill(description);
+        dialog.locator("#change-assignment").click();
+        awaitVisible(page.locator(".hierFlexList").filter(new Locator.FilterOptions().setHasText(original)));
+        page.locator("input[type=submit]:not(.bold)").click();
+
+        awaitVisible(dialog);
+        assertThat(dialog.locator("#name")).hasValue(renamed);
+        assertThat(dialog.locator("#description")).hasValue(description);
+
+        dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+        assertThat(dialog).isHidden();
+        assertThat(page.locator("div.item").filter(new Locator.FilterOptions().setHasText(original))).hasCount(1);
+        assertThat(page.locator(".rowdescription").filter(new Locator.FilterOptions().setHasText(description)))
+            .hasCount(0);
+    }
+
+    /** Creates two assignments, links the first one from Lessons and opens its Edit Item dialog. */
+    private Locator openEditItem(String linked, String other) {
+        sakai.login("instructor1");
+        String courseUrl = sakai.createFreshCourse("instructor1", List.of(
+            "sakai\\.assignment\\.grades", "sakai\\.lessonbuildertool"));
+        sakai.createAssignment(courseUrl, linked);
+        sakai.createAssignment(courseUrl, other);
+        page.navigate(courseUrl);
+        sakai.toolClick("Lessons");
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content").setExact(true)).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Link to an Assignment").setExact(true)).click();
+        pickAssignment(linked);
+
+        Locator item = awaitVisible(page.locator("div.item").filter(new Locator.FilterOptions().setHasText(linked)));
+        item.hover();
+        item.locator(".edit-link").click(new Locator.ClickOptions().setForce(true));
+        return awaitVisible(page.locator("#edit-item-dialog"));
     }
 
     private void pickAssignment(String title) {
