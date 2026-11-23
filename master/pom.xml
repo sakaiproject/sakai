@@ -906,7 +906,7 @@
       </dependency>
       <dependency>
         <groupId>net.bytebuddy</groupId>
-        <artifactId>byte-buddy-agent</artifactId>
+        <artifactId>byte-buddy</artifactId>
         <version>1.17.7</version>
         <scope>provided</scope>
       </dependency>
