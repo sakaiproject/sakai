@@ -46,6 +46,9 @@ jobs:
       - name: Resolve Playwright dependencies
         run: mvn -B -ntp -V -Pe2e -DskipTests test
 
+      - name: Resolve shared deployment dependencies
+        run: mvn -B -ntp -pl deploy dependency:resolve
+
       - name: Save Maven local repository cache
         uses: actions/cache/save@v6.1.0
         with:
