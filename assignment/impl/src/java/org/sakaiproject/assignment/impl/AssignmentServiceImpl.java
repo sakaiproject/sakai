@@ -84,7 +84,6 @@ import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.ContentReviewResult;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
@@ -3901,10 +3900,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         users = getSearchedUsers(searchString, allowAddSubmissionUsers, false);
                     } else if (searchString != null) {
                         // group filter first
-                        List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
+                        List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, a, allowAddSubmissionUsers);
                         users = getSearchedUsers(searchString, selectedGroupUsers, true);
                     } else {
-                        users = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
+                        users = getSelectedGroupUsers(allOrOneGroup, a, allowAddSubmissionUsers);
                     }
                 }
             } else {
@@ -3922,7 +3921,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
 
                 // Step 1: get group if any that is selected
-                List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
+                List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, a, allowAddSubmissionUsers);
 
                 // Step 2: get all student that meets the search criteria based on previous group users. If search is null or empty string, return all users.
                 users = getSearchedUsers(searchString, selectedGroupUsers, true);
@@ -3999,33 +3998,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submitter;
     }
 
-    public List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment assignment, List<User> allowAddSubmissionUsers) {
+    public List<User> getSelectedGroupUsers(String allOrOneGroup, Assignment assignment, List<User> allowAddSubmissionUsers) {
         Collection<String> authzRefs = new ArrayList<>();
 
         List<User> selectedGroupUsers = new ArrayList<>();
         if (StringUtils.isNotBlank(allOrOneGroup)) {
             // now are we view all sections/groups or just specific one?
-            if (allOrOneGroup.equals(AssignmentConstants.ALL)) {
-                if (allowAllGroups(contextString)) {
-                    // site range
-                    try {
-                        Site site = siteService.getSite(contextString);
-                        authzRefs.add(site.getReference());
-                    } catch (IdUnusedException e) {
-                        log.warn("Cannot find site {} {}", contextString, e.getMessage());
-                    }
-                } else {
-                    // get all those groups that user is allowed to grade
-                    Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
-                    groups.forEach(g -> authzRefs.add(g.getReference()));
-                }
+            boolean all = AssignmentConstants.ALL.equals(allOrOneGroup);
+            if (all && allowAllGroups(assignment.getContext())) {
+                authzRefs.add(siteService.siteReference(assignment.getContext()));
             } else {
-                // filter out only those submissions from the selected-group members
-                try {
-                    Group group = siteService.getSite(contextString).getGroup(allOrOneGroup);
-                    authzRefs.add(group.getReference());
-                } catch (IdUnusedException e) {
-                    log.warn("Cannot add groupId = {}, {}", allOrOneGroup, e.getMessage());
+                // groups the user is allowed to grade
+                String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                Collection<Group> groups = getGroupsAllowGradeAssignment(assignmentRef);
+                if (all) {
+                    groups.stream().map(Group::getReference).forEach(authzRefs::add);
+                } else {
+                    groups.stream()
+                            .filter(g -> allOrOneGroup.equals(g.getId()) || allOrOneGroup.equals(g.getReference()))
+                            .findAny()
+                            .ifPresent(g -> authzRefs.add(g.getReference()));
                 }
             }
 
