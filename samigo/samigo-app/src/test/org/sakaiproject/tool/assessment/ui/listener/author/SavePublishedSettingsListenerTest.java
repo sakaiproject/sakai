@@ -47,6 +47,7 @@ import org.sakaiproject.tool.assessment.integration.helper.impl.CalendarServiceH
 import org.sakaiproject.tool.assessment.integration.helper.impl.GradebookServiceHelperImpl;
 import org.sakaiproject.tool.assessment.shared.impl.assessment.SecureDeliveryServiceImpl;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -105,7 +106,7 @@ public class SavePublishedSettingsListenerTest {
     public void overlongTitleDoesNotDisableExport() {
         assertRejectedTitle(new GradeItemNameTooLongException("too long"),
                 EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
-        verify(facesContext).addMessage(isNull(), argThat(message -> message.getSummary().contains("255 characters or fewer")));
+        assertGradebookMessage("gbTitleTooLong_error");
     }
 
     @Test
@@ -115,15 +116,15 @@ public class SavePublishedSettingsListenerTest {
 
     @Test
     public void duplicateTitleRejectsFirstExport() throws Exception {
-        assertRejectedFirstExport(new ConflictingAssignmentNameException("duplicate"), "same title exists");
+        assertRejectedFirstExport(new ConflictingAssignmentNameException("duplicate"), "gbConflict_error");
     }
 
     @Test
     public void overlongTitleRejectsFirstExport() throws Exception {
-        assertRejectedFirstExport(new GradeItemNameTooLongException("too long"), "255 characters or fewer");
+        assertRejectedFirstExport(new GradeItemNameTooLongException("too long"), "gbTitleTooLong_error");
     }
 
-    private void assertRejectedFirstExport(RuntimeException rejection, String expectedMessage) throws Exception {
+    private void assertRejectedFirstExport(RuntimeException rejection, String messageKey) throws Exception {
         SiteService sites = context.getBean(SiteService.class);
         Site site = mock(Site.class);
         when(site.getId()).thenReturn("site");
@@ -142,7 +143,12 @@ public class SavePublishedSettingsListenerTest {
         assertFalse(context.getBean(SavePublishedSettingsListener.class)
                 .updateGB(settings, edited, original, false, false, facesContext));
         assertEquals(notExported, edited.getEvaluationModel().getToGradeBook());
-        verify(facesContext).addMessage(isNull(), argThat(message -> message.getSummary().contains(expectedMessage)));
+        assertGradebookMessage(messageKey);
+    }
+
+    private void assertGradebookMessage(String key) {
+        String expected = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", key);
+        verify(facesContext).addMessage(isNull(), argThat(message -> expected.equals(message.getSummary())));
     }
 
     private void assertRejectedTitle(RuntimeException rejection, String expectedExport) {
