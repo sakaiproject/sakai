@@ -133,6 +133,17 @@ public class MessageForums extends AbstractWebService {
 
                 Area area = areaManager.getAreaByContextIdAndTypeId(site.getId(), messageForumsTypeManager.getDiscussionForumType());
 
+                selectedForum = messageForumsForumManager.createDiscussionForum();
+                selectedForum.setArea(area);
+                selectedForum.setCreatedBy(userId);
+                selectedForum.setTitle(forum);
+                selectedForum.setDraft(false);
+                selectedForum.setModerated(false);
+                selectedForum.setPostFirst(false);
+                if (!uiPermissionsManager.isNewTopic(selectedForum)) {
+                    return "Failure";
+                }
+
                 if (area == null) {
                     area = areaManager.createArea(messageForumsTypeManager.getDiscussionForumType(), site.getId());
                     area.setName("AREA 51");
@@ -148,18 +159,9 @@ public class MessageForums extends AbstractWebService {
                     log.debug("Created area...");
                 }
 
-                selectedForum = messageForumsForumManager.createDiscussionForum();
                 selectedForum.setArea(area);
-                selectedForum.setCreatedBy(userId);
-                selectedForum.setTitle(forum);
-                selectedForum.setDraft(false);
-                selectedForum.setModerated(false);
-                selectedForum.setPostFirst(false);
                 selectedForum = messageForumsForumManager.saveDiscussionForum(selectedForum);
-                log.debug("Created forum=" + forum);
-                if (!uiPermissionsManager.isNewTopic(selectedForum)) {
-                    return "Failure";
-                }
+                log.debug("Created forum={}", forum);
                 dTopic = messageForumsForumManager.createDiscussionForumTopic(selectedForum);
                 dTopic.setTitle(topic);
                 dTopic.setCreatedBy(userId);
@@ -196,6 +198,7 @@ public class MessageForums extends AbstractWebService {
             }
 
             boolean moderated = Boolean.TRUE.equals(selectedTopic.getModerated());
+            boolean canModerate = moderated && uiPermissionsManager.isModeratePostings(selectedTopic, selectedForum, userId, site.getId());
             DiscussionTopic topicWithMsgs = (DiscussionTopic) discussionForumManager.getTopicByIdWithMessages(selectedTopic.getId());
             Message replyMessage = null;
             List<?> messages = topicWithMsgs.getMessages();
@@ -203,7 +206,8 @@ public class MessageForums extends AbstractWebService {
                 for (Object entry : messages) {
                     Message message = (Message) entry;
                     if (!Boolean.TRUE.equals(message.getDraft()) && !Boolean.TRUE.equals(message.getDeleted())
-                            && (!moderated || Boolean.TRUE.equals(message.getApproved()))) {
+                            && (!moderated || Boolean.TRUE.equals(message.getApproved()) || canModerate
+                                    || userId.equals(message.getCreatedBy()))) {
                         replyMessage = message;
                     }
                 }
@@ -222,7 +226,7 @@ public class MessageForums extends AbstractWebService {
             aMsg.setAuthor(authorName);
             aMsg.setDraft(Boolean.FALSE);
             aMsg.setDeleted(Boolean.FALSE);
-            if (!moderated || uiPermissionsManager.isModeratePostings(selectedTopic, selectedForum, userId, site.getId())) {
+            if (!moderated || canModerate) {
                 aMsg.setApproved(Boolean.TRUE);
             }
             aMsg.setTopic(selectedTopic);

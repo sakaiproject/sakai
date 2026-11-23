@@ -32,6 +32,7 @@ import jakarta.jws.WebService;
 import jakarta.jws.soap.SOAPBinding;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
@@ -741,6 +742,44 @@ public class Assignments extends AbstractWebService {
 
     }	// integrateGradebook
 
+    /**
+     * Starts a submission for the current learner. Add attachments to the returned draft
+     * before calling createSubmission to submit it.
+     */
+    @WebMethod
+    @Path("/createSubmissionDraft")
+    @Produces("text/plain")
+    @POST
+    public String createSubmissionDraft(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
+        try {
+            Session session = establishSession(sessionId);
+            String callerId = session.getUserId();
+            if (StringUtils.isBlank(callerId)) {
+                return "failure: no permission";
+            }
+
+            Assignment assignment = assignmentService.getAssignment(assignmentId);
+            if (!assignmentService.canSubmit(assignment, callerId)) {
+                return "failure: no permission";
+            }
+
+            String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, callerId);
+            if (StringUtils.isBlank(submitterId)) {
+                return "failure: submission unavailable";
+            }
+            AssignmentSubmission submission = assignmentService.addSubmission(assignment.getId(), submitterId);
+            if (submission == null || !isSubmissionDraft(submission)) {
+                return "failure: draft unavailable";
+            }
+            return submission.getId();
+        } catch (Exception e) {
+            log.warn("Could not start submission draft for assignment {}", assignmentId, e);
+            return "failure: draft unavailable";
+        }
+    }
+
     @WebMethod
     @Path("/createSubmission")
     @Produces("text/plain")
@@ -765,7 +804,11 @@ public class Assignments extends AbstractWebService {
             }
 
             Instant submittedAt = canGrade ? Instant.ofEpochMilli(time) : Instant.now();
-            AssignmentSubmission ase = assignmentService.addSubmission(assignmentId, user.getId());
+            String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, user.getId());
+            if (StringUtils.isBlank(submitterId)) {
+                return "failure: submission unavailable";
+            }
+            AssignmentSubmission ase = assignmentService.addSubmission(assignment.getId(), submitterId);
             if (ase == null) {
                 return "failure: submission unavailable";
             }
@@ -806,9 +849,13 @@ public class Assignments extends AbstractWebService {
             String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
             boolean isSubmitter = sub.getSubmitters().stream()
                     .anyMatch(submitter -> s.getUserId().equals(submitter.getSubmitter()));
-            if (!assignmentService.allowGradeSubmission(assignmentReference)
-                    && (!isSubmitter || !assignmentService.canSubmit(assignment, s.getUserId()))) {
-                return "failure: no permission";
+            if (!assignmentService.allowGradeSubmission(assignmentReference)) {
+                String groupId = sub.getGroupId();
+                if (!isSubmitter || !isSubmissionDraft(sub)
+                        || (groupId != null && !groupId.equals(assignmentService.getSubmitterIdForAssignment(assignment, s.getUserId())))
+                        || !assignmentService.canSubmit(assignment, s.getUserId())) {
+                    return "failure: no permission";
+                }
             }
 
     		// create the attachmment
@@ -839,6 +886,10 @@ public class Assignments extends AbstractWebService {
 
     }
 
+
+    private boolean isSubmissionDraft(AssignmentSubmission submission) {
+        return submission.getDateSubmitted() == null && !Boolean.TRUE.equals(submission.getSubmitted());
+    }
 
     /**
      * display grade properly - copied from AssignmentAction

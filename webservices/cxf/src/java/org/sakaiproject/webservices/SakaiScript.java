@@ -117,10 +117,14 @@ public class SakaiScript extends AbstractWebService {
         return site;
     }
 
+    private boolean isTemplateSite(Site site) {
+        return "true".equals(site.getProperties().getProperty("template"));
+    }
+
     private void requireSiteCopyAccess(Site source, Site destination) {
         if (!siteService.allowUpdateSite(destination.getId())
                 || (!siteService.allowUpdateSite(source.getId())
-                        && !"true".equals(source.getProperties().getProperty("template")))) {
+                        && !isTemplateSite(source))) {
             throw new SecurityException("This operation requires permission to import from the source and update the destination");
         }
     }
@@ -4309,7 +4313,7 @@ public class SakaiScript extends AbstractWebService {
             Site sourceSite = siteService.getSite(sourcesiteid);
             Site site = siteService.getSite(destinationsiteid);
             requireSiteCopyAccess(sourceSite, site);
-            boolean isSuperUser = securityService.isSuperUser(session.getUserId());
+            boolean checkToolVisibility = !isTemplateSite(sourceSite) && !securityService.isSuperUser(session.getUserId());
 
             List<SitePage> pages = sourceSite.getPages();
             Map<String, List<String>> toolsToImport = new HashMap<>();
@@ -4319,12 +4323,7 @@ public class SakaiScript extends AbstractWebService {
                 List<ToolConfiguration> tools = page.getTools();
                 boolean includePage = true;
                 for (ToolConfiguration toolConfig : tools) {
-                    //if we not a superAdmin, check the page properties
-                    //if any tool on this page is hidden, skip the rest of the tools and exclude this page from the output
-                    //this makes the behaviour consistent with the portal
-
-                    //if not superUser, process  tool function requirements
-                    if (!isSuperUser) {
+                    if (checkToolVisibility) {
 
                         //skip processing tool if we've skipped tools previously on this page
                         if (!includePage) {
@@ -4378,7 +4377,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(destinationsiteid);
             requireSiteCopyAccess(sourceSite, site);
 
-            if (!securityService.isSuperUser(session.getUserId())) {
+            if (!isTemplateSite(sourceSite) && !securityService.isSuperUser(session.getUserId())) {
                 ToolConfiguration sourceTool = sourceSite.getToolForCommonId(toolid);
                 if (sourceTool == null || !toolManager.isVisible(sourceSite, sourceTool)) {
                     return "failure: source tool unavailable";
