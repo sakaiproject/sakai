@@ -724,6 +724,11 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		}
 
 		try {
+			if (maxSize > 0) {
+				// The group limit counts preview accounts that the per-role counts already exclude.
+				Collection<String> memberIds = authzGroupService.getAuthzUsersInGroups(Set.of(group.getReference()));
+				maxSize += getRoleViewUserIds(memberIds).size();
+			}
 			authzGroupService.joinGroup(section.getUuid(), userRole, maxSize);
 			postEvent("section.student.join", section.getUuid());
 		} catch (AuthzPermissionException e) {
@@ -1622,15 +1627,37 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getEnrollmentCount(List sectionSet) {
-		ArrayList<String> siteGroupRefs = new ArrayList<String>(sectionSet.size());
-		
-		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
-			CourseSectionImpl section = (CourseSectionImpl)sectionIter.next();			
-			siteGroupRefs.add(section.getGroup().getReference()); 
-		}		
-		
-		return authzGroupService.getUserCountIsAllowed(SectionAwareness.STUDENT_MARKER, siteGroupRefs);
+	public Map<String, Integer> getEnrollmentCount(List sectionSet) {
+		List<String> siteGroupRefs = new ArrayList<>(sectionSet.size());
+		for (Object entry : sectionSet) {
+			CourseSectionImpl section = (CourseSectionImpl) entry;
+			siteGroupRefs.add(section.getGroup().getReference());
+		}
+
+		Set<String[]> memberships = authzGroupService.getUsersIsAllowedByGroup(SectionAwareness.STUDENT_MARKER, siteGroupRefs);
+		Set<String> studentIds = new HashSet<>();
+		for (String[] membership : memberships) {
+			studentIds.add(membership[0]);
+		}
+
+		Set<String> roleViewUserIds = getRoleViewUserIds(studentIds);
+		Map<String, Integer> counts = new HashMap<>();
+		for (String[] membership : memberships) {
+			if (!roleViewUserIds.contains(membership[0])) {
+				counts.merge(membership[1], 1, Integer::sum);
+			}
+		}
+		return counts;
+	}
+
+	private Set<String> getRoleViewUserIds(Collection<String> userIds) {
+		Set<String> roleViewUserIds = new HashSet<>();
+		for (org.sakaiproject.user.api.User user : userDirectoryService.getUsers(userIds)) {
+			if (UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType())) {
+				roleViewUserIds.add(user.getId());
+			}
+		}
+		return roleViewUserIds;
 	}
 	
 	/**
