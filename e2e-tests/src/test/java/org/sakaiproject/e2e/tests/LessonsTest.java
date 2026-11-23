@@ -304,7 +304,7 @@ class LessonsTest extends SakaiUiTestBase {
             page.locator("#edit-title").click();
             Locator settings = page.locator("#edit-title-dialog");
             settings.locator("input[type=radio][value=hideFromNav]").check();
-            settings.locator("input[type=submit]").click();
+            savePageSettings(settings);
             page.navigate(siteUrl);
             assertNavigationLinkCount("Hidden navigation page", 1);
             assertNavigationLinkCount("Lessons", 1);
@@ -321,11 +321,20 @@ class LessonsTest extends SakaiUiTestBase {
             sakai.toolClick("Hidden navigation page");
             page.locator("#edit-title").click();
             settings.locator("input[type=radio][value=visible]").check();
-            settings.locator("input[type=submit]").click();
+            savePageSettings(settings);
             sakai.login(student.username());
             page.navigate(siteUrl);
             assertNavigationLinkCount("Hidden navigation page", 1);
         }
+    }
+
+    /** Waits for the page that follows the save, so the next navigation cannot be interrupted by it. */
+    private void savePageSettings(Locator settings) {
+        page.waitForResponse(response -> response.request().isNavigationRequest()
+            && response.frame().equals(page.mainFrame()) && response.status() < 300,
+            () -> settings.locator("input[type=submit]").click());
+        assertThat(settings).isHidden();
+        page.waitForLoadState();
     }
 
     private void restoreTopLevelPageAfterRemoval(String title, java.util.function.Consumer<String> removePage) {
