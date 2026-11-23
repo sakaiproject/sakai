@@ -31,49 +31,21 @@ import java.util.stream.Collectors;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.impl.BasicConfigurationService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
 import org.sakaiproject.tool.api.ActiveToolManager;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Tool.AccessSecurity;
 
 // All these tests don't have any i18n on the tool details as we don't call setResourceLoader
-@RunWith(JMock.class)
 public class ActiveToolComponentTest {
 
-	private Mockery context = new JUnit4Mockery();
-	private ThreadLocalComponent threadLocalComponent;
-	private SecurityService securityService;
-	private SessionManager sessionManager;
-	private SiteService siteService;
-	private FunctionManager functionManager;
-	private BasicConfigurationService serverConfigurationService;
 	private ActiveToolManager activeToolManager;
 
 	@Before
 	public void setUp() {
-		// Simple so don't need to mock.
-		threadLocalComponent = new ThreadLocalComponent();
-		// Mock the others.
-		securityService = context.mock(SecurityService.class);
-		sessionManager = context.mock(SessionManager.class);
-		functionManager = context.mock(FunctionManager.class);
-		serverConfigurationService = new BasicConfigurationService();
-		serverConfigurationService.setThreadLocalManager(threadLocalComponent);
 		ActiveToolComponent activeToolComponent = new ActiveToolComponent();
 		activeToolComponent.init();
 		this.activeToolManager = activeToolComponent;

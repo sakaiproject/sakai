@@ -32,8 +32,6 @@ import jakarta.mail.internet.InternetAddress;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +41,7 @@ import org.junit.Test;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.impl.BasicConfigurationService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.EmailAddress;
@@ -63,8 +61,6 @@ public class EmailServiceTest
 	static Wiser wiser;
 	static BasicEmailService emailService;
 
-	static Mockery context = new Mockery();
-
 	InternetAddress from;
 	InternetAddress[] to;
 	String subject;
@@ -78,10 +74,9 @@ public class EmailServiceTest
 	@BeforeClass
 	public static void setUpEmailService() throws Exception {
 		log.info("Setting up test case...");
-		final ServerConfigurationService config = context.mock(ServerConfigurationService.class);
 
 		emailService = new BasicEmailService();
-		emailService.setServerConfigurationService(config);
+		emailService.setServerConfigurationService(new BasicConfigurationService());
 
 		emailService.setSmtp(HOST);
 		emailService.setSmtpFrom("no-reply@localhost");
@@ -89,34 +84,6 @@ public class EmailServiceTest
 		emailService.setMaxRecipients("100");
 		emailService.setOneMessagePerConnection(false);
 		emailService.setAllowTransport(ALLOW_TRANSPORT);
-
-		context.checking(new Expectations() {
-			{
-				allowing(config).getServerName();
-				will(returnValue("localhost"));
-
-				String connTimeoutKey = emailService.propName(BasicEmailService.MAIL_CONNECTIONTIMEOUT_T);
-				allowing(config).getString(connTimeoutKey, null);
-				will(returnValue(null));
-
-				String timeoutKey = emailService.propName(BasicEmailService.MAIL_TIMEOUT_T);
-				allowing(config).getString(timeoutKey, null);
-				will(returnValue(null));
-
-				allowing(config).getString(BasicEmailService.MAIL_SENDFROMSAKAI, "true");
-				will(returnValue("true"));
-
-				allowing(config).getString(BasicEmailService.MAIL_SENDFROMSAKAI_EXCEPTIONS, null);
-				will(returnValue(null));
-
-				allowing(config).getString(BasicEmailService.MAIL_SENDFROMSAKAI_FROMTEXT, "{}");
-				will(returnValue("{}"));
-
-				allowing(config).getInt(BasicEmailService.MAIL_SENDFROMSAKAI_MAXSIZE, 25000000);
-				will(returnValue(25000000));
-
-			}
-		});
 
 		log.debug("Initing EmailService...");
 		emailService.init();
