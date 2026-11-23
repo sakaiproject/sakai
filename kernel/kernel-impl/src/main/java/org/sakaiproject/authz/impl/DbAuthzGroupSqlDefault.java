@@ -25,11 +25,17 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.sakaiproject.user.api.UserDirectoryService;
+
 /**
  * methods for accessing authz data in a database.
  */
 public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 {
+	private static final String EXCLUDE_ROLE_VIEW_USERS =
+			" AND NOT EXISTS (SELECT 1 FROM SAKAI_USER SU WHERE SU.USER_ID = SRRG.USER_ID AND SU.TYPE = '"
+			+ UserDirectoryService.ROLEVIEW_USER_TYPE + "')";
+
 	public String getCountRealmFunctionSql()
 	{
 		return "select count(1) from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?";
@@ -482,7 +488,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		sqlBuf.append("INNER JOIN SAKAI_REALM_RL_FN SRRF ON SRRF.ROLE_KEY = SRRG.ROLE_KEY AND SRRF.REALM_KEY = SR.REALM_KEY ");
 		sqlBuf.append("INNER JOIN SAKAI_REALM_FUNCTION SRF ON SRRF.FUNCTION_KEY = SRF.FUNCTION_KEY ");	
 		sqlBuf.append("WHERE FUNCTION_NAME = ? and SRRG.ACTIVE = '1' and " + inClause + " ");
-		sqlBuf.append("GROUP BY REALM_ID");
+		sqlBuf.append(EXCLUDE_ROLE_VIEW_USERS).append(" GROUP BY REALM_ID");
 	
 		return sqlBuf.toString();		
 	}
@@ -513,7 +519,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 	
 	public String getSelectRealmSize()
 	{
-		return "select COUNT(REALM_KEY) from SAKAI_REALM_RL_GR where REALM_KEY = ?";
+		return "select COUNT(REALM_KEY) from SAKAI_REALM_RL_GR SRRG where REALM_KEY = ?" + EXCLUDE_ROLE_VIEW_USERS;
 	}
 
 	public String getSelectRealmUpdate()
