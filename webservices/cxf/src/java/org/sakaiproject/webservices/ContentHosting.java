@@ -162,7 +162,10 @@ public class ContentHosting extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
         try {
 		
-			Session s = establishSession(sessionid);
+            Session session = establishSession(sessionid);
+            if (!securityService.isSuperUser(session.getUserId())) {
+                return "failure";
+            }
 			List sites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, null, SortType.TITLE_ASC, null);
 			
 			Document dom = Xml.createDocument();
@@ -500,10 +503,13 @@ public class ContentHosting extends AbstractWebService {
 				List entities = coll.getMemberResources();
 				
 				for (Iterator i = entities.iterator(); i.hasNext();) {
-					ContentEntity ent = (ContentEntity)i.next();
-					
-					Node item = getResourceBlock (ent, dom);
-					list.appendChild(item);
+                    ContentEntity ent = (ContentEntity) i.next();
+                    boolean readable = ent.isCollection()
+                            ? contentHostingService.allowGetCollection(ent.getId())
+                            : contentHostingService.allowGetResource(ent.getId());
+                    if (readable) {
+                        list.appendChild(getResourceBlock(ent, dom));
+                    }
 				}
 			}
 			catch (TypeException ex1) {

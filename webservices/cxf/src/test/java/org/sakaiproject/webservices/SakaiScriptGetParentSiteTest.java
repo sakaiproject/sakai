@@ -44,6 +44,9 @@ public class SakaiScriptGetParentSiteTest extends AbstractCXFTest {
 	protected void addServiceMocks(AbstractWebService service) {
 		Session mockSession = mock(Session.class);
 		when(service.sessionManager.getSession(SESSION_ID)).thenReturn(mockSession);
+		when(service.siteService.allowAccessSite("admin")).thenReturn(true);
+		when(service.siteService.allowAccessSite("xxx")).thenReturn(true);
+		when(service.siteService.allowAccessSite("yyy")).thenReturn(true);
 		when(service.siteService.getParentSite("admin")).thenReturn(null);
 		when(service.siteService.getParentSite("xxx")).thenReturn("yyy");
 	}

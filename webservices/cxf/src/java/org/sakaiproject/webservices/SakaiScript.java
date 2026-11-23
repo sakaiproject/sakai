@@ -56,6 +56,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -92,9 +93,37 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SakaiScript extends AbstractWebService {
 
-    private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
     private static final String SESSION_ATTR_VALUE_ORIGIN_WS = "sakai-axis";
+
+    private void requireAdministrator(Session session) {
+        if (StringUtils.isBlank(session.getUserId()) || !securityService.isSuperUser(session.getUserId())) {
+            throw new SecurityException("This operation requires a Sakai administrator");
+        }
+    }
+
+    private void requireSelfOrAdministrator(Session session, String userId) {
+        if (StringUtils.isBlank(session.getUserId()) || (!session.getUserId().equals(userId)
+                && !securityService.isSuperUser(session.getUserId()))) {
+            throw new SecurityException("This operation is limited to your own account");
+        }
+    }
+
+    private Site getSiteForUpdate(String siteId) throws IdUnusedException {
+        Site site = siteService.getSite(siteId);
+        if (!siteService.allowUpdateSite(site.getId())) {
+            throw new SecurityException("This operation requires permission to update the site");
+        }
+        return site;
+    }
+
+    private void requireSiteCopyAccess(Site source, Site destination) {
+        if (!siteService.allowUpdateSite(destination.getId())
+                || (!siteService.allowUpdateSite(source.getId())
+                        && !"true".equals(source.getProperties().getProperty("template")))) {
+            throw new SecurityException("This operation requires permission to import from the source and update the destination");
+        }
+    }
 
     /**
      * Check if a session is active
@@ -549,6 +578,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
         try {
             User user = userDirectoryService.getUserByEid(eid);
+            requireSelfOrAdministrator(session, user.getId());
             return user.getEmail();
         } catch (Exception e) {
             log.error("WS getUserEmail() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
@@ -594,11 +624,15 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session session = establishSession(sessionid);
         try {
-            return userDirectoryService.getUserByEid(eid).getDisplayName();
+            User user = userDirectoryService.getUserByEid(eid);
+            requireSelfOrAdministrator(session, user.getId());
+            return user.getDisplayName();
         } catch (UserNotDefinedException unde) {
             try {
-                return userDirectoryService.getUser(eid).getDisplayName();
-            } catch (UserNotDefinedException unde2) {
+                User user = userDirectoryService.getUser(eid);
+                requireSelfOrAdministrator(session, user.getId());
+                return user.getDisplayName();
+            } catch (UserNotDefinedException | SecurityException unde2) {
                 log.error("WS getUserDisplayName() failed for user: " + eid + " : " + unde2.getClass().getName() + " : " + unde2.getMessage());
                 return "";
             }
@@ -630,7 +664,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "groupdesc", partName = "groupdesc") @QueryParam("groupdesc") String groupdesc) {
         Session session = establishSession(sessionid);
         try {
-            Site site = siteService.getSite(siteid);
+            Site site = getSiteForUpdate(siteid);
             Group group = site.addGroup();
             group.setTitle(grouptitle);
             group.setDescription(groupdesc);
@@ -716,7 +750,7 @@ public class SakaiScript extends AbstractWebService {
 
         try {
 
-            Site site = siteService.getSite(siteid);
+            Site site = getSiteForUpdate(siteid);
 
             Document dom = Xml.createDocument();
             Node list = dom.createElement("list");
@@ -850,7 +884,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
             @WebParam(name = "description", partName = "description") @QueryParam("description") String description) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -880,7 +914,7 @@ public class SakaiScript extends AbstractWebService {
     public String removeAllRolesFromAuthzGroup(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -913,7 +947,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -990,7 +1024,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -1026,7 +1060,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
             @WebParam(name = "functionname", partName = "functionname") @QueryParam("functionname") String functionname) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -1060,7 +1094,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
             @WebParam(name = "description", partName = "description") @QueryParam("description") String description) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -1096,7 +1130,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -1136,7 +1170,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -1166,7 +1200,7 @@ public class SakaiScript extends AbstractWebService {
     public String removeAllMembersFromAuthzGroup(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -1199,7 +1233,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -1519,7 +1553,7 @@ public class SakaiScript extends AbstractWebService {
 
             Site siteEdit = null;
             SitePage sitePageEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             sitePageEdit = siteEdit.addPage();
             sitePageEdit.setTitle(pagetitle);
             sitePageEdit.setLayout(pagelayout);
@@ -1556,7 +1590,7 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             Site siteEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             ArrayList remPages = new ArrayList();
             List pageEdits = siteEdit.getPages();
             for (Iterator i = pageEdits.iterator(); i.hasNext(); ) {
@@ -1609,7 +1643,7 @@ public class SakaiScript extends AbstractWebService {
 
         try {
 
-            Site siteEdit = siteService.getSite(siteid);
+            Site siteEdit = getSiteForUpdate(siteid);
 
             // Check that the tool is visible (not stealthed) and available for this site type (category)
             if (!securityService.isSuperUser(session.getUserId())) {
@@ -1697,7 +1731,7 @@ public class SakaiScript extends AbstractWebService {
 
         try {
 
-            Site siteEdit = siteService.getSite(siteid);
+            Site siteEdit = getSiteForUpdate(siteid);
             List pageEdits = siteEdit.getPages();
             for (Iterator i = pageEdits.iterator(); i.hasNext(); ) {
                 SitePage pageEdit = (SitePage) i.next();
@@ -1748,7 +1782,7 @@ public class SakaiScript extends AbstractWebService {
 
         try {
 
-            Site siteEdit = siteService.getSite(siteid);
+            Site siteEdit = getSiteForUpdate(siteid);
             List pageEdits = siteEdit.getPages();
             for (Iterator i = pageEdits.iterator(); i.hasNext(); ) {
                 SitePage pageEdit = (SitePage) i.next();
@@ -1786,6 +1820,7 @@ public class SakaiScript extends AbstractWebService {
         try {
             User u = null;
             String userid = userDirectoryService.getUserByEid(eid).getId();
+            requireSelfOrAdministrator(s, userid);
             u = userDirectoryService.getUser(userid);
             if (u != null) {
                 return true;
@@ -1816,7 +1851,7 @@ public class SakaiScript extends AbstractWebService {
 
         try {
             Site site = null;
-            site = siteService.getSite(siteid);
+            site = siteService.getSiteVisit(siteid);
             if (site != null) {
                 return true;
             } else {
@@ -1846,12 +1881,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "role", partName = "role") @QueryParam("role") String role) {
-        Session s = establishSession(sessionid);
-
-        if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
-            log.warn("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
-            throw new RuntimeException("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
-        }
+        requireAdministrator(establishSession(sessionid));
 
         try {
             AuthzGroup authzgroup = null;
@@ -2036,13 +2066,15 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
-        Session s = establishSession(sessionid);
+        establishSession(sessionid);
 
         String siteTitle = "";
 
         try {
-            Site site = siteService.getSite(siteid);
+            Site site = siteService.getSiteVisit(siteid);
             siteTitle = site.getTitle();
+        } catch (IdUnusedException | PermissionException e) {
+            return "";
         } catch (Exception e) {
             log.error("WS getSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -2068,13 +2100,15 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
-        Session s = establishSession(sessionid);
+        establishSession(sessionid);
 
         String siteDescription = "";
 
         try {
-            Site site = siteService.getSite(siteid);
+            Site site = siteService.getSiteVisit(siteid);
             siteDescription = site.getDescription();
+        } catch (IdUnusedException | PermissionException e) {
+            return "";
         } catch (Exception e) {
             log.error("WS getSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -2100,13 +2134,15 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
-        Session s = establishSession(sessionid);
+        establishSession(sessionid);
 
         String siteSkin = "";
 
         try {
-            Site site = siteService.getSite(siteid);
+            Site site = siteService.getSiteVisit(siteid);
             siteSkin = site.getSkin();
+        } catch (IdUnusedException | PermissionException e) {
+            return "";
         } catch (Exception e) {
             log.error("WS getSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -2134,7 +2170,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = establishSession(sessionid);
 
         try {
-            Site site = siteService.getSite(siteid);
+            Site site = siteService.getSiteVisit(siteid);
             if (site.isJoinable()) {
                 return true;
             } else {
@@ -2169,7 +2205,7 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             Site siteEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             siteEdit.setTitle(title);
             siteService.save(siteEdit);
 
@@ -2202,7 +2238,7 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             Site siteEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             siteEdit.setSkin(skin);
             siteService.save(siteEdit);
 
@@ -2239,7 +2275,7 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             Site siteEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             siteEdit.setJoinable(joinable);
             siteEdit.setJoinerRole(joinerrole);
             siteEdit.setPubView(publicview);
@@ -2275,7 +2311,7 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             Site siteEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             siteEdit.setIconUrl(iconurl);
             siteService.save(siteEdit);
 
@@ -2318,7 +2354,7 @@ public class SakaiScript extends AbstractWebService {
             }
 
             Site siteEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             siteEdit.setDescription(description);
             siteService.save(siteEdit);
 
@@ -2347,7 +2383,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
             @WebParam(name = "propname", partName = "propname") @QueryParam("propname") String propname) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
             //get site handle
@@ -2432,7 +2468,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
             @WebParam(name = "propname", partName = "propname") @QueryParam("propname") String propname) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
             //get site handle
@@ -2473,7 +2509,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
             //open authzgroup
@@ -2508,7 +2544,7 @@ public class SakaiScript extends AbstractWebService {
     public boolean checkForEmptyRolesInAuthzGroup(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
             //open authzgroup
@@ -2551,7 +2587,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "criteria", partName = "criteria") @QueryParam("criteria") String criteria,
             @WebParam(name = "first", partName = "first") @QueryParam("first") int first,
             @WebParam(name = "last", partName = "last") @QueryParam("last") int last) {
-        Session session = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
 
         try {
@@ -2640,7 +2676,7 @@ public class SakaiScript extends AbstractWebService {
     public boolean checkForAuthzGroup(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
-        Session s = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -2758,12 +2794,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
-        Session s = establishSession(sessionid);
-
-        if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
-            log.warn("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
-            throw new RuntimeException("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
-        }
+        requireAdministrator(establishSession(sessionid));
 
         try {
             AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
@@ -2800,12 +2831,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
             @WebParam(name = "authzgrouproles", partName = "authzgrouproles") @QueryParam("authzgrouproles") String authzgrouproles) {
 
-        Session s = establishSession(sessionid);
-
-        if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
-            log.warn("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
-            throw new RuntimeException("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
-        }
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -2873,12 +2899,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
 
-        Session s = establishSession(sessionid);
-
-        if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
-            log.warn("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
-            throw new RuntimeException("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
-        }
+        requireAdministrator(establishSession(sessionid));
 
         try {
 
@@ -3075,6 +3096,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
         try {
             User user = userDirectoryService.getUserByEid(eid);
+            requireSelfOrAdministrator(session, user.getId());
             return user.getType();
         } catch (Exception e) {
             log.warn("WS getUserType() failed for user: " + eid);
@@ -3577,7 +3599,7 @@ public class SakaiScript extends AbstractWebService {
 
             Site siteEdit = null;
             SitePage sitePageEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             sitePageEdit = siteEdit.addPage();
             sitePageEdit.setTitle(pagetitle);
             sitePageEdit.setLayout(pagelayout);
@@ -3850,23 +3872,17 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sourcesiteid", partName = "sourcesiteid") @QueryParam("sourcesiteid") String sourcesiteid,
             @WebParam(name = "destinationsiteid", partName = "destinationsiteid") @QueryParam("destinationsiteid") String destinationsiteid) {
 
-        Session session = establishSession(sessionid);
+        establishSession(sessionid);
 
         try {
 
             //check if both sites exist
-            Site site = siteService.getSite(sourcesiteid);
-            site = siteService.getSite(destinationsiteid);
-
-            // If not admin, check maintainer membership in the source site
-            if (!securityService.isSuperUser(session.getUserId()) &&
-                    !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                log.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-                throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-            }
+            Site sourceSite = siteService.getSite(sourcesiteid);
+            Site site = siteService.getSite(destinationsiteid);
+            requireSiteCopyAccess(sourceSite, site);
 
             Map<String, List<String>> toolsToImport = new HashMap<>();
-            toolsToImport.put("sakai.resources", Arrays.asList(new String[]{sourcesiteid}));
+            toolsToImport.put("sakai.resources", List.of(sourceSite.getId()));
             siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), new HashMap<>(), false);
 
         } catch (Exception e) {
@@ -3908,7 +3924,7 @@ public class SakaiScript extends AbstractWebService {
             }
 
             Site siteEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             siteEdit.setShortDescription(shortDescription);
             siteService.save(siteEdit);
 
@@ -3958,7 +3974,7 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             //get site
-            Site siteEdit = siteService.getSite(siteid);
+            Site siteEdit = getSiteForUpdate(siteid);
 
             //add the page
             SitePage sitePageEdit = siteEdit.addPage();
@@ -4049,6 +4065,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
         try {
             User user = userDirectoryService.getUserByEid(eid);
+            requireSelfOrAdministrator(session, user.getId());
             return user.getProperties().getProperty(propertyName);
         } catch (Exception e) {
             log.error("WS getUserProperty() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
@@ -4119,7 +4136,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "propertyName", partName = "propertyName") @QueryParam("propertyName") String propertyName) {
         //register the session with presence
-        Session s = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         Map propertyCriteria = new HashMap();
 
@@ -4145,7 +4162,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "propertyName", partName = "propertyName") @QueryParam("propertyName") String propertyName,
             @WebParam(name = "propertyValue", partName = "propertyValue") @QueryParam("propertyValue") String propertyValue) {
         //register the session with presence
-        Session s = establishSession(sessionid);
+        requireAdministrator(establishSession(sessionid));
 
         Map propertyCriteria = new HashMap();
 
@@ -4214,7 +4231,8 @@ public class SakaiScript extends AbstractWebService {
         Session s = establishSession(sessionid);
         String siteIDs = "";
         try {
-            List<String> siteIdsList = siteService.getSiteIds(SelectionType.ANY, null, criteria,
+            SelectionType selection = securityService.isSuperUser(s.getUserId()) ? SelectionType.ANY : SelectionType.ACCESS;
+            List<String> siteIdsList = siteService.getSiteIds(selection, null, criteria,
                     null, SortType.NONE, null);
             if (siteIdsList != null && !siteIdsList.isEmpty()) {
             	StringBuilder sb = new StringBuilder();
@@ -4249,12 +4267,12 @@ public class SakaiScript extends AbstractWebService {
         // register the session with presence
         Session s = establishSession(sessionid);
         try {
-            Site site = siteService.getSite(siteId);
+            Site site = siteService.getSiteVisit(siteId);
             // log.warn("found site" + siteId);
             if (site != null) {
 
                 ToolConfiguration toolConfiguration = site.getToolForCommonId(toolId);
-                if (toolConfiguration != null) {
+                if (toolConfiguration != null && toolManager.isVisible(site, toolConfiguration)) {
                     return toolConfiguration.getId();
                 }
 
@@ -4290,18 +4308,8 @@ public class SakaiScript extends AbstractWebService {
             //check if both sites exist
             Site sourceSite = siteService.getSite(sourcesiteid);
             Site site = siteService.getSite(destinationsiteid);
-
-            //check if super user
-            boolean isSuperUser = false;
-            if (securityService.isSuperUser(session.getUserId())) {
-                isSuperUser = true;
-            }
-
-            // If not admin, check maintainer membership in the source site
-            if (!isSuperUser && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                log.warn("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-                throw new RuntimeException("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-            }
+            requireSiteCopyAccess(sourceSite, site);
+            boolean isSuperUser = securityService.isSuperUser(session.getUserId());
 
             List<SitePage> pages = sourceSite.getPages();
             Map<String, List<String>> toolsToImport = new HashMap<>();
@@ -4329,7 +4337,7 @@ public class SakaiScript extends AbstractWebService {
                             break;
                         }
                     }
-                    toolsToImport.put(toolConfig.getToolId(), Arrays.asList(new String[]{sourcesiteid}));
+                    toolsToImport.put(toolConfig.getToolId(), List.of(sourceSite.getId()));
                 }
             }
 
@@ -4366,19 +4374,19 @@ public class SakaiScript extends AbstractWebService {
     	try
     	{
     		//check if both sites exist
-    		Site site = siteService.getSite(sourcesiteid);
-    		site = siteService.getSite(destinationsiteid);
+            Site sourceSite = siteService.getSite(sourcesiteid);
+            Site site = siteService.getSite(destinationsiteid);
+            requireSiteCopyAccess(sourceSite, site);
 
-    		// If not admin, check maintainer membership in the source site
-    		if (!securityService.isSuperUser(session.getUserId()) && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
-    		{
-    			log.warn("WS copySiteContentForTool(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-    			throw new RuntimeException("WS copySiteContentForTool(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-    		}
+            if (!securityService.isSuperUser(session.getUserId())) {
+                ToolConfiguration sourceTool = sourceSite.getToolForCommonId(toolid);
+                if (sourceTool == null || !toolManager.isVisible(sourceSite, sourceTool)) {
+                    return "failure: source tool unavailable";
+                }
+            }
 
-    		Map<String, List<String>> toolsToImport = new HashMap<>();
-    		toolsToImport.put(toolid, Arrays.asList(new String[]{sourcesiteid}));
-			siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), new HashMap<>(), true);
+            Map<String, List<String>> toolsToImport = Map.of(toolid, List.of(sourceSite.getId()));
+            siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), new HashMap<>(), true);
     	}
     	catch (Exception e)
     	{
@@ -4432,12 +4440,12 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
-        Session s = establishSession(sessionid);
-        String parent = siteService.getParentSite(siteid);
-        if (parent == null) {
-            parent = "";
+        establishSession(sessionid);
+        if (!siteService.allowAccessSite(siteid)) {
+            return "";
         }
-        return parent;
+        String parent = siteService.getParentSite(siteid);
+        return parent != null && siteService.allowAccessSite(parent) ? parent : "";
     }
     
     /**
@@ -4496,7 +4504,7 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             //get site
-            Site siteEdit = siteService.getSite(siteId);
+            Site siteEdit = getSiteForUpdate(siteId);
 
             //add the page
             SitePage sitePageEdit = siteEdit.addPage();
@@ -4794,7 +4802,7 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             Site siteEdit = null;
-            siteEdit = siteService.getSite(siteid);
+            siteEdit = getSiteForUpdate(siteid);
             siteEdit.setPublished(published);
             siteService.save(siteEdit);
 

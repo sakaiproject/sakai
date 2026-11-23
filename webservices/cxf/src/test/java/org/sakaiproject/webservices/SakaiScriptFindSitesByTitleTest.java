@@ -52,8 +52,8 @@ public class SakaiScriptFindSitesByTitleTest extends AbstractCXFTest {
 		List<String> mockSiteIDs = new ArrayList<String>();
 		mockSiteIDs.add("validSiteIDs");
 		try {
-			when(service.siteService.getSiteIds(SelectionType.ANY, null, "matchingCriteria", null, SortType.NONE, null)).thenReturn(mockSiteIDs);
-			when(service.siteService.getSiteIds(SelectionType.ANY, null, "unmatchingCriteria", null, SortType.NONE, null)).thenReturn(null);
+			when(service.siteService.getSiteIds(SelectionType.ACCESS, null, "matchingCriteria", null, SortType.NONE, null)).thenReturn(mockSiteIDs);
+			when(service.siteService.getSiteIds(SelectionType.ACCESS, null, "unmatchingCriteria", null, SortType.NONE, null)).thenReturn(null);
 		} catch (Exception e) {
 		}
 		Session mockSession = mock(Session.class);

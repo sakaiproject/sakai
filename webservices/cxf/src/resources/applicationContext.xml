@@ -244,7 +244,9 @@
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.ContentHosting" class="org.sakaiproject.webservices.ContentHosting" parent="org.sakaiproject.webservices.AbstractWebService" />
-    <bean id="org.sakaiproject.webservices.MessageForums" class="org.sakaiproject.webservices.MessageForums" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.MessageForums" class="org.sakaiproject.webservices.MessageForums" parent="org.sakaiproject.webservices.AbstractWebService">
+        <property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+    </bean>
     <bean id="org.sakaiproject.webservices.SakaiJob" class="org.sakaiproject.webservices.SakaiJob" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiPortalLogin" class="org.sakaiproject.webservices.SakaiPortalLogin" parent="org.sakaiproject.webservices.AbstractWebService" />

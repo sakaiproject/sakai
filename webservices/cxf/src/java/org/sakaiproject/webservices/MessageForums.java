@@ -32,15 +32,24 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.Topic;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.user.api.User;
 
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 @Slf4j
 public class MessageForums extends AbstractWebService {
+
+    private UIPermissionsManager uiPermissionsManager;
+
+    @WebMethod(exclude = true)
+    public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
+        this.uiPermissionsManager = uiPermissionsManager;
+    }
 
     /**
      * Key in the ThreadLocalManager for binding our current placement.
@@ -59,7 +68,7 @@ public class MessageForums extends AbstractWebService {
      * @param sessionid the session to use
      * @param context   the context to use
      * @param forum     the forum title
-     * @param user      the user id that wil be creating the forums / messages
+     * @param user      the legacy author parameter
      * @param title     the message title
      * @param body      the message body
      * @return the sessionid if active, or "null" if not.
@@ -76,13 +85,21 @@ public class MessageForums extends AbstractWebService {
             @WebParam(name = "user", partName = "user") @QueryParam("user") String user,
             @WebParam(name = "title", partName = "title") @QueryParam("title") String title,
             @WebParam(name = "body", partName = "body") @QueryParam("body") String body) {
-        Session s = establishSession(sessionid);
+        Session session = establishSession(sessionid);
+        String userId = session.getUserId();
+        if (StringUtils.isBlank(userId)) {
+            return "Failure";
+        }
 
+        Object previousPlacement = threadLocalManager.get(CURRENT_PLACEMENT);
+        Object previousTool = threadLocalManager.get(CURRENT_TOOL);
 
         // Wrap this in a big try / catch block so we get better feedback
         // in the logs in the case of an error
         try {
-            Site site = siteService.getSite(context);
+            Site site = siteService.getSiteVisit(context);
+            User author = userDirectoryService.getUser(userId);
+            String authorName = StringUtils.defaultIfBlank(author.getDisplayName(), author.getDisplayId());
 
             ToolConfiguration tool = site.getToolForCommonId("sakai.forums");
 
@@ -94,10 +111,10 @@ public class MessageForums extends AbstractWebService {
             threadLocalManager.set(CURRENT_PLACEMENT, tool);
             threadLocalManager.set(CURRENT_TOOL, tool.getTool());
 
-            List<DiscussionForum> forums = messageForumsForumManager.getForumsForMainPage();
+            List<DiscussionForum> forums = messageForumsForumManager.getForumsForSite(site.getId());
 
-            Topic selectedTopic = null;
-            Topic anyTopic = null;
+            DiscussionTopic selectedTopic = null;
+            DiscussionTopic anyTopic = null;
             DiscussionForum selectedForum = null;
             DiscussionForum anyForum = null;
             DiscussionTopic dTopic = null;
@@ -110,11 +127,14 @@ public class MessageForums extends AbstractWebService {
 
             if (selectedForum == null) selectedForum = anyForum;
             if (selectedForum == null) {
+                if (!uiPermissionsManager.isNewForum()) {
+                    return "Failure";
+                }
 
-                Area area = areaManager.getAreaByContextIdAndTypeId(context, messageForumsTypeManager.getDiscussionForumType());
+                Area area = areaManager.getAreaByContextIdAndTypeId(site.getId(), messageForumsTypeManager.getDiscussionForumType());
 
                 if (area == null) {
-                    area = areaManager.createArea(messageForumsTypeManager.getDiscussionForumType(), context);
+                    area = areaManager.createArea(messageForumsTypeManager.getDiscussionForumType(), site.getId());
                     area.setName("AREA 51");
                     area.setEnabled(Boolean.TRUE);
                     area.setHidden(Boolean.TRUE);
@@ -130,19 +150,22 @@ public class MessageForums extends AbstractWebService {
 
                 selectedForum = messageForumsForumManager.createDiscussionForum();
                 selectedForum.setArea(area);
-                selectedForum.setCreatedBy(user);
+                selectedForum.setCreatedBy(userId);
                 selectedForum.setTitle(forum);
                 selectedForum.setDraft(false);
                 selectedForum.setModerated(false);
                 selectedForum.setPostFirst(false);
                 selectedForum = messageForumsForumManager.saveDiscussionForum(selectedForum);
                 log.debug("Created forum=" + forum);
+                if (!uiPermissionsManager.isNewTopic(selectedForum)) {
+                    return "Failure";
+                }
                 dTopic = messageForumsForumManager.createDiscussionForumTopic(selectedForum);
                 dTopic.setTitle(topic);
-                dTopic.setCreatedBy(user);
+                dTopic.setCreatedBy(userId);
                 messageForumsForumManager.saveDiscussionForumTopic(dTopic, false);
                 log.debug("Created topic=" + topic);
-                forums = messageForumsForumManager.getForumsForMainPage();
+                forums = messageForumsForumManager.getForumsForSite(site.getId());
                 selectedForum = null;
                 for (DiscussionForum dForum : forums) {
                     anyForum = dForum;
@@ -166,21 +189,42 @@ public class MessageForums extends AbstractWebService {
             if (selectedTopic == null) selectedTopic = anyTopic;
             if (selectedTopic == null) return "No topic";
 
+            if (Boolean.TRUE.equals(selectedForum.getDraft()) || Boolean.TRUE.equals(selectedTopic.getDraft())
+                    || Boolean.FALSE.equals(selectedForum.getAvailability()) || Boolean.FALSE.equals(selectedTopic.getAvailability())
+                    || !uiPermissionsManager.isRead(selectedTopic, selectedForum, userId, site.getId())) {
+                return "Failure";
+            }
+
+            boolean moderated = Boolean.TRUE.equals(selectedTopic.getModerated());
             DiscussionTopic topicWithMsgs = (DiscussionTopic) discussionForumManager.getTopicByIdWithMessages(selectedTopic.getId());
-            List tempList = topicWithMsgs.getMessages();
             Message replyMessage = null;
-            if (tempList != null && tempList.size() > 0) {
-                replyMessage = (Message) tempList.get(tempList.size() - 1);
+            List<?> messages = topicWithMsgs.getMessages();
+            if (messages != null) {
+                for (Object entry : messages) {
+                    Message message = (Message) entry;
+                    if (!Boolean.TRUE.equals(message.getDraft()) && !Boolean.TRUE.equals(message.getDeleted())
+                            && (!moderated || Boolean.TRUE.equals(message.getApproved()))) {
+                        replyMessage = message;
+                    }
+                }
+            }
+            boolean canPost = replyMessage == null
+                    ? uiPermissionsManager.isNewResponse(selectedTopic, selectedForum, userId, site.getId())
+                    : uiPermissionsManager.isNewResponseToResponse(selectedTopic, selectedForum, userId, site.getId());
+            if (!canPost) {
+                return "Failure";
             }
 
             Message aMsg;
             aMsg = messageForumsMessageManager.createDiscussionMessage();
             aMsg.setTitle(title);
             aMsg.setBody(body);
-            aMsg.setAuthor(user);
+            aMsg.setAuthor(authorName);
             aMsg.setDraft(Boolean.FALSE);
             aMsg.setDeleted(Boolean.FALSE);
-            aMsg.setApproved(Boolean.TRUE);
+            if (!moderated || uiPermissionsManager.isModeratePostings(selectedTopic, selectedForum, userId, site.getId())) {
+                aMsg.setApproved(Boolean.TRUE);
+            }
             aMsg.setTopic(selectedTopic);
             if (replyMessage != null) {
                 aMsg.setInReplyTo(replyMessage);
@@ -189,6 +233,9 @@ public class MessageForums extends AbstractWebService {
             return "Success";
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+        } finally {
+            threadLocalManager.set(CURRENT_PLACEMENT, previousPlacement);
+            threadLocalManager.set(CURRENT_TOOL, previousTool);
         }
 
         return "Failure";

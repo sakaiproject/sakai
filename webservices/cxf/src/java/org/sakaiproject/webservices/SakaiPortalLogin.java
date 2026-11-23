@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.webservices;
 
+import java.util.Arrays;
+
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebParam;
 import jakarta.jws.WebService;
@@ -132,7 +134,7 @@ public class SakaiPortalLogin extends AbstractWebService {
 
         // Verify that this IP address matches our string
         if ( "true".equalsIgnoreCase(ipCheck) ) {
-            if (  portalIPs == null || portalIPs.equals("") ||  portalIPs.indexOf(ipAddress) == -1 ) {
+            if (  portalIPs == null || Arrays.stream(portalIPs.split("[,\\s]+")).noneMatch(allowedIp -> allowedIp.equals(ipAddress)) ) {
                 log.info("SakaiPortalLogin Trusted IP not found");
                         throw new RuntimeException("Failed login");
             }

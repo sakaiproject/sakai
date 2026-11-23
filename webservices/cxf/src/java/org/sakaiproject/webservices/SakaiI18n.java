@@ -32,8 +32,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import java.util.List;
 import java.util.Locale;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Set;
 
 /**
  * A set of web services for i18n
@@ -41,10 +40,39 @@ import lombok.extern.slf4j.Slf4j;
  * @author Unicon
  */
 
-@Slf4j
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiI18n extends AbstractWebService {
+
+    private static final String SHARED_RESOURCE_CLASS = InternationalizedMessages.class.getName();
+    private static final Set<String> PUBLIC_SHARED_BUNDLES = Set.of(
+            "account", "announcements", "announcement", "asn", "assessment", "audio-recorder",
+            "bundle.polls", "calendar", "calendar-wc", "card_game", "chat", "commons", "condition",
+            "content", "conversations", "coursecard", "courselist", "courses", "dashboard", "dashboard-widget",
+            "date-picker-wc", "dialog", "dialog-content", "document-viewer", "dynamic-criterion", "dynamic-rubric",
+            "file-picker", "forums", "gb-selector", "grader", "grader-toggle", "grades", "group-picker",
+            "image-editor", "jumptotop", "lti", "mailarchive", "mailsender", "maximise-button", "microsoft",
+            "org.sakaiproject.api.app.messagecenter.bundle.Messages", "org.sakaiproject.api.podcasts.bundle.Messages",
+            "pager", "permissions-wc", "profile-wc", "pronunciation-player", "roster", "rubrics",
+            "sakai-notifications", "sakai-picture-changer", "search", "signup", "site-picker", "sitestats",
+            "submission-messager", "tag-selector", "tasks", "timer-bar", "toolname-mappings", "toolnames",
+            "user-picker", "widget-picker", "widgetpanel");
+
+    private ResourceLoader getPublicResourceLoader(String resourceClass, String resourceBundle) {
+        if (StringUtils.isAnyBlank(resourceClass, resourceBundle)) {
+            return null;
+        }
+        if (SHARED_RESOURCE_CLASS.equals(resourceClass) && PUBLIC_SHARED_BUNDLES.contains(resourceBundle)) {
+            return new ResourceLoader(resourceBundle, InternationalizedMessages.class.getClassLoader());
+        }
+        if (!serverConfigurationService.getStringList("webservices.i18n.public-bundles", List.of())
+                .contains(resourceClass + ":" + resourceBundle)) {
+            return null;
+        }
+        ResourceLoader loader = Resource.getResourceLoader(resourceClass, resourceBundle);
+        return loader != null ? loader : new ResourceLoader(resourceBundle, InternationalizedMessages.class.getClassLoader());
+    }
+
     /**
      *Returns the content of the specified properties file in a defined language
      * and returns the default value if the key doesn't exists in that lanaguage.
@@ -65,39 +93,21 @@ public class SakaiI18n extends AbstractWebService {
             @WebParam(name = "resourceclass", partName = "resourceclass") @QueryParam("resourceclass") String resourceClass,
             @WebParam(name = "resourcebundle", partName = "resourcebundle") @QueryParam("resourcebundle") String resourceBundle) {
 
-        log.debug("locale: {}", locale);
-        log.debug("resourceClass: {}", resourceClass);
-        log.debug("resourceBundle: {}", resourceBundle);
+        if (StringUtils.isBlank(locale)) {
+            return "";
+        }
 
+        Locale requestedLocale = Locale.forLanguageTag(locale);
         StringBuilder i18n = new StringBuilder();
-        ResourceLoader rb = null;
-
-        if (StringUtils.isNotBlank(locale)) {
-            if (StringUtils.isNotBlank(resourceClass) && StringUtils.isNotBlank(resourceBundle)) {
-                try {
-                    // load from spring using SakaiApplicationContext
-                    rb = Resource.getResourceLoader(resourceClass, resourceBundle);
-                    if (rb == null) {
-                        // load from shared lib
-                        rb = new ResourceLoader(resourceBundle, InternationalizedMessages.class.getClassLoader());
-                    }
-                } catch (Exception e) {
-                    log.debug("Could not load i18n bundle: [{}|{}|{}], {}", resourceBundle, resourceClass, locale, e.getMessage());
-                }
-            }
-
-            if (rb != null) {
-                rb.setContextLocale(Locale.forLanguageTag(locale));
-                rb.forEach((k, v) -> i18n.append(k).append("=").append(v).append("\n"));
-            } else {
-                // load from MessageBundleManager service
-                if (StringUtils.isNotBlank(resourceClass) && messageBundleService.getAllBaseNames().contains(resourceClass)) {
-                    // ensure that the requested bundle matches before performing a larger query
-                    List<MessageBundleProperty> bundle = messageBundleService.getAllProperties(Locale.forLanguageTag(locale).toString(), resourceClass, null);
-                    if (bundle != null && !bundle.isEmpty()) {
-                        bundle.forEach(p -> i18n.append(p.getPropertyName()).append("=").append(p.getValue() != null ? p.getValue() : p.getDefaultValue()).append("\n"));
-                    }
-                }
+        ResourceLoader loader = getPublicResourceLoader(resourceClass, resourceBundle);
+        if (loader != null) {
+            loader.setContextLocale(requestedLocale);
+            loader.forEach((key, value) -> i18n.append(key).append("=").append(value).append("\n"));
+        } else if (StringUtils.isNotBlank(resourceClass) && messageBundleService.getAllBaseNames().contains(resourceClass)) {
+            List<MessageBundleProperty> bundle = messageBundleService.getAllProperties(requestedLocale.toString(), resourceClass, null);
+            if (bundle != null) {
+                bundle.forEach(property -> i18n.append(property.getPropertyName()).append("=")
+                        .append(property.getValue() != null ? property.getValue() : property.getDefaultValue()).append("\n"));
             }
         }
         return i18n.toString();
