@@ -433,7 +433,7 @@ public class QuestionPoolServiceImpl
   }
 
   @Override
-  public String getUserPoolAttachmentReport(String userId, Long poolId, String contextToReplace)
+  public String getUserPoolAttachmentReport(String userId, Long poolId)
   {
     if (StringUtils.isBlank(userId) || !userId.equals(SessionManager.getCurrentSessionUserId()) || poolId == null) {
       return "";
@@ -446,9 +446,6 @@ public class QuestionPoolServiceImpl
 
     UserPoolAttachmentReport attachmentReport = new UserPoolAttachmentReport();
     StringBuilder report = attachmentReport.report;
-    if (StringUtils.isNotBlank(contextToReplace)) {
-      report.append("Attachment repair is disabled. This report is read-only.\n\n");
-    }
     report.append("POOL ---> ").append(pool.getTitle()).append(" - POOL ID: ")
         .append(pool.getQuestionPoolId()).append("\n\n");
 

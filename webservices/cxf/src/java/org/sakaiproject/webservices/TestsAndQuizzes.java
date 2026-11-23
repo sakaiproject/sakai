@@ -342,7 +342,6 @@ public class TestsAndQuizzes extends AbstractWebService {
 	 * @param	String sessionId			the id of a valid session for user owner of the pool (NOT admin user)
 	 * @param	String user					the user EID we want to look into their question pools
 	 * @param	Long poolId					poolId for searching only in a single pool. Null searches in all pools of the userId.
-	 * @param	String contextToReplace		legacy repair destination, retained for API compatibility
 	 * @return	String	       		 		a report of the attachments in the selected pools
 	 * 
 	 */
@@ -353,8 +352,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 	public String poolAttachmentReport(
 		@WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
 		@WebParam(name = "user", partName = "user") @QueryParam("user") String user,
-		@WebParam(name = "poolId", partName = "poolId") @QueryParam("poolId") String poolId,
-		@WebParam(name = "contextToReplace", partName = "contextToReplace") @QueryParam("contextToReplace") String contextToReplace)
+		@WebParam(name = "poolId", partName = "poolId") @QueryParam("poolId") String poolId)
 	{
 		Session session = establishSession(sessionId);
 
@@ -389,10 +387,8 @@ public class TestsAndQuizzes extends AbstractWebService {
 		}
 
 		StringBuilder report = new StringBuilder();
-		String legacyRepairDestination = StringUtils.trimToNull(contextToReplace);
 		for (Long selectedPoolId : poolIds) {
-			report.append(questionPoolServiceImpl.getUserPoolAttachmentReport(userId, selectedPoolId,
-					legacyRepairDestination));
+			report.append(questionPoolServiceImpl.getUserPoolAttachmentReport(userId, selectedPoolId));
 		}
 
 		return report.toString();

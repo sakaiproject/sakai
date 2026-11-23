@@ -131,9 +131,8 @@ public interface QuestionPoolServiceAPI
   public Map getQuestionPoolItemMap();
   
   /**
-   * Reports attachment access for a pool owned by the current user.
-   * The report is read-only. The legacy repair destination is accepted for compatibility.
+   * Returns a read-only attachment report for a pool owned by the current user.
    */
-  public String getUserPoolAttachmentReport(String userId, Long poolId, String contextToReplace);
+  public String getUserPoolAttachmentReport(String userId, Long poolId);
 
 }

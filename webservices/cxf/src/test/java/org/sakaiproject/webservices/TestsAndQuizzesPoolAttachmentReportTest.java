@@ -29,7 +29,6 @@ public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
 	private static final String MOCK_USER = "mockUser";
 	private static final String MOCK_USER_ID = "mockUserId";
 	private static final Long MOCK_POOL_ID = Long.valueOf(25);
-	private static final String MOCK_CONTEXT_TO_REPLACE = "mockContext";
 
 	@Override
 	protected <T extends AbstractWebService> Class<T> getTestClass() {
@@ -60,7 +59,7 @@ public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
 			
 		}
 		
-		when(service.questionPoolServiceImpl.getUserPoolAttachmentReport(MOCK_USER_ID, MOCK_POOL_ID, MOCK_CONTEXT_TO_REPLACE)).thenReturn("report");
+		when(service.questionPoolServiceImpl.getUserPoolAttachmentReport(MOCK_USER_ID, MOCK_POOL_ID)).thenReturn("report");
 	}
 
 	@Test
@@ -75,7 +74,6 @@ public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
 		client.query("sessionId", SESSION_ID);
 		client.query("user", MOCK_USER);
 		client.query("poolId", MOCK_POOL_ID);
-		client.query("contextToReplace", MOCK_CONTEXT_TO_REPLACE);
 
 		// client result
 		String result = client.get(String.class);
