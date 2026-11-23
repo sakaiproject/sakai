@@ -8229,49 +8229,6 @@ public class SimplePageBean {
 			item.setAttribute("questionType", "shortanswer");
 		}
 		
-		item.setAttribute("questionText", questionText);
-		item.setAttribute("questionCorrectText", questionCorrectText);
-		item.setAttribute("questionIncorrectText", questionIncorrectText);
-		item.setAttribute("questionType", questionType);
-		
-		if(questionType.equals("shortanswer")) {
-			String shortAnswers[] = questionAnswer.split("\n");
-			questionAnswer = "";
-			for (String shortAnswer : shortAnswers) {
-				String a = shortAnswer.trim();
-				if (! a.equals(""))
-					questionAnswer = questionAnswer + a + "\n";
-			}
-			item.setAttribute("questionAnswer", questionAnswer);
-		}else if(questionType.equals("multipleChoice")) {
-			Long max = simplePageToolDao.maxQuestionAnswer(item);
-			simplePageToolDao.clearQuestionAnswers(item);
-
-			for(int i = 0; questionAnswers.get(i) != null; i++) {
-				// get data sent from post operation for this answer
-				String data = questionAnswers.get(i);
-				
-				// split the data into the actual fields
-				String[] fields = data.split(":", 3);
-				Long answerId;
-				if (fields[0].equals(""))
-				    answerId = -1L;
-				else
-				    answerId = Long.valueOf(fields[0]);
-				if (answerId <= 0L)
-				    answerId = ++max;
-				Boolean correct = fields[1].equals("true");
-				String text = fields[2];
-				if (text != null && !text.trim().equals(""))
-				    simplePageToolDao.addQuestionAnswer(item, answerId, text, correct);
-
-			}
-			
-			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
-
-
-		}
-
 		if (graded) {
 			Integer pointsInt = parseMaxPoints(maxPoints);
 
@@ -8294,8 +8251,14 @@ public class SimplePageBean {
 				List<String> deletedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "DELETE");
 
 				if (gradebookTitle != null) {
-					createGradebookItem(addedGroups, item, pointsInt);
-					updateGradebookItem(updatedGroups, item, pointsInt);
+					if (!saveNewQuestionGradebookItems(addedGroups, item, pointsInt)
+							|| !updateGradebookItem(updatedGroups, item, pointsInt)) {
+						return "failure";
+					}
+					if (!addedGroups.isEmpty()) {
+						item.setGradebookId(questionGradebookId(item));
+					}
+					item.setGradebookTitle(gradebookTitle);
 					deleteGradebookItem(deletedGroups, item, questionGroupList);
 				} else {
 					deleteGradebookItem(questionGroupList, item, questionGroupList);
@@ -8303,9 +8266,16 @@ public class SimplePageBean {
 				}
 			} else {
 				if (gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
-					createGradebookItem(gradebookUids, item, pointsInt);
+					if (!saveNewQuestionGradebookItems(gradebookUids, item, pointsInt)) {
+						return "failure";
+					}
+					item.setGradebookId(questionGradebookId(item));
+					item.setGradebookTitle(gradebookTitle);
 				} else if (gradebookTitle != null) {
-					updateGradebookItem(gradebookUids, item, pointsInt);
+					if (!updateGradebookItem(gradebookUids, item, pointsInt)) {
+						return "failure";
+					}
+					item.setGradebookTitle(gradebookTitle);
 				} else if(gradebookTitle == null && (item.getGradebookId() != null && !item.getGradebookId().equals(""))) {
 					deleteGradebookItem(gradebookUids, item, new ArrayList<>());
 				}
@@ -8315,6 +8285,49 @@ public class SimplePageBean {
 			item.setGradebookPoints(pointsInt);
 		} else {
 		    item.setGradebookPoints(null);
+		}
+
+		item.setAttribute("questionText", questionText);
+		item.setAttribute("questionCorrectText", questionCorrectText);
+		item.setAttribute("questionIncorrectText", questionIncorrectText);
+		item.setAttribute("questionType", questionType);
+
+		if(questionType.equals("shortanswer")) {
+			String shortAnswers[] = questionAnswer.split("\n");
+			questionAnswer = "";
+			for (String shortAnswer : shortAnswers) {
+				String a = shortAnswer.trim();
+				if (! a.equals(""))
+					questionAnswer = questionAnswer + a + "\n";
+			}
+			item.setAttribute("questionAnswer", questionAnswer);
+		}else if(questionType.equals("multipleChoice")) {
+			Long max = simplePageToolDao.maxQuestionAnswer(item);
+			simplePageToolDao.clearQuestionAnswers(item);
+
+			for(int i = 0; questionAnswers.get(i) != null; i++) {
+				// get data sent from post operation for this answer
+				String data = questionAnswers.get(i);
+
+				// split the data into the actual fields
+				String[] fields = data.split(":", 3);
+				Long answerId;
+				if (fields[0].equals(""))
+				    answerId = -1L;
+				else
+				    answerId = Long.valueOf(fields[0]);
+				if (answerId <= 0L)
+				    answerId = ++max;
+				Boolean correct = fields[1].equals("true");
+				String text = fields[2];
+				if (text != null && !text.trim().equals(""))
+				    simplePageToolDao.addQuestionAnswer(item, answerId, text, correct);
+
+			}
+
+			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
+
+
 		}
 
 		item.setRequired(required);
@@ -8381,12 +8394,20 @@ public class SimplePageBean {
 		}
 	}
 
-	private void createGradebookItem(List<String> creatableList, SimplePageItem item, Integer pointsInt) {
-		if (itemId != null && itemId < 0) {
-			saveItem(item);
+	private String questionGradebookId(SimplePageItem item) {
+		return "lesson-builder:question:" + item.getId();
+	}
+
+	private boolean saveNewQuestionGradebookItems(List<String> creatableList, SimplePageItem item, Integer pointsInt) {
+		if (creatableList.isEmpty()) {
+			return true;
+		}
+		boolean newQuestion = item.getId() <= 0;
+		if (newQuestion && !saveItem(item)) {
+			return false;
 		}
 
-		String gradebookId = "lesson-builder:question:" + item.getId();
+		String gradebookId = questionGradebookId(item);
 		String title = gradebookTitle;
 
 		if (title == null || title.equals("")) {
@@ -8394,24 +8415,28 @@ public class SimplePageBean {
 		}
 
 		try {
-			boolean add = gradebookIfc.addExternalAssessment(creatableList, getCurrentSiteId(), gradebookId, null, title, pointsInt, null, LessonBuilderConstants.TOOL_ID);
-			if (!add) {
-				setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
-			} else {
-				item.setGradebookId(gradebookId);
-				item.setGradebookTitle(title);
+			if (gradebookIfc.saveQuestionGradebookItems(creatableList, getCurrentSiteId(), gradebookId, title, pointsInt)) {
+				return true;
 			}
-		} catch(ConflictingAssignmentNameException cane) {
+			setErrMessage(messageLocator.getMessage("simplepage.gradebook-update-failed"));
+		} catch (ConflictingAssignmentNameException e) {
 			setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
 		}
+
+		if (newQuestion) {
+			item.setGradebookId(gradebookId);
+			deleteItem(item);
+		}
+		return false;
 	}
 
-	private void updateGradebookItem(List<String> updateableList, SimplePageItem item, Integer pointsInt) {
-		if (updateableList != null && updateableList.size() > 0) {
-			gradebookIfc.updateExternalAssessment(updateableList, item.getGradebookId(), null, gradebookTitle, pointsInt, null);
-
-			item.setGradebookTitle(gradebookTitle);
+	private boolean updateGradebookItem(List<String> updateableList, SimplePageItem item, Integer pointsInt) {
+		if (updateableList != null && updateableList.size() > 0
+				&& !gradebookIfc.updateExternalAssessment(updateableList, item.getGradebookId(), null, gradebookTitle, pointsInt, null)) {
+			setErrMessage(messageLocator.getMessage("simplepage.gradebook-update-failed"));
+			return false;
 		}
+		return true;
 	}
 
 	private void deleteGradebookItem(List<String> deleteableList, SimplePageItem item, List<String> newGroupList) {

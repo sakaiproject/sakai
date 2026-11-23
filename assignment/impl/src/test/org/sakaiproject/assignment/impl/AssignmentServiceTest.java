@@ -103,6 +103,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -232,6 +233,57 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         ((AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService)).setResourceLoader(resourceLoader);
         when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
     }
+
+    @Test
+    public void copiedExternalAssessmentTitleIsPlainTextInGradebook() throws Exception {
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        Assignment source = createNewAssignment(fromContext);
+        String nextContext = UUID.randomUUID().toString();
+        for (String context : List.of(fromContext, toContext, nextContext)) {
+            String contextRef = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextRef)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, contextRef)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextRef)).thenReturn(true);
+        }
+        source.setDraft(false);
+        source.setOpenDate(Instant.now().minus(2, ChronoUnit.DAYS));
+        source.setDueDate(Instant.now().plus(2, ChronoUnit.DAYS));
+        source.setCloseDate(Instant.now().plus(3, ChronoUnit.DAYS));
+        source.setTypeOfAccess(Assignment.Access.SITE);
+        String storedTitle = "Cami&oacute;n &amp; &quot;quotes&quot; &amp;lt;img src=x onerror=alert(1)&amp;gt;";
+        String plainTitle = "Camión & \"quotes\" &lt;img src=x onerror=alert(1)&gt;";
+        source.setTitle(storedTitle);
+        source.setMaxGradePoint(100);
+        source.setScaleFactor(1);
+        String sourceRef = AssignmentReferenceReckoner.reckoner().assignment(source).reckon().getReference();
+        source.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+                AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
+        source.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, sourceRef);
+        assignmentService.updateAssignment(source);
+        when(gradingService.isExternalAssignmentDefined(fromContext, sourceRef)).thenReturn(true);
+        when(formattedText.unEscapeHtml(storedTitle)).thenReturn(plainTitle);
+
+        ((EntityTransferrer) assignmentService).transferCopyEntities(fromContext, toContext,
+                List.of(source.getId()), List.of(EntityTransferrer.PUBLISH_OPTION));
+
+        verify(gradingService).addExternalAssessment(eq(toContext), eq(toContext), anyString(), Mockito.isNull(),
+                eq(plainTitle), Mockito.any(), Mockito.any(), eq(assignmentService.getToolId()), Mockito.isNull(), eq(false), Mockito.isNull(), Mockito.isNull());
+        Collection<Assignment> copies = assignmentService.getAssignmentsForContext(toContext);
+        Assert.assertEquals(1, copies.size());
+        Assignment copy = copies.iterator().next();
+        Assert.assertEquals(storedTitle, copy.getTitle());
+
+        String copyRef = AssignmentReferenceReckoner.reckoner().assignment(copy).reckon().getReference();
+        when(gradingService.isExternalAssignmentDefined(toContext, copyRef)).thenReturn(true);
+        ((EntityTransferrer) assignmentService).transferCopyEntities(toContext, nextContext,
+                List.of(copy.getId()), List.of(EntityTransferrer.PUBLISH_OPTION));
+        verify(gradingService).addExternalAssessment(eq(nextContext), eq(nextContext), anyString(), Mockito.isNull(),
+                eq(plainTitle), Mockito.any(), Mockito.any(), eq(assignmentService.getToolId()), Mockito.isNull(), eq(false), Mockito.isNull(), Mockito.isNull());
+        Assert.assertEquals(storedTitle, assignmentService.getAssignmentsForContext(nextContext).iterator().next().getTitle());
+        Assert.assertEquals(storedTitle, assignmentService.getAssignment(source.getId()).getTitle());
+    }
+
 
     @Test
     public void AssignmentServiceIsValid() {
@@ -837,6 +889,24 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void updatingAssignmentWithGradebookDecodesTheStoredTitleOnce() throws Exception {
+        Assignment assignment = createPublishableAssignment(false);
+        String storedTitle = "Cami&oacute;n &amp; &quot;quotes&quot; &amp;lt;literal&amp;gt;";
+        String plainTitle = "Camión & \"quotes\" &lt;literal&gt;";
+        assignment.setTitle(storedTitle);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setMaxGradePoint(10000);
+        assignment.setScaleFactor(100);
+        when(formattedText.unEscapeHtml(storedTitle)).thenReturn(plainTitle);
+        assignmentService.updateAssignmentWithGradebook(assignment, AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+                Map.of(assignment.getContext(), -1L), Map.of());
+        verify(gradingService).addExternalAssessment(eq(assignment.getContext()), eq(assignment.getContext()),
+                anyString(), Mockito.isNull(), eq(plainTitle), eq(100D), Mockito.any(),
+                eq(assignmentService.getToolId()), Mockito.isNull(), eq(false), Mockito.isNull(), anyString());
+        Assert.assertEquals(storedTitle, assignment.getTitle());
+    }
+
+    @Test
     public void failedGradebookCreationPreservesTheExistingAssociation() throws Exception {
         Assignment assignment = createPublishableAssignment(false);
         assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
@@ -845,6 +915,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "existing-item");
         assignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
         assignmentService.updateAssignment(assignment);
+        when(formattedText.unEscapeHtml(assignment.getTitle())).thenReturn(assignment.getTitle());
         Mockito.doThrow(new org.sakaiproject.grading.api.ConflictingAssignmentNameException("Duplicate title"))
                 .when(gradingService).addExternalAssessment(eq(assignment.getContext()), eq(assignment.getContext()),
                         anyString(), Mockito.isNull(), eq(assignment.getTitle()), Mockito.any(), Mockito.any(),

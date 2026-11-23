@@ -26,6 +26,9 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
@@ -1023,7 +1026,6 @@ public class PublishedAssessmentService extends AssessmentService{
             }
 					}
 
-          gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
         }
 
         /* WE WILL NEED TO UPDATE THE ITEMS FROM CASE 2 IF THE TITLE, SCORE, OR ANY OF THE CATEGORIES
@@ -1031,13 +1033,30 @@ public class PublishedAssessmentService extends AssessmentService{
         if (updateGradebookCategoryMap.size() >= 1) {
           try {
             gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingService);
+          } catch (ConflictingAssignmentNameException | GradeItemNameTooLongException e) {
+            try {
+              String externalId = assessment.getPublishedAssessmentId().toString();
+              Double possiblePoints = assessment.getTotalScore();
+              for (String gradebookUid : updateGradebookCategoryMap.keySet()) {
+                Assignment linked = gradingService.getExternalAssignment(gradebookUid, externalId);
+                if (!possiblePoints.equals(linked.getPoints())) {
+                  gradingService.updateExternalAssessment(gradebookUid, externalId, null, null, linked.getName(),
+                      null, possiblePoints, assessment.getAssessmentAccessControl().getDueDate(), null);
+                }
+              }
+              gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
+            } catch (RuntimeException syncFailure) {
+              e.addSuppressed(syncFailure);
+            }
+            throw e;
           } catch (InvalidCategoryException e) {
             throw e;
           } catch (Exception e) {
             evaluation.setToGradeBook("0");
             log.warn("Exception thrown in updateGB():" + e.getMessage());
           }
-
+        }
+        if (!configuredTargets.isEmpty()) {
           gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
         }
       }

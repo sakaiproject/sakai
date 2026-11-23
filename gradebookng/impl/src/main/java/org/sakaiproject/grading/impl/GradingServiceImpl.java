@@ -82,6 +82,7 @@ import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.GradingEventStatus;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.InvalidGradeException;
 import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.SortType;
@@ -4287,6 +4288,15 @@ public class GradingServiceImpl implements GradingService {
         return result || !providerResponded;
     }
 
+    private String validateExternalAssessmentTitle(String title) {
+        String validatedTitle = GradebookHelper.validateGradeItemName(title);
+        // GB_GRADABLE_OBJECT_T.NAME is VARCHAR(255); count characters, not UTF-16 units.
+        if (validatedTitle.codePointCount(0, validatedTitle.length()) > 255) {
+            throw new GradeItemNameTooLongException("Grade item titles must not exceed 255 characters");
+        }
+        return validatedTitle;
+    }
+
     @Override
     public void addExternalAssessment(final String gradebookUid, final String siteId, final String externalId, final String externalUrl, final String title, final Double points,
                                            final Date dueDate, final String externalServiceDescription, String externalData, final Boolean ungraded, final Long categoryId, String gradableReference)
@@ -4304,13 +4314,19 @@ public class GradingServiceImpl implements GradingService {
             throw new AssignmentHasIllegalPointsException("Points can't be null or Points must be > 0");
         }
 
-        // Ensure that the assessment name is unique within this gradebook
-        if (isAssignmentDefined(gradebookUid, siteId, title)) {
-            throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
+        String validatedTitle = validateExternalAssessmentTitle(title);
+
+        if (!isUserAbleToViewAssignments(siteId)) {
+            log.warn("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to add external assessment {}",
+                    getUserUid(), gradebookUid, externalId);
+            throw new GradingSecurityException();
         }
 
-        // name cannot contain these chars as they are reserved for special columns in import/export
-        GradebookHelper.validateGradeItemName(title);
+        // Ensure that the assessment name is unique within this gradebook.
+        // Titles containing only digits are names, not assignment IDs.
+        if (gradingPersistenceManager.countAssignmentsByNameAndGradebookUid(validatedTitle, gradebookUid) > 0L) {
+            throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
+        }
 
         // Ensure that the externalId is unique within this gradebook
         Long conflicts = gradingPersistenceManager.countAssignmentsByGradbookAndExternalId(gradebookUid, externalId);
@@ -4325,7 +4341,7 @@ public class GradingServiceImpl implements GradingService {
         Category persistedCategory = validateExternalAssessmentCategory(gradebook, categoryId, points, null);
 
         // Create the external assignment
-        final GradebookAssignment asn = new GradebookAssignment(gradebook, title, points, dueDate);
+        final GradebookAssignment asn = new GradebookAssignment(gradebook, validatedTitle, points, dueDate);
         asn.setReference(gradableReference);
         asn.setExternallyMaintained(true);
         asn.setExternalId(externalId);
@@ -4397,8 +4413,11 @@ public class GradingServiceImpl implements GradingService {
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
 
-        // name cannot contain these chars as they are reserved for special columns in import/export
-        GradebookHelper.validateGradeItemName(title);
+        String validatedTitle = validateExternalAssessmentTitle(title);
+        if (!Objects.equals(asn.getName(), validatedTitle)
+                && gradingPersistenceManager.countDuplicateAssignments(validatedTitle, asn.getGradebook(), asn.getId()) > 0) {
+            throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
+        }
 
         Long effectiveCategoryId = categoryId == null
                 ? (asn.getCategory() == null ? null : asn.getCategory().getId())
@@ -4408,7 +4427,7 @@ public class GradingServiceImpl implements GradingService {
         asn.setExternalInstructorLink(externalUrl);
         asn.setExternalStudentLink(externalUrl);
         asn.setExternalData(externalData);
-        asn.setName(title);
+        asn.setName(validatedTitle);
         asn.setDueDate(dueDate);
         // support selective release
         asn.setReleased(BooleanUtils.isTrue(asn.getReleased()));
@@ -5079,7 +5098,8 @@ public class GradingServiceImpl implements GradingService {
 
         //final GradebookAssignment asnFromDb = (GradebookAssignment) session.load(GradebookAssignment.class, assignment.getId());
 
-        final Long count = gradingPersistenceManager.countDuplicateAssignments(assignment);
+        final Long count = gradingPersistenceManager.countDuplicateAssignments(
+                assignment.getName(), assignment.getGradebook(), assignment.getId());
 
         if (count > 0) {
             throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");

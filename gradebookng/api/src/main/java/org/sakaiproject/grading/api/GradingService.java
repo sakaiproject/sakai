@@ -749,7 +749,7 @@ public interface GradingService extends EntityProducer {
      * @param siteId
      * @param externalId
      * @param externalUrl
-     * @param title
+     * @param title plain-text Unicode title, not HTML or HTML-encoded text; trimmed and limited to 255 characters
      * @param points
      * @param dueDate
      * @param externalServiceDescription
@@ -760,6 +760,8 @@ public interface GradingService extends EntityProducer {
      * @throws ConflictingAssignmentNameException
      * @throws ConflictingExternalIdException
      * @throws AssignmentHasIllegalPointsException
+     * @throws InvalidGradeItemNameException if the title starts with a reserved character
+     * @throws GradeItemNameTooLongException if the title exceeds 255 characters
      * @throws InvalidCategoryException
      */
     public void addExternalAssessment(String gradebookUid, String siteId, String externalId, String externalUrl, String title, Double points,
@@ -772,7 +774,7 @@ public interface GradingService extends EntityProducer {
      * @param externalId
      * @param externalUrl
      * @param externalData
-     * @param title
+     * @param title plain-text Unicode title, not HTML or HTML-encoded text; trimmed and limited to 255 characters
      * @param categoryId
      * @param points
      * @param dueDate
@@ -780,6 +782,8 @@ public interface GradingService extends EntityProducer {
      * @throws AssessmentNotFoundException
      * @throws ConflictingAssignmentNameException
      * @throws AssignmentHasIllegalPointsException
+     * @throws InvalidGradeItemNameException if the title starts with a reserved character
+     * @throws GradeItemNameTooLongException if the title exceeds 255 characters
      * @throws InvalidCategoryException if the effective category is invalid or the proposed points
      *         differ from peers in a Keep/Drop category without equal weighting
      */

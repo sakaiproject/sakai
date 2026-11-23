@@ -200,10 +200,8 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return gradebookAssignmentRepository.countByNameAndGradebook_UidAndRemoved(name, gradebookUid, false);
     }
 
-    public Long countDuplicateAssignments(GradebookAssignment assignment) {
-
-        return gradebookAssignmentRepository.countByNameAndGradebookAndNotIdAndRemoved(
-            assignment.getName(), assignment.getGradebook(), assignment.getId(), false);
+    public Long countDuplicateAssignments(String name, Gradebook gradebook, Long assignmentId) {
+        return gradebookAssignmentRepository.countByNameAndGradebookAndNotIdAndRemoved(name, gradebook, assignmentId, false);
     }
 
     public void deleteAssignment(GradebookAssignment assignment) {

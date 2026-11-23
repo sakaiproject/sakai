@@ -66,6 +66,27 @@ public class GradebookIfc {
 		return true;
 	}
 
+	/** Reuse entries left by a previous question save that stopped partway through. */
+	public boolean saveQuestionGradebookItems(List<String> gradebookUids, String siteId, String externalId,
+			String title, double points) {
+		try {
+			for (String gradebookUid : gradebookUids) {
+				if (gradingService.isExternalAssignmentDefined(gradebookUid, externalId)) {
+					gradingService.updateExternalAssessment(gradebookUid, externalId, null, null, title, null, points, null, null);
+				} else {
+					gradingService.addExternalAssessment(gradebookUid, siteId, externalId, null, title, points, null,
+							LessonBuilderConstants.TOOL_ID, null, null, null, null);
+				}
+			}
+			return true;
+		} catch (ConflictingAssignmentNameException e) {
+			throw e;
+		} catch (Exception e) {
+			log.warn("Could not save Gradebook entries for Lessons question {}", externalId, e);
+			return false;
+		}
+	}
+
 	public boolean updateExternalAssessment(final List<String> gradebookUids, final String externalId, final String externalUrl,
 						final String title, final double points, final Date dueDate) {
 		try {

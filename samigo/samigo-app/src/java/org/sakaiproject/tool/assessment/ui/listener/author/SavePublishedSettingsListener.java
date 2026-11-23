@@ -53,6 +53,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
@@ -1086,7 +1088,10 @@ implements ActionListener
 					}
 				}
 
-				if (createGradebookCategoryMap != null && createGradebookCategoryMap.size() >= 1) {
+				if (!createGradebookCategoryMap.isEmpty()) {
+					EvaluationModelIfc originalEvaluation = originalAssessment.getEvaluationModel();
+					String previousExport = originalEvaluation == null
+							? EvaluationModelIfc.NOT_TO_GRADEBOOK.toString() : originalEvaluation.getToGradeBook();
 					for (Map.Entry<String, String> entry : createGradebookCategoryMap.entrySet()) {
 						try {
 							PublishedAssessmentData data = (PublishedAssessmentData) assessment.getData();
@@ -1094,7 +1099,16 @@ implements ActionListener
 							String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p").id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
 							data.setReference(ref);
 
-							gbsHelper.addToGradebook(entry.getKey(), data, !entry.getValue().equals("-1") ? Long.parseLong(entry.getValue()) : null, gradingServiceApi);
+							if (!gbsHelper.addToGradebook(entry.getKey(), data,
+									!entry.getValue().equals("-1") ? Long.parseLong(entry.getValue()) : null, gradingServiceApi)) {
+								evaluation.setToGradeBook(previousExport);
+								addGradebookTitleError(context, "gbConflict_error");
+								return false;
+							}
+						} catch (GradeItemNameTooLongException e) {
+							evaluation.setToGradeBook(previousExport);
+							addGradebookTitleError(context, "gbTitleTooLong_error");
+							return false;
 						} catch(Exception e){
 							log.warn("oh well, must have been added already:"+e.getMessage());
 						}
@@ -1121,9 +1135,11 @@ implements ActionListener
 					try {
 						gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingServiceApi);
 					} catch (Exception e) {
-						String gbConflict_error = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
-						context.addMessage(null, new FacesMessage(gbConflict_error));
-						evaluation.setToGradeBook("0");
+						String messageKey = e instanceof GradeItemNameTooLongException ? "gbTitleTooLong_error" : "gbConflict_error";
+						addGradebookTitleError(context, messageKey);
+						if (!(e instanceof ConflictingAssignmentNameException) && !(e instanceof GradeItemNameTooLongException)) {
+							evaluation.setToGradeBook("0");
+						}
 						log.warn("Exception thrown in updateGB():" + e.getMessage());
 						return false;
 					}
@@ -1139,6 +1155,11 @@ implements ActionListener
 
         return true;
     }
+
+	private void addGradebookTitleError(FacesContext context, String messageKey) {
+		String message = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", messageKey);
+		context.addMessage(null, new FacesMessage(message));
+	}
 
 	public void resetPublishedAssessmentsList(AuthorBean author, AuthorizationBean authorization,
 			PublishedAssessmentService assessmentService) {
