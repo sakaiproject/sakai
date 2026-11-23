@@ -15,11 +15,10 @@
  */
 package org.sakaiproject.webservices;
 
-import org.sakaiproject.util.Xml;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,19 +36,22 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
+import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.Zip;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -63,6 +65,15 @@ import lombok.extern.slf4j.Slf4j;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 @Slf4j
 public class TestsAndQuizzes extends AbstractWebService {	
+
+	private static final String IMPORT_DIRECTORY_PROPERTY = "webservices.samigo.import.directory";
+
+	private void requireImportAdministrator(String sessionId) {
+		Session session = establishSession(sessionId);
+		if (StringUtils.isBlank(session.getUserId()) || !securityService.isSuperUser(session.getUserId())) {
+			throw new SecurityException("Assessment import requires a Sakai administrator");
+		}
+	}
 
 	/** 
 	 * createAssessmentFromText - WS Endpoint, exposing the SamLite createImportedAssessment()
@@ -93,7 +104,7 @@ public class TestsAndQuizzes extends AbstractWebService {
             @WebParam(name = "description", partName = "description") @QueryParam("description") String description,
             @WebParam(name = "template", partName = "template") @QueryParam("template") String template,
             @WebParam(name = "textdata", partName = "textdata") @QueryParam("textdata") String textdata) {
-        Session session = establishSession(sessionid);
+		requireImportAdministrator(sessionid);
 		Document document = null;
 
 		QuestionGroup questionGroup = samLiteService.parse(formattedText.escapeHtml(title, false), formattedText.escapeHtml(description, false), formattedText.escapeHtml(textdata, false));
@@ -131,7 +142,7 @@ public class TestsAndQuizzes extends AbstractWebService {
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
             @WebParam(name = "siteproperty", partName = "siteproperty") @QueryParam("siteproperty") String siteproperty,
             @WebParam(name = "xmlstring", partName = "xmlstring") @QueryParam("xmlstring") String xmlstring) {
-        Session session = establishSession(sessionid);
+		requireImportAdministrator(sessionid);
 		Document document = null;
 		InputStream inputStream = null;
 
@@ -169,7 +180,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 	 * @param	String sessionid		the id of a valid admin session
 	 * @param	String siteid			the enterprise/sakai id of the site to be archived
 	 * @param	String siteproperty		the property that holds the enterprise site id
-	 * @param	String xmlfile			path to the IMS QTI document containing the assessment
+	 * @param	String xmlfile			path to the IMS QTI document relative to the configured import directory
 	 * @return	boolean	       		 	returns true if assessment created successfully, false if assessment is null
 	 * 
 	 * @throws	AxisFault			WS TestsAndQuizzes.createAssessmentFromXml(): XmlUtil.createDocument() returned a null QTI Document
@@ -188,20 +199,22 @@ public class TestsAndQuizzes extends AbstractWebService {
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
             @WebParam(name = "siteproperty", partName = "siteproperty") @QueryParam("siteproperty") String siteproperty,
             @WebParam(name = "xmlfile", partName = "xmlfile") @QueryParam("xmlfile") String xmlfile) {
-        Session session = establishSession(sessionid);
-		Document document = null;
+		requireImportAdministrator(sessionid);
+		String importDirectory = serverConfigurationService.getString(IMPORT_DIRECTORY_PROPERTY, "");
+		if (StringUtils.isBlank(importDirectory)) {
+			throw new IllegalStateException("Assessment import from a server file is disabled");
+		}
 
+		Document document;
 		try {
-			document = XmlUtil.readDocument(xmlfile, true);
-		} catch (ParserConfigurationException pce) {
-			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() ParserConfigurationException: " + pce.getMessage(), pce);
-			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() ParserConfigurationException: " + pce.getMessage());
-		} catch (SAXException saxe) {
-			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() SaxException: " + saxe.getMessage(), saxe);
-			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() SaxException: " + saxe.getMessage());
-		} catch (IOException ioe) {
-			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() IOException: " + ioe.getMessage(), ioe);
-			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() IOException: " + ioe.getMessage());
+			java.nio.file.Path source = Zip.resolveContainedPath(java.nio.file.Path.of(importDirectory), xmlfile);
+			if (!Files.isRegularFile(source)) {
+				throw new IOException("Import source is not a regular file");
+			}
+			document = XmlUtil.readDocument(source.toString(), true);
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			log.warn("Could not read assessment import file", e);
+			throw new IllegalArgumentException("Could not read assessment import file");
 		}
 		if (document == null) {
 			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() returned a null QTI Document");
@@ -330,13 +343,13 @@ public class TestsAndQuizzes extends AbstractWebService {
 	}
 
 	/** 
-	 * poolAttachmentReport - Makes a report of all attachments included in one specified question pool. Optionally, fix the broken attachments making a copy of them in a new context.
+	 * Reports the attachments in question pools owned by the authenticated caller.
 	 *
 	 * @param	String sessionId			the id of a valid session for user owner of the pool (NOT admin user)
 	 * @param	String user					the user EID we want to look into their question pools
 	 * @param	Long poolId					poolId for searching only in a single pool. Null searches in all pools of the userId.
-	 * @param	String contextToReplace		a site ID where user has access to, so broken attachments will be copied there and replaced in pool  
-	 * @return	String	       		 		a report of the attachments at every pool of the current user and the actions done on them 
+	 * @param	String contextToReplace		legacy repair destination, retained for API compatibility
+	 * @return	String	       		 		a report of the attachments in the selected pools
 	 * 
 	 */
 	@WebMethod
@@ -349,10 +362,9 @@ public class TestsAndQuizzes extends AbstractWebService {
 		@WebParam(name = "poolId", partName = "poolId") @QueryParam("poolId") String poolId,
 		@WebParam(name = "contextToReplace", partName = "contextToReplace") @QueryParam("contextToReplace") String contextToReplace)
 	{
-		establishSession(sessionId);
+		Session session = establishSession(sessionId);
 
-		ArrayList<Long> poolIds = new ArrayList<Long>();
-		StringBuilder resultado = new StringBuilder();
+		List<Long> poolIds = new ArrayList<>();
 		
 		log.debug("WS TestsAndQuizzes.poolAttachmentReport(): user - " + user);
 		
@@ -367,26 +379,28 @@ public class TestsAndQuizzes extends AbstractWebService {
 			return "";
 		}
 
-		if (contextToReplace.isEmpty()) contextToReplace=null;
-		
-		if (!poolId.isEmpty()) {
+		if (StringUtils.isBlank(userId) || !userId.equals(session.getUserId())) {
+			return "";
+		}
+
+		if (StringUtils.isNotBlank(poolId)) {
 			poolIds.add(Long.valueOf(poolId));
 		}
 		else 
 		{
-			List<?> qpif = questionPoolServiceImpl.getAllPools(userId);
-			for (int i=0;i<qpif.size();i++)
-			{
-				QuestionPoolFacade qp = (QuestionPoolFacade) qpif.get(i);
-				poolIds.add(qp.getQuestionPoolId());
+			List<?> pools = questionPoolServiceImpl.getAllPools(userId);
+			for (Object pool : pools) {
+				poolIds.add(((QuestionPoolDataIfc) pool).getQuestionPoolId());
 			}
 		}
 
-		//Calling the new report function in QuestionPoolService.
-		for (Long pId: poolIds) {
-			resultado.append(questionPoolServiceImpl.getUserPoolAttachmentReport(userId, pId, contextToReplace));
+		StringBuilder report = new StringBuilder();
+		String legacyRepairDestination = StringUtils.trimToNull(contextToReplace);
+		for (Long selectedPoolId : poolIds) {
+			report.append(questionPoolServiceImpl.getUserPoolAttachmentReport(userId, selectedPoolId,
+					legacyRepairDestination));
 		}
 
-		return resultado.toString();
+		return report.toString();
 	}
 }

@@ -22,34 +22,31 @@
 
 package org.sakaiproject.tool.assessment.shared.impl.questionpool;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.osid.shared.SharedException;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
-import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolServiceException;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -393,222 +390,85 @@ public class QuestionPoolServiceImpl
     }
   }
 
-  final class UserPoolAttachmentReport
+  private static final class UserPoolAttachmentReport
   {
-	  private final StringBuilder report;
+    private final StringBuilder report = new StringBuilder();
 
-	  public UserPoolAttachmentReport()
-	  {
-		  this.report = new StringBuilder();
-	  }
+    private void inspectAttachmentsInText(String text)
+    {
+      if (StringUtils.isEmpty(text)) {
+        return;
+      }
 
-	  public String getReport() {
-		  return report.toString();
-	  }
-	  
-	  private void addToReport(String info)
-	  {
-		  this.report.append(info);
-	  }
+      Set<String> attachments = new HashSet<>();
+      for (String source : StringUtils.splitByWholeSeparator(text, "src=\"")) {
+        String href = StringUtils.substringBefore(source, "\"");
+        if (StringUtils.contains(href, "/access/content/")) {
+          attachments.add(href);
+        }
+      }
+      if (!attachments.isEmpty()) {
+        report.append("\nFound ").append(attachments.size())
+            .append(" attachments buried in question or answer text.\n\n");
+        attachments.forEach(this::inspectAttachment);
+      }
+    }
 
-	  public String findAttachmentsInText(String text, String contextToReplace)
-	  {
-		  String replacedAttachment;
-		  
-		  if(text != null)
-		  {
-			  String[] sources = StringUtils.splitByWholeSeparator(text, "src=\"");
+    private void inspectAttachment(String attachment)
+    {
+      String resourceId = "/" + StringUtils.substringAfter(attachment, "/access/content/");
+      resourceId = URLDecoder.decode(resourceId, StandardCharsets.UTF_8);
 
-			  Set<String> attachments = new HashSet<String>();
-			  for (String source : sources)
-			  {
-				  String theHref = StringUtils.substringBefore(source, "\"");
-				  if (StringUtils.contains(theHref, "/access/content/"))
-				  {
-					  attachments.add(theHref);
-				  }
-			  }
-			  if (attachments.size() > 0)
-			  {
-				  addToReport("\nFound " + attachments.size() + " attachments buried in question or answer text.\n\n");
-				
-				  for (String attachment: attachments)
-				  {
-					  replacedAttachment=replaceAttachment(attachment, contextToReplace);
-					  if ((!replacedAttachment.equals(attachment))&&(contextToReplace!=null))
-					  {
-						  text = StringUtils.replace(text, attachment, replacedAttachment);
-					  }
-				  }
-			  }
-		  }
-		  return text;
-	  }
-
-	  private String replaceAttachment(String attachment, String contextToReplace)
-	  {
-		  ContentResource cr = null;
-		  
-		  String resourceIdOrig = "/" + StringUtils.substringAfter(attachment, "/access/content/");
-		  String resourceId = URLDecoder.decode(resourceIdOrig);
-		  String filename = StringUtils.substringAfterLast(attachment, "/");
-		  
-		  try
-		  {
-			  cr = AssessmentService.getContentHostingService().getResource(resourceId);
-		  }
-		  catch (IdUnusedException e)
-		  {
-			  addToReport("\nCould not find attachment (" + resourceId + ").\n\n");
-		  }
-		  catch (TypeException e)
-		  {
-			  addToReport("\nTypeException for resource (" + resourceId + ") that was embedded in a question or answer.\n\n");
-		  }
-		  catch (PermissionException e)
-		  {
-			  addToReport("\nNo permission for attachment (" + resourceId + ").\n\n");
-
-			  //If resource exists but user has not access to it, make a copy of the resource in the new accessible context.
-			  if ((contextToReplace!=null) && StringUtils.isNotEmpty(filename))
-			  {
-				  //Overriding current user's permissions to make a copy of the resource.
-				  SecurityService.pushAdvisor(new SecurityAdvisor(){
-					  @Override
-					  public SecurityAdvice isAllowed(String arg0, String arg1,
-							  String arg2) {
-						  if("content.read".equals(arg1)){
-							  return SecurityAdvice.ALLOWED;
-						  }else{
-							  return SecurityAdvice.PASS;
-						  }
-					  }
-				  });
-
-				  try
-				  {
-					  cr = AssessmentService.getContentHostingService().getResource(resourceId);
-
-					  ContentResource crCopy = new AssessmentService().createCopyOfContentResource(cr.getId(), filename, contextToReplace);
-					  //getUrl respects non-ascii chars, getReference does not.
-					  attachment = StringUtils.replace(attachment, resourceIdOrig, StringUtils.substringAfter(crCopy.getUrl(), "/content"));
-					  addToReport("\nCopied unusable attachment to new context resources folder: "+attachment+" .\n\n");
-				  }
-				  catch(Exception e2)
-				  {
-					  addToReport("\nCould NOT copy old attachment "+attachment+" to new attachment in site "+contextToReplace+" .\n\n");
-					  log.error(e2.getMessage(), e2);
-				  }
-				  finally
-				  {
-					  SecurityService.popAdvisor();
-				  }
-			  }
-
-		  }
-		  return attachment;
-	  }
+      try {
+        AssessmentService.getContentHostingService().getResource(resourceId);
+      } catch (IdUnusedException e) {
+        report.append("\nCould not find attachment (").append(resourceId).append(").\n\n");
+      } catch (TypeException e) {
+        report.append("\nTypeException for resource (").append(resourceId)
+            .append(") that was embedded in a question or answer.\n\n");
+      } catch (PermissionException e) {
+        report.append("\nNo permission for attachment (").append(resourceId).append(").\n\n");
+      }
+    }
   }
-  
+
+  @Override
   public String getUserPoolAttachmentReport(String userId, Long poolId, String contextToReplace)
   {
-	  String parsedText = null;
-	  UserPoolAttachmentReport upar = new UserPoolAttachmentReport();
+    if (StringUtils.isBlank(userId) || !userId.equals(SessionManager.getCurrentSessionUserId()) || poolId == null) {
+      return "";
+    }
 
-	  boolean flagQuestionPoolUpdated=false;
-	  boolean flagTextUpdated = false;
-	  boolean flagAttachmentUpdated = false;
-	  boolean flagAnswerUpdated = false;
+    QuestionPoolDataIfc pool = getPool(poolId, userId);
+    if (pool == null || !userId.equals(pool.getOwnerId())) {
+      return "";
+    }
 
-	  ItemService itemService = new ItemService();
+    UserPoolAttachmentReport attachmentReport = new UserPoolAttachmentReport();
+    StringBuilder report = attachmentReport.report;
+    if (StringUtils.isNotBlank(contextToReplace)) {
+      report.append("Attachment repair is disabled. This report is read-only.\n\n");
+    }
+    report.append("POOL ---> ").append(pool.getTitle()).append(" - POOL ID: ")
+        .append(pool.getQuestionPoolId()).append("\n\n");
 
-	  //Get user's pool with questions.
-	  //QuestionPoolFacade qpf = this.getPool(poolId, userId);
-	  QuestionPoolDataIfc qpf = this.getPool(poolId, userId);
-	  
-	  if (qpf==null)
-	  {
-		  upar.addToReport("POOL ID: "+poolId+" NOT FOUND IN USER "+userId+".");
-		  return upar.toString();
-	  }
-	  upar.addToReport("POOL ---> "+qpf.getTitle()+" - POOL ID: "+qpf.getQuestionPoolId()+"\n\n");
+    for (Object item : getAllItems(poolId)) {
+      ItemFacade question = (ItemFacade) item;
+      for (ItemTextIfc text : question.getItemTextSet()) {
+        report.append("Question Text ---> ").append(text.getText()).append('\n');
+        attachmentReport.inspectAttachmentsInText(text.getText());
+        for (AnswerIfc answer : text.getAnswerSet()) {
+          attachmentReport.inspectAttachmentsInText(answer.getText());
+        }
+      }
 
-	  Iterator iter = this.getAllItems(poolId).iterator();
+      List<ItemAttachmentIfc> attachments = question.getItemAttachmentList();
+      if (!attachments.isEmpty()) {
+        report.append("\nFound ").append(attachments.size()).append(" uploaded attachments in the question.\n\n");
+        attachments.forEach(attachment -> attachmentReport.inspectAttachment(attachment.getLocation()));
+      }
+    }
 
-	  while (iter.hasNext())
-	  {
-		  ItemFacade itemData = (ItemFacade) iter.next();
-
-		  //Parsing the question text looking for embedded attachments.
-		  Set misItemText = itemData.getItemTextSet();
-
-		  HashSet newItemTextSet = new HashSet(); //Modified question text.
-		  HashSet newAnswerSet = new HashSet(); //Modified answers text.
-
-		  Iterator itemTextIter = misItemText.iterator();
-		  while (itemTextIter.hasNext())
-		  {
-			  //Looking for bad attachments in question text.
-			  ItemText iti = (ItemText) itemTextIter.next();
-			  upar.addToReport("Question Text ---> "+iti.getText()+"\n");
-
-			  parsedText = upar.findAttachmentsInText(iti.getText(), contextToReplace);
-			  if (!parsedText.equals(iti.getText()))
-			  {
-				  flagTextUpdated=true;
-				  iti.setText(parsedText);
-			  }
-
-			  //Looking for bad attachments in question text.
-			  Set myAnswerSet = iti.getAnswerSet();
-			  Iterator answerIter = myAnswerSet.iterator();
-			  while (answerIter.hasNext())
-			  {
-				  Answer myAnswer = (Answer) answerIter.next();
-				  parsedText = upar.findAttachmentsInText(myAnswer.getText(), contextToReplace);
-				  if (!parsedText.equals(myAnswer.getText()))
-				  {
-					  flagAnswerUpdated=flagTextUpdated=true;
-					  myAnswer.setText(parsedText);
-				  }
-				  newAnswerSet.add(myAnswer);
-			  }
-
-			  if (flagAnswerUpdated) iti.setAnswerSet(newAnswerSet);
-			  flagAnswerUpdated=false;
-
-			  newItemTextSet.add(iti);
-		  }
-		  if (flagTextUpdated) itemData.setItemTextSet(newItemTextSet);
-
-		  //Looking for bad attachments in question's attachments (out of CKEditor).
-		  StringBuilder uploadedAttachments = new StringBuilder();
-		  ArrayList misAttachments = (ArrayList<ItemAttachmentIfc>) itemData.getItemAttachmentList();
-		  if (misAttachments.size()>0) upar.addToReport("\nFound " + misAttachments.size() + " uploaded attachments in the question.\n\n");
-		  for (int i=0;i<misAttachments.size();i++)
-		  {
-			  ItemAttachmentIfc ia = (ItemAttachmentIfc) misAttachments.get(i);
-			  //uploadedAttachments.append("src=\""+ia.getLocation()+"\" ");
-			  parsedText = upar.replaceAttachment(ia.getLocation(), contextToReplace);
-			  if (!parsedText.equals(ia.getLocation()))
-			  {
-				  flagAttachmentUpdated=true;
-				  ia.setLocation(parsedText);
-				  misAttachments.set(i, ia);
-			  }
-		  }
-		  if (flagAttachmentUpdated) itemData.setItemAttachmentSet(new HashSet(misAttachments));
-
-		  if (flagTextUpdated || flagAttachmentUpdated)
-		  {
-			  flagQuestionPoolUpdated=true;
-			  itemService.saveItem(itemData);
-		  }
-
-		  flagTextUpdated=false;
-		  flagAttachmentUpdated=false;
-	  }
-	  if (flagQuestionPoolUpdated) this.savePool(qpf);
-	  return upar.getReport();
+    return report.toString();
   }
 }

@@ -49,17 +49,18 @@ public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
 	protected void addServiceMocks(AbstractWebService service) {
 		Session mockSession = mock(Session.class);
 		when(service.sessionManager.getSession(SESSION_ID)).thenReturn(mockSession);
+		when(mockSession.getUserId()).thenReturn(MOCK_USER_ID);
 		
 		try
 		{
-			when(service.userDirectoryService.getUserId(MOCK_USER)).thenReturn(MOCK_USER);
+			when(service.userDirectoryService.getUserId(MOCK_USER)).thenReturn(MOCK_USER_ID);
 		}
 		catch (UserNotDefinedException e)
 		{
 			
 		}
 		
-		when(service.questionPoolServiceImpl.getUserPoolAttachmentReport(MOCK_USER, MOCK_POOL_ID, MOCK_CONTEXT_TO_REPLACE)).thenReturn("report");
+		when(service.questionPoolServiceImpl.getUserPoolAttachmentReport(MOCK_USER_ID, MOCK_POOL_ID, MOCK_CONTEXT_TO_REPLACE)).thenReturn("report");
 	}
 
 	@Test
