@@ -436,6 +436,10 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     public void rejectedGradebookTitleExportsTheCurrentScoreBeforeRethrowing() {
         PublishedAssessmentData current = data();
         when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(true);
+        Assignment linked = new Assignment();
+        linked.setName("Accepted title");
+        linked.setPoints(4D);
+        when(gradebookService.getExternalAssignment(siteId, assessment.getId())).thenReturn(linked);
         AssessmentGradingData grade = sessionFactory.getCurrentSession()
                 .createQuery("from AssessmentGradingData where publishedAssessmentId = :id", AssessmentGradingData.class)
                 .setParameter("id", current.getPublishedAssessmentId()).getSingleResult();
@@ -447,9 +451,12 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
                 new GradeItemNameTooLongException("too long"))) {
             clearInvocations(gradebookService);
             doThrow(rejection).when(gradebookService)
-                    .updateExternalAssessment(anyString(), anyString(), any(), any(), anyString(), any(), any(), any(), any());
+                    .updateExternalAssessment(anyString(), anyString(), any(), any(), eq(current.getTitle()), any(), any(), any(), any());
             assertSame(rejection, assertThrows(rejection.getClass(), () -> service.updateGradebook(current)));
-            verify(gradebookService).updateExternalAssessmentScore(siteId, siteId, assessment.getId(), "student", "3");
+            org.mockito.InOrder order = inOrder(gradebookService);
+            order.verify(gradebookService).updateExternalAssessment(siteId, assessment.getId(), null, null,
+                    "Accepted title", null, 3D, null, null);
+            order.verify(gradebookService).updateExternalAssessmentScore(siteId, siteId, assessment.getId(), "student", "3");
             assertEquals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), current.getEvaluationModel().getToGradeBook());
         }
     }
