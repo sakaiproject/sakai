@@ -37,6 +37,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -62,22 +63,25 @@ class LessonsTest extends SakaiUiTestBase {
     void studentsCannotProbeLinkTypesOnCourseLessonPages() {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
-        sakai.addMemberToSite(siteUrl, "student0011", "Student");
+        // An account outside the course roster is never rewritten by the provider refresh.
+        try (TestUser student = sakai.createUser("lessons-probe")) {
+            sakai.addMember(siteUrl, student.username(), "Student");
 
-        sakai.login("student0011");
-        page.navigate(siteUrl);
-        sakai.toolClick("Lessons");
-        String pageId = page.locator("#lessonsCurrentPageId").inputValue();
-        String csrfToken = page.locator("#add-multimedia-dialog input[name='csrf9']").inputValue();
+            sakai.login(student.username());
+            page.navigate(siteUrl);
+            sakai.toolClick("Lessons");
+            String pageId = page.locator("#lessonsCurrentPageId").inputValue();
+            String csrfToken = page.locator("#add-multimedia-dialog input[name='csrf9']").inputValue();
 
-        APIResponse response = page.request().get("/lessonbuilder-tool/ajax",
-            RequestOptions.create().setQueryParam("op", "getmimetype")
-                .setQueryParam("pageId", pageId).setHeader("X-CSRF-Token", csrfToken)
-                .setQueryParam("url", "http://127.0.0.1:1/image.png"));
-        try {
-            assertEquals(403, response.status());
-        } finally {
-            response.dispose();
+            APIResponse response = page.request().get("/lessonbuilder-tool/ajax",
+                RequestOptions.create().setQueryParam("op", "getmimetype")
+                    .setQueryParam("pageId", pageId).setHeader("X-CSRF-Token", csrfToken)
+                    .setQueryParam("url", "http://127.0.0.1:1/image.png"));
+            try {
+                assertEquals(403, response.status());
+            } finally {
+                response.dispose();
+            }
         }
     }
 
@@ -103,12 +107,8 @@ class LessonsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click(new Locator.ClickOptions().setForce(true));
         page.locator(".add-checklist-link:visible").first().click(new Locator.ClickOptions().setForce(true));
 
-        Locator nameInput = page.locator("#name:visible").first();
-        if (nameInput.count() == 0) {
-            assertThat(page.locator("body")).containsText(Pattern.compile("Checklist|Add Checklist", Pattern.CASE_INSENSITIVE));
-            return;
-        }
-
+        Locator nameInput = page.locator("#name");
+        assertThat(nameInput).isVisible();
         nameInput.fill("Checklist");
 
         page.locator("#addChecklistItemButton > :nth-child(2)").click(new Locator.ClickOptions().setForce(true));
@@ -121,7 +121,12 @@ class LessonsTest extends SakaiUiTestBase {
         page.locator("#checklistItemDiv4 > .checklist-item-name").fill("D");
 
         page.locator("#save").click(new Locator.ClickOptions().setForce(true));
-        assertThat(page.locator("#content")).isVisible();
+        Locator checklist = page.locator(".portletBody .item")
+            .filter(new Locator.FilterOptions().setHasText("Checklist"));
+        assertThat(checklist.locator("input[type=checkbox].checklist-checkbox")).hasCount(4);
+        for (String entry : List.of("A", "B", "C", "D")) {
+            assertThat(checklist).containsText(entry);
+        }
     }
 
     @Test
@@ -289,35 +294,38 @@ class LessonsTest extends SakaiUiTestBase {
     void hiddenTopLevelPageStaysOutOfStudentNavigation() {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
-        sakai.addMemberToSite(siteUrl, "student0011", "Student");
-        page.navigate(siteUrl);
-        sakai.toolClick("Lessons");
-        createTopLevelPage("Hidden navigation page");
+        // An account outside the course roster is never rewritten by the provider refresh.
+        try (TestUser student = sakai.createUser("lessons-hidden-page")) {
+            sakai.addMember(siteUrl, student.username(), "Student");
+            page.navigate(siteUrl);
+            sakai.toolClick("Lessons");
+            createTopLevelPage("Hidden navigation page");
 
-        page.locator("#edit-title").click();
-        Locator settings = page.locator("#edit-title-dialog");
-        settings.locator("input[type=radio][value=hideFromNav]").check();
-        settings.locator("input[type=submit]").click();
-        page.navigate(siteUrl);
-        assertNavigationLinkCount("Hidden navigation page", 1);
-        assertNavigationLinkCount("Lessons", 1);
+            page.locator("#edit-title").click();
+            Locator settings = page.locator("#edit-title-dialog");
+            settings.locator("input[type=radio][value=hideFromNav]").check();
+            settings.locator("input[type=submit]").click();
+            page.navigate(siteUrl);
+            assertNavigationLinkCount("Hidden navigation page", 1);
+            assertNavigationLinkCount("Lessons", 1);
 
-        sakai.login("student0011");
-        page.navigate(siteUrl);
-        assertNavigationLinkCount("Hidden navigation page", 0);
-        assertNavigationLinkCount("Lessons", 1);
-        page.reload();
-        assertNavigationLinkCount("Hidden navigation page", 0);
+            sakai.login(student.username());
+            page.navigate(siteUrl);
+            assertNavigationLinkCount("Hidden navigation page", 0);
+            assertNavigationLinkCount("Lessons", 1);
+            page.reload();
+            assertNavigationLinkCount("Hidden navigation page", 0);
 
-        sakai.login("instructor1");
-        page.navigate(siteUrl);
-        sakai.toolClick("Hidden navigation page");
-        page.locator("#edit-title").click();
-        settings.locator("input[type=radio][value=visible]").check();
-        settings.locator("input[type=submit]").click();
-        sakai.login("student0011");
-        page.navigate(siteUrl);
-        assertNavigationLinkCount("Hidden navigation page", 1);
+            sakai.login("instructor1");
+            page.navigate(siteUrl);
+            sakai.toolClick("Hidden navigation page");
+            page.locator("#edit-title").click();
+            settings.locator("input[type=radio][value=visible]").check();
+            settings.locator("input[type=submit]").click();
+            sakai.login(student.username());
+            page.navigate(siteUrl);
+            assertNavigationLinkCount("Hidden navigation page", 1);
+        }
     }
 
     private void restoreTopLevelPageAfterRemoval(String title, java.util.function.Consumer<String> removePage) {
