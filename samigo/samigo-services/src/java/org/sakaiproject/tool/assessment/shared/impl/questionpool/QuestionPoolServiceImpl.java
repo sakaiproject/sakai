@@ -34,6 +34,7 @@ import org.osid.shared.SharedException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -42,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolServiceException;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -439,8 +441,9 @@ public class QuestionPoolServiceImpl
       return "";
     }
 
-    QuestionPoolDataIfc pool = getPool(poolId, userId);
-    if (pool == null || !userId.equals(pool.getOwnerId())) {
+    QuestionPoolData pool = PersistenceService.getInstance().getQuestionPoolFacadeQueries()
+        .getOwnedPoolSummary(poolId, userId).orElse(null);
+    if (pool == null) {
       return "";
     }
 

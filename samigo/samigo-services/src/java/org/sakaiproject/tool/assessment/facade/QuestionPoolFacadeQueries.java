@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -177,6 +178,17 @@ public class QuestionPoolFacadeQueries
       poolList.add(f);
     }
     return poolList;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<QuestionPoolData> getOwnedPoolSummary(Long poolId, String ownerId) {
+    CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+    CriteriaQuery<QuestionPoolData> query = builder.createQuery(QuestionPoolData.class);
+    Root<QuestionPoolData> pool = query.from(QuestionPoolData.class);
+    query.select(builder.construct(QuestionPoolData.class, pool.get("questionPoolId"), pool.get("title")))
+        .where(builder.equal(pool.get("questionPoolId"), poolId), builder.equal(pool.get("ownerId"), ownerId));
+    return sessionFactory.getCurrentSession().createQuery(query).getResultList().stream().findFirst();
   }
 
   private QuestionPoolFacade getQuestionPool(QuestionPoolData qpp) {
