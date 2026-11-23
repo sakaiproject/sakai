@@ -220,6 +220,11 @@ public class SakaiHelper {
             "siteid", siteIdFromUrl(siteUrl), "eid", resolveUser(username), "roleid", role));
     }
 
+    public void setSiteProperty(String siteUrl, String property, String value) {
+        callSakaiScript("setSiteProperty", fixtureSession(), Map.of(
+            "siteid", siteIdFromUrl(siteUrl), "propname", property, "propvalue", value));
+    }
+
     public String createProject(String username, List<String> toolIds) {
         return createSite(username, toolIds, "project");
     }
