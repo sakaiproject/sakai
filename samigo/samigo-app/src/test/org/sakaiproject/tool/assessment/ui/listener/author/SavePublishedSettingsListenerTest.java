@@ -29,6 +29,7 @@ import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.samigo.impl.SamigoAvailableNotificationServiceImpl;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.SamigoAppTestConfiguration;
@@ -86,6 +87,7 @@ public class SavePublishedSettingsListenerTest {
         when(placement.getContext()).thenReturn("site");
         when(toolManager.getCurrentPlacement()).thenReturn(placement);
         ComponentManager.loadComponent(ToolManager.class, toolManager);
+        ComponentManager.loadComponent(ThreadLocalManager.class, context.getBean(ThreadLocalManager.class));
         ComponentManager.loadComponent(GradingService.class, gradebook);
         ComponentManager.loadComponent("agentHelper", context.getBean(AgentHelperImpl.class));
         when(gradebook.isExternalAssignmentDefined("site", "101")).thenReturn(true);
@@ -101,6 +103,7 @@ public class SavePublishedSettingsListenerTest {
     public void overlongTitleDoesNotDisableExport() {
         assertRejectedTitle(new GradeItemNameTooLongException("too long"),
                 EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+        verify(facesContext).addMessage(isNull(), argThat(message -> message.getSummary().contains("255 characters or fewer")));
     }
 
     @Test
@@ -139,6 +142,7 @@ public class SavePublishedSettingsListenerTest {
         @Bean(name = "org.sakaiproject.grading.api.GradingService")
         public GradingService gradebook() { return mock(GradingService.class); }
         @Bean(name = "org.sakaiproject.tool.api.ToolManager") public ToolManager toolManager() { return mock(ToolManager.class); }
+        @Bean public ThreadLocalManager threadLocalManager() { return mock(ThreadLocalManager.class); }
         @Bean public FacesContext facesContext() { return mock(FacesContext.class); }
         @Bean(name = "org.sakaiproject.tool.api.SessionManager")
         public org.sakaiproject.tool.api.SessionManager sessions() { return mock(org.sakaiproject.tool.api.SessionManager.class); }

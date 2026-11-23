@@ -1123,8 +1123,9 @@ implements ActionListener
 					try {
 						gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingServiceApi);
 					} catch (Exception e) {
-						String gbConflict_error = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
-						context.addMessage(null, new FacesMessage(gbConflict_error));
+						String messageKey = e instanceof GradeItemNameTooLongException ? "gbTitleTooLong_error" : "gbConflict_error";
+						String message = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", messageKey);
+						context.addMessage(null, new FacesMessage(message));
 						if (!(e instanceof ConflictingAssignmentNameException) && !(e instanceof GradeItemNameTooLongException)) {
 							evaluation.setToGradeBook("0");
 						}

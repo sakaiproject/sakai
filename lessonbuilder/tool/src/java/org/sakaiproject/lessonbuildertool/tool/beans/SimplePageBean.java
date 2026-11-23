@@ -8251,7 +8251,7 @@ public class SimplePageBean {
 				List<String> deletedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "DELETE");
 
 				if (gradebookTitle != null) {
-					if (!createGradebookItem(addedGroups, item, pointsInt)
+					if (!saveNewQuestionGradebookItems(addedGroups, item, pointsInt)
 							|| !updateGradebookItem(updatedGroups, item, pointsInt)) {
 						return "failure";
 					}
@@ -8266,7 +8266,7 @@ public class SimplePageBean {
 				}
 			} else {
 				if (gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
-					if (!createGradebookItem(gradebookUids, item, pointsInt)) {
+					if (!saveNewQuestionGradebookItems(gradebookUids, item, pointsInt)) {
 						return "failure";
 					}
 					item.setGradebookId(questionGradebookId(item));
@@ -8398,7 +8398,7 @@ public class SimplePageBean {
 		return "lesson-builder:question:" + item.getId();
 	}
 
-	private boolean createGradebookItem(List<String> creatableList, SimplePageItem item, Integer pointsInt) {
+	private boolean saveNewQuestionGradebookItems(List<String> creatableList, SimplePageItem item, Integer pointsInt) {
 		if (creatableList.isEmpty()) {
 			return true;
 		}
@@ -8414,11 +8414,11 @@ public class SimplePageBean {
 		}
 
 		try {
-			boolean add = gradebookIfc.addExternalAssessment(creatableList, getCurrentSiteId(), gradebookId, null, title, pointsInt, null, LessonBuilderConstants.TOOL_ID);
-			if (!add) {
-				setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
+			boolean saved = gradebookIfc.saveQuestionGradebookItems(creatableList, getCurrentSiteId(), gradebookId, title, pointsInt);
+			if (!saved) {
+				setErrMessage(messageLocator.getMessage("simplepage.gradebook-update-failed"));
 			}
-			return add;
+			return saved;
 		} catch(ConflictingAssignmentNameException cane) {
 			setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
 			return false;

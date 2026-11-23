@@ -104,6 +104,10 @@ public class LessonsGradebookTitleTest {
         question.setAttribute("questionText", "Old question");
         question.setGradebookId("lesson-builder:question:existing");
         assertTrue(dao.quickSaveItem(question));
+        prepareQuestionForm(page);
+    }
+
+    private void prepareQuestionForm(SimplePage page) {
         // RSF constructs the request bean; use the real DAO and Gradebook adapter from the tool context.
         bean = new SimplePageBean();
         bean.setSimplePageToolDao(dao);
@@ -145,12 +149,26 @@ public class LessonsGradebookTitleTest {
     }
 
     @Test
-    public void failedRenameAfterAddingAGroupPreservesTheLocalTitle() {
+    public void retryReusesAGroupEntryCreatedBeforeTheRenameFailed() {
         bean.selectedGroups = new String[] {"group-a", "group-b"};
         rejectRename();
         assertEquals("failure", bean.updateQuestion());
         assertStoredTitle("Old title");
         verify(gradebook).addExternalAssessment(eq("group-b"), eq("site"), anyString(), any(), eq("New title"),
+                any(), any(), anyString(), any(), any(), any(), any());
+
+        String externalId = "lesson-builder:question:" + question.getId();
+        when(gradebook.isExternalAssignmentDefined("group-b", externalId)).thenReturn(true);
+        doNothing().when(gradebook).updateExternalAssessment(eq("group-a"), anyString(), any(), any(), eq("New title"),
+                any(), any(), any(), any());
+
+        prepareQuestionForm(dao.getPage(question.getPageId()));
+        bean.selectedGroups = new String[] {"group-a", "group-b"};
+        assertEquals("success", bean.updateQuestion());
+        assertStoredTitle("New title");
+        verify(gradebook).updateExternalAssessment(eq("group-b"), eq(externalId), isNull(), isNull(), eq("New title"),
+                isNull(), eq(10D), isNull(), isNull());
+        verify(gradebook, times(1)).addExternalAssessment(eq("group-b"), eq("site"), eq(externalId), any(), eq("New title"),
                 any(), any(), anyString(), any(), any(), any(), any());
     }
 

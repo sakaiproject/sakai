@@ -26,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -104,6 +106,9 @@ public class ItemCancellationListener implements ActionListener {
                 } catch (InvalidCategoryException e) {
                     cancellationError("cancel_question_error_gradebook_category");
                     log.warn("Gradebook rejected cancellation synchronization for assessment {}", publishedAssessmentId, e);
+                } catch (ConflictingAssignmentNameException | GradeItemNameTooLongException e) {
+                    cancellationError("cancel_question_error_gradebook_title");
+                    log.warn("Gradebook rejected the title for assessment {}", publishedAssessmentId, e);
                 }
             }
 
