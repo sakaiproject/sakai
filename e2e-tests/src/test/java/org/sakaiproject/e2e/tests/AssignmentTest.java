@@ -27,6 +27,7 @@ import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Disabled;
@@ -843,6 +844,10 @@ class AssignmentTest extends SakaiUiTestBase {
         sakai.toolClick("Assignments");
 
         openPointAssignmentForGradebook(original, "100");
+        LocalDateTime dueDate = LocalDateTime.parse(page.locator("#duedate input[type=datetime-local]").inputValue());
+        LocalDateTime originalDueDate = dueDate.plusDays(1);
+        sakai.selectDate("#closedate", originalDueDate.plusDays(1).toString());
+        sakai.selectDate("#duedate", originalDueDate.toString());
         page.locator("#create-gradebook-item").check();
         page.locator("input[name=post]").click();
         assertThat(page.locator("#assignments-list")).containsText(original);
@@ -852,9 +857,15 @@ class AssignmentTest extends SakaiUiTestBase {
                 .filter(new Locator.FilterOptions().setHasText(original));
         assertThat(originalColumn).isVisible();
         String itemId = originalColumn.getAttribute("data-assignment-id");
+        Locator gradebookDueDate = originalColumn.locator(".gb-due-date span");
+        assertThat(gradebookDueDate).hasText(Pattern.compile("\\S"));
+        String originalGradebookDueDate = gradebookDueDate.innerText().strip();
 
         sakai.toolClick("Assignments");
         openPointAssignmentForGradebook(linked, "50");
+        LocalDateTime linkedDueDate = originalDueDate.plusDays(3);
+        sakai.selectDate("#closedate", linkedDueDate.plusDays(1).toString());
+        sakai.selectDate("#duedate", linkedDueDate.toString());
         page.locator("#associate-gradebook-item").check();
         Locator items = page.locator("#gradebookItemSelect");
         String selected = items.locator("option").filter(new Locator.FilterOptions().setHasText(original))
@@ -881,6 +892,7 @@ class AssignmentTest extends SakaiUiTestBase {
         sakai.toolClick("Gradebook");
         assertThat(originalColumn).isVisible();
         assertThat(originalColumn).hasAttribute("data-assignment-id", itemId);
+        assertThat(gradebookDueDate).hasText(originalGradebookDueDate);
         assertThat(originalColumn.locator(".gb-total-points")).hasText(Pattern.compile("\\s*100(?:\\.0+)?\\s*"));
         assertThat(page.locator(".tabulator-col[data-assignment-id]")
                 .filter(new Locator.FilterOptions().setHasText(linked))).hasCount(0);
