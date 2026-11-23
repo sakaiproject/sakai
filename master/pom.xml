@@ -55,7 +55,6 @@
     <sakai.spring.version>6.2.19</sakai.spring.version>
     <sakai.spring.data.commons.version>3.5.13</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>3.5.13</sakai.spring.data.jpa.version>
-    <sakai.spring.data.rest.version>4.5.13</sakai.spring.data.rest.version>
     <sakai.spring.security.version>6.5.11</sakai.spring.security.version>
     <sakai.opensaml.version>5.2.3</sakai.opensaml.version>
     <sakai.spring.hateoas.version>3.1.1</sakai.spring.hateoas.version>
@@ -561,12 +560,6 @@
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
         <version>${sakai.spring.security.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.data</groupId>
-        <artifactId>spring-data-rest-core</artifactId>
-        <version>${sakai.spring.data.rest.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

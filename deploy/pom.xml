@@ -687,11 +687,6 @@
             <artifactId>spring-security-core</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-rest-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- spring related -->
         <dependency>
