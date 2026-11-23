@@ -34,6 +34,7 @@ import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.site.api.Site;
@@ -99,6 +100,8 @@ public class LessonsGradebookTitleTest {
         question = dao.makeItem(page.getPageId(), 1, SimplePageItem.QUESTION, "", "Question");
         question.setGroups("group-a");
         question.setGradebookTitle("Old title");
+        question.setGradebookPoints(5);
+        question.setAttribute("questionText", "Old question");
         question.setGradebookId("lesson-builder:question:existing");
         assertTrue(dao.quickSaveItem(question));
         // RSF constructs the request bean; use the real DAO and Gradebook adapter from the tool context.
@@ -127,9 +130,15 @@ public class LessonsGradebookTitleTest {
 
     @Test
     public void failedRenameWithNoAddedGroupsPreservesTheTitle() {
+        SimplePageQuestionResponse response = dao.makeQuestionResponse("student", question.getId());
+        response.setShortanswer("answer");
+        response.setCorrect(true);
+        response.setPoints(5D);
+        assertTrue(dao.quickSaveItem(response));
         rejectRename();
-        assertEquals("success", bean.updateQuestion());
+        assertEquals("failure", bean.updateQuestion());
         assertStoredTitle("Old title");
+        assertEquals(Double.valueOf(5D), dao.findQuestionResponses(question.getId()).get(0).getPoints());
         verify(gradebook, never()).addExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(),
                 any(), any(), anyString(), any(), any(), any(), any());
         assertEquals(List.of("simplepage.gradebook-update-failed"), bean.errMessages());
@@ -139,21 +148,21 @@ public class LessonsGradebookTitleTest {
     public void failedRenameAfterAddingAGroupPreservesTheLocalTitle() {
         bean.selectedGroups = new String[] {"group-a", "group-b"};
         rejectRename();
-        assertEquals("success", bean.updateQuestion());
+        assertEquals("failure", bean.updateQuestion());
         assertStoredTitle("Old title");
         verify(gradebook).addExternalAssessment(eq("group-b"), eq("site"), anyString(), any(), eq("New title"),
                 any(), any(), anyString(), any(), any(), any(), any());
     }
 
     @Test
-    public void failedCreationDoesNotCommitTheLocalTitleAfterAnUpdate() {
+    public void failedCreationSkipsUpdatesAndPreservesTheQuestion() {
         bean.selectedGroups = new String[] {"group-a", "group-b"};
         doThrow(new ConflictingAssignmentNameException("duplicate")).when(gradebook)
                 .addExternalAssessment(eq("group-b"), eq("site"), anyString(), any(), eq("New title"),
                         any(), any(), anyString(), any(), any(), any(), any());
-        assertEquals("success", bean.updateQuestion());
+        assertEquals("failure", bean.updateQuestion());
         assertStoredTitle("Old title");
-        verify(gradebook).updateExternalAssessment(eq("group-a"), anyString(), any(), any(), eq("New title"), any(), any(), any(), any());
+        verify(gradebook, never()).updateExternalAssessment(anyString(), anyString(), any(), any(), anyString(), any(), any(), any(), any());
         assertEquals(List.of("simplepage.existing-gradebook"), bean.errMessages());
     }
 
@@ -174,7 +183,12 @@ public class LessonsGradebookTitleTest {
     private void assertStoredTitle(String expected) {
         sessionFactory.getCurrentSession().flush();
         sessionFactory.getCurrentSession().clear();
-        assertEquals(expected, dao.findItem(question.getId()).getGradebookTitle());
+        SimplePageItem stored = dao.findItem(question.getId());
+        assertEquals(expected, stored.getGradebookTitle());
+        boolean updated = "New title".equals(expected);
+        assertEquals(updated ? "group-a,group-b" : "group-a", stored.getGroups());
+        assertEquals(Integer.valueOf(updated ? 10 : 5), stored.getGradebookPoints());
+        assertEquals(updated ? "Question" : "Old question", stored.getAttribute("questionText"));
     }
 
     @Configuration
