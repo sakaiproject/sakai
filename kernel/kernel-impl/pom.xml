@@ -20,6 +20,7 @@
         <deploy.target>components</deploy.target>
         <maven.test.jvmargs/>
         <kernel.basedir>${basedir}/..</kernel.basedir>
+        <jmock.version>2.13.1</jmock.version>
     </properties>
 
     <build>
@@ -361,13 +362,13 @@
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock</artifactId>
-            <version>2.5.1</version>
+            <version>${jmock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock-junit4</artifactId>
-            <version>2.5.1</version>
+            <version>${jmock.version}</version>
             <scope>test</scope>
             <!-- This is so that we only get one copy of junit. -->
             <exclusions>
@@ -380,13 +381,13 @@
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock-legacy</artifactId>
-            <version>2.8.4</version>
+            <version>${jmock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock-junit3</artifactId>
-            <version>2.5.1</version>
+            <version>${jmock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
