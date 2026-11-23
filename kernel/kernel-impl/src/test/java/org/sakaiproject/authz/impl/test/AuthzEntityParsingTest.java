@@ -15,19 +15,19 @@
  */
 package org.sakaiproject.authz.impl.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.sakaiproject.authz.api.AuthzGroupService.APPLICATION_ID;
 
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.sakaiproject.authz.impl.BaseAuthzGroupService;
 import org.sakaiproject.authz.impl.DbAuthzGroupService;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.impl.EntityManagerComponent;
+import org.sakaiproject.entity.impl.ReferenceComponent;
 
 
 /**
@@ -35,11 +35,7 @@ import org.sakaiproject.entity.api.Reference;
  * @author Matthew Buckett
  *
  */
-@RunWith(JMock.class)
-public class AuthzTestEntityParsing {
-	public JUnit4Mockery context = new JUnit4Mockery();
-
-
+public class AuthzEntityParsingTest {
 	private BaseAuthzGroupService authz;
 
 	private Reference ref;
@@ -47,7 +43,7 @@ public class AuthzTestEntityParsing {
 	@Before
 	public void setUp() {
 		authz = new DbAuthzGroupService();
-		ref = context.mock(Reference.class);
+		ref = new ReferenceComponent(new EntityManagerComponent(), null);
 	}
 
 	@Test
@@ -67,26 +63,28 @@ public class AuthzTestEntityParsing {
 	
 	@Test
 	public void testNoId() {
-		context.checking(new Expectations() {{
-			allowing(ref);
-		}});
 		assertTrue(authz.parseEntityReference("/realm/", ref));
-	}
-	
-	@Test
-	public void testSiteRealm() {
-		context.checking(new Expectations(){{
-			oneOf(ref).set(APPLICATION_ID, null, "/site/mercury", null, null);
-		}});
-		assertTrue(authz.parseEntityReference("/realm//site/mercury", ref));
-	}
-	
-	@Test
-	public void testSpecialSite() {
-		context.checking(new Expectations() {{
-			oneOf(ref).set(APPLICATION_ID, null, "!site.helper", null, null);
-		}});
-		assertTrue(authz.parseEntityReference("/realm/!site.helper", ref));
+		assertEquals(APPLICATION_ID, ref.getType());
+		assertNull(ref.getId());
 	}
 
+	@Test
+	public void testSiteRealm() {
+		assertTrue(authz.parseEntityReference("/realm//site/mercury", ref));
+		assertRealmReference("/site/mercury");
+	}
+
+	@Test
+	public void testSpecialSite() {
+		assertTrue(authz.parseEntityReference("/realm/!site.helper", ref));
+		assertRealmReference("!site.helper");
+	}
+
+	private void assertRealmReference(String id) {
+		assertEquals(APPLICATION_ID, ref.getType());
+		assertEquals(id, ref.getId());
+		assertEquals("", ref.getSubType());
+		assertNull(ref.getContainer());
+		assertNull(ref.getContext());
+	}
 }

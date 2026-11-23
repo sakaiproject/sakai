@@ -293,11 +293,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 
 	@Test
 	public void testStartingSessionDoesNotSetCurrentSession() {
-		// Currently, getCurrentSession() lazily allocates a thread-scoped
-		// Session if such a Session does not already exist. That behavior
-		// is tested elsewhere, but we specify "allows" here to at
-		// least keep jMock quiet. This also explains the assertNotSame()
-		// call, rather than assertNull()
+		// getCurrentSession() creates a separate session when none is associated with the thread.
 		expectCreateUuidRequest("123456789");
 		Session startedSession = sessionComponent.startSession();
 		allowLazyCurrentSessionCreation();

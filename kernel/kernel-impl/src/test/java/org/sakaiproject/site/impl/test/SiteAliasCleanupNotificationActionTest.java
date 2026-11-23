@@ -20,175 +20,134 @@
  **********************************************************************************/
 package org.sakaiproject.site.impl.test;
 
-import java.lang.reflect.Field;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.jmock.Expectations;
-import org.jmock.integration.junit3.MockObjectTestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.impl.DbNotificationService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.impl.SiteAliasCleanupNotificationAction;
 
 /**
  * Verifies event-driven cleanup of site aliases.
- * 
- * @author dmccallum
  *
+ * @author dmccallum
  */
-@Slf4j
-public class SiteAliasCleanupNotificationActionTest extends MockObjectTestCase {
-	
+public class SiteAliasCleanupNotificationActionTest {
+
+	private static final String RESOURCE = "/site/test-site";
+
 	private SiteAliasCleanupNotificationAction cleanupAction;
-	private NotificationEdit cleanupActionWrappingNotificationEdit;
-	private Notification inboundNotification;
 	private Event inboundEvent;
 	private AliasService aliasService;
 	private NotificationService notificationService;
 
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() {
 		aliasService = mock(AliasService.class);
 		notificationService = mock(NotificationService.class);
-		cleanupActionWrappingNotificationEdit = mock(NotificationEdit.class);
-		inboundNotification = mock(Notification.class);
 		inboundEvent = mock(Event.class);
+		when(inboundEvent.getResource()).thenReturn(RESOURCE);
+
 		cleanupAction = new SiteAliasCleanupNotificationAction();
 		cleanupAction.setAliasService(aliasService);
 		cleanupAction.setNotificationService(notificationService);
-		super.setUp();
 	}
 
-	public void testDeletesAliasesTargetingEventResourceIfEnabled() throws PermissionException {
-		expectInit();
-		
-		checking(new Expectations() {{
-			final String resourceId = "/entity/id";
-			// allowing() makes test more resilient to changes in logging code,
-			// and it is unlikely the object under test is hard-coded to
-			// remove aliases for "/entity/id"
-			allowing(inboundEvent).getResource(); will(returnValue(resourceId));
-			one(aliasService).removeTargetAliases(resourceId);
-		}});
-		
-		// implicitly tests that alias deletion is enabled by default
+	@Test
+	public void testRegistersForSiteDeletions() {
+		NotificationEdit notification = new DbNotificationService().new BaseNotificationEdit("transient");
+		when(notificationService.addTransientNotification()).thenReturn(notification);
+
 		cleanupAction.init();
-		cleanupAction.notify(inboundNotification, inboundEvent);
+
+		verify(notificationService).addTransientNotification();
+		assertEquals(SiteService.SECURE_REMOVE_SITE, notification.getFunction());
+		assertEquals(SiteService.REFERENCE_ROOT, notification.getResourceFilter());
+		assertSame(cleanupAction, notification.getAction());
 	}
 
+	@Test
+	public void testDeletesAliasesTargetingEventResourceIfEnabled() throws PermissionException {
+		cleanupAction.notify(null, inboundEvent);
+
+		verify(aliasService).removeTargetAliases(RESOURCE);
+	}
+
+	@Test
 	public void testIgnoresNotificationsIfDisabled() {
 		cleanupAction.setEnabled(false);
-		expectInit();
-		cleanupAction.init();
-		cleanupAction.notify(inboundNotification, inboundEvent);
-	}
-	
-	public void testLogsAndSwallowsUncheckedExceptionsByDefault() throws PermissionException {
-		expectInit();
-		checking(new Expectations() {{
-			final String resourceId = "/entity/id";
-			RuntimeException failure = new RuntimeException("this is a simulated failure");
-			allowing(inboundEvent).getResource(); will(returnValue(resourceId));
-			one(aliasService).removeTargetAliases(resourceId); will(throwException(failure));
-			log.warn(with(any(String.class)), with(same(failure)));
-		}});
-		
-		cleanupAction.init();
-		cleanupAction.notify(inboundNotification, inboundEvent);
+
+		cleanupAction.notify(null, inboundEvent);
+
+		verifyNoInteractions(aliasService);
 	}
 
-	public void testLogsAndSwallowsCheckedExceptionsByDefault() throws PermissionException {
-		expectInit();
-		checking(new Expectations() {{
-			final String resourceId = "/entity/id";
-			PermissionException failure = 
-				new PermissionException("user-123", SiteService.SECURE_REMOVE_SITE, resourceId);
-			allowing(inboundEvent).getResource(); will(returnValue(resourceId));
-			one(aliasService).removeTargetAliases(resourceId); will(throwException(failure));
-			log.warn(with(any(String.class)), with(same(failure)));
-		}});
-		
-		cleanupAction.init();
-		cleanupAction.notify(inboundNotification, inboundEvent);
+	@Test
+	public void testSwallowsUncheckedExceptionsByDefault() throws PermissionException {
+		RuntimeException failure = new RuntimeException("This is a simulated failure");
+		doThrow(failure).when(aliasService).removeTargetAliases(RESOURCE);
+
+		cleanupAction.notify(null, inboundEvent);
+
+		verify(aliasService).removeTargetAliases(RESOURCE);
 	}
-	
-	public void testRaisesUncheckedExceptionsIfSoConfigured() throws PermissionException {
+
+	@Test
+	public void testSwallowsCheckedExceptionsByDefault() throws PermissionException {
+		PermissionException failure = new PermissionException("user-123", SiteService.SECURE_REMOVE_SITE, RESOURCE);
+		doThrow(failure).when(aliasService).removeTargetAliases(RESOURCE);
+
+		cleanupAction.notify(null, inboundEvent);
+
+		verify(aliasService).removeTargetAliases(RESOURCE);
+	}
+
+	@Test
+	public void testRaisesUncheckedExceptionsIfConfigured() throws PermissionException {
 		cleanupAction.setPropagateExceptions(true);
-		expectInit();
-		final RuntimeException failure = new RuntimeException("this is a simulated failure");
-		checking(new Expectations() {{
-			final String resourceId = "/entity/id";
-			allowing(inboundEvent).getResource(); will(returnValue(resourceId));
-			one(aliasService).removeTargetAliases(resourceId); will(throwException(failure));
-		}});
-		
-		cleanupAction.init();
-		try {
-			cleanupAction.notify(inboundNotification, inboundEvent);
-			fail("Should have raised the unchecked exception representing the failure to delete aliases");
-		} catch ( RuntimeException e ) {
-			assertSame("Threw the wrong exception", failure, e);
-		}
+		RuntimeException failure = new RuntimeException("This is a simulated failure");
+		doThrow(failure).when(aliasService).removeTargetAliases(RESOURCE);
+
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> cleanupAction.notify(null, inboundEvent));
+
+		assertSame(failure, thrown);
 	}
-	
-	public void testRaisesCheckedExceptionsInUncheckedExceptionsIfSoConfigured() throws PermissionException {
+
+	@Test
+	public void testWrapsCheckedExceptionsIfConfigured() throws PermissionException {
 		cleanupAction.setPropagateExceptions(true);
-		expectInit();
-		final String resourceId = "/entity/id";
-		final PermissionException failure = 
-			new PermissionException("user-123", SiteService.SECURE_REMOVE_SITE, resourceId);
-		checking(new Expectations() {{
-			allowing(inboundEvent).getResource(); will(returnValue(resourceId));
-			one(aliasService).removeTargetAliases(resourceId); will(throwException(failure));
-		}});
-		
-		cleanupAction.init();
-		try {
-			cleanupAction.notify(inboundNotification, inboundEvent);
-			fail("Should have raised an unchecked exception wrapping the checked exception indicating failure to delete aliases");
-		} catch ( RuntimeException e ) {
-			assertSame("Didn't wrap exception representing failure to delete aliases", failure, e.getCause());
-		}
+		PermissionException failure = new PermissionException("user-123", SiteService.SECURE_REMOVE_SITE, RESOURCE);
+		doThrow(failure).when(aliasService).removeTargetAliases(RESOURCE);
+
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> cleanupAction.notify(null, inboundEvent));
+
+		assertSame(failure, thrown.getCause());
 	}
-	
+
+	@Test
 	public void testCloneCopiesInstanceMembers() {
-		// ensure we're not getting false positives b/c of defaulting
-		cleanupAction.setEnabled(!(cleanupAction.isEnabled()));
-		cleanupAction.setPropagateExceptions(!(cleanupAction.isPropagateExceptions()));
-		
-		SiteAliasCleanupNotificationAction clone = 
-			(SiteAliasCleanupNotificationAction) cleanupAction.getClone();
-		assertEquals("Failed to copy the \"enabled\" property", 
-				cleanupAction.isEnabled(), clone.isEnabled());
-		assertEquals("Failed to copy the \"propagateExceptions\" property", 
-				cleanupAction.isPropagateExceptions(), clone.isPropagateExceptions());
-		assertSame("Failed to copy the \"aliasService\" property",
-				cleanupAction.getAliasService(), clone.getAliasService());
-		assertSame("Failed to copy the \"notificationService\" property",
-				cleanupAction.getNotificationService(), clone.getNotificationService());
-	}
-	
-	private void expectInit() {
-		checking(new Expectations() {{
-			one(notificationService).addTransientNotification();
-			will(returnValue(cleanupActionWrappingNotificationEdit));
-			
-			one(cleanupActionWrappingNotificationEdit).setFunction(SiteService.SECURE_REMOVE_SITE);
-			one(cleanupActionWrappingNotificationEdit).setResourceFilter(SiteService.REFERENCE_ROOT);
-			one(cleanupActionWrappingNotificationEdit).setAction(cleanupAction);
-		}});
-	}
-	
-	private void setField(String fieldName,
-			Class<?> clazz, Object onInstance, Object fieldValue) 
-	throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-		Field field = clazz.getDeclaredField(fieldName);
-		field.setAccessible(true);
-		field.set(onInstance, fieldValue);
+		// Set both flags to their non-default values.
+		cleanupAction.setEnabled(false);
+		cleanupAction.setPropagateExceptions(true);
+
+		SiteAliasCleanupNotificationAction clone = (SiteAliasCleanupNotificationAction) cleanupAction.getClone();
+		assertEquals(cleanupAction.isEnabled(), clone.isEnabled());
+		assertEquals(cleanupAction.isPropagateExceptions(), clone.isPropagateExceptions());
+		assertSame(cleanupAction.getAliasService(), clone.getAliasService());
+		assertSame(cleanupAction.getNotificationService(), clone.getNotificationService());
 	}
 }
