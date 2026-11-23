@@ -67,6 +67,8 @@ final class ResourcesUi {
         pendingFolders = List.copyOf(names);
         itemAction(parentRow, "Create Folders");
         assertThat(page.locator("#content_0")).isVisible();
+        // The name inputs render before the script that enables the submit button when they are filled.
+        page.waitForFunction("typeof validateFolderNames === 'function'");
         for (int i = 1; i < names.size(); i++) {
             page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Another Folder").setExact(true)).click();
             assertThat(page.locator("#content_" + i)).isVisible();

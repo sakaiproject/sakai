@@ -101,7 +101,8 @@ jobs:
             'cardgame.showOfficialPhoto=false' 'cardgame.skipNoImageUsers=true' \
             'tagservice.enabled=true' 'samigo.author.usetags=true' \
             'profile2.picture.change.enabled=true' 'profile2.picture.type=upload' \
-            'content.zip.download.maxindividualfilesize=10485760' 'content.zip.download.maxtotalsize=104857600' >> sakai/local.properties
+            'content.zip.download.maxindividualfilesize=10485760' 'content.zip.download.maxtotalsize=104857600' \
+            'bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService=${sakai.home}db/bodyContentDeleted/' >> sakai/local.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai";
           cd ..

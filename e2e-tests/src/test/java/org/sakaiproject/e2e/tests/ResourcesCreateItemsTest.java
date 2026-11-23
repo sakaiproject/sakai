@@ -87,7 +87,7 @@ class ResourcesCreateItemsTest extends SakaiUiTestBase {
              ResourcesRequests nonMember = requests(outsider.username())) {
             assertEquals(APEREO, member.get(siteOnly).location(), "a member follows a site-only link");
             assertEquals(ResourcesRequests.FORBIDDEN, nonMember.get(siteOnly).status(), "SAK-44704: a non-member gets 403");
-            assertTrue(anonymous.get(siteOnly).isLoginRedirect(), "an anonymous user must log in");
+            assertTrue(anonymous.get(siteOnly).isLoginPrompt(), "an anonymous user must log in");
             assertEquals(SAKAI, anonymous.get(publicLink).location(), "an anonymous user follows a public link");
             assertEquals(SAKAI, nonMember.get(publicLink).location(), "a non-member follows a public link");
         }

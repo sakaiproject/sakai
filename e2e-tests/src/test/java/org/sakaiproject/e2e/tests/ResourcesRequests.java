@@ -32,10 +32,11 @@ final class ResourcesRequests implements AutoCloseable {
     static final int REDIRECT = 302;
     static final int FORBIDDEN = 403;
 
-    /** Status and Location header of a response. */
-    record Result(int status, String location) {
-        boolean isLoginRedirect() {
-            return status == REDIRECT && location.contains("login");
+    /** Status and Location header of a response, and whether its body is the Sakai login form. */
+    record Result(int status, String location, boolean loginForm) {
+        /** Container login redirects to the login URL; otherwise Sakai serves its login form directly. */
+        boolean isLoginPrompt() {
+            return loginForm || status == REDIRECT && location.contains("login");
         }
     }
 
@@ -74,18 +75,27 @@ final class ResourcesRequests implements AutoCloseable {
     Result get(String path) {
         APIResponse response = userContext.request().get(path, RequestOptions.create().setMaxRedirects(0));
         try {
-            return new Result(response.status(), response.headers().getOrDefault("location", ""));
+            return new Result(response.status(), response.headers().getOrDefault("location", ""), isLoginForm(response));
         } finally {
             response.dispose();
         }
     }
 
-    /** Status of a file request; a redirect is only accepted when it asks the user to log in. */
+    private static boolean isLoginForm(APIResponse response) {
+        if (response.status() != OK || !response.headers().getOrDefault("content-type", "").contains("text/html")) {
+            return false;
+        }
+        String body = response.text();
+        return body.contains("name=\"eid\"") && body.contains("name=\"pw\"");
+    }
+
+    /** Status of a file request, reported as {@link #REDIRECT} whenever the user is asked to log in. */
     int status(String path) {
         Result result = get(path);
-        if (result.status() == REDIRECT) {
-            assertTrue(result.isLoginRedirect(), "Redirect for " + path + " is not a login prompt: " + result.location());
+        if (result.isLoginPrompt()) {
+            return REDIRECT;
         }
+        assertTrue(result.status() != REDIRECT, "Redirect for " + path + " is not a login prompt: " + result.location());
         return result.status();
     }
 
