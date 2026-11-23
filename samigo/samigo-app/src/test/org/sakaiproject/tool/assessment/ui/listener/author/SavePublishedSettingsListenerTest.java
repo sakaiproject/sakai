@@ -29,6 +29,8 @@ import org.sakaiproject.grading.api.GradeItemNameTooLongException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.samigo.impl.SamigoAvailableNotificationServiceImpl;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
@@ -111,7 +113,52 @@ public class SavePublishedSettingsListenerTest {
         assertRejectedTitle(new InvalidGradeItemNameException("reserved prefix"), "0");
     }
 
+    @Test
+    public void duplicateTitleRejectsFirstExport() throws Exception {
+        assertRejectedFirstExport(new ConflictingAssignmentNameException("duplicate"), "same title exists");
+    }
+
+    @Test
+    public void overlongTitleRejectsFirstExport() throws Exception {
+        assertRejectedFirstExport(new GradeItemNameTooLongException("too long"), "255 characters or fewer");
+    }
+
+    private void assertRejectedFirstExport(RuntimeException rejection, String expectedMessage) throws Exception {
+        SiteService sites = context.getBean(SiteService.class);
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site");
+        when(sites.getSite("site")).thenReturn(site);
+        ComponentManager.loadComponent(SiteService.class, sites);
+        when(gradebook.isExternalAssignmentDefined("site", "101")).thenReturn(false);
+        doThrow(rejection).when(gradebook).addExternalAssessment(eq("site"), eq("site"), eq("101"), any(),
+                eq("Title"), any(), any(), any(), any(), any(), any(), any());
+
+        String notExported = EvaluationModelIfc.NOT_TO_GRADEBOOK.toString();
+        PublishedAssessmentFacade original = assessment(notExported);
+        // The listener applies the submitted settings before attempting Gradebook synchronization.
+        PublishedAssessmentSettingsBean settings = exportSettings();
+        PublishedAssessmentFacade edited = assessment(settings.getToDefaultGradebook());
+
+        assertFalse(context.getBean(SavePublishedSettingsListener.class)
+                .updateGB(settings, edited, original, false, false, facesContext));
+        assertEquals(notExported, edited.getEvaluationModel().getToGradeBook());
+        verify(facesContext).addMessage(isNull(), argThat(message -> message.getSummary().contains(expectedMessage)));
+    }
+
     private void assertRejectedTitle(RuntimeException rejection, String expectedExport) {
+        PublishedAssessmentFacade assessment = assessment(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+        PublishedAssessmentSettingsBean settings = exportSettings();
+        doThrow(rejection).when(gradebook).updateExternalAssessment(anyString(), anyString(), any(), any(),
+                anyString(), any(), any(), any(), any());
+
+        assertFalse(context.getBean(SavePublishedSettingsListener.class)
+                .updateGB(settings, assessment, assessment, true, false, facesContext));
+        assertEquals(expectedExport, assessment.getEvaluationModel().getToGradeBook());
+        verify(gradebook).updateExternalAssessment(eq("site"), eq("101"), any(), any(), eq("Title"), any(), any(), any(), any());
+        verify(facesContext).addMessage(isNull(), any(FacesMessage.class));
+    }
+
+    private PublishedAssessmentFacade assessment(String export) {
         PublishedAssessmentData data = new PublishedAssessmentData();
         data.setPublishedAssessmentId(101L);
         data.setTitle("Title");
@@ -121,18 +168,15 @@ public class SavePublishedSettingsListenerTest {
         data.setAssessmentAccessControl(new PublishedAccessControl());
         PublishedEvaluationModel evaluation = new PublishedEvaluationModel();
         evaluation.setAssessmentBase(data);
+        evaluation.setToGradeBook(export);
         data.setEvaluationModel(evaluation);
-        PublishedAssessmentFacade assessment = new PublishedAssessmentFacade(data);
+        return new PublishedAssessmentFacade(data);
+    }
+
+    private PublishedAssessmentSettingsBean exportSettings() {
         PublishedAssessmentSettingsBean settings = new PublishedAssessmentSettingsBean();
         settings.setToDefaultGradebook(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
-        doThrow(rejection).when(gradebook).updateExternalAssessment(anyString(), anyString(), any(), any(),
-                anyString(), any(), any(), any(), any());
-
-        assertFalse(context.getBean(SavePublishedSettingsListener.class)
-                .updateGB(settings, assessment, assessment, true, false, facesContext));
-        assertEquals(expectedExport, evaluation.getToGradeBook());
-        verify(gradebook).updateExternalAssessment(eq("site"), eq("101"), any(), any(), eq("Title"), any(), any(), any(), any());
-        verify(facesContext).addMessage(isNull(), any(FacesMessage.class));
+        return settings;
     }
 
     @Configuration
@@ -142,6 +186,7 @@ public class SavePublishedSettingsListenerTest {
         @Bean(name = "org.sakaiproject.grading.api.GradingService")
         public GradingService gradebook() { return mock(GradingService.class); }
         @Bean(name = "org.sakaiproject.tool.api.ToolManager") public ToolManager toolManager() { return mock(ToolManager.class); }
+        @Bean public SiteService sites() { return mock(SiteService.class); }
         @Bean public ThreadLocalManager threadLocalManager() { return mock(ThreadLocalManager.class); }
         @Bean public FacesContext facesContext() { return mock(FacesContext.class); }
         @Bean(name = "org.sakaiproject.tool.api.SessionManager")

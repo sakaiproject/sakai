@@ -8402,8 +8402,9 @@ public class SimplePageBean {
 		if (creatableList.isEmpty()) {
 			return true;
 		}
-		if (itemId != null && itemId < 0) {
-			saveItem(item);
+		boolean newQuestion = item.getId() <= 0;
+		if (newQuestion && !saveItem(item)) {
+			return false;
 		}
 
 		String gradebookId = questionGradebookId(item);
@@ -8414,15 +8415,19 @@ public class SimplePageBean {
 		}
 
 		try {
-			boolean saved = gradebookIfc.saveQuestionGradebookItems(creatableList, getCurrentSiteId(), gradebookId, title, pointsInt);
-			if (!saved) {
-				setErrMessage(messageLocator.getMessage("simplepage.gradebook-update-failed"));
+			if (gradebookIfc.saveQuestionGradebookItems(creatableList, getCurrentSiteId(), gradebookId, title, pointsInt)) {
+				return true;
 			}
-			return saved;
-		} catch(ConflictingAssignmentNameException cane) {
+			setErrMessage(messageLocator.getMessage("simplepage.gradebook-update-failed"));
+		} catch (ConflictingAssignmentNameException e) {
 			setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
-			return false;
 		}
+
+		if (newQuestion) {
+			item.setGradebookId(gradebookId);
+			deleteItem(item);
+		}
+		return false;
 	}
 
 	private boolean updateGradebookItem(List<String> updateableList, SimplePageItem item, Integer pointsInt) {

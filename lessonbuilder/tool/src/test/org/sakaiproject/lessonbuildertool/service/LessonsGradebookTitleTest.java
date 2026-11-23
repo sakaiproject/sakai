@@ -28,6 +28,7 @@ import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
@@ -35,6 +36,7 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.site.api.Site;
@@ -182,6 +184,26 @@ public class LessonsGradebookTitleTest {
         assertStoredTitle("Old title");
         verify(gradebook, never()).updateExternalAssessment(anyString(), anyString(), any(), any(), anyString(), any(), any(), any(), any());
         assertEquals(List.of("simplepage.existing-gradebook"), bean.errMessages());
+    }
+
+    @Test
+    public void rejectedNewQuestionLeavesNoBlankQuestionOrGroupEntry() {
+        bean.itemId = -1L;
+        bean.selectedGroups = new String[] {"group-a", "group-b"};
+        doThrow(new ConflictingAssignmentNameException("duplicate")).when(gradebook)
+                .addExternalAssessment(eq("group-b"), eq("site"), anyString(), any(), eq("New title"),
+                        any(), any(), anyString(), any(), any(), any(), any());
+
+        assertEquals("failure", bean.updateQuestion());
+        assertEquals(List.of("simplepage.existing-gradebook"), bean.errMessages());
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertEquals(List.of(question.getId()), dao.findItemsOnPage(question.getPageId()).stream()
+                .map(SimplePageItem::getId).toList());
+        ArgumentCaptor<String> externalId = ArgumentCaptor.forClass(String.class);
+        verify(gradebook).addExternalAssessment(eq("group-a"), eq("site"), externalId.capture(), any(), eq("New title"),
+                any(), any(), anyString(), any(), any(), any(), any());
+        verify(gradebook).removeExternalAssignment(isNull(), eq(externalId.getValue()), eq(LessonBuilderConstants.TOOL_ID));
     }
 
     @Test

@@ -435,11 +435,16 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void conflictingExternalAssessmentRenameLeavesTheItemUnchanged() {
+    public void conflictingExternalAssessmentRenameLeavesTheItemUnchangedEvenWithLegacyDuplicates() {
         Gradebook gradebook = createGradebook();
         switchToInstructor();
         addCancellationAssessment(gradebook, "first", null, 10D);
         addCancellationAssessment(gradebook, "second", null, 10D);
+        addCancellationAssessment(gradebook, "third", null, 10D);
+        Long thirdId = gradingService.getExternalAssignment(gradebook.getUid(), "third").getId();
+        // Older Sakai allowed duplicate names on external assessment rename.
+        sessionFactory.getCurrentSession().get(GradebookAssignment.class, thirdId).setName("second");
+        sessionFactory.getCurrentSession().flush();
         assertThrows(ConflictingAssignmentNameException.class,
                 () -> gradingService.updateExternalAssessment(gradebook.getUid(), "first", "new-link", "new-data",
                         " second ", -1L, 20D, new Date(), true));

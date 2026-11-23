@@ -4414,12 +4414,9 @@ public class GradingServiceImpl implements GradingService {
         }
 
         String validatedTitle = validateExternalAssessmentTitle(title);
-        if (!Objects.equals(asn.getName(), validatedTitle)) {
-            GradebookAssignment sameName = gradingPersistenceManager
-                    .getAssignmentByNameAndGradebook(validatedTitle, gradebookUid).orElse(null);
-            if (sameName != null && !sameName.getId().equals(asn.getId())) {
-                throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
-            }
+        if (!Objects.equals(asn.getName(), validatedTitle)
+                && gradingPersistenceManager.countDuplicateAssignments(validatedTitle, asn.getGradebook(), asn.getId()) > 0) {
+            throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
 
         Long effectiveCategoryId = categoryId == null
@@ -5101,7 +5098,8 @@ public class GradingServiceImpl implements GradingService {
 
         //final GradebookAssignment asnFromDb = (GradebookAssignment) session.load(GradebookAssignment.class, assignment.getId());
 
-        final Long count = gradingPersistenceManager.countDuplicateAssignments(assignment);
+        final Long count = gradingPersistenceManager.countDuplicateAssignments(
+                assignment.getName(), assignment.getGradebook(), assignment.getId());
 
         if (count > 0) {
             throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
