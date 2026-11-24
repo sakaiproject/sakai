@@ -44,6 +44,26 @@ final class LessonsUi {
         assertThat(page.locator("#lessonsCurrentPageId")).isAttached();
     }
 
+    /**
+     * An account outside the course roster is never rewritten by the provider refresh, which
+     * briefly removes promoted members and can leave them with a cached permission denial.
+     * The account is removed again if it cannot join the site.
+     */
+    SakaiHelper.TestUser newStudent(String siteUrl, String prefix) {
+        SakaiHelper.TestUser student = sakai.createUser(prefix);
+        try {
+            sakai.addMember(siteUrl, student.username(), "Student");
+        } catch (RuntimeException e) {
+            try {
+                student.close();
+            } catch (RuntimeException closeFailure) {
+                e.addSuppressed(closeFailure);
+            }
+            throw e;
+        }
+        return student;
+    }
+
     Locator items() {
         return page.locator(".portletBody .item");
     }
@@ -78,10 +98,103 @@ final class LessonsUi {
     }
 
     void addText(String html) {
-        openAddContent().locator(".add-text-link").first().click();
+        saveTextFrom(openAddContent(), html);
+    }
+
+    /** Adds text through an item or column button, which decides where the new item goes. */
+    void addTextFrom(Locator addButton, String html) {
+        saveTextFrom(openAddContentFrom(addButton), html);
+    }
+
+    private void saveTextFrom(Locator menu, String html) {
+        menu.locator(".add-text-link").first().click();
         sakai.typeCkEditor(TEXT_EDITOR_ID, html);
         page.locator("input[type=submit].active").first().click();
         assertThat(page.locator("#addcontent")).isAttached();
+    }
+
+    private Locator openAddContentFrom(Locator addButton) {
+        addButton.click();
+        Locator menu = page.locator("#addContentDiv");
+        assertThat(menu).isVisible();
+        return menu;
+    }
+
+    /** The add and delete buttons of an item only appear while it is hovered. */
+    Locator addAboveButton(Locator item) {
+        item.hover();
+        return item.locator(".add-link");
+    }
+
+    void deleteItem(Locator item) {
+        item.hover();
+        item.locator(".del-item-link").click();
+        Locator confirm = page.locator("#delete-confirm");
+        assertThat(confirm).isVisible();
+        confirm.locator("#delete-confirm-delete-button").click();
+        assertThat(item).hasCount(0);
+    }
+
+    Locator sections() {
+        return page.locator(".section");
+    }
+
+    Locator sectionHeader(String title) {
+        return page.locator(".sectionHeader").filter(new Locator.FilterOptions().setHasText(title));
+    }
+
+    Locator columns(Locator section) {
+        return section.locator(":scope > .column");
+    }
+
+    /** Typing fires the key events that enable the collapsible options. */
+    Locator openSectionLayout(String title) {
+        page.locator("button[data-bs-target='#layout-dialog']").click();
+        assertThat(page.locator("#layout-dialog")).isVisible();
+        Locator form = page.locator("#sectionlayout form");
+        form.locator("#layout-section-title").pressSequentially(title);
+        return form;
+    }
+
+    void submitLayout(Locator form) {
+        sakai.submitForm(() -> form.locator("input[type=submit]").click());
+    }
+
+    void addSubpageListing(String titlePrefix, int count, String color) {
+        page.locator("button[data-bs-target='#layout-dialog']").click();
+        Locator dialog = page.locator("#layout-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("button[data-bs-target='#pagelayout']").click();
+        Locator form = page.locator("#pagelayout form");
+        assertThat(form).isVisible();
+        form.locator("#page-dropdown-selection").selectOption("addSubpageList");
+        form.locator("#page-option-subpage-title").fill(titlePrefix);
+        form.locator("#page-option-subpage-count-selection").selectOption(String.valueOf(count));
+        form.locator("#page-color-scheme-selection").selectOption(color);
+        submitLayout(form);
+    }
+
+    Locator openSubpageDialogFrom(Locator addButton, String title) {
+        openAddContentFrom(addButton).locator(".subpage-link").first().click();
+        Locator dialog = page.locator("#subpage-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#subpage-title").fill(title);
+        return dialog;
+    }
+
+    Locator openColumnSettings(Locator column) {
+        column.locator(".columnopen").click();
+        Locator dialog = page.locator("#column-dialog");
+        assertThat(dialog).isVisible();
+        return dialog;
+    }
+
+    /** Saving posts the settings and then reloads the page from script. */
+    void saveColumnSettings(Locator dialog) {
+        page.waitForRequestFinished(new Page.WaitForRequestFinishedOptions().setPredicate(request ->
+            request.isNavigationRequest() && request.frame().equals(page.mainFrame())),
+            () -> dialog.locator("#column-submit").click());
+        page.waitForLoadState();
     }
 
     private Locator openContentLinks() {
