@@ -46,6 +46,7 @@ import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.FilePayload;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.Route;
 
@@ -721,6 +722,41 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(page.locator("#content")).not().containsText(SAMIGO_TITLE);
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(SAMIGO_TITLE).setExact(true))).hasCount(0);
+    }
+
+    @Test
+    @Order(12)
+    void canUploadFileAtSamigoSizeLimit() {
+        String courseUrl = ensureCourseUrl();
+        String title = "File Upload Quiz " + RUN_ID;
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+        openNewAssessmentForm();
+        page.locator("[id='authorIndexForm:title']").fill(title);
+        page.locator("[id='authorIndexForm:createnew']").click();
+        selectQuestionType(Pattern.compile("^File Upload$", Pattern.CASE_INSENSITIVE));
+        page.locator("[id='itemForm:answerptr']").fill("1");
+        page.locator("[id='itemForm:questionItemText_textinput']").fill("Upload your answer.");
+        saveQuestionAndWaitForAssessment();
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Publish").setExact(true)).click();
+        page.locator("[id='publishAssessmentForm:publish']").click();
+
+        sakai.login("student0011");
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(title).setExact(true)).click();
+        Locator honorPledge = page.locator("[id='takeAssessmentForm:honor_pledge']");
+        if (honorPledge.isVisible()) {
+            honorPledge.check();
+        }
+        clickSubmit("Begin Assessment");
+        page.locator("#takeAssessmentForm input[type='file']")
+            .setInputFiles(new FilePayload("answer.txt", "text/plain", new byte[20 * 1024 * 1024]));
+        clickSubmit("Upload");
+        assertThat(page.locator("#takeAssessmentForm").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("answer.txt").setExact(true))).isVisible();
     }
 
     @Test
