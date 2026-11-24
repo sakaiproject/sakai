@@ -131,25 +131,29 @@ class PollTest extends SakaiUiTestBase {
         page.locator(".navIntraTool").getByRole(AriaRole.LINK,
             new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
 
-        page.locator("form:visible input[type=\"text\"]").first().fill(LIMITS_POLL_TITLE);
+        page.locator("#poll-text").fill(LIMITS_POLL_TITLE);
         page.locator("#poll-details").fill("Poll limits regression test");
 
         LocalDateTime now = LocalDateTime.now();
         page.locator("input[name=\"openDate\"]").fill(now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
         page.locator("input[name=\"closeDate\"]").fill(now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
 
-        Locator saveButton = page.locator("form:visible").first().locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Add\"), button[type=\"submit\"]:has-text(\"Create\"), button[type=\"submit\"]:has-text(\"Continue\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Add\"], input[type=\"submit\"][value*=\"Create\"], input[type=\"submit\"][value*=\"Continue\"], .act button:has-text(\"Save\"), .act button:has-text(\"Add\"), .act button:has-text(\"Create\"), .act button:has-text(\"Continue\"), .act input[value*=\"Save\"], .act input[value*=\"Add\"], .act input[value*=\"Create\"], .act input[value*=\"Continue\"]").first();
+        Locator saveButton = page.locator("form:has(#poll-text) input[type=submit]");
+        Locator minOptions = page.locator("#min-options");
+        Locator maxOptions = page.locator("#max-options");
 
-        // blank min — form re-renders on error, no new navigation needed for subsequent checks
-        page.locator("input[name=\"minOptions\"]").fill("");
-        page.locator("input[name=\"maxOptions\"]").fill("2");
+        // Set the blank value directly so this exercises form validation independently of number input keyboard behavior.
+        minOptions.evaluate("input => input.value = ''");
+        maxOptions.fill("2");
+        assertThat(minOptions).hasValue("");
         sakai.submitForm(saveButton::click);
         assertThat(page.locator("#min-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("minimum number of options is a required field", Pattern.CASE_INSENSITIVE));
 
         // blank max
-        page.locator("input[name=\"minOptions\"]").fill("1");
-        page.locator("input[name=\"maxOptions\"]").fill("");
+        minOptions.fill("1");
+        maxOptions.evaluate("input => input.value = ''");
+        assertThat(maxOptions).hasValue("");
         sakai.submitForm(saveButton::click);
         assertThat(page.locator("#max-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("maximum number of options is a required field", Pattern.CASE_INSENSITIVE));

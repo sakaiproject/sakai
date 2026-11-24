@@ -92,16 +92,19 @@ class StudentPreviewCapacityTest extends SakaiUiTestBase {
     }
 
     private void enterStudentView() {
+        sakai.waitForPortalFocus();
         Locator roles = page.locator("#roleSwitchSelect");
         if (roles.isVisible()) {
             roles.selectOption(new SelectOption().setLabel("Student"));
         } else {
             page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Enter Student View").setExact(true)).click();
         }
+        assertThat(page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit")).isVisible();
     }
 
     private void exitStudentView() {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Exit Student View").setExact(true)).click();
+        assertThat(page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit")).hasCount(0);
     }
 
     private void joinSiteInfoGroup(String groupTitle) {
