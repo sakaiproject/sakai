@@ -56,7 +56,10 @@ public class PollsServiceTestConfiguration extends SakaiTestConfiguration {
 
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
-        return Mockito.mock(FormattedText.class);
+        FormattedText formattedText = Mockito.mock(FormattedText.class);
+        Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        return formattedText;
     }
 
     @Bean(name = "org.sakaiproject.util.api.LocaleService")

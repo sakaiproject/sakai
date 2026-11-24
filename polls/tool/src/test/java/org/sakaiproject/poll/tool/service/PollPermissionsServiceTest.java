@@ -94,4 +94,19 @@ public class PollPermissionsServiceTest {
 
         verify(toolManager, never()).getCurrentPlacement();
     }
+
+    @Test
+    public void onlyPollOwnerCanEditWithEditOwnPermission() {
+        Poll poll = new Poll();
+        poll.setSiteId("poll-site");
+        poll.setOwner("owner");
+
+        when(siteService.siteReference("poll-site")).thenReturn("/site/poll-site");
+        when(securityService.unlock(PollConstants.PERMISSION_EDIT_OWN, "/site/poll-site")).thenReturn(true);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("another-user");
+        Assert.assertFalse(pollPermissionsService.canEditPoll(poll));
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("owner");
+        Assert.assertTrue(pollPermissionsService.canEditPoll(poll));
+    }
 }

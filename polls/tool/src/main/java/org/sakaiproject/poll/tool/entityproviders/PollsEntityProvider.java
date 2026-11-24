@@ -60,6 +60,7 @@ import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
@@ -81,6 +82,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
     public static final String ENTITY_PREFIX = "polls";
 
 	@Setter private PollsService pollsService;
+	@Setter private PollPermissionsService pollPermissionsService;
 	@Setter private UsageSessionService usageSessionService;
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private RequestStorage requestStorage = null;
@@ -296,21 +298,23 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	 */
 	@EntityCustomAction(action = "poll-create", viewKey = EntityView.VIEW_NEW)
 	public String createPollEntity(EntityReference ref, Map<String, Object> params) {
+		String userReference = developerHelperService.getCurrentUserReference();
+		if (userReference == null) {
+			throw new SecurityException("Anonymous user cannot create polls");
+		}
 		Poll poll = new Poll();
 		// copy from params to Poll
 		copyParamsToObject(params, poll);
 
+		poll.setId(null);
 		poll.setCreationDate(Instant.now());
-		if (poll.getOwner() == null) {
-			poll.setOwner(developerHelperService.getCurrentUserId());
-		}
+		poll.setOwner(developerHelperService.getCurrentUserId());
 		String siteId = developerHelperService.getCurrentLocationId();
 		if (poll.getSiteId() == null) {
 			poll.setSiteId(siteId);
 		} else {
 			siteId = poll.getSiteId();
 		}
-		String userReference = developerHelperService.getCurrentUserReference();
 		String location = "/site/" + siteId;
 		boolean allowed = developerHelperService
 				.isUserAllowedInEntityReference(userReference,
@@ -340,26 +344,13 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"No poll found to update for the given reference: " + ref);
 		}
+		if (!pollPermissionsService.canEditPoll(current)) {
+			throw new SecurityException("Current user (" + userReference + ") cannot update poll " + id);
+		}
 		Poll poll = new Poll();
 		copyParamsToObject(params, poll);
-		String siteId = developerHelperService.getCurrentLocationId();
-		if (poll.getSiteId() == null) {
-			poll.setSiteId(siteId);
-		} else {
-			siteId = poll.getSiteId();
-		}
-		String location = "/site/" + siteId;
-		// should this check a different permission?
-		boolean allowed = developerHelperService
-				.isUserAllowedInEntityReference(userReference,
-						PERMISSION_ADD, location);
-		if (!allowed) {
-			throw new SecurityException("Current user (" + userReference
-					+ ") cannot update polls in location (" + location + ")");
-		}
-		developerHelperService.copyBean(poll, current, 0, new String[] { "uuid",
-				"pollId", "owner", "siteId", "creationDate", "reference",
-				"url", "properties" }, true);
+		developerHelperService.copyBean(poll, current, 0,
+				new String[] { "id", "owner", "siteId", "creationDate", "options" }, true);
 		pollsService.savePoll(current);
 	}
 

@@ -110,8 +110,6 @@ public class PollsServiceTests {
         Mockito.when(securityService.unlock(USER, PERMISSION_DELETE_OWN, LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER, PERMISSION_DELETE_ANY, LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER_NO_ACCEESS, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
-        Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
-               .thenAnswer(inv -> inv.getArgument(0));
         Mockito.when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
         Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
 
@@ -169,20 +167,28 @@ public class PollsServiceTests {
 
     @Test
     public void testSavePoll() {
+        String question = "<custom-tag>Poll question</custom-tag>";
+        String sanitizedQuestion = "Poll question";
+        String description = "<strong>Poll details</strong><custom-tag>More details</custom-tag>";
+        String sanitizedDescription = "<strong>Poll details</strong>More details";
         Poll poll1 = new Poll();
         poll1.setCreationDate(Instant.now());
         poll1.setVoteOpen(Instant.now());
         poll1.setVoteClose(Instant.now());
-        poll1.setDescription("this is some text");
-        poll1.setText("something");
+        poll1.setDescription(description);
+        poll1.setText(question);
         poll1.setOwner(USER);
         poll1.setSiteId(LOCATION1_ID);
 
         Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+        Mockito.when(formattedText.processFormattedText(question, null, true, true)).thenReturn(sanitizedQuestion);
+        Mockito.when(formattedText.processFormattedText(description, null, true, true)).thenReturn(sanitizedDescription);
         Poll savedPoll1 = pollsService.savePoll(poll1);
         Assert.assertNotNull(savedPoll1);
         Assert.assertNotNull(savedPoll1.getId());
-        Assert.assertEquals(poll1.getText(), savedPoll1.getText());
+        Poll storedPoll = pollsService.getPollById(savedPoll1.getId()).orElseThrow();
+        Assert.assertEquals(sanitizedQuestion, storedPoll.getText());
+        Assert.assertEquals(sanitizedDescription, storedPoll.getDescription());
 
         Assert.assertThrows(IllegalArgumentException.class, () -> pollsService.savePoll(null));
 
@@ -787,6 +793,21 @@ public class PollsServiceTests {
             .orElseThrow();
         Assert.assertEquals(USER, saved.getOwner());
         Assert.assertTrue(saved.getOptions().size() >= 2);
+    }
+
+    @Test
+    public void testImportPollsFromCsvStoresSanitizedQuestion() {
+        String question = "<custom-tag>Imported question</custom-tag>";
+        String sanitizedQuestion = "Imported question";
+        Mockito.when(formattedText.processFormattedText(question, null, true, true)).thenReturn(sanitizedQuestion);
+        String csv = importCsvHeader(2) + "\n"
+            + question + ",,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Yes,No\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        List<String> questions = pollsService.findAllPolls(LOCATION1_ID).stream().map(Poll::getText).toList();
+        Assert.assertTrue(questions.contains(sanitizedQuestion));
+        Assert.assertFalse(questions.contains(question));
     }
 
     @Test

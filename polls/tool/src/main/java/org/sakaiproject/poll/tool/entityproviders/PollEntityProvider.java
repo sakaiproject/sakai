@@ -43,6 +43,7 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.tool.service.PollPermissionsService;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
 
@@ -60,6 +61,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         RequestStorable, RedirectDefinable {
 
     @Setter private PollsService pollsService;
+    @Setter private PollPermissionsService pollPermissionsService;
 
     public static final String PREFIX = "poll";
     public String getEntityPrefix() {
@@ -103,18 +105,20 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
      */
     @Deprecated
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-        Poll poll = (Poll) entity;
-        poll.setCreationDate(Instant.now());
-        if (poll.getOwner() == null) {
-            poll.setOwner( developerHelperService.getCurrentUserId() );
+        String userReference = developerHelperService.getCurrentUserReference();
+        if (userReference == null) {
+            throw new SecurityException("Anonymous user cannot create polls");
         }
+        Poll poll = (Poll) entity;
+        poll.setId(null);
+        poll.setCreationDate(Instant.now());
+        poll.setOwner(developerHelperService.getCurrentUserId());
         String siteId = developerHelperService.getCurrentLocationId();
         if (poll.getSiteId() == null) {
             poll.setSiteId( siteId );
         } else {
             siteId = poll.getSiteId();
         }
-        String userReference = developerHelperService.getCurrentUserReference();
         String location = "/site/" + siteId;
         boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_ADD, location);
         if (!allowed) {
@@ -142,20 +146,12 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (current.isEmpty()) {
             throw new IllegalArgumentException("No poll found to update for the given reference: " + ref);
         }
-        Poll poll = (Poll) entity;
-        String siteId = developerHelperService.getCurrentLocationId();
-        if (poll.getSiteId() == null) {
-            poll.setSiteId( siteId );
-        } else {
-            siteId = poll.getSiteId();
+        if (!pollPermissionsService.canEditPoll(current.get())) {
+            throw new SecurityException("Current user (" + userReference + ") cannot update poll " + id);
         }
-        String location = "/site/" + siteId;
-        // should this check a different permission?
-        boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_ADD, location);
-        if (!allowed) {
-            throw new SecurityException("Current user ("+userReference+") cannot update polls in location ("+location+")");
-        }
-        developerHelperService.copyBean(poll, current, 0, new String[] {"uuid", "pollId", "owner","siteId","creationDate","reference","url","properties"}, true);
+        Poll poll = entity instanceof PollEntity pollEntity ? pollEntity.getPoll() : (Poll) entity;
+        developerHelperService.copyBean(poll, current.get(), 0,
+                new String[] { "id", "owner", "siteId", "creationDate", "options" }, true);
         pollsService.savePoll(current.get());
     }
 

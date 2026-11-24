@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
-import org.sakaiproject.poll.api.util.PollUtils;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.tool.model.PollForm;
 import org.sakaiproject.poll.tool.service.PollPermissionsService;
@@ -304,21 +303,8 @@ public class PollEditorController {
             poll = new Poll();
         }
 
-        // Process and sanitize HTML in title
-        String sanitizedTitle = formattedText.processFormattedText(
-            form.getText() != null ? form.getText() : "",
-            null,
-            null
-        );
-        poll.setText(PollUtils.cleanupHtmlPtags(StringUtils.trimToEmpty(sanitizedTitle)));
-
-        // Process and sanitize HTML in description
-        String sanitizedDescription = formattedText.processFormattedText(
-            form.getDetails() != null ? form.getDetails() : "",
-            null,
-            null
-        );
-        poll.setDescription(PollUtils.cleanupHtmlPtags(StringUtils.trimToEmpty(sanitizedDescription)));
+        poll.setText(form.getText());
+        poll.setDescription(StringUtils.defaultString(form.getDetails()));
 
         poll.setPublic(form.isPublic());
         poll.setTypeOfAccess(form.getTypeOfAccess() != null ? form.getTypeOfAccess() : Poll.Access.SITE);

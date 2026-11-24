@@ -214,6 +214,15 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             throw new SecurityException("user:" + userId + " can't add poll to site: " + siteRef);
         }
 
+        String question = cleanupPollFormattedText(poll.getText());
+        if (StringUtils.isBlank(question)) {
+            throw new IllegalArgumentException(pollsBundle.getString("poll_error_missing_fields"));
+        }
+        poll.setText(question);
+        if (poll.getDescription() != null) {
+            poll.setDescription(cleanupPollFormattedText(poll.getDescription()));
+        }
+
         if (poll.getCreationDate() == null) poll.setCreationDate(Instant.now());
         if (StringUtils.isBlank(poll.getOwner())) poll.setOwner(userId);
 
@@ -393,7 +402,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         ZoneId userZoneId = userTimeService.getLocalTimeZone().toZoneId();
 
         poll.setText(importedPoll.question());
-        poll.setDescription(cleanupImportedPollFormattedText(importedPoll.details()));
+        poll.setDescription(StringUtils.defaultString(importedPoll.details()));
         poll.setSiteId(siteId);
         poll.setOwner(ownerId);
         poll.setDisplayResult(StringUtils.defaultIfBlank(importedPoll.displayResult(), "open"));
@@ -443,7 +452,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
 
         for (String optionText : importedPoll.options()) {
-            String cleanedOption = cleanupImportedPollFormattedText(optionText);
+            String cleanedOption = cleanupPollFormattedText(optionText);
             if (StringUtils.isNotBlank(cleanedOption)) {
                 sanitizedOptions.add(cleanedOption);
             }
@@ -509,7 +518,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         };
     }
 
-    private String cleanupImportedPollFormattedText(String text) {
+    private String cleanupPollFormattedText(String text) {
         String processed = formattedText.processFormattedText(StringUtils.defaultString(text), null, true, true);
         return PollUtils.cleanupHtmlPtags(processed);
     }
