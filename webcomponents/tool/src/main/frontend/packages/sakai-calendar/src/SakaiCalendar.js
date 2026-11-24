@@ -1,5 +1,6 @@
 import { css, html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { keyed } from "lit/directives/keyed.js";
 import { LionCalendar } from "@lion/ui/calendar.js";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-icon";
@@ -28,6 +29,7 @@ export class SakaiCalendar extends LionCalendar {
     _calendarExpanded: { state: true },
     _selectedDayStart: { state: true },
     _pickerSiteId: { state: true },
+    _sitePickerKey: { state: true },
   };
 
   constructor() {
@@ -39,6 +41,7 @@ export class SakaiCalendar extends LionCalendar {
     this.tileW = 1;
     this.tileH = 1;
     this._calendarExpanded = false;
+    this._sitePickerKey = 0;
     this._selectedDayStart = new Date().setHours(0, 0, 0, 0);
 
     this.addEventListener("user-selected-date-changed", event => {
@@ -186,6 +189,10 @@ export class SakaiCalendar extends LionCalendar {
 
   _resetFilters() {
 
+    if (!this._allEvents) {
+      return;
+    }
+
     const userId = this._resolveUserId();
     if (!userId) {
       return;
@@ -199,9 +206,11 @@ export class SakaiCalendar extends LionCalendar {
       body: JSON.stringify({}),
     }).catch(error => console.error(error));
 
+    this.savedFilters = undefined;
     this._pickerSiteId = undefined;
     this._selectedSite = SakaiSitePicker.ALL;
     this._currentFilter = "sites";
+    this._sitePickerKey += 1;
     this._events = [ ...this._allEvents ];
     this._setDaysEvents(this._selectedDayStart);
   }
@@ -237,6 +246,7 @@ export class SakaiCalendar extends LionCalendar {
             <button type="button"
                 class="btn btn-icon btn-sm"
                 @click=${this._resetFilters}
+                ?disabled=${!this._allEvents}
                 title="${this._i18n?.reset_filter}"
                 aria-label="${this._i18n?.reset_filter}">
               <span class="si si-arrow-clockwise fs-6" aria-hidden="true"></span>
@@ -253,11 +263,13 @@ export class SakaiCalendar extends LionCalendar {
       </div>
       ${!this.siteId ? html`
         <div id="site-filter">
-          <sakai-site-picker
-              .sites=${this._sites}
-              site-id="${ifDefined(this._pickerSiteId)}"
-              @sites-selected=${this._siteSelected}>
-          </sakai-site-picker>
+          ${keyed(this._sitePickerKey, html`
+            <sakai-site-picker
+                .sites=${this._sites}
+                site-id="${ifDefined(this._pickerSiteId)}"
+                @sites-selected=${this._siteSelected}>
+            </sakai-site-picker>
+          `)}
         </div>
       ` : nothing}
     `;

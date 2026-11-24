@@ -187,6 +187,7 @@ export class SakaiGrades extends SakaiPageableElement {
       body: JSON.stringify({}),
     }).catch(error => console.error(error));
 
+    this.savedFilters = undefined;
     this._pickerSiteId = undefined;
     this._selectedSites = SakaiSitePicker.ALL;
     this._currentFilter = undefined;

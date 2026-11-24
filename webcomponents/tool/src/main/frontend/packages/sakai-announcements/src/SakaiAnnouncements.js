@@ -207,6 +207,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       body: JSON.stringify({}),
     }).catch(error => console.error(error));
 
+    this.savedFilters = undefined;
     this._pickerSiteId = undefined;
     this._currentSort = LATEST_FIRST;
     this.data.forEach(a => a.visible = true);

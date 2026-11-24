@@ -38,6 +38,32 @@ export class SakaiForums extends SakaiPageableElement {
     this.dispatchEvent(new CustomEvent("filters-closed", { bubbles: true, composed: true }));
   }
 
+  _focusFilterPanel() {
+
+    this.updateComplete.then(() => {
+      this.renderRoot.querySelector(".dashboard-filter-panel button, .dashboard-filter-panel select")?.focus();
+    });
+  }
+
+  _focusFiltersButton() {
+
+    const host = this.getRootNode()?.host;
+    host?.renderRoot?.querySelector("#filters-button")?.focus();
+  }
+
+  updated(changedProperties) {
+
+    super.updated(changedProperties);
+
+    if (changedProperties.has("filtersOpen")) {
+      if (this.filtersOpen) {
+        this._focusFilterPanel();
+      } else if (changedProperties.get("filtersOpen")) {
+        this._focusFiltersButton();
+      }
+    }
+  }
+
   async loadAllData() {
 
     this.messagesClass = !this.siteId ? "three-col" : "two-col";
@@ -56,8 +82,9 @@ export class SakaiForums extends SakaiPageableElement {
 
         !this.siteId && (this.sites = data.sites);
 
-        this._allData = data.forums;
-        this.data = data.forums;
+        this._baselineData = [ ...(data.forums || []) ];
+        this._allData = [ ...this._baselineData ];
+        this.data = [ ...this._baselineData ];
         this._applySavedFilters();
 
       })
@@ -86,20 +113,44 @@ export class SakaiForums extends SakaiPageableElement {
 
   _applySavedFilters() {
 
-    const sort = this._resolveSort(this.savedFilters?.sort);
-    this._applySort(sort);
-
     if (!this.siteId && this.savedFilters?.siteId && this.savedFilters.siteId !== SakaiSitePicker.ALL) {
       this._pickerSiteId = this.savedFilters.siteId;
       this._selectedSites = this.savedFilters.siteId;
       this._currentFilter = "sites";
-      this._filter();
     }
+
+    this._applySort(this._resolveSort(this.savedFilters?.sort));
+  }
+
+  _siteFilterActive() {
+
+    return this._currentFilter === "sites" && this._selectedSites !== SakaiSitePicker.ALL;
+  }
+
+  _dataFromBaseline() {
+
+    let data = [ ...(this._baselineData || []) ];
+
+    if (this._siteFilterActive()) {
+      const selected = this._selectedSites;
+      const ids = Array.isArray(selected) ? selected : [ selected ];
+      data = data.filter(s => ids.includes(s.siteId));
+    }
+
+    return data;
   }
 
   _applySort(sort) {
 
     this._currentSort = this._resolveSort(sort);
+
+    if (this._currentSort === SORT_NONE) {
+      this.data = this._dataFromBaseline();
+      this.repage();
+      return;
+    }
+
+    this.data = this._dataFromBaseline();
 
     switch (this._currentSort) {
       case MESSAGES_MOST_TO_LEAST:
@@ -167,17 +218,12 @@ export class SakaiForums extends SakaiPageableElement {
 
   _filter() {
 
-    this.data = [ ... this._allData ];
-
-    if (this._currentFilter === "sites" && this._selectedSites !== SakaiSitePicker.ALL) {
-      const selected = this._selectedSites;
-      const ids = Array.isArray(selected) ? selected : [ selected ];
-      this.data = [ ...this.data.filter(s => ids.includes(s.siteId)) ];
-    }
+    this._allData = [ ...(this._baselineData || []) ];
 
     if (this._currentSort && this._currentSort !== SORT_NONE) {
       this._applySort(this._currentSort);
     } else {
+      this.data = this._dataFromBaseline();
       this.repage();
     }
   }
@@ -242,11 +288,13 @@ export class SakaiForums extends SakaiPageableElement {
       body: JSON.stringify({}),
     }).catch(error => console.error(error));
 
+    this.savedFilters = undefined;
     this._pickerSiteId = undefined;
     this._selectedSites = SakaiSitePicker.ALL;
     this._currentFilter = undefined;
     this._currentSort = SORT_NONE;
-    this.data = [ ...this._allData ];
+    this.data = [ ...(this._baselineData || []) ];
+    this._allData = [ ...(this._baselineData || []) ];
     this.repage();
   }
 
@@ -314,7 +362,7 @@ export class SakaiForums extends SakaiPageableElement {
 
     return html`
       <div class="dashboard-widget-body">
-        <div class="dashboard-widget-main ${this.filtersOpen ? "is-blurred" : ""}">
+        <div class="dashboard-widget-main ${this.filtersOpen ? "is-blurred" : ""}" ?inert=${this.filtersOpen}>
           ${!this.dataPage?.length ? html`
             <div class="sak-banner-info">${this._i18n.no_discussions}</div>
           ` : html`
