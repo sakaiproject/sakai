@@ -5128,11 +5128,15 @@ public class GradingServiceImpl implements GradingService {
     }
 
     /**
-     * Tells the student's notification handler that a grade was posted for this item.
+     * Tells the student's notification handler that a grade was posted for this item. Assignments
+     * notifies on grade release itself, so its items don't post this.
      */
     private void postGradePostedEvent(String siteId, GradebookAssignment assignment, String studentUid) {
 
-        String ref = GradingConstants.EVENT_REF_ROOT + "/" + assignment.getGradebook().getUid() + "/" + assignment.getId() + "/" + studentUid;
+        if (ASSIGNMENTS_APP_NAME.equals(assignment.getExternalAppName())) {
+            return;
+        }
+        String ref = "/gradebook/" + assignment.getGradebook().getUid() + "/" + assignment.getId() + "/" + studentUid;
         eventTrackingService.post(eventTrackingService.newEvent(GradingConstants.EVENT_GRADE_POSTED, ref, siteId, true, NotificationService.NOTI_NONE));
     }
 
@@ -5426,6 +5430,7 @@ public class GradingServiceImpl implements GradingService {
 
     private static final String GB_GROUP_SITE_PROPERTY = "gradebook_group";
     private static final String GB_GROUP_TOOL_PROPERTY = "gb-group";
+    private static final String ASSIGNMENTS_APP_NAME = "sakai.assignment.grades";
 
     @Override
     public boolean isGradebookGroupEnabled(String siteId) {

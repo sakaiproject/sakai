@@ -121,11 +121,4 @@ public class GradebookUserNotificationHandlerTest {
         gradebook.setAssignmentsDisplayed(false);
         assertTrue(handle("site1").isEmpty());
     }
-
-    @Test
-    public void skipsItemsAssignmentsNotifiesFor() {
-
-        item.setExternalAppName(GradebookUserNotificationHandler.ASSIGNMENTS_APP_NAME);
-        assertTrue(handle("site1").isEmpty());
-    }
 }

@@ -1041,7 +1041,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         Gradebook gradebook = createGradebook();
         Long assId = createAssignment1(gradebook);
         clearInvocations(eventTrackingService);
-        String ref = GradingConstants.EVENT_REF_ROOT + "/" + gradebook.getUid() + "/" + assId + "/" + user1;
+        String ref = "/gradebook/" + gradebook.getUid() + "/" + assId + "/" + user1;
 
         gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assId, user1, "3.7", "");
         // The same score again, and a cleared score, are not new grades
@@ -1049,6 +1049,21 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assId, user1, "", "");
 
         verify(eventTrackingService).newEvent(GradingConstants.EVENT_GRADE_POSTED, ref, siteId, true, NotificationService.NOTI_NONE);
+    }
+
+    @Test
+    public void assignmentsScoresDoNotPostGradePosted() {
+
+        Gradebook gradebook = createGradebook();
+        switchToInstructor();
+        gradingService.addExternalAssessment(gradebook.getUid(), gradebook.getUid(), "asn-ref", null,
+                "Assignment Item", 10.0D, null, "sakai.assignment.grades", null, false, null, null);
+        clearInvocations(eventTrackingService);
+
+        // Assignments sends its own notification when it releases the grade
+        gradingService.updateExternalAssessmentScore(gradebook.getUid(), siteId, "asn-ref", user1, "8");
+
+        verify(eventTrackingService, never()).newEvent(eq(GradingConstants.EVENT_GRADE_POSTED), anyString(), anyString(), anyBoolean(), anyInt());
     }
 
     @Test

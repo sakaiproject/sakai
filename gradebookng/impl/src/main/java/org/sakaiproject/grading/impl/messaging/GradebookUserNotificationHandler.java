@@ -40,8 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 public class GradebookUserNotificationHandler extends AbstractUserNotificationHandler {
 
     public static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
-    // Assignments notifies on grade release itself (asn.grade.submission)
-    public static final String ASSIGNMENTS_APP_NAME = "sakai.assignment.grades";
     // Set on each Gradebook placement when the site has a gradebook per group
     private static final String GB_GROUP_TOOL_PROPERTY = "gb-group";
 
@@ -70,8 +68,7 @@ public class GradebookUserNotificationHandler extends AbstractUserNotificationHa
             if (item == null
                     || BooleanUtils.isTrue(item.getRemoved())
                     || !BooleanUtils.isTrue(item.getReleased())
-                    || !BooleanUtils.isTrue(item.getGradebook().getAssignmentsDisplayed())
-                    || ASSIGNMENTS_APP_NAME.equals(item.getExternalAppName())) {
+                    || !BooleanUtils.isTrue(item.getGradebook().getAssignmentsDisplayed())) {
                 return Optional.empty();
             }
 
