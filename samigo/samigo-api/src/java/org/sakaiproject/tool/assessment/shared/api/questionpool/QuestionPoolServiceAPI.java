@@ -130,6 +130,9 @@ public interface QuestionPoolServiceAPI
 
   public Map getQuestionPoolItemMap();
   
-  public String getUserPoolAttachmentReport(String userId, Long poolId, String contextToReplace);
+  /**
+   * Returns a read-only attachment report for a pool owned by the current user.
+   */
+  public String getUserPoolAttachmentReport(String userId, Long poolId);
 
 }

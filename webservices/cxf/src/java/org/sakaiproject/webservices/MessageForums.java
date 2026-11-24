@@ -28,6 +28,7 @@ import jakarta.ws.rs.QueryParam;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -56,13 +57,13 @@ public class MessageForums extends AbstractWebService {
      * Adds a message to an existing forum or if there are no forums to add, adds a forum
      * and then adds a message.
      *
-     * @param sessionid the session to use
+     * @param sessionid a Sakai administrator session
      * @param context   the context to use
      * @param forum     the forum title
-     * @param user      the user id that wil be creating the forums / messages
+     * @param user      the author to record for the new content
      * @param title     the message title
      * @param body      the message body
-     * @return the sessionid if active, or "null" if not.
+     * @return the result of adding the message
      */
     @WebMethod
     @Path("/addMessage")
@@ -76,8 +77,11 @@ public class MessageForums extends AbstractWebService {
             @WebParam(name = "user", partName = "user") @QueryParam("user") String user,
             @WebParam(name = "title", partName = "title") @QueryParam("title") String title,
             @WebParam(name = "body", partName = "body") @QueryParam("body") String body) {
-        Session s = establishSession(sessionid);
-
+        Session session = establishSession(sessionid);
+        String callerId = session.getUserId();
+        if (StringUtils.isBlank(callerId) || !securityService.isSuperUser(callerId)) {
+            return "Failure";
+        }
 
         // Wrap this in a big try / catch block so we get better feedback
         // in the logs in the case of an error

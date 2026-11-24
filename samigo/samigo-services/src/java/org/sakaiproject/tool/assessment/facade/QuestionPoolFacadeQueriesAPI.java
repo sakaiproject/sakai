@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -63,6 +64,8 @@ public interface QuestionPoolFacadeQueriesAPI
   public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId, Long access);
 
   public List<QuestionPoolFacade> getBasicInfoOfAllPools(String agentId);
+
+  Optional<QuestionPoolData> getOwnedPoolSummary(Long poolId, String ownerId);
  
   public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId, String agentId);
 

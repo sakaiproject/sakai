@@ -29,7 +29,6 @@ public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
 	private static final String MOCK_USER = "mockUser";
 	private static final String MOCK_USER_ID = "mockUserId";
 	private static final Long MOCK_POOL_ID = Long.valueOf(25);
-	private static final String MOCK_CONTEXT_TO_REPLACE = "mockContext";
 
 	@Override
 	protected <T extends AbstractWebService> Class<T> getTestClass() {
@@ -49,17 +48,18 @@ public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
 	protected void addServiceMocks(AbstractWebService service) {
 		Session mockSession = mock(Session.class);
 		when(service.sessionManager.getSession(SESSION_ID)).thenReturn(mockSession);
+		when(mockSession.getUserId()).thenReturn(MOCK_USER_ID);
 		
 		try
 		{
-			when(service.userDirectoryService.getUserId(MOCK_USER)).thenReturn(MOCK_USER);
+			when(service.userDirectoryService.getUserId(MOCK_USER)).thenReturn(MOCK_USER_ID);
 		}
 		catch (UserNotDefinedException e)
 		{
 			
 		}
 		
-		when(service.questionPoolServiceImpl.getUserPoolAttachmentReport(MOCK_USER, MOCK_POOL_ID, MOCK_CONTEXT_TO_REPLACE)).thenReturn("report");
+		when(service.questionPoolServiceImpl.getUserPoolAttachmentReport(MOCK_USER_ID, MOCK_POOL_ID)).thenReturn("report");
 	}
 
 	@Test
@@ -74,7 +74,6 @@ public class TestsAndQuizzesPoolAttachmentReportTest extends AbstractCXFTest {
 		client.query("sessionId", SESSION_ID);
 		client.query("user", MOCK_USER);
 		client.query("poolId", MOCK_POOL_ID);
-		client.query("contextToReplace", MOCK_CONTEXT_TO_REPLACE);
 
 		// client result
 		String result = client.get(String.class);
