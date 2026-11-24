@@ -147,16 +147,24 @@ final class LessonsUi {
         return section.locator(":scope > .column");
     }
 
-    /** Typing fires the key events that enable the collapsible options. */
+    /** The section title enables the collapsible options, see typeTitle. */
     Locator openSectionLayout(String title) {
         page.locator("button[data-bs-target='#layout-dialog']").click();
         // Bootstrap moves focus to the modal at the end of its opening transition.
         assertThat(page.locator("#layout-dialog")).isFocused();
         Locator form = page.locator("#sectionlayout form");
-        Locator titleField = form.locator("#layout-section-title");
-        titleField.pressSequentially(title);
-        assertThat(titleField).hasValue(title);
+        typeTitle(form.locator("#layout-section-title"), title);
         return form;
+    }
+
+    /**
+     * Lessons enables the collapsible options from a keyup handler. Typing key by key sometimes lost the
+     * text after the first space in CI, so fill the field, fire keyup and check the whole value.
+     */
+    void typeTitle(Locator field, String title) {
+        field.fill(title);
+        field.dispatchEvent("keyup");
+        assertThat(field).hasValue(title);
     }
 
     void submitLayout(Locator form) {
@@ -279,6 +287,34 @@ final class LessonsUi {
         page.locator("input[type=radio][title='" + sourcePageTitle + " Select']").check();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Use selected item").setExact(true)).click();
         assertThat(page.locator("#reorderCol1")).isVisible();
+    }
+
+    Locator openPageSettings() {
+        page.locator("#edit-title").click();
+        Locator dialog = page.locator("#edit-title-dialog");
+        assertThat(dialog).isVisible();
+        return dialog;
+    }
+
+    /** Saving a top-level page goes through ReloadPage, whose script starts a second navigation. */
+    void savePageSettings(Locator dialog) {
+        page.waitForResponse(response -> response.request().isNavigationRequest()
+            && response.frame().equals(page.mainFrame()) && response.status() < 300
+            && "GET".equals(response.request().method()) && !response.url().contains("ReloadPage"),
+            () -> dialog.locator("input[type=submit]").click());
+        page.waitForURL(url -> !url.contains("ReloadPage"));
+        assertThat(dialog).isHidden();
+    }
+
+    /** Opens the text editor of an item and shows it only to the given group. */
+    void restrictTextToGroup(Locator item, String groupTitle) {
+        item.hover();
+        item.locator("a.itemLink").click();
+        page.locator("#editgroups a").click();
+        page.locator("#grouplist div").filter(new Locator.FilterOptions().setHasText(groupTitle))
+            .locator("input[type=checkbox]").check();
+        page.locator("input[type=submit].active").first().click();
+        assertThat(page.locator("#addcontent")).isAttached();
     }
 
     void rename(String newTitle) {
