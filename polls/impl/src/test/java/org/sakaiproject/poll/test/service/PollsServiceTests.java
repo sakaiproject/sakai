@@ -45,6 +45,7 @@ import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
+import org.sakaiproject.poll.api.service.PollTextValidationException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.impl.service.PollsServiceImpl;
 import org.sakaiproject.site.api.Group;
@@ -189,6 +190,12 @@ public class PollsServiceTests {
         Poll storedPoll = pollsService.getPollById(savedPoll1.getId()).orElseThrow();
         Assert.assertEquals(sanitizedQuestion, storedPoll.getText());
         Assert.assertEquals(sanitizedDescription, storedPoll.getDescription());
+
+        String emptyQuestion = "<!-- discarded question -->";
+        Mockito.when(formattedText.processFormattedText(emptyQuestion, null, true, true)).thenReturn("");
+        storedPoll.setText(emptyQuestion);
+        Assert.assertThrows(PollTextValidationException.class, () -> pollsService.savePoll(storedPoll));
+        Assert.assertEquals(sanitizedQuestion, pollsService.getPollById(savedPoll1.getId()).orElseThrow().getText());
 
         Assert.assertThrows(IllegalArgumentException.class, () -> pollsService.savePoll(null));
 
@@ -360,12 +367,35 @@ public class PollsServiceTests {
         Optional<Poll> poll = pollsService.getPollById(pollId);
 
         Option newOption = new Option();
-        String random = UUID.randomUUID().toString();
-        newOption.setText(random);
+        String submitted = "<custom-tag>New choice</custom-tag>";
+        Mockito.when(formattedText.processFormattedText(submitted, null, true, true)).thenReturn("New choice");
+        newOption.setText(submitted);
 
         Poll saved = pollsService.saveNewOption(poll.get(), newOption);
         Assert.assertNotNull(saved);
-        Assert.assertNotNull(saved.getOptions().stream().filter(o -> o.getText().equals(random)).findFirst().orElse(null));
+        Assert.assertNotNull(newOption.getId());
+        Assert.assertEquals("New choice", pollsService.getOptionById(newOption.getId()).orElseThrow().getText());
+    }
+
+    @Test
+    public void testUpdateOptionTextOnlyProcessesTheOption() {
+        String pollId = createPoll(USER, LOCATION1_ID);
+        Poll poll = pollsService.getPollById(pollId).orElseThrow();
+        Long optionId = poll.getOptions().get(0).getId();
+        String submitted = "<custom-tag><b>Updated choice</b></custom-tag>";
+        Mockito.when(formattedText.processFormattedText(submitted, null, true, true)).thenReturn("<b>Updated choice</b>");
+        Mockito.clearInvocations(formattedText);
+
+        pollsService.updateOptionText(optionId, submitted);
+
+        Assert.assertEquals("<b>Updated choice</b>", pollsService.getOptionById(optionId).orElseThrow().getText());
+        Mockito.verify(formattedText).processFormattedText(submitted, null, true, true);
+        Mockito.verifyNoMoreInteractions(formattedText);
+
+        String emptyOption = "<!-- discarded option -->";
+        Mockito.when(formattedText.processFormattedText(emptyOption, null, true, true)).thenReturn("");
+        Assert.assertThrows(PollTextValidationException.class, () -> pollsService.updateOptionText(optionId, emptyOption));
+        Assert.assertEquals("<b>Updated choice</b>", pollsService.getOptionById(optionId).orElseThrow().getText());
     }
 
     @Test
@@ -400,13 +430,13 @@ public class PollsServiceTests {
         Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
         String pollId = createPoll(USER, LOCATION1_ID);
 
-        List<String> optionTexts = List.of("Batch Option 1", "Batch Option 2", "Batch Option 3");
+        List<String> optionTexts = List.of("Batch Option 1", "Batch Option 2", "<b>Batch & option</b>");
         pollsService.saveOptionsBatch(pollId, optionTexts);
 
         // Reload poll to get updated options
-        Optional<Poll> reloaded = pollsService.getPollById(pollId);
         List<Option> options = pollsService.getVisibleOptionsForPoll(pollId);
         Assert.assertTrue(options.size() >= 5); // 2 original + 3 new
+        Assert.assertTrue(options.stream().anyMatch(option -> "&lt;b&gt;Batch &amp; option&lt;/b&gt;".equals(option.getText())));
     }
 
     @Test

@@ -48,7 +48,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.util.HtmlUtils;
 
 // This method relies on Apache POI to process an Excel file
 // Also processes any file and tries to convert it as text if possible.
@@ -76,7 +75,7 @@ public class OptionsFileConverterUtil {
                     log.debug("Input file detected as UNKNOWN, try to open it as text and ignore if it's not ASCII text.");
                     try(Scanner scanner = new Scanner(bufferedInputStream).useDelimiter("\\r\\n")) {
                         while(scanner.hasNext()){
-                            String inputString = HtmlUtils.htmlEscape(scanner.next(), "UTF-8");
+                            String inputString = scanner.next();
                             if(StringUtils.isNotBlank(inputString)){
                                 optionsList.add(inputString);
                             }
@@ -96,7 +95,7 @@ public class OptionsFileConverterUtil {
                     switch(currentCell.getCellType()) {
                         case STRING:
                             if (StringUtils.isNotBlank(currentCell.getStringCellValue())) {
-                                optionsList.add(HtmlUtils.htmlEscape(currentCell.getStringCellValue(), "UTF-8"));
+                                optionsList.add(currentCell.getStringCellValue());
                             }
                             break;
                         case NUMERIC:

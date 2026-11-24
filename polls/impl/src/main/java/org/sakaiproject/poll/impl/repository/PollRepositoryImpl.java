@@ -99,4 +99,9 @@ public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, String> i
         if (optionId == null) return Optional.empty();
         return Optional.ofNullable(sessionFactory.getCurrentSession().get(Option.class, optionId));
     }
+
+    @Override
+    public void persistOption(Option option) {
+        sessionFactory.getCurrentSession().persist(option);
+    }
 }

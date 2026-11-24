@@ -31,6 +31,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.service.PollTextValidationException;
 import org.sakaiproject.poll.tool.model.PollForm;
 import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -237,7 +238,14 @@ public class PollEditorController {
             return "redirect:/votePolls";
         }
 
-        Poll saved = pollsService.savePoll(poll);
+        Poll saved;
+        try {
+            saved = pollsService.savePoll(poll);
+        } catch (PollTextValidationException e) {
+            bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("error_no_text", null, locale)));
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
+            return "polls/edit";
+        }
         redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_saved_success", null, locale));
 
         if ("option".equals(redirectTarget)) {

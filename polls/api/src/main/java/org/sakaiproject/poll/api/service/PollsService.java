@@ -150,6 +150,11 @@ public interface PollsService {
      * @return
      */
     Poll saveNewOption(Poll poll, Option option);
+
+    /**
+     * Updates an existing option's formatted text.
+     */
+    void updateOptionText(Long optionId, String text);
     
     /**
      *  Save a poll
@@ -388,7 +393,7 @@ public interface PollsService {
     /**
      * Save multiple options in batch
      * @param pollId the poll ID to add options to
-     * @param optionTexts list of option text values to add
+     * @param optionTexts list of plain-text option values to add
      */
     void saveOptionsBatch(String pollId, java.util.List<String> optionTexts);
 

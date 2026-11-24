@@ -45,6 +45,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.Persistence;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -88,6 +90,7 @@ import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
+import org.sakaiproject.poll.api.service.PollTextValidationException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.util.PollUtil;
 import org.sakaiproject.poll.api.util.PollUtils;
@@ -196,6 +199,10 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public Poll savePoll(final Poll poll) throws SecurityException, IllegalArgumentException {
+        return savePoll(poll, true);
+    }
+
+    private Poll savePoll(final Poll poll, boolean cleanNewOptions) {
         if (poll == null || StringUtils.isAnyBlank(poll.getText(), poll.getSiteId(), poll.getVoteOpen().toString(), poll.getVoteClose().toString())) {
             throw new IllegalArgumentException(pollsBundle.getString("poll_error_missing_fields"));
         }
@@ -216,17 +223,28 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
         String question = cleanupPollFormattedText(poll.getText());
         if (StringUtils.isBlank(question)) {
-            throw new IllegalArgumentException(pollsBundle.getString("poll_error_missing_fields"));
+            throw new PollTextValidationException(pollsBundle.getString("error_no_text"));
         }
         poll.setText(question);
         if (poll.getDescription() != null) {
             poll.setDescription(cleanupPollFormattedText(poll.getDescription()));
         }
+        boolean isNew = poll.getId() == null;
+        if (cleanNewOptions && (isNew || Persistence.getPersistenceUtil().isLoaded(poll, "options"))) {
+            for (Option option : poll.getOptions()) {
+                if (isNew) {
+                    option.setId(null);
+                    option.setPoll(poll);
+                }
+                if (option.getId() == null) {
+                    option.setText(cleanupPollFormattedText(option.getText()));
+                }
+            }
+        }
 
         if (poll.getCreationDate() == null) poll.setCreationDate(Instant.now());
         if (StringUtils.isBlank(poll.getOwner())) poll.setOwner(userId);
 
-        boolean isNew = poll.getId() == null;
         Poll savedPoll = pollRepository.save(poll);
 
         log.debug("Poll {} successfully saved", poll);
@@ -263,7 +281,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
 
         for (ImportedPoll importedPoll : importedPolls) {
-            savePoll(buildImportedPoll(importedPoll, siteId, ownerId));
+            try {
+                // The import builder cleans option text before validating the option count.
+                savePoll(buildImportedPoll(importedPoll, siteId, ownerId), false);
+            } catch (PollTextValidationException e) {
+                throw new PollImportException(PollImportError.MISSING_QUESTION, importedPoll.rowNumber());
+            }
         }
     }
 
@@ -637,16 +660,35 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
         // Save through poll aggregate
         if (poll.getId() != null && option.getId() == null) {
-            poll.addOption(option);
-            Poll saved = pollRepository.save(poll);
+            String text = cleanupPollFormattedText(option.getText());
+            if (StringUtils.isBlank(text)) {
+                throw new PollTextValidationException(pollsBundle.getString("option_empty"));
+            }
+            option.setText(text);
+            Poll existingPoll = pollRepository.findById(poll.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Poll not found: " + poll.getId()));
+            existingPoll.addOption(option);
+            pollRepository.persistOption(option);
             log.debug("Option {} successfully saved", option);
-            postOptionsChanged(saved);
-            return saved;
+            postOptionsChanged(existingPoll);
+            return existingPoll;
         } else {
             log.warn("Cannot save existing option {}", option.getId());
         }
 
         return null;
+    }
+
+    @Override
+    public void updateOptionText(Long optionId, String text) {
+        Option option = getOptionById(optionId)
+                .orElseThrow(() -> new IllegalArgumentException("Option not found: " + optionId));
+        String cleanedText = cleanupPollFormattedText(text);
+        if (StringUtils.isBlank(cleanedText)) {
+            throw new PollTextValidationException(pollsBundle.getString("option_empty"));
+        }
+        option.setText(cleanedText);
+        postOptionsChanged(option.getPoll());
     }
 
     private boolean canDeletePoll(final Poll poll) {
@@ -1376,10 +1418,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         for (String optionText : optionTexts) {
             if (StringUtils.isNotBlank(optionText)) {
                 Option option = new Option();
-                option.setText(optionText);
-                saveNewOption(poll.get(), option);
+                option.setText(formattedText.escapeHtml(optionText, false));
+                poll.get().addOption(option);
             }
         }
+        pollRepository.save(poll.get());
+        postOptionsChanged(poll.get());
     }
 
     @Override

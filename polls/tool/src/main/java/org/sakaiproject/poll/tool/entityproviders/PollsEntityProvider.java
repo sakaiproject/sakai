@@ -475,18 +475,14 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"Poll ID must be set to create an option");
 		}
-		Optional<Poll> poll = pollsService.getPollById(pollId);
-		if (poll.isEmpty()) {
-			throw new IllegalArgumentException("Poll not found with ID: " + pollId);
-		}
 		// check minimum settings
 		if (option.getText() == null) {
 			throw new IllegalArgumentException(
 					"Poll Option text must be set to create an option");
 		}
-		checkOptionPermission(userReference, option);
-
-		Poll saved = pollsService.saveNewOption(poll.get(), option);
+		Poll poll = checkOptionPermission(userReference, pollId);
+		option.setId(null);
+		Poll saved = pollsService.saveNewOption(poll, option);
 		if (saved == null) {
 			throw new IllegalStateException("Unable to save option (" + option
 					+ ") for user (" + userReference + "): " + ref);
@@ -558,15 +554,10 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"No option found to update for the given reference: " + ref);
 		}
-		Option option = new Option();
-		// copy from params to Option
-		copyParamsToObject(params, option);
-
-		checkOptionPermission(userReference, current);
-		developerHelperService.copyBean(option, current, 0, new String[] {"id", "poll" }, true);
-		Poll saved = pollsService.savePoll(current.getPoll());
-		if (saved == null) {
-			throw new IllegalStateException("Unable to update option (" + option + ") for user (" + userReference + "): " + ref);
+		checkOptionPermission(userReference, current.getPoll().getId());
+		Object text = params.get("text");
+		if (text != null) {
+			pollsService.updateOptionText(current.getId(), text.toString());
 		}
 	}
 
@@ -584,7 +575,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"No option found to delete for the given reference: " + ref);
 		}
-		checkOptionPermission(userReference, option);
+		checkOptionPermission(userReference, option.getPoll().getId());
 		pollsService.deleteOption(option.getId());
 		// return String.format("Poll option id %d removed", id);
 	}
@@ -593,32 +584,19 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	 * Checks if the given user can create/update/delete options
 	 * 
 	 * @param userRef
-	 * @param option
+	 * @param pollId
 	 */
-	private void checkOptionPermission(String userRef, Option option) {
-		Poll optionPoll = option.getPoll();
-		if (optionPoll == null || optionPoll.getId() == null) {
-			throw new IllegalArgumentException(
-					"Poll must be set in the option to check permissions: "
-							+ option);
-		}
-		String pollId = optionPoll.getId();
-		// validate poll exists
-		Optional<Poll> poll = pollsService.getPollById(pollId);
-		if (poll.isEmpty()) {
-			throw new IllegalArgumentException("Invalid poll id (" + pollId
-					+ "), could not find poll from option: " + option);
-		}
-		// check permissions
-		String siteRef = "/site/" + poll.get().getSiteId();
-		if (!developerHelperService.isUserAllowedInEntityReference(userRef,
-				PERMISSION_ADD, siteRef)) {
+	private Poll checkOptionPermission(String userRef, String pollId) {
+		Poll poll = pollsService.getPollById(pollId)
+				.orElseThrow(() -> new IllegalArgumentException("Poll not found: " + pollId));
+		if (!pollPermissionsService.canEditPoll(poll)) {
 			throw new SecurityException(
 					"User ("
 							+ userRef
 							+ ") is not allowed to create/update/delete options in this poll ("
 							+ pollId + ")");
 		}
+		return poll;
 	}
 
 	/**

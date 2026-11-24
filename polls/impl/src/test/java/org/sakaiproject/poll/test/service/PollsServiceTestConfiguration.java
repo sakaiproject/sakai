@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.poll.test.service;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.mockito.Mockito;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -59,6 +60,8 @@ public class PollsServiceTestConfiguration extends SakaiTestConfiguration {
         FormattedText formattedText = Mockito.mock(FormattedText.class);
         Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
             .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(formattedText.escapeHtml(Mockito.anyString(), Mockito.eq(false)))
+            .thenAnswer(invocation -> StringEscapeUtils.escapeHtml4(invocation.getArgument(0)));
         return formattedText;
     }
 

@@ -26,8 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
-import org.sakaiproject.poll.api.util.PollUtils;
-import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.poll.api.service.PollTextValidationException;
 import org.sakaiproject.poll.tool.model.OptionBatchForm;
 import org.sakaiproject.poll.tool.model.OptionForm;
 import org.sakaiproject.poll.tool.service.PollPermissionsService;
@@ -54,7 +53,6 @@ public class OptionController {
     private static final String HANDLE_DELETE_OPTION_RETURN_VOTES = "return-votes";
 
     private final PollsService pollsService;
-    private final FormattedText formattedText;
     private final MessageSource messageSource;
     private final PollPermissionsService pollPermissionsService;
 
@@ -110,7 +108,6 @@ public class OptionController {
             return "polls/option-edit";
         }
 
-        Option option;
         Poll poll = submittedPoll.get();
         if (optionForm.getOptionId() != null) {
             Optional<Option> existingOption = pollsService.getOptionById(optionForm.getOptionId());
@@ -120,19 +117,13 @@ public class OptionController {
                 addMenuPermissions(model);
                 return "polls/option-edit";
             }
-            option = existingOption.get();
-            poll = option.getPoll();
+            poll = existingOption.get().getPoll();
             if (poll == null) {
                 bindingResult.addError(new FieldError("optionForm", "text", "Poll not found"));
                 model.addAttribute("poll", null);
                 addMenuPermissions(model);
                 return "polls/option-edit";
             }
-        } else {
-            // Creating new option
-            // optionOrder is managed by @OrderColumn - position in list determines order
-            option = new Option();
-            poll.addOption(option);
         }
 
         if (!pollPermissionsService.canEditPoll(poll)) {
@@ -142,32 +133,21 @@ public class OptionController {
             return "polls/option-edit";
         }
 
-        // Validate option text
-        if (StringUtils.isBlank(optionForm.getText())) {
+        try {
+            if (optionForm.getOptionId() == null) {
+                Option option = new Option();
+                option.setText(optionForm.getText());
+                pollsService.saveNewOption(poll, option);
+            } else {
+                pollsService.updateOptionText(optionForm.getOptionId(), optionForm.getText());
+            }
+        } catch (PollTextValidationException e) {
             bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage("option_empty", null, locale)));
             model.addAttribute("poll", poll);
             addMenuPermissions(model);
             return "polls/option-edit";
         }
 
-        // Process and sanitize HTML in option text
-        String sanitizedText = formattedText.processFormattedText(
-            optionForm.getText(),
-            null,
-            true,
-            true
-        );
-        option.setText(PollUtils.cleanupHtmlPtags(sanitizedText));
-
-        // Validate after processing
-        if (StringUtils.isBlank(option.getText())) {
-            bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage("option_empty", null, locale)));
-            model.addAttribute("poll", poll);
-            addMenuPermissions(model);
-            return "polls/option-edit";
-        }
-
-        pollsService.savePoll(poll);
         redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_added_success", null, locale));
 
         if ("addAnother".equals(submitAction)) {

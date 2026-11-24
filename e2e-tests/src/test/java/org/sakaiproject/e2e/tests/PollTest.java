@@ -90,6 +90,10 @@ class PollTest extends SakaiUiTestBase {
 
         assertThat(page.locator("textarea")).isVisible();
 
+        page.locator("#option-text").fill("<!-- no option text -->");
+        page.locator("button[name='submitAction'][value='save']").click();
+        assertThat(page.locator("#option-text + .invalid-feedback")).hasText("You must specify some text for the option");
+
         page.locator("textarea").fill("Yes");
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
 
@@ -209,7 +213,10 @@ class PollTest extends SakaiUiTestBase {
         page.locator(".navIntraTool").getByRole(AriaRole.LINK,
             new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
 
-        page.locator("form:visible input[type=\"text\"]").first().fill(DEFAULT_DATES_POLL_TITLE);
+        page.locator("#poll-text").fill("<!-- no question text -->");
+        page.locator("form.needs-validation input[type='submit']").click();
+        assertThat(page.locator("#poll-text + .invalid-feedback")).hasText("Your poll must have a question");
+        page.locator("#poll-text").fill(DEFAULT_DATES_POLL_TITLE);
 
         assertThat(page.locator("label[for=\"poll-text\"]")).hasClass(Pattern.compile(".*required.*"));
         assertThat(page.locator("label[for=\"open-date\"]")).hasClass(Pattern.compile(".*required.*"));
