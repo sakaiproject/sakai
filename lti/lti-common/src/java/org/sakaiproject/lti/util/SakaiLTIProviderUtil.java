@@ -21,7 +21,9 @@ package org.sakaiproject.lti.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,6 +86,57 @@ public class SakaiLTIProviderUtil {
 			}
 		}
 		return isTrusted;
+	}
+
+	/**
+	 * Return URL to follow when an LTI 1.1 provider launch fails, or null when
+	 * the error must be rendered on this server.
+	 *
+	 * The URL is ignored until the launch has been validated. After that, the
+	 * target must be a path on this server or an http(s) URL whose host is the
+	 * consumer key. That key is the platform host in lti.provider.[hostname].secret.
+	 */
+	public static String allowedLaunchErrorReturnUrl(String returnUrl, boolean validated, String consumerKey) {
+		if (!validated || returnUrl == null || consumerKey == null || consumerKey.isEmpty()) {
+			return null;
+		}
+		if (returnUrl.length() <= 1 || containsControl(returnUrl) || returnUrl.indexOf('\\') >= 0) {
+			return null;
+		}
+		String lower = returnUrl.toLowerCase(Locale.ROOT);
+		if (lower.contains("%0d") || lower.contains("%0a") || lower.contains("%00")
+				|| lower.contains("%09") || lower.contains("%5c")) {
+			return null;
+		}
+		if (matchesConsumerHost(returnUrl, consumerKey) || isSameOriginPath(returnUrl)) {
+			return returnUrl;
+		}
+		return null;
+	}
+
+	private static boolean matchesConsumerHost(String returnUrl, String consumerKey) {
+		String host = Pattern.quote(consumerKey);
+		String rest = "(:[0-9]+)?([/?#].*)?";
+		return returnUrl.matches("(?i)https?://" + host + rest)
+				|| returnUrl.matches("(?i)//" + host + rest);
+	}
+
+	private static boolean isSameOriginPath(String returnUrl) {
+		if (!returnUrl.startsWith("/") || returnUrl.startsWith("//")) {
+			return false;
+		}
+		String lower = returnUrl.toLowerCase(Locale.ROOT);
+		return !lower.startsWith("/%2f") && !lower.startsWith("/%5c");
+	}
+
+	private static boolean containsControl(String value) {
+		for (int i = 0; i < value.length(); i++) {
+			char c = value.charAt(i);
+			if (c <= 0x20 || c == 0x7f) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
