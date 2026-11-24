@@ -102,7 +102,7 @@ jobs:
             --output conf/catalina.properties "$NIGHTLY_CONFIG_URL/catalina.properties"
           printf '%s\n' \
             'cardgame.showOfficialPhoto=false' 'cardgame.skipNoImageUsers=true' \
-            'tagservice.enabled=true' 'samigo.author.usetags=true' \
+            'tagservice.enabled=true' 'samigo.author.usetags=true' 'samigo.allowMinScore=true' \
             'profile2.picture.change.enabled=true' 'profile2.picture.type=upload' \
             'content.zip.download.maxindividualfilesize=10485760' 'content.zip.download.maxtotalsize=104857600' \
             'bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService=${sakai.home}db/bodyContentDeleted/' >> sakai/local.properties

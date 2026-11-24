@@ -29,7 +29,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
@@ -111,6 +110,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.EssayMinScoreCriteria;
 import org.sakaiproject.tool.assessment.util.ParameterUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.api.FormattedText;
@@ -2515,7 +2515,7 @@ public class ItemAddListener implements ActionListener {
 		set.add(new ItemMetaData(item.getData(),
 					ItemMetaDataIfc.MCMS_PARTIAL_CREDIT, bean.getMcmsPartialCredit()));
 		}
-		minScoreCriteria(item, bean).forEach((label, entry) -> {
+		EssayMinScoreCriteria.toMetaData(item.getTypeId(), bean.getItemMinScoreWordCount(), bean.getItemMinScoreKeywords()).forEach((label, entry) -> {
 			if (StringUtils.isNotEmpty(entry)) {
 				set.add(new ItemMetaData(item.getData(), label, entry));
 			}
@@ -2684,7 +2684,7 @@ public class ItemAddListener implements ActionListener {
 	  }
 
 	  // The essay criteria may be new to an item published before they existed
-	  minScoreCriteria(item, bean).forEach((label, entry) -> {
+	  EssayMinScoreCriteria.toMetaData(item.getTypeId(), bean.getItemMinScoreWordCount(), bean.getItemMinScoreKeywords()).forEach((label, entry) -> {
 		  Optional<ItemMetaDataIfc> existing = ((Set<ItemMetaDataIfc>) itemMetaDataSet).stream()
 				  .filter(m -> label.equals(m.getLabel())).findFirst();
 		  if (existing.isPresent()) {
@@ -2694,18 +2694,6 @@ public class ItemAddListener implements ActionListener {
 		  }
 	  });
 	  return itemMetaDataSet;
-	}
-
-	// The criteria an essay answer must meet to get the minimum score, keyed by metadata label.
-	// Empty entries mean the criterion isn't set.
-	private Map<String, String> minScoreCriteria(ItemFacade item, ItemBean bean) {
-		Map<String, String> criteria = new LinkedHashMap<>();
-		if (TypeFacade.ESSAY_QUESTION.equals(item.getTypeId())) {
-			Integer wordCount = bean.getItemMinScoreWordCount();
-			criteria.put(ItemMetaDataIfc.MIN_SCORE_WORD_COUNT, wordCount != null && wordCount > 0 ? wordCount.toString() : "");
-			criteria.put(ItemMetaDataIfc.MIN_SCORE_KEYWORDS, StringUtils.trimToEmpty(bean.getItemMinScoreKeywords()));
-		}
-		return criteria;
 	}
 
 	private void preparePublishedTextForMatrixSurvey(ItemFacade item, ItemBean bean) {

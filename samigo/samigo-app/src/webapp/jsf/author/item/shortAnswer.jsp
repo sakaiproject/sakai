@@ -112,18 +112,24 @@
         <h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
 	    <h:message for="answerminptr" styleClass="validate"/>
     </div>
+  </div>
+  <div class="form-group row">
+    <h:outputLabel for="answerminwordcount" value="#{authorMessages.answer_min_point_word_count}" styleClass="col-md-2"/>
     <div class="col-md-2">
         <h:inputText id="answerminwordcount" value="#{itemauthor.currentItem.itemMinScoreWordCount}" styleClass="form-control">
           <f:validateLongRange minimum="1"/>
         </h:inputText>
-        <h:outputLabel for="answerminwordcount" value="#{authorMessages.answer_min_point_word_count}" style="font-size: x-small" />
+        <h:outputText value="#{authorMessages.answer_min_point_word_count_info}" style="font-size: x-small" />
         <h:message for="answerminwordcount" styleClass="validate"/>
     </div>
-    <div class="col-md-3">
+  </div>
+  <div class="form-group row">
+    <h:outputLabel for="answerminkeywords" value="#{authorMessages.answer_min_point_keywords}" styleClass="col-md-2"/>
+    <div class="col-md-4">
         <h:inputText id="answerminkeywords" value="#{itemauthor.currentItem.itemMinScoreKeywords}" styleClass="form-control" maxlength="255">
           <f:validateLength maximum="255"/>
         </h:inputText>
-        <h:outputLabel for="answerminkeywords" value="#{authorMessages.answer_min_point_keywords}" style="font-size: x-small" />
+        <h:outputText value="#{authorMessages.answer_min_point_keywords_info}" style="font-size: x-small" />
         <h:message for="answerminkeywords" styleClass="validate"/>
     </div>
   </div>

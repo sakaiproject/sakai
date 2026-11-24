@@ -1166,7 +1166,7 @@ public class GradingService
         	Double accumulatedScore = itemGrading.getAutoScore();
         	Double itemParts = 1d;
         	boolean answered = isAnswered(itemGrading, itemType2)
-        			&& meetsEssayMinScoreCriteria(item, itemGrading, itemType2);
+        			&& EssayMinScoreCriteria.isMet(item, itemGrading.getAnswerText());
         	if(minScoreCheck.containsKey(itemId)){
         		Double[] accumulatedScoreArr = minScoreCheck.get(itemId);
         		accumulatedScore += accumulatedScoreArr[0];
@@ -1347,13 +1347,6 @@ public class GradingService
         }
     }
     return totalAutoScore.doubleValue();
-  }
-
-  // An essay must also meet its optional word count and keywords to get the minimum score.
-  private boolean meetsEssayMinScoreCriteria(ItemDataIfc item, ItemGradingData data, Long type) {
-    return !TypeIfc.ESSAY_QUESTION.equals(type) || EssayMinScoreCriteria.isMet(data.getAnswerText(),
-        item.getItemMetaDataByLabel(ItemMetaDataIfc.MIN_SCORE_WORD_COUNT),
-        item.getItemMetaDataByLabel(ItemMetaDataIfc.MIN_SCORE_KEYWORDS));
   }
 
   private boolean isAnswered(ItemGradingData data, Long type) {
