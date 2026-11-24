@@ -147,13 +147,23 @@ final class LessonsUi {
         return section.locator(":scope > .column");
     }
 
-    /** Typing fires the key events that enable the collapsible options. */
+    /** The section title enables the collapsible options, see typeTitle. */
     Locator openSectionLayout(String title) {
         page.locator("button[data-bs-target='#layout-dialog']").click();
         assertThat(page.locator("#layout-dialog")).isVisible();
         Locator form = page.locator("#sectionlayout form");
-        form.locator("#layout-section-title").pressSequentially(title);
+        typeTitle(form.locator("#layout-section-title"), title);
         return form;
+    }
+
+    /**
+     * Lessons enables the collapsible options from a keyup handler. Typing key by key sometimes lost the
+     * text after the first space in CI, so fill the field, fire keyup and check the whole value.
+     */
+    void typeTitle(Locator field, String title) {
+        field.fill(title);
+        field.dispatchEvent("keyup");
+        assertThat(field).hasValue(title);
     }
 
     void submitLayout(Locator form) {
