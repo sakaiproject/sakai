@@ -142,9 +142,8 @@ class PollTest extends SakaiUiTestBase {
         Locator minOptions = page.locator("#min-options");
         Locator maxOptions = page.locator("#max-options");
 
-        // blank min — form re-renders on error, no new navigation needed for subsequent checks
-        minOptions.press("ControlOrMeta+a");
-        minOptions.press("Backspace");
+        // Set the blank value directly so this exercises form validation independently of number input keyboard behavior.
+        minOptions.evaluate("input => input.value = ''");
         maxOptions.fill("2");
         assertThat(minOptions).hasValue("");
         sakai.submitForm(saveButton::click);
@@ -153,8 +152,7 @@ class PollTest extends SakaiUiTestBase {
 
         // blank max
         minOptions.fill("1");
-        maxOptions.press("ControlOrMeta+a");
-        maxOptions.press("Backspace");
+        maxOptions.evaluate("input => input.value = ''");
         assertThat(maxOptions).hasValue("");
         sakai.submitForm(saveButton::click);
         assertThat(page.locator("#max-options")).hasClass(Pattern.compile(".*is-invalid.*"));
