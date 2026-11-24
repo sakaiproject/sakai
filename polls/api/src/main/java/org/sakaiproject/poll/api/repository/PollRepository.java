@@ -25,6 +25,10 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface PollRepository extends SpringCrudRepository<Poll, String> {
 
+    record PollIdentity(String siteId, String owner) { }
+
+    Optional<PollIdentity> findPollIdentity(String pollId);
+
     /**
      * Finds all polls for a given site, ordered by creation date in descending order.
      * Returns an empty list if the site ID is null.

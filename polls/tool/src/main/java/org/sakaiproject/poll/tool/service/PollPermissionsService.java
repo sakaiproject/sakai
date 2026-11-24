@@ -16,16 +16,11 @@
 
 package org.sakaiproject.poll.tool.service;
 
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_ANY;
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_OWN;
-
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.stereotype.Service;
 
@@ -41,36 +36,16 @@ public class PollPermissionsService {
 
     private final SecurityService securityService;
     private final SiteService siteService;
-    private final SessionManager sessionManager;
+    private final PollsService pollsService;
     private final ToolManager toolManager;
 
     public boolean canAddPoll() {
-        if (securityService.isSuperUser()) {
-            return true;
-        }
-        String siteRef = currentSiteReference();
-        return siteRef != null && securityService.unlock(PERMISSION_ADD, siteRef);
+        Placement placement = toolManager.getCurrentPlacement();
+        return pollsService.isAllowedPollAdd(placement == null ? null : placement.getContext());
     }
 
     public boolean canEditPoll(Poll poll) {
-        if (poll == null) {
-            return false;
-        }
-        if (securityService.isSuperUser()) {
-            return true;
-        }
-        if (StringUtils.isBlank(poll.getSiteId())) {
-            return false;
-        }
-        String siteRef = siteService.siteReference(poll.getSiteId());
-        if (siteRef == null) {
-            return false;
-        }
-        if (securityService.unlock(PERMISSION_EDIT_ANY, siteRef)) {
-            return true;
-        }
-        return securityService.unlock(PERMISSION_EDIT_OWN, siteRef)
-                && StringUtils.equals(poll.getOwner(), sessionManager.getCurrentSessionUserId());
+        return pollsService.isAllowedPollEdit(poll);
     }
 
     public boolean isSiteOwner() {

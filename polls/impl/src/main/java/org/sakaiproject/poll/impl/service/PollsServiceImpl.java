@@ -87,6 +87,7 @@ import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.api.repository.PollRepository;
+import org.sakaiproject.poll.api.repository.PollRepository.PollIdentity;
 import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
@@ -203,8 +204,24 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     }
 
     private Poll savePoll(final Poll poll, boolean cleanNewOptions) {
-        if (poll == null || StringUtils.isAnyBlank(poll.getText(), poll.getSiteId(), poll.getVoteOpen().toString(), poll.getVoteClose().toString())) {
+        if (poll == null || StringUtils.isAnyBlank(poll.getText(), poll.getSiteId())
+                || poll.getVoteOpen() == null || poll.getVoteClose() == null) {
             throw new IllegalArgumentException(pollsBundle.getString("poll_error_missing_fields"));
+        }
+        String userId = sessionManager.getCurrentSessionUserId();
+        boolean isNew = poll.getId() == null;
+        if (isNew) {
+            if (!isAllowedPollAdd(poll.getSiteId())) {
+                throw new SecurityException("User " + userId + " cannot add polls to site " + poll.getSiteId());
+            }
+        } else {
+            PollIdentity existing = pollRepository.findPollIdentity(poll.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Poll not found: " + poll.getId()));
+            if (!isAllowedPollEdit(existing.siteId(), existing.owner())
+                    || !Objects.equals(existing.siteId(), poll.getSiteId())
+                    || !Objects.equals(existing.owner(), poll.getOwner())) {
+                throw new SecurityException("User " + userId + " cannot update poll " + poll.getId());
+            }
         }
         if (poll.getTypeOfAccess() == Poll.Access.GROUP && (poll.getGroupIds() == null || poll.getGroupIds().isEmpty())) {
             throw new IllegalArgumentException(pollsBundle.getString("poll_error_groups_required"));
@@ -215,12 +232,6 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                 throw new IllegalArgumentException(pollsBundle.getString("poll_error_invalid_groups"));
             }
         }
-        String userId = sessionManager.getCurrentSessionUserId();
-        String siteRef = siteService.siteReference(poll.getSiteId());
-        if (!securityService.unlock(userId, PERMISSION_ADD, siteRef)) {
-            throw new SecurityException("user:" + userId + " can't add poll to site: " + siteRef);
-        }
-
         String question = cleanupPollFormattedText(poll.getText());
         if (StringUtils.isBlank(question)) {
             throw new PollTextValidationException(pollsBundle.getString("error_no_text"));
@@ -229,7 +240,6 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll.getDescription() != null) {
             poll.setDescription(cleanupPollFormattedText(poll.getDescription()));
         }
-        boolean isNew = poll.getId() == null;
         if (cleanNewOptions && (isNew || Persistence.getPersistenceUtil().isLoaded(poll, "options"))) {
             for (Option option : poll.getOptions()) {
                 if (isNew) {
@@ -705,9 +715,30 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public boolean isAllowedPollAdd(final String siteId) {
-        String siteRef = siteService.siteReference(siteId);
+        if (securityService.isSuperUser()) {
+            return true;
+        }
         String userId = sessionManager.getCurrentSessionUserId();
-        return securityService.isSuperUser() || securityService.unlock(userId, PERMISSION_ADD, siteRef);
+        String siteRef = StringUtils.isNotBlank(siteId) ? siteService.siteReference(siteId) : null;
+        return userId != null && siteRef != null && securityService.unlock(userId, PERMISSION_ADD, siteRef);
+    }
+
+    @Override
+    public boolean isAllowedPollEdit(Poll poll) {
+        return poll != null && isAllowedPollEdit(poll.getSiteId(), poll.getOwner());
+    }
+
+    private boolean isAllowedPollEdit(String siteId, String owner) {
+        if (securityService.isSuperUser()) {
+            return true;
+        }
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (userId == null || StringUtils.isBlank(siteId)) {
+            return false;
+        }
+        String siteRef = siteService.siteReference(siteId);
+        return siteRef != null && (securityService.unlock(userId, PERMISSION_EDIT_ANY, siteRef)
+                || (Objects.equals(owner, userId) && securityService.unlock(userId, PERMISSION_EDIT_OWN, siteRef)));
     }
 
     public String getLabel() {
@@ -778,6 +809,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             if ( pollText == null ) continue;
             if ( pollTexts.contains(pollText) ) continue;
 
+            poll.setId(null);
             poll.setSiteId(siteId);
             poll.setOwner(mcx.creatorId);
             String description = poll.getDescription();
@@ -1309,6 +1341,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
         // Extract Poll from PollEntity
         Poll poll = pollEntity.getPoll();
+        if (poll.getId() != null) {
+            throw new IllegalArgumentException("New polls must not have an ID");
+        }
 
         // Set defaults for new poll
         if (poll.getOwner() == null) {

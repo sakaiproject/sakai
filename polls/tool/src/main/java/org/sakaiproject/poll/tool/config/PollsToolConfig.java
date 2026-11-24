@@ -52,11 +52,9 @@ public class PollsToolConfig {
     @Bean
     public PollEntityProvider pollEntityProvider(PollsService pollsService,
                                                  EntityProviderManager entityProviderManager,
-                                                 DeveloperHelperService developerHelperService,
-                                                 PollPermissionsService pollPermissionsService) {
+                                                 DeveloperHelperService developerHelperService) {
         PollEntityProvider provider = new PollEntityProvider();
         provider.setPollsService(pollsService);
-        provider.setPollPermissionsService(pollPermissionsService);
         provider.setEntityProviderManager(entityProviderManager);
         provider.setDeveloperHelperService(developerHelperService);
         return provider;

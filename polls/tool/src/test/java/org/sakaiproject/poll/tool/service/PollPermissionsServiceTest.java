@@ -20,14 +20,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.poll.api.PollConstants;
 import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -36,77 +35,57 @@ import static org.mockito.Mockito.when;
 public class PollPermissionsServiceTest {
 
     private SecurityService securityService;
-    private SiteService siteService;
-    private SessionManager sessionManager;
+    private PollsService pollsService;
     private ToolManager toolManager;
     private PollPermissionsService pollPermissionsService;
 
     @Before
     public void setUp() {
         securityService = mock(SecurityService.class);
-        siteService = mock(SiteService.class);
-        sessionManager = mock(SessionManager.class);
+        pollsService = mock(PollsService.class);
         toolManager = mock(ToolManager.class);
         pollPermissionsService = new PollPermissionsService(
                 securityService,
-                siteService,
-                sessionManager,
+                mock(SiteService.class),
+                pollsService,
                 toolManager);
     }
 
     @Test
     public void permissionsAreFalseWithoutCurrentPlacement() {
-        Poll poll = new Poll();
-        poll.setOwner("owner");
-
         Assert.assertFalse(pollPermissionsService.canAddPoll());
-        Assert.assertFalse(pollPermissionsService.canEditPoll(poll));
+        verify(pollsService).isAllowedPollAdd(null);
         Assert.assertFalse(pollPermissionsService.isSiteOwner());
 
         verify(securityService, never()).unlock(anyString(), anyString());
     }
 
     @Test
-    public void superUserDoesNotRequireCurrentPlacement() {
+    public void superUserIsSiteOwnerWithoutCurrentPlacement() {
         when(securityService.isSuperUser()).thenReturn(true);
 
-        Assert.assertTrue(pollPermissionsService.canAddPoll());
-        Assert.assertTrue(pollPermissionsService.canEditPoll(new Poll()));
         Assert.assertTrue(pollPermissionsService.isSiteOwner());
     }
 
     @Test
-    public void canEditPollIsFalseForNullPoll() {
-        Assert.assertFalse(pollPermissionsService.canEditPoll(null));
+    public void canAddPollUsesTheServiceRuleForTheCurrentSite() {
+        Placement placement = mock(Placement.class);
+        when(toolManager.getCurrentPlacement()).thenReturn(placement);
+        when(placement.getContext()).thenReturn("poll-site");
+        when(pollsService.isAllowedPollAdd("poll-site")).thenReturn(true);
 
-        verify(securityService, never()).unlock(anyString(), anyString());
+        Assert.assertTrue(pollPermissionsService.canAddPoll());
     }
 
     @Test
-    public void canEditPollUsesPollSiteReference() {
+    public void canEditPollUsesTheServiceRuleForThePoll() {
         Poll poll = new Poll();
         poll.setSiteId("poll-site");
 
-        when(siteService.siteReference("poll-site")).thenReturn("/site/poll-site");
-        when(securityService.unlock(eq(PollConstants.PERMISSION_EDIT_ANY), eq("/site/poll-site"))).thenReturn(true);
+        when(pollsService.isAllowedPollEdit(poll)).thenReturn(true);
 
         Assert.assertTrue(pollPermissionsService.canEditPoll(poll));
 
         verify(toolManager, never()).getCurrentPlacement();
-    }
-
-    @Test
-    public void onlyPollOwnerCanEditWithEditOwnPermission() {
-        Poll poll = new Poll();
-        poll.setSiteId("poll-site");
-        poll.setOwner("owner");
-
-        when(siteService.siteReference("poll-site")).thenReturn("/site/poll-site");
-        when(securityService.unlock(PollConstants.PERMISSION_EDIT_OWN, "/site/poll-site")).thenReturn(true);
-        when(sessionManager.getCurrentSessionUserId()).thenReturn("another-user");
-        Assert.assertFalse(pollPermissionsService.canEditPoll(poll));
-
-        when(sessionManager.getCurrentSessionUserId()).thenReturn("owner");
-        Assert.assertTrue(pollPermissionsService.canEditPoll(poll));
     }
 }

@@ -35,7 +35,6 @@ import org.sakaiproject.poll.api.service.PollTextValidationException;
 import org.sakaiproject.poll.tool.model.PollForm;
 import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -59,7 +58,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PollEditorController {
     private final PollsService pollsService;
-    private final SessionManager sessionManager;
     private final ToolManager toolManager;
     private final ServerConfigurationService serverConfigurationService;
     private final FormattedText formattedText;
@@ -68,7 +66,6 @@ public class PollEditorController {
     private final PollPermissionsService pollPermissionsService;
 
     public PollEditorController(PollsService pollsService,
-                                SessionManager sessionManager,
                                 ToolManager toolManager,
                                 ServerConfigurationService serverConfigurationService,
                                 @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
@@ -76,7 +73,6 @@ public class PollEditorController {
                                 FormattedText formattedText,
                                 PollPermissionsService pollPermissionsService) {
         this.pollsService = pollsService;
-        this.sessionManager = sessionManager;
         this.toolManager = toolManager;
         this.serverConfigurationService = serverConfigurationService;
         this.userTimeService = userTimeService;
@@ -309,6 +305,7 @@ public class PollEditorController {
             }
         } else {
             poll = new Poll();
+            poll.setSiteId(toolManager.getCurrentPlacement().getContext());
         }
 
         poll.setText(form.getText());
@@ -319,8 +316,6 @@ public class PollEditorController {
         poll.setMinOptions(form.getMinOptions());
         poll.setMaxOptions(form.getMaxOptions());
         poll.setDisplayResult(form.getDisplayResult());
-        poll.setSiteId(toolManager.getCurrentPlacement().getContext());
-        poll.setOwner(sessionManager.getCurrentSessionUserId());
         poll.setLimitVoting(true);
 
         // Convert LocalDateTime to Instant for persistence

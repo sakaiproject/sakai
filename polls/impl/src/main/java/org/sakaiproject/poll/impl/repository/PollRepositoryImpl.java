@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.poll.impl.repository;
 
+import jakarta.persistence.FlushModeType;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -32,6 +33,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, String> implements PollRepository {
+
+    @Override
+    public Optional<PollIdentity> findPollIdentity(String pollId) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<PollIdentity> query = cb.createQuery(PollIdentity.class);
+        Root<Poll> poll = query.from(Poll.class);
+        query.select(cb.construct(PollIdentity.class, poll.get("siteId"), poll.get("owner")))
+                .where(cb.equal(poll.get("id"), pollId));
+
+        // Read persisted values before flushing any changes from the caller.
+        return sessionFactory.getCurrentSession().createQuery(query)
+                .setFlushMode(FlushModeType.COMMIT)
+                .uniqueResultOptional();
+    }
 
     @Override
     public List<Poll> findBySiteIdOrderByCreationDateDesc(String siteId) {

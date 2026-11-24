@@ -298,10 +298,6 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	 */
 	@EntityCustomAction(action = "poll-create", viewKey = EntityView.VIEW_NEW)
 	public String createPollEntity(EntityReference ref, Map<String, Object> params) {
-		String userReference = developerHelperService.getCurrentUserReference();
-		if (userReference == null) {
-			throw new SecurityException("Anonymous user cannot create polls");
-		}
 		Poll poll = new Poll();
 		// copy from params to Poll
 		copyParamsToObject(params, poll);
@@ -309,19 +305,8 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		poll.setId(null);
 		poll.setCreationDate(Instant.now());
 		poll.setOwner(developerHelperService.getCurrentUserId());
-		String siteId = developerHelperService.getCurrentLocationId();
 		if (poll.getSiteId() == null) {
-			poll.setSiteId(siteId);
-		} else {
-			siteId = poll.getSiteId();
-		}
-		String location = "/site/" + siteId;
-		boolean allowed = developerHelperService
-				.isUserAllowedInEntityReference(userReference,
-						PERMISSION_ADD, location);
-		if (!allowed) {
-			throw new SecurityException("Current user (" + userReference
-					+ ") cannot create polls in location (" + location + ")");
+			poll.setSiteId(developerHelperService.getCurrentLocationId());
 		}
 		pollsService.savePoll(poll);
 		return poll.getId();
@@ -334,18 +319,10 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"The reference must include an id for updates (id is currently null)");
 		}
-		String userReference = developerHelperService.getCurrentUserReference();
-		if (userReference == null) {
-			throw new SecurityException("anonymous user cannot update poll: "
-					+ ref);
-		}
 		Poll current = getPollById(id);
 		if (current == null) {
 			throw new IllegalArgumentException(
 					"No poll found to update for the given reference: " + ref);
-		}
-		if (!pollPermissionsService.canEditPoll(current)) {
-			throw new SecurityException("Current user (" + userReference + ") cannot update poll " + id);
 		}
 		Poll poll = new Poll();
 		copyParamsToObject(params, poll);

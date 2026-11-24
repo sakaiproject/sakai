@@ -108,6 +108,8 @@ public class PollsServiceTests {
         Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
         Mockito.when(securityService.unlock(USER, "site.visit", LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER, PERMISSION_ADD, LOCATION1_REF)).thenReturn(true);
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_ANY, LOCATION1_REF)).thenReturn(true);
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_OWN, LOCATION1_REF)).thenReturn(false);
         Mockito.when(securityService.unlock(USER, PERMISSION_DELETE_OWN, LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER, PERMISSION_DELETE_ANY, LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER_NO_ACCEESS, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
@@ -695,6 +697,52 @@ public class PollsServiceTests {
     }
 
     // ========== Permission/Authorization Tests ==========
+
+    @Test
+    public void testSavePollRequiresAddForNewPollsAndEditForExistingPolls() {
+        String pollId = createPoll(USER, LOCATION1_ID);
+        Poll poll = pollsService.getPollById(pollId).orElseThrow();
+        poll.setText("Updated question");
+
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_ANY, LOCATION1_REF)).thenReturn(false);
+        Assert.assertThrows(SecurityException.class, () -> pollsService.savePoll(poll));
+
+        Mockito.when(securityService.unlock(USER, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_ANY, LOCATION1_REF)).thenReturn(true);
+        Assert.assertEquals("Updated question", pollsService.savePoll(poll).getText());
+        Assert.assertThrows(SecurityException.class, () -> createPoll(USER, LOCATION1_ID));
+    }
+
+    @Test
+    public void testSavePollUsesStoredOwnerAndSiteForEditOwn() {
+        String ownedPollId = createPoll(USER, LOCATION1_ID);
+        String anotherPollId = createPoll(USER_NO_ACCEESS, LOCATION1_ID);
+        Poll owned = pollsService.getPollById(ownedPollId).orElseThrow();
+        Poll another = pollsService.getPollById(anotherPollId).orElseThrow();
+
+        Mockito.when(securityService.unlock(USER, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_ANY, LOCATION1_REF)).thenReturn(false);
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_OWN, LOCATION1_REF)).thenReturn(true);
+
+        owned.setText("Edited by owner");
+        Assert.assertEquals("Edited by owner", pollsService.savePoll(owned).getText());
+        Assert.assertThrows(SecurityException.class, () -> pollsService.savePoll(another));
+        another.setOwner(USER);
+        Assert.assertThrows(SecurityException.class, () -> pollsService.savePoll(another));
+        owned.setSiteId("another-site");
+        Assert.assertThrows(SecurityException.class, () -> pollsService.savePoll(owned));
+        Assert.assertEquals(LOCATION1_ID, pollsService.getPollById(ownedPollId).orElseThrow().getSiteId());
+        Assert.assertEquals(USER_NO_ACCEESS, pollsService.getPollById(anotherPollId).orElseThrow().getOwner());
+
+        Mockito.when(securityService.isSuperUser()).thenReturn(true);
+        try {
+            Poll current = pollsService.getPollById(anotherPollId).orElseThrow();
+            current.setText("Edited by superuser");
+            Assert.assertEquals("Edited by superuser", pollsService.savePoll(current).getText());
+        } finally {
+            Mockito.when(securityService.isSuperUser()).thenReturn(false);
+        }
+    }
 
     @Test
     public void testUserCanDeletePoll() {

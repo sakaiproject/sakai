@@ -204,6 +204,11 @@ public interface PollsService {
     boolean isAllowedPollAdd(String siteId);
 
     /**
+     * Check whether the current user can edit the given saved poll.
+     */
+    boolean isAllowedPollEdit(Poll poll);
+
+    /**
      * Check whether the current user is a site owner for the given site.
      * @param siteId the site id
      * @return true if site owner
