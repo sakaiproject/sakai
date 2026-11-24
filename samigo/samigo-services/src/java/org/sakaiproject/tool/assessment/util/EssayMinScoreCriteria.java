@@ -86,7 +86,10 @@ public final class EssayMinScoreCriteria {
         Matcher matcher = WORDS.matcher(text);
         int count = 0;
         while (matcher.find()) {
-            count++;
+            // Punctuation on its own isn't a word
+            if (matcher.group().codePoints().anyMatch(Character::isLetterOrDigit)) {
+                count++;
+            }
         }
         return count;
     }

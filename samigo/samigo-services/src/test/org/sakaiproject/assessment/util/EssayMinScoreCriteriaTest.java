@@ -65,6 +65,12 @@ public class EssayMinScoreCriteriaTest {
     }
 
     @Test
+    public void punctuationIsNotAWord() {
+        assertFalse(EssayMinScoreCriteria.isMet(essay("5", null), ". . . . . -- !!"));
+        assertTrue(EssayMinScoreCriteria.isMet(essay("3", null), "cell-wall , is ... strong"));
+    }
+
+    @Test
     public void wordCountIgnoresMarkupAndEntities() {
         // Block elements and &nbsp; separate words; tags are not words.
         assertTrue(EssayMinScoreCriteria.isMet(essay("4", null), "<p>one&nbsp;two</p><p><strong>three</strong>  four</p>"));

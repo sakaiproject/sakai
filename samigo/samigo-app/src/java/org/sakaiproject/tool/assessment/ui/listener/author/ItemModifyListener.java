@@ -1008,7 +1008,7 @@ public class ItemModifyListener implements ActionListener
     	   bean.setMcmsPartialCredit(meta.getEntry());
        }
        if (ItemMetaDataIfc.MIN_SCORE_WORD_COUNT.equals(meta.getLabel())) {
-           int wordCount = NumberUtils.toInt(meta.getEntry());
+           int wordCount = NumberUtils.toInt(StringUtils.trimToEmpty(meta.getEntry()));
            bean.setItemMinScoreWordCount(wordCount > 0 ? wordCount : null);
        }
        if (ItemMetaDataIfc.MIN_SCORE_KEYWORDS.equals(meta.getLabel())) {
