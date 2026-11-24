@@ -760,8 +760,9 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(table.locator("tbody > tr")).hasCount(1);
         // The same words in reverse order must not match a title phrase.
         search.fill(RUN_ID + " Quiz");
-        assertThat(quizRows).hasCount(0);
-        search.fill("");
+        assertThat(table.locator("td.dt-empty")).isVisible();
+        search.evaluate("field => field.value = ''");
+        search.dispatchEvent("input");
         assertThat(table.locator("tbody > tr")).hasCount(2);
         Locator headers = table.locator("thead th");
         for (int column = 0; column < headers.count(); column++) {
