@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.microsoft.playwright.FrameLocator;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,6 +40,8 @@ class LessonsToolLinksTest extends SakaiUiTestBase {
     private static final String INSTRUCTOR = "instructor1";
     private static final List<String> TOOLS = List.of("sakai\\.lessonbuildertool", "sakai\\.assignment\\.grades",
         "sakai\\.samigo", "sakai\\.forums");
+    /** The first visit to a tool in a new course can take longer than the default assertion timeout. */
+    private static final double TOOL_LOAD_TIMEOUT = 15_000;
 
     private static String siteUrl;
 
@@ -102,7 +105,12 @@ class LessonsToolLinksTest extends SakaiUiTestBase {
         try (TestUser student = lessons.newStudent(siteUrl, "lessons-quiz")) {
             openAsStudent(student, title);
             lessons.item(quiz).locator("a.itemlink").click();
-            assertThat(page.frameLocator("#iframe1").locator("body")).containsText(quiz);
+            // The Tests list also shows the quiz title, so check the page that starts the quiz.
+            // Lessons loads it into the frame several seconds after showing the item page.
+            Locator beginForm = page.frameLocator("#iframe1").locator("#takeAssessmentForm");
+            assertThat(beginForm).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(TOOL_LOAD_TIMEOUT));
+            assertThat(beginForm).containsText(quiz);
+            assertThat(beginForm).containsText("Begin Assessment");
         }
     }
 
@@ -141,7 +149,7 @@ class LessonsToolLinksTest extends SakaiUiTestBase {
     private String describeDefaultTopic(String description) {
         sakai.toolClick("Discussions");
         Locator topicTitle = page.locator("[id='msgForum:forums:0:topics:0:topic_title']");
-        assertThat(topicTitle).isVisible();
+        assertThat(topicTitle).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(TOOL_LOAD_TIMEOUT));
         String topic = topicTitle.innerText().trim();
         page.locator("[id='msgForum:forums:0:topics:0:topic_setting']").click();
         page.locator("[id='revise:topic_shortDescription']").fill("Short topic summary");
