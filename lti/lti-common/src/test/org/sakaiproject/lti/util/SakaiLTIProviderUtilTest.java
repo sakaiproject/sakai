@@ -78,13 +78,33 @@ public class SakaiLTIProviderUtilTest {
 	@Test
 	public void rejectsResponseSplittingAndSchemeRelativePaths() {
 		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
-				"https://" + CONSUMER + "/x\r\nX-Injected: 1", true, CONSUMER));
-		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
-				"https://attacker.example/x%0D%0AX-Injected: 1", true, CONSUMER));
+				"https://" + CONSUMER + "/x\r\nX-Injected:1", true, CONSUMER));
 		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl("/\\attacker.example", true, CONSUMER));
 		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl("/%2f/attacker.example", true, CONSUMER));
 		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl("/%5Cattacker.example", true, CONSUMER));
 		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl("/", true, CONSUMER));
+	}
+
+	@Test
+	public void rejectsEncodedControlsOnTheConsumerHost() {
+		String allowed = "https://" + CONSUMER + "/lti/return?next=done";
+		assertEquals(allowed, SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(allowed, true, CONSUMER));
+		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				"https://" + CONSUMER + "/lti/return%0D?next=done", true, CONSUMER));
+		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				"https://" + CONSUMER + "/lti/return%0A?next=done", true, CONSUMER));
+		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				"https://" + CONSUMER + "/lti/return%00?next=done", true, CONSUMER));
+		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				"https://" + CONSUMER + "/lti/return?next=%09done", true, CONSUMER));
+		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				"https://" + CONSUMER + "/lti/%5Creturn?next=done", true, CONSUMER));
+		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				"https://" + CONSUMER + "/lti/return%0d?next=done", true, CONSUMER));
+		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				"https://" + CONSUMER + "/lti/return%0a?next=done", true, CONSUMER));
+		assertNull(SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				"https://" + CONSUMER + "/lti/%5creturn?next=done", true, CONSUMER));
 	}
 
 	@Test
