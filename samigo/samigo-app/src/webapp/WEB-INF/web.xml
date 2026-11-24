@@ -60,6 +60,11 @@
       <param-name>upload.enabled</param-name>
       <param-value>true</param-value>
     </init-param>
+    <init-param>
+      <description>Allow room for JSF client-side view state in multipart requests.</description>
+      <param-name>upload.requestOverheadBytes</param-name>
+      <param-value>1048576</param-value>
+    </init-param>
   </filter>
 
   <filter-mapping>
