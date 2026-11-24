@@ -3524,10 +3524,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("gb_selector", GB_SELECTOR);
             }
 
-            if (state.getAttribute(EDIT_ASSIGNMENT_ID) == null) {
-                // This is a new assignment. Pick add new item to gradebook radio option.
-                state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
-            }
             context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
             context.put("gradebookChoice_no", GRADEBOOK_INTEGRATION_NO);
             context.put("gradebookChoice_add", GRADEBOOK_INTEGRATION_ADD);
@@ -3753,13 +3749,9 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentConstants.SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM_DFLT));
 
         if (isGradebookGroupEnabled) {
-            String gbItems = null;
-
-            if (assignment != null) {
+            String gbItems = (String) state.getAttribute(GB_SELECTOR);
+            if (gbItems == null && assignment != null) {
                 gbItems = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-            } else {
-                Object associateGradebook = state.getAttribute(GB_SELECTOR);
-                gbItems = associateGradebook != null ? associateGradebook.toString() : null;
             }
 
             if (gbItems != null && !gbItems.isBlank()) {
@@ -10483,6 +10475,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, properties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
                 state.setAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, properties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+                state.removeAttribute(GB_SELECTOR);
 
                 List<Reference> v = entityManager.newReferenceList();
                 a.getAttachments().forEach(f -> v.add(entityManager.newReference(f)));
@@ -12985,7 +12978,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, Boolean.FALSE);
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, Boolean.FALSE);
 
-        state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+        state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
 
         state.setAttribute(NEW_ASSIGNMENT_ATTACHMENT, entityManager.newReferenceList());
 
