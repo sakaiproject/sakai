@@ -705,8 +705,8 @@ class SamigoTest extends SakaiUiTestBase {
         page.reload();
         assertThat(trashSearch).hasValue(RUN_ID + " Quiz");
         assertThat(emptyTrashResults).isVisible();
-        trashSearch.press("ControlOrMeta+a");
-        trashSearch.press("Backspace");
+        trashSearch.evaluate("field => field.value = ''");
+        trashSearch.dispatchEvent("input");
         assertThat(trashSearch).hasValue("");
         assertThat(deletedRows).hasCount(2);
 
