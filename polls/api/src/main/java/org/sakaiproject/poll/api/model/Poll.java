@@ -169,6 +169,13 @@ public class Poll implements PersistableEntity<String> {
         return options.stream().filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public void setOptions(List<Option> options) {
+        List<Option> replacement = new ArrayList<>(options);
+        // Keep the Hibernate collection attached, including when it has gaps in its order.
+        this.options.clear();
+        this.options.addAll(replacement);
+    }
+
     /**
      * Add an option to this poll and maintain bidirectional relationship.
      *

@@ -375,6 +375,11 @@ public interface PollsService {
     Poll updatePoll(String pollId, Poll changes);
 
     /**
+     * Applies only the supplied editable properties to the stored poll.
+     */
+    Poll updatePoll(String pollId, Poll changes, Set<String> fields);
+
+    /**
      * Create new poll from PollEntity (from XHR/REST requests).
      *
      * @param pollEntity PollEntity with poll data

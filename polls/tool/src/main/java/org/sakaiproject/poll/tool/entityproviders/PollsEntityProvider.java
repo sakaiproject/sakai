@@ -315,7 +315,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		}
 		Poll poll = new Poll();
 		copyParamsToObject(params, poll);
-		pollsService.updatePoll(id, poll);
+		pollsService.updatePoll(id, poll, params.keySet());
 	}
 
 	@EntityCustomAction(action = "poll-delete", viewKey = EntityView.VIEW_SHOW)

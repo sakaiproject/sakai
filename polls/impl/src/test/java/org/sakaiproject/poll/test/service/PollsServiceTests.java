@@ -32,6 +32,8 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.sql.DataSource;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +59,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
@@ -76,6 +79,7 @@ public class PollsServiceTests {
     public final static String LOCATION1_REF = "/site/" + LOCATION1_ID;
 
     @Autowired private PollsService pollsService;
+    @Autowired private DataSource dataSource;
     @Autowired private SecurityService securityService;
     @Autowired private SiteService siteService;
     @Autowired private SessionManager sessionManager;
@@ -507,6 +511,29 @@ public class PollsServiceTests {
         Assert.assertEquals(secondOptionId, reorderedOptions.get(2).getId());
     }
 
+    @Test
+    public void testSavePollUpdatesOptionsWithLegacyOrderGaps() {
+        String pollId = createPoll(USER, LOCATION1_ID);
+        List<Option> original = pollsService.getPollById(pollId).orElseThrow().getOptions();
+        Long firstId = original.get(0).getId();
+        Long secondId = original.get(1).getId();
+        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+        Assert.assertEquals(1, jdbc.update("UPDATE POLL_OPTION SET OPTION_ORDER = 3 WHERE OPTION_ID = ?", secondId));
+
+        Poll edit = pollsService.getPollById(pollId).orElseThrow();
+        Option retained = edit.getOptions().get(1);
+        Option added = new Option();
+        added.setText("New option");
+        edit.setOptions(List.of(retained, added));
+        pollsService.savePoll(edit);
+
+        List<Option> saved = pollsService.getPollById(pollId).orElseThrow().getOptions();
+        Assert.assertEquals(2, saved.size());
+        Assert.assertEquals(secondId, saved.get(0).getId());
+        Assert.assertEquals("New option", saved.get(1).getText());
+        Assert.assertTrue(pollsService.getOptionById(firstId).isEmpty());
+    }
+
     // ========== Vote Tests ==========
 
     @Test
@@ -765,6 +792,44 @@ public class PollsServiceTests {
         Assert.assertEquals("Updated question", pollsService.updatePoll(pollId, poll).getText());
         Assert.assertEquals(2, pollsService.getVisibleOptionsForPoll(pollId).size());
         Assert.assertThrows(SecurityException.class, () -> createPoll(USER, LOCATION1_ID));
+    }
+
+    @Test
+    public void testPartialPollUpdatePreservesOmittedSettings() {
+        Poll poll = new Poll();
+        poll.setSiteId(LOCATION1_ID);
+        poll.setOwner(USER);
+        poll.setText("Group question");
+        poll.setDescription("Original details");
+        poll.setTypeOfAccess(Poll.Access.GROUP);
+        poll.setGroupIds(Set.of("g1"));
+        poll.setLimitVoting(false);
+        poll.setVoteClose(Instant.parse("2030-01-01T12:00:00Z"));
+        String pollId = pollsService.savePoll(poll).getId();
+
+        Poll edit = new Poll();
+        edit.setText("Updated question");
+        pollsService.updatePoll(pollId, edit, Set.of("text"));
+
+        Poll saved = pollsService.getPollByIdForReadOrEdit(pollId).orElseThrow();
+        Assert.assertEquals("Updated question", saved.getText());
+        Assert.assertEquals("Original details", saved.getDescription());
+        Assert.assertEquals(Poll.Access.GROUP, saved.getTypeOfAccess());
+        Assert.assertEquals(Set.of("g1"), saved.getGroupIds());
+        Assert.assertFalse(saved.isLimitVoting());
+        Assert.assertEquals(poll.getVoteClose(), saved.getVoteClose());
+
+        pollsService.updatePoll(pollId, edit, Set.of("typeOfAccess", "groupIds"));
+        saved = pollsService.getPollByIdForReadOrEdit(pollId).orElseThrow();
+        Assert.assertEquals(Poll.Access.SITE, saved.getTypeOfAccess());
+        Assert.assertTrue(saved.getGroupIds().isEmpty());
+
+        saved.setTypeOfAccess(Poll.Access.GROUP);
+        saved.setGroupIds(Set.of("g1"));
+        pollsService.updatePoll(pollId, saved);
+        saved = pollsService.getPollByIdForReadOrEdit(pollId).orElseThrow();
+        Assert.assertEquals(Poll.Access.GROUP, saved.getTypeOfAccess());
+        Assert.assertEquals(Set.of("g1"), saved.getGroupIds());
     }
 
     @Test

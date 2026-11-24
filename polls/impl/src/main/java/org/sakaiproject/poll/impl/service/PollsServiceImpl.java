@@ -199,7 +199,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public Poll savePoll(final Poll poll) throws SecurityException, IllegalArgumentException {
-        return poll != null && poll.getId() != null ? updatePoll(poll.getId(), poll, true) : savePoll(poll, true);
+        return poll != null && poll.getId() != null ? updatePoll(poll.getId(), poll, field -> true, true) : savePoll(poll, true);
     }
 
     private Poll savePoll(final Poll poll, boolean cleanNewOptions) {
@@ -1311,10 +1311,15 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public Poll updatePoll(String pollId, Poll changes) {
-        return updatePoll(pollId, changes, false);
+        return updatePoll(pollId, changes, field -> true, false);
     }
 
-    private Poll updatePoll(String pollId, Poll updates, boolean updateOptions) {
+    @Override
+    public Poll updatePoll(String pollId, Poll changes, Set<String> fields) {
+        return updatePoll(pollId, changes, fields::contains, false);
+    }
+
+    private Poll updatePoll(String pollId, Poll updates, Predicate<String> includes, boolean updateOptions) {
         Objects.requireNonNull(pollId, "Poll ID must not be null");
         Objects.requireNonNull(updates, "Poll changes must not be null");
         Poll existingPoll = pollRepository.findById(pollId)
@@ -1325,39 +1330,46 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             throw new SecurityException("Current user cannot update poll " + pollId);
         }
 
-        if (updates.getText() != null) {
+        if (includes.test("text") && updates.getText() != null) {
             existingPoll.setText(updates.getText());
         }
-        if (updates.getDescription() != null) {
+        if (includes.test("description") && updates.getDescription() != null) {
             existingPoll.setDescription(updates.getDescription());
         }
-        if (updates.getVoteOpen() != null) {
+        if (includes.test("voteOpen") && updates.getVoteOpen() != null) {
             existingPoll.setVoteOpen(updates.getVoteOpen());
         }
-        if (updates.getVoteClose() != null) {
+        if (includes.test("voteClose") && updates.getVoteClose() != null) {
             existingPoll.setVoteClose(updates.getVoteClose());
         }
-        if (updates.getDisplayResult() != null) {
+        if (includes.test("displayResult") && updates.getDisplayResult() != null) {
             existingPoll.setDisplayResult(updates.getDisplayResult());
         }
 
-        existingPoll.setMinOptions(updates.getMinOptions());
-        existingPoll.setMaxOptions(updates.getMaxOptions());
-        existingPoll.setLimitVoting(updates.isLimitVoting());
-        existingPoll.setPublic(updates.isPublic());
+        if (includes.test("minOptions")) {
+            existingPoll.setMinOptions(updates.getMinOptions());
+        }
+        if (includes.test("maxOptions")) {
+            existingPoll.setMaxOptions(updates.getMaxOptions());
+        }
+        if (includes.test("limitVoting")) {
+            existingPoll.setLimitVoting(updates.isLimitVoting());
+        }
+        if (includes.test("public")) {
+            existingPoll.setPublic(updates.isPublic());
+        }
 
-        if (updates.getTypeOfAccess() != null) {
+        if (includes.test("typeOfAccess") && updates.getTypeOfAccess() != null) {
             existingPoll.setTypeOfAccess(updates.getTypeOfAccess());
         }
-        if (updates.getGroupIds() != null) {
+        if (includes.test("groupIds") && updates.getGroupIds() != null) {
             Set<String> selectedGroups = new HashSet<>(updates.getGroupIds());
             existingPoll.getGroupIds().clear();
             existingPoll.getGroupIds().addAll(selectedGroups);
         }
 
         if (updateOptions && Persistence.getPersistenceUtil().isLoaded(updates, "options")) {
-            List<Option> options = existingPoll.getOptions();
-            Map<Long, Option> existingOptions = options.stream()
+            Map<Long, Option> existingOptions = existingPoll.getOptions().stream()
                     .collect(Collectors.toMap(Option::getId, Function.identity()));
             List<Option> orderedOptions = new ArrayList<>();
             for (Option submittedOption : updates.getOptions()) {
@@ -1376,8 +1388,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                     orderedOptions.add(option);
                 }
             }
-            options.clear();
-            options.addAll(orderedOptions);
+            existingPoll.setOptions(orderedOptions);
         }
         return savePoll(existingPoll, updateOptions);
     }
