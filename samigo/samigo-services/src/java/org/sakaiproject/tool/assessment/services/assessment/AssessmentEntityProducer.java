@@ -832,11 +832,14 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         List<String> result = new ArrayList<>();
 	org.jsoup.nodes.Document htmlDoc = Jsoup.parse(qText);
 
-        // Typically audio or video <source> or <img>
-	Elements media = htmlDoc.select("[src]");
+        // Typically audio/video <source>, <img src>, or <a href> to content
+	Elements media = htmlDoc.select("[src], a[href]");
 
-	for (org.jsoup.nodes.Element src : media) {
-		String link = src.attr("abs:src");
+	for (org.jsoup.nodes.Element el : media) {
+		String link = el.hasAttr("src") ? el.attr("abs:src") : el.attr("abs:href");
+		if (StringUtils.isBlank(link)) {
+			continue;
+		}
 
 		// embedded fckeditor attachments
 		if (link.contains("/access/content/attachment/")) {

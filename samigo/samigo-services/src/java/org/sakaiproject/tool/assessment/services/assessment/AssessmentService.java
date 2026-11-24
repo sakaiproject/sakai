@@ -1328,21 +1328,9 @@ public class AssessmentService {
 	  
 	  public String copyContentHostingAttachments(String text, String toContext) {
 			if(text != null){
-				ContentResource cr = null;
-
-				String[] sources = StringUtils.splitByWholeSeparator(text, "src=\"");
-
 				Set<String> attachments = new HashSet<String>();
-				for (String source : sources) {
-					String theHref = StringUtils.substringBefore(source, "\"");
-
-					if (!StringUtils.startsWith(theHref, "data:")
-							&& StringUtils.contains(theHref, "/access/content/")
-							// Skip attachments associated with user
-							&& !StringUtils.contains(theHref, "/access/content/user/")) {
-						attachments.add(theHref);
-					}
-				}
+				collectContentHostingAttachmentUrls(text, "src=\"", attachments);
+				collectContentHostingAttachmentUrls(text, "href=\"", attachments);
 				if (attachments.size() > 0) {
 					log.info("Found " + attachments.size() + " attachments buried in question or answer text");
 					SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
@@ -1364,6 +1352,7 @@ public class AssessmentService {
 							resourceId = resourceId.trim();
 							String filename = StringUtils.substringAfterLast(attachment, "/");
 
+							ContentResource cr = null;
 							try {
 								cr = AssessmentService.getContentHostingService().getResource(resourceId);
 							} catch (IdUnusedException e) {
@@ -1375,7 +1364,6 @@ public class AssessmentService {
 							}
 
 							if (cr != null && StringUtils.isNotEmpty(filename)) {
-
 								ContentResource crCopy = createCopyOfContentResource(cr.getId(), filename, toContext);
 								text = StringUtils.replace(text, resourceIdOrig, StringUtils.substringAfter(crCopy.getReference(), "/content"));
 							}
@@ -1391,6 +1379,18 @@ public class AssessmentService {
 			}
 			return text;
 		}
+
+	private void collectContentHostingAttachmentUrls(String text, String attributePrefix, Set<String> attachments) {
+		String[] sources = StringUtils.splitByWholeSeparator(text, attributePrefix);
+		for (String source : sources) {
+			String theHref = StringUtils.substringBefore(source, "\"");
+			if (!StringUtils.startsWith(theHref, "data:")
+					&& StringUtils.contains(theHref, "/access/content/")
+					&& !StringUtils.contains(theHref, "/access/content/user/")) {
+				attachments.add(theHref);
+			}
+		}
+	}
 
 	/**
 	 * Get the set of question pools referenced in an assessment
