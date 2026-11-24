@@ -18,12 +18,15 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.Route;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.Cookie;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
@@ -111,18 +114,104 @@ class RubricsTest extends SakaiUiTestBase {
 
     @Test
     @Order(4)
-    void canDeleteRubric() {
+    void canSoftDeleteRestoreAndPermanentlyDeleteRubric() {
+        String trashTitle = "Trash Rubric " + System.currentTimeMillis();
         sakai.createRubric("instructor1", sakaiUrl);
 
-        Locator cancelButton = page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Cancel", Pattern.CASE_INSENSITIVE)));
-        if (cancelButton.count() > 0) {
-            cancelButton.first().click(new Locator.ClickOptions().setForce(true));
+        Locator titleEditor = page.locator("sakai-rubric-edit .modal.show");
+        titleEditor.locator("input[title=\"Rubric Title\"]").fill(trashTitle);
+        page.waitForResponse(
+            response -> response.url().contains("/rubrics/") && "PATCH".equals(response.request().method()) && response.ok(),
+            () -> titleEditor.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Save").setExact(true)).click());
+        assertThat(titleEditor).hasCount(0);
+
+        Locator siteRubric = siteRubricByTitle(trashTitle);
+        assertThat(siteRubric).hasCount(1);
+        page.waitForResponse(response -> response.url().contains("/rubrics/")
+                && response.request().method().equals("PATCH") && response.ok(),
+            () -> siteRubric.locator("button.share").click());
+        page.locator("#rubrics-search-bar").fill(trashTitle);
+        page.locator("#shared-rubrics-toggle").click();
+        Locator publicRubric = page.locator("#shared_rubrics sakai-rubric-readonly")
+            .filter(new Locator.FilterOptions().setHasText(trashTitle));
+        assertThat(publicRubric).isVisible();
+
+        softDeleteSiteRubric(siteRubric);
+        assertThat(siteRubric).hasCount(0);
+        assertThat(publicRubric).hasCount(0);
+
+        openDeletedRubrics();
+        Locator deletedRubric = deletedRubricByTitle(trashTitle);
+        assertThat(deletedRubric).hasCount(1);
+
+        page.waitForResponse(
+            response -> response.url().contains("/restore") && "POST".equals(response.request().method()) && response.ok(),
+            () -> deletedRubric.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+                .setName(Pattern.compile("^Restore\\b"))).click());
+        assertThat(siteRubricByTitle(trashTitle)).hasCount(1);
+        assertThat(deletedRubricByTitle(trashTitle)).hasCount(0);
+        assertThat(publicRubric).isVisible();
+
+        softDeleteSiteRubric(siteRubricByTitle(trashTitle));
+        openDeletedRubrics();
+        assertThat(deletedRubric).hasCount(1);
+        deletedRubric.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("^Permanently delete\\b"))).click();
+        Locator permanentDeleteDialog = page.locator("#permanent-delete-modal");
+        Pattern permanentDeleteUrl = Pattern.compile(".*/rubrics/\\d+/permanent$");
+        List<Route> pendingDeletes = new ArrayList<>();
+        page.route(permanentDeleteUrl, pendingDeletes::add);
+        try {
+            permanentDeleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+                .setName("Delete permanently").setExact(true)).click();
+            page.waitForCondition(() -> !pendingDeletes.isEmpty());
+            assertThat(permanentDeleteDialog.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Cancel").setExact(true))).isDisabled();
+            page.keyboard().press("Escape");
+            assertThat(permanentDeleteDialog).isVisible();
+
+            Response deletion = page.waitForResponse(
+                response -> permanentDeleteUrl.matcher(response.url()).matches() && "DELETE".equals(response.request().method()),
+                () -> pendingDeletes.removeFirst().resume());
+            assertTrue(deletion.ok(), () -> "Permanent delete returned HTTP " + deletion.status());
+            assertThat(permanentDeleteDialog).isHidden();
+        } finally {
+            pendingDeletes.forEach(Route::abort);
+            page.unroute(permanentDeleteUrl);
         }
+        assertThat(deletedRubricByTitle(trashTitle)).hasCount(0);
+        assertThat(siteRubricByTitle(trashTitle)).hasCount(0);
+    }
 
-        page.locator("sakai-item-delete.sakai-rubric").last().click(new Locator.ClickOptions().setForce(true));
-        page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE))).first().click(new Locator.ClickOptions().setForce(true));
+    private Locator siteRubricByTitle(String title) {
+        return page.locator("#site_rubrics sakai-rubric")
+            .filter(new Locator.FilterOptions().setHasText(title));
+    }
 
-        assertThat(page.locator("#site_rubrics rubric-item")).hasCount(0);
+    private Locator deletedRubricByTitle(String title) {
+        return page.locator("#deleted_rubrics .rubric-title")
+            .filter(new Locator.FilterOptions().setHasText(title));
+    }
+
+    private void softDeleteSiteRubric(Locator siteRubric) {
+        Locator deleteControl = siteRubric.locator("sakai-item-delete.sakai-rubric");
+        deleteControl.locator("button[data-bs-toggle='modal']").click();
+        Locator confirmRemove = deleteControl.locator(".modal.show").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Move to Trash").setExact(true));
+        page.waitForResponse(
+            response -> response.url().matches(".*/rubrics/\\d+$")
+                && "DELETE".equals(response.request().method())
+                && response.ok(),
+            confirmRemove::click);
+    }
+
+    private void openDeletedRubrics() {
+        Locator toggle = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+            .setName("Toggle Trash").setExact(true));
+        if (!"true".equals(toggle.getAttribute("aria-expanded"))) {
+            toggle.click();
+        }
+        assertThat(page.locator("#deleted_rubrics")).hasClass(Pattern.compile("\\bshow\\b"));
     }
 
     @Test

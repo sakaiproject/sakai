@@ -24,6 +24,8 @@ package org.sakaiproject.rubrics.impl;
 
 import static org.sakaiproject.rubrics.api.RubricsConstants.EVENT_RUBRIC_CREATED;
 import static org.sakaiproject.rubrics.api.RubricsConstants.EVENT_RUBRIC_DELETED;
+import static org.sakaiproject.rubrics.api.RubricsConstants.EVENT_RUBRIC_PERMANENTLY_DELETED;
+import static org.sakaiproject.rubrics.api.RubricsConstants.EVENT_RUBRIC_RESTORED;
 import static org.sakaiproject.rubrics.api.RubricsConstants.EVENT_RUBRIC_UPDATED;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_MULTIPLE_OPTIONS_CONFIG;
@@ -78,6 +80,8 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.rubrics.api.RubricInTrashException;
+import org.sakaiproject.rubrics.api.RubricInUseException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
@@ -105,6 +109,8 @@ import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -292,6 +298,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             if (!Boolean.TRUE.equals(source.getShared()) && !isCurrentUserEditor(source.getOwnerId())) {
                 throw new SecurityException("Not allowed to copy this rubric");
             }
+
+            if (source.isSoftDeleted()) {
+                throw new IllegalArgumentException("Cannot copy soft-deleted rubric: " + rubricId);
+            }
+
             Rubric copy = source.clone(toSiteId);
             Instant now = Instant.now();
             copy.setCreated(now);
@@ -314,7 +325,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return Collections.emptyList();
         }
 
-        return rubricRepository.findByOwnerId(siteId).stream()
+        return rubricRepository.findByOwnerIdAndSoftRemoved(siteId, false).stream()
             .filter(r -> r.getAdhoc() == null || !r.getAdhoc())
             .map(r -> {
                 RubricTransferBean bean = decorateRubricBean(new RubricTransferBean(r));
@@ -330,6 +341,20 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 }
                 return bean;
             }).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<RubricTransferBean> getDeletedRubricsForSite(String siteId) {
+
+        if (!isCurrentUserEditor(siteId)) {
+            log.debug("You need to be an editor to get a site's deleted rubrics: {}", siteId);
+            return Collections.emptyList();
+        }
+
+        return rubricRepository.findByOwnerIdAndSoftRemoved(siteId, true).stream()
+            .filter(r -> r.getAdhoc() == null || !r.getAdhoc())
+            .map(r -> decorateRubricBean(new RubricTransferBean(r)))
+            .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -349,26 +374,105 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         Rubric rubric = optRubric.get();
 
-        if (!isCurrentUserEditor(rubric.getOwnerId())) {
-            log.warn("The current user {} needs to be an editor in site {} to get the site's rubrics", sessionManager.getCurrentSessionUserId(), rubric.getOwnerId());
+        if (rubric.isSoftDeleted()) {
+            log.warn("Rubric {} is already soft-deleted", rubricId);
             return false;
         }
 
-        if (associationRepository.findByRubricId(rubricId).stream()
-                .anyMatch(ass -> !evaluationRepository.findByAssociationId(ass.getId()).isEmpty())) {
-            log.warn("Rubric {} cannot be deleted. It has evaluations against it", rubricId);
+        if (!isCurrentUserEditor(rubric.getOwnerId())) {
+            log.warn("The current user {} needs to be an editor in site {} to delete the site's rubrics", sessionManager.getCurrentSessionUserId(), rubric.getOwnerId());
+            return false;
+        }
+
+        if (Boolean.TRUE.equals(rubric.getAdhoc())) {
+            return false;
+        }
+
+        checkVersion(version, rubric.getVersion());
+        requireRubricUnused(rubric);
+
+        rubric.setSoftRemovedDate(Instant.now());
+        rubric.setModified(Instant.now());
+        rubric.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
+        saveAndPostEvent(rubric, EVENT_RUBRIC_DELETED);
+        sessionFactory.getCurrentSession().flush();
+        return true;
+    }
+
+    public boolean restoreRubric(Long rubricId, Long version) {
+
+        Optional<Rubric> optRubric = rubricRepository.findById(rubricId);
+
+        if (!optRubric.isPresent()) {
+            return false;
+        }
+
+        Rubric rubric = optRubric.get();
+
+        if (!rubric.isSoftDeleted()) {
+            log.warn("Rubric {} is not soft-deleted", rubricId);
+            return false;
+        }
+
+        if (!isCurrentUserEditor(rubric.getOwnerId())) {
+            log.warn("The current user {} needs to be an editor in site {} to restore the site's rubrics", sessionManager.getCurrentSessionUserId(), rubric.getOwnerId());
             return false;
         }
 
         checkVersion(version, rubric.getVersion());
 
-        // SAK-42944 removing the soft-deleted associations
-        rubric.getAssociations().forEach(ass -> deleteRubricEvaluationsForAssociation(ass.getId()));
+        rubric.setSoftRemovedDate(null);
+        rubric.setModified(Instant.now());
+        rubric.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
+        saveAndPostEvent(rubric, EVENT_RUBRIC_RESTORED);
+        sessionFactory.getCurrentSession().flush();
+        return true;
+    }
+
+    public boolean permanentlyDeleteRubric(Long rubricId, Long version) {
+
+        Optional<Rubric> optRubric = rubricRepository.findById(rubricId);
+
+        if (!optRubric.isPresent()) {
+            return false;
+        }
+
+        Rubric rubric = optRubric.get();
+
+        if (!rubric.isSoftDeleted()) {
+            log.warn("Rubric {} must be soft-deleted before permanent deletion", rubricId);
+            return false;
+        }
+
+        if (!isCurrentUserEditor(rubric.getOwnerId())) {
+            log.warn("The current user {} needs to be an editor in site {} to permanently delete the site's rubrics", sessionManager.getCurrentSessionUserId(), rubric.getOwnerId());
+            return false;
+        }
+
+        checkVersion(version, rubric.getVersion());
+        requireRubricUnused(rubric);
 
         rubricRepository.delete(rubric);
         sessionFactory.getCurrentSession().flush();
-        postRubricEvent(EVENT_RUBRIC_DELETED, rubric);
+        postRubricEvent(EVENT_RUBRIC_PERMANENTLY_DELETED, rubric);
         return true;
+    }
+
+    private void requireRubricUnused(Rubric rubric) {
+        List<ToolItemRubricAssociation> dependencies = associationRepository.findByRubricId(rubric.getId()).stream()
+            .filter(association -> Boolean.TRUE.equals(association.getActive())
+                || Integer.valueOf(1).equals(association.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED))
+                || !evaluationRepository.findByAssociationId(association.getId()).isEmpty())
+            .toList();
+
+        if (!dependencies.isEmpty()) {
+            List<String> blockingItems = dependencies.stream()
+                .map(association -> getAssociatedName(association, rubric.getOwnerId()))
+                .flatMap(Optional::stream)
+                .distinct()
+                .toList();
+            throw new RubricInUseException(blockingItems);
+        }
     }
 
     private RubricTransferBean decorateRubricBean(RubricTransferBean bean) {
@@ -376,6 +480,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         bean.setLastModifiedByDisplayName(getModifierDisplayName(bean.getLastModifiedBy()));
         bean.setFormattedCreatedDate(userTimeService.dateTimeFormat(bean.getCreated(), FormatStyle.MEDIUM, FormatStyle.SHORT));
         bean.setFormattedModifiedDate(userTimeService.dateTimeFormat(bean.getModified(), FormatStyle.MEDIUM, FormatStyle.SHORT));
+        if (bean.getSoftRemovedDate() != null) {
+            bean.setFormattedSoftRemovedDate(userTimeService.dateTimeFormat(bean.getSoftRemovedDate(), FormatStyle.MEDIUM, FormatStyle.SHORT));
+        }
         if (StringUtils.isNotBlank(bean.getCreatorId())) {
             try {
                 bean.setCreatorDisplayName(userDirectoryService.getUser(bean.getCreatorId()).getDisplayName());
@@ -414,6 +521,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         if (!Boolean.TRUE.equals(criterion.getRubric().getShared()) && !isCurrentUserEditor(criterion.getRubric().getOwnerId())) {
             throw new SecurityException("Not allowed to copy this criterion");
         }
+        requireActiveRubric(criterion.getRubric());
         checkVersion(version, rubric.getVersion());
 
         List<Long> criterionIds = rubric.getCriteria().stream().map(Criterion::getId).collect(Collectors.toList());
@@ -528,6 +636,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         return rubricRepository.findById(rubricId).map(rubric -> {
             requireRubricSite(rubric, siteId);
+            requireActiveRubric(rubric);
             checkVersion(version, rubric.getVersion());
 
             List<Long> criterionIds = rubric.getCriteria().stream().map(Criterion::getId).collect(Collectors.toList());
@@ -581,6 +690,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         return rubricRepository.findById(rubricId).map(rubric -> {
             requireRubricSite(rubric, siteId);
+            requireActiveRubric(rubric);
             checkVersion(version, rubric.getVersion());
             List<Long> criterionIds = rubric.getCriteria().stream().map(Criterion::getId).collect(Collectors.toList());
 
@@ -614,6 +724,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             .orElseThrow(() -> new IllegalArgumentException("No rubric with id " + rubricId));
 
         requireRubricSite(rubric, siteId);
+        requireActiveRubric(rubric);
         checkVersion(version, rubric.getVersion());
 
         Optional<Rating> savedRating = criterionRepository.findById(criterionId).map(criterion -> {
@@ -649,6 +760,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Rubric rubric = bean.getId() == null ? new Rubric() : rubricRepository.getById(bean.getId());
         if (bean.getId() != null) {
             checkOwnerUnchanged(bean, rubric);
+            requireActiveRubric(rubric);
             checkVersion(bean.getVersion(), rubric.getVersion());
             checkDraftTransition(bean, rubric);
             checkCriteriaVersions(bean, rubric);
@@ -779,6 +891,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             // we can use getById since a bean with an id should exist
             Criterion criterion = criterionRepository.getById(bean.getId());
             requireRubricSite(criterion.getRubric(), siteId);
+            requireActiveRubric(criterion.getRubric());
             checkVersion(bean.getRubricVersion(), criterion.getRubric().getVersion());
             checkVersion(bean.getVersion(), criterion.getVersion());
             List<Rating> ratings = criterion.getRatings();
@@ -820,6 +933,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             .orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
 
         requireRubricSite(rubric, siteId);
+        requireActiveRubric(rubric);
         checkVersion(version, rubric.getVersion());
         rubric.getCriteria().removeIf(c -> c.getId().equals(criterionId));
 
@@ -842,6 +956,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 throw new SecurityException("Rating does not belong to this criterion");
             }
             requireRubricSite(rating.getCriterion().getRubric(), siteId);
+            requireActiveRubric(rating.getCriterion().getRubric());
             checkVersion(bean.getRubricVersion(), rating.getCriterion().getRubric().getVersion());
             checkVersion(bean.getVersion(), rating.getVersion());
             sanitizeRatingBean(bean);
@@ -869,6 +984,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         Criterion savedCriterion = criterionRepository.findById(criterionId).map(criterion -> {
             requireRubricSite(criterion.getRubric(), siteId);
+            requireActiveRubric(criterion.getRubric());
             if (!Objects.equals(criterion.getRubric().getId(), rubricId)) {
                 throw new SecurityException("Criterion does not belong to this rubric");
             }
@@ -897,6 +1013,12 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     public Optional<RubricTransferBean> getRubric(Long rubricId) {
 
         return rubricRepository.findById(rubricId).map(rubric -> {
+
+            if (rubric.isSoftDeleted()) {
+                return isCurrentUserEditor(rubric.getOwnerId())
+                        ? decorateRubricBean(new RubricTransferBean(rubric))
+                        : null;
+            }
 
             String currentUserId = userDirectoryService.getCurrentUser().getId();
             if (rubric.getShared()
@@ -1110,13 +1232,13 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     public EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId) {
 
-        if (!canGrade(evaluationBean, siteId)) {
-            throw new SecurityException("You must be an evaluator to evaluate rubrics");
-        }
+        ToolItemRubricAssociation checkedAssociation = Optional.ofNullable(evaluationBean.getAssociationId())
+            .flatMap(associationRepository::findById)
+            .filter(association -> Objects.equals(association.getRubric().getOwnerId(), siteId))
+            .filter(association -> canGrade(evaluationBean, siteId, association))
+            .orElseThrow(() -> new SecurityException("You must be an evaluator to evaluate rubrics"));
+        requireActiveAssociation(checkedAssociation);
 
-        ToolItemRubricAssociation checkedAssociation = associationRepository.findById(evaluationBean.getAssociationId())
-            .orElseThrow(() -> new IllegalArgumentException("No rubric association"));
-        requireRubricSite(checkedAssociation.getRubric(), siteId);
         Set<Long> criterionIds = checkedAssociation.getRubric().getCriteria().stream()
             .map(Criterion::getId).collect(Collectors.toSet());
         if (evaluationBean.getCriterionOutcomes().stream().anyMatch(outcome -> !criterionIds.contains(outcome.getCriterionId())
@@ -1281,7 +1403,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Evaluation evaluation = evaluationRepository.findById(draftEvaluationId)
             .orElseThrow(() -> new IllegalArgumentException("No evaluation for id " + draftEvaluationId));
 
-        if (!canGrade(new EvaluationTransferBean(evaluation), evaluation.getOwnerId())) {
+        ToolItemRubricAssociation association = Optional.ofNullable(evaluation.getAssociationId())
+            .flatMap(associationRepository::findById).orElse(null);
+        if (!canGrade(new EvaluationTransferBean(evaluation), evaluation.getOwnerId(), association)) {
             throw new SecurityException("Not allowed to cancel this evaluation");
         }
         checkVersion(version, evaluation.getVersion());
@@ -1371,21 +1495,16 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                         association.setModified(LocalDateTime.now());
                         return Optional.of(associationRepository.save(association));
                     } else {
-                        // Rubrics switching, deactivate the current association
-                        association.setActive(false);
-
-                        Optional<ToolItemRubricAssociation> optionalExistingAssociation = findAssociationByItemIdAndRubricId(toolItemId, requestedRubricId);
-
-                        if (optionalExistingAssociation.isPresent()) {
-                            // if there's already an association for the requested rubric, reuse it
-                            return Optional.of(reactivateRubricAssociation(optionalExistingAssociation.get()));
-                        } else {
-                            // if there is no association for the requested rubric create a new association
-                            Optional<ToolItemRubricAssociation> newAssociation = createToolItemRubricAssociation(toolId, toolItemId, params, requestedRubricId);
-                            if (newAssociation.isPresent()) {
-                                return Optional.of(associationRepository.save(newAssociation.get()));
-                            }
+                        Optional<ToolItemRubricAssociation> replacement = findAssociationByItemIdAndRubricId(toolItemId, requestedRubricId)
+                            .map(this::reactivateRubricAssociation);
+                        if (replacement.isEmpty()) {
+                            replacement = createToolItemRubricAssociation(toolId, toolItemId, params, requestedRubricId)
+                                .map(associationRepository::save);
                         }
+                        if (replacement.isPresent()) {
+                            association.setActive(false);
+                        }
+                        return replacement;
                     }
                 } else if (requestedRubricId.equals(0L)){
                     //deactivating an association without making a new one
@@ -1410,20 +1529,14 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return Optional.empty();
     }
 
-    private ToolItemRubricAssociation reactivateRubricAssociation(ToolItemRubricAssociation association) {
-
-        Rubric rubric = association.getRubric();
-        if (Boolean.TRUE.equals(rubric.getDraft())) {
-            throw new RubricsConflictException("Rubric " + rubric.getId() + " must be published before it can be linked again");
-        }
-        association.setActive(true);
-        return associationRepository.save(association);
-    }
-
     private Optional<ToolItemRubricAssociation> createToolItemRubricAssociation(String toolId, String toolItemId, Map<String, String> params, Long requestedRubricId) {
         log.debug("Creating new association for rubric [{}], tool [{}], item[{}]", requestedRubricId, toolId, toolItemId);
         Optional<Rubric> rubric = rubricRepository.findById(requestedRubricId);
         if (rubric.isPresent()) {
+            if (rubric.get().isSoftDeleted()) {
+                log.warn("Requested rubric [{}] is soft-deleted and cannot be associated", requestedRubricId);
+                return Optional.empty();
+            }
             ToolItemRubricAssociation newAssociation = new ToolItemRubricAssociation();
             newAssociation.setRubric(rubric.get());
             newAssociation.setToolId(toolId);
@@ -1438,6 +1551,17 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
         log.warn("Requested rubric [{}] not found when attempting to create a new association", requestedRubricId);
         return Optional.empty();
+    }
+
+    private ToolItemRubricAssociation reactivateRubricAssociation(ToolItemRubricAssociation association) {
+
+        Rubric rubric = association.getRubric();
+        requireActiveRubric(rubric);
+        if (Boolean.TRUE.equals(rubric.getDraft())) {
+            throw new RubricsConflictException("Rubric " + rubric.getId() + " must be published before it can be linked again");
+        }
+        association.setActive(true);
+        return associationRepository.save(association);
     }
 
     private Optional<ToolItemRubricAssociation> findAssociationByItemIdAndRubricId(String toolItemId, Long rubricId) {
@@ -1657,7 +1781,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             } catch (UserNotDefinedException ex) {
                 log.error("No user for id {} : {}", eval.getEvaluatedItemOwnerId(), ex.toString());
             }
-            itemName = getAssociatedName(eval, siteId).get();
+            itemName = getAssociatedName(eval, siteId).orElse("");
         }
 
         NumberFormat numberFormat = NumberFormat.getNumberInstance(resourceLoader.getLocale());
@@ -1873,26 +1997,45 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return Optional.empty();
     }
 
-    private Optional<String> getAssociatedName(Evaluation evaluation, String siteId){
-        if(evaluation==null || StringUtils.isEmpty(siteId)){
+    private Optional<String> getAssociatedName(Evaluation evaluation, String siteId) {
+        if (evaluation == null || StringUtils.isBlank(siteId)) {
             return Optional.empty();
         }
-        Optional<ToolItemRubricAssociation> optAssociation = associationRepository.findById(evaluation.getAssociationId());
-        if(optAssociation.isPresent()){
-            ToolItemRubricAssociation association = optAssociation.get();
-            try {
-                if(association.getToolId().equals(AssignmentConstants.TOOL_ID)){
-                    return Optional.of(assignmentService.getAssignment(association.getItemId()).getTitle());
-                } else if (association.getToolId().equals(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)){
-                    String gradebookUid = gradingService.getGradebookUidByAssignmentById(siteId, Long.valueOf(association.getItemId()));
-                    return Optional.of(gradingService.getAssignment(gradebookUid, siteId, Long.valueOf(association.getItemId())).getName());
-                } else if (association.getToolId().equals(RubricsConstants.RBCS_TOOL_SAMIGO)){
-                    String[] idParts = association.getItemId().split("\\.");
-                    return Optional.of(publishedAssessmentFacadeQueriesAPI.getPublishedAssessment(Long.valueOf(idParts[1])).getTitle());
+        return associationRepository.findById(evaluation.getAssociationId())
+            .flatMap(association -> getAssociatedName(association, siteId));
+    }
+
+    private Optional<String> getAssociatedName(ToolItemRubricAssociation association, String siteId) {
+        String itemId = association.getItemId();
+        try {
+            if (AssignmentConstants.TOOL_ID.equals(association.getToolId())) {
+                Assignment assignment = assignmentService.getAssignment(itemId);
+                if (siteId.equals(assignment.getContext())) {
+                    return Optional.of(assignment.getTitle());
                 }
-            } catch (Exception e){  //on any kind of exception, just leave the item name out.
-                log.debug("Could not get graded item name for tool {} and item id {}", association.getToolId(), association.getItemId());
+            } else if (RubricsConstants.RBCS_TOOL_GRADEBOOKNG.equals(association.getToolId())) {
+                Long gradebookItemId = Long.valueOf(itemId);
+                String gradebookUid = gradingService.getGradebookUidByAssignmentById(siteId, gradebookItemId);
+                if (siteId.equals(gradebookUid) || gradingService.getGradebookInstancesForUser(siteId,
+                        sessionManager.getCurrentSessionUserId()).contains(gradebookUid)) {
+                    return Optional.of(gradingService.getAssignment(gradebookUid, siteId, gradebookItemId).getName());
+                }
+            } else if (RubricsConstants.RBCS_TOOL_SAMIGO.equals(association.getToolId())) {
+                String[] idParts = itemId.split("\\.");
+                if (itemId.startsWith(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX)) {
+                    PublishedAssessmentFacade assessment = publishedAssessmentFacadeQueriesAPI.getPublishedAssessment(Long.valueOf(idParts[1]));
+                    if (siteId.equals(assessment.getOwnerSiteId())) {
+                        return Optional.of(assessment.getTitle());
+                    }
+                } else {
+                    AssessmentFacadeQueriesAPI queries = assessmentPersistenceService.getAssessmentFacadeQueries();
+                    if (siteId.equals(queries.getAssessmentSiteId(idParts[0]))) {
+                        return Optional.of(queries.getAssessment(Long.valueOf(idParts[0])).getTitle());
+                    }
+                }
             }
+        } catch (Exception e) {
+            log.debug("Could not get graded item name for tool {} and item id {}", association.getToolId(), itemId);
         }
         return Optional.empty();
     }
@@ -1900,7 +2043,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     @Override
     public List<Map<String, String>> getEntityMap(String fromContext) {
 
-        return rubricRepository.findByOwnerId(fromContext).stream()
+        return rubricRepository.findByOwnerIdAndSoftRemoved(fromContext, false).stream()
             .map(r -> Map.of("id", r.getId().toString(), "title", r.getTitle())).collect(Collectors.toList());
     }
 
@@ -1913,7 +2056,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 
         Map<String, String> traversalMap = new HashMap<>();
-        rubricRepository.findByOwnerId(fromContext).forEach(rubric -> {
+        rubricRepository.findByOwnerIdAndSoftRemoved(fromContext, false).forEach(rubric -> {
 
             if (CollectionUtils.isEmpty(ids) || ids.contains(rubric.getId().toString())) {
 
@@ -1962,7 +2105,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         stack.peek().appendChild(rubrics);
         stack.push(rubrics);
 
-        rubricRepository.findByOwnerId(siteId).stream().sorted((r1, r2) -> r1.getTitle().compareTo(r2.getTitle())).forEach(rubric -> {
+        rubricRepository.findByOwnerIdAndSoftRemoved(siteId, false).stream().sorted((r1, r2) -> r1.getTitle().compareTo(r2.getTitle())).forEach(rubric -> {
 
             try {
                 // false here means we get cdata nodes without them being nested in text elements
@@ -1992,7 +2135,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return "Invalid xml document";
         }
 
-        Set<String> currentTitles = rubricRepository.findByOwnerId(toSiteId)
+        Set<String> currentTitles = rubricRepository.findByOwnerIdAndSoftRemoved(toSiteId, false)
             .stream().map(Rubric::getTitle).collect(Collectors.toSet());
 
         Instant now = Instant.now();
@@ -2156,7 +2299,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         evaluations.forEach(this::deleteRubricEvaluation);
         List<Rubric> rubrics = rubricRepository.findByOwnerId(siteId);
         rubricRepository.deleteByOwnerId(siteId);
-        rubrics.forEach(rubric -> postRubricEvent(EVENT_RUBRIC_DELETED, rubric));
+        rubrics.forEach(rubric -> postRubricEvent(EVENT_RUBRIC_PERMANENTLY_DELETED, rubric));
     }
 
     private String getModifierDisplayName(String userId) {
@@ -2264,10 +2407,24 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
     }
 
+    private void requireActiveRubric(Rubric rubric) {
+        if (rubric.isSoftDeleted()) {
+            throw new RubricInTrashException(rubric.getId());
+        }
+    }
+
+    private void requireActiveAssociation(ToolItemRubricAssociation association) {
+        requireActiveRubric(association.getRubric());
+        if (!Boolean.TRUE.equals(association.getActive())) {
+            throw new RubricsConflictException("Cannot evaluate inactive rubric association " + association.getId());
+        }
+    }
+
     private void requireRubricEditor(Rubric rubric) {
         if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId()) || !isCurrentUserEditor(rubric.getOwnerId())) {
             throw new SecurityException("Not allowed to edit this rubric");
         }
+        requireActiveRubric(rubric);
     }
 
     private boolean isCurrentUserEditor(String siteId) {
@@ -2324,19 +2481,18 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return false;
     }
 
-    private boolean canGrade(EvaluationTransferBean eval, String siteId) {
+    private boolean canGrade(EvaluationTransferBean eval, String siteId, ToolItemRubricAssociation association) {
         String currentUserId = sessionManager.getCurrentSessionUserId();
-        if (StringUtils.isBlank(currentUserId)) {
+        if (StringUtils.isBlank(currentUserId) || association == null) {
             return false;
         }
         if (isEvaluator(siteId)) {
             return true;
         }
-        if (!isEvaluee(siteId) || eval.getAssociationId() == null) {
+        if (!isEvaluee(siteId)) {
             return false;
         }
-        ToolItemRubricAssociation association = associationRepository.findById(eval.getAssociationId()).orElse(null);
-        if (association == null || !RubricsConstants.RBCS_TOOL_ASSIGNMENT_GRADES.equals(association.getToolId())) {
+        if (!RubricsConstants.RBCS_TOOL_ASSIGNMENT_GRADES.equals(association.getToolId())) {
             return false;
         }
         try {
