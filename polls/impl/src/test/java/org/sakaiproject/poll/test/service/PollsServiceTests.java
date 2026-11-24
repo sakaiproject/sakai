@@ -534,6 +534,30 @@ public class PollsServiceTests {
         Assert.assertTrue(pollsService.getOptionById(firstId).isEmpty());
     }
 
+    @Test
+    public void testSavePollRejectsNewAndEditedOptionsThatCleanToBlank() {
+        String blankAfterCleanup = "<p> </p>";
+        Poll newPoll = new Poll();
+        newPoll.setSiteId(LOCATION1_ID);
+        newPoll.setText("New poll with a blank option");
+        Option newOption = new Option();
+        newOption.setText(blankAfterCleanup);
+        newPoll.addOption(newOption);
+        Assert.assertThrows(PollTextValidationException.class, () -> pollsService.savePoll(newPoll));
+
+        String pollId = createPoll(USER, LOCATION1_ID);
+        Poll edit = pollsService.getPollById(pollId).orElseThrow();
+        Option editedOption = edit.getOptions().get(0);
+        editedOption.setText(blankAfterCleanup);
+        Assert.assertThrows(PollTextValidationException.class, () -> pollsService.savePoll(edit));
+        Assert.assertEquals("Option 1", pollsService.getOptionById(editedOption.getId()).orElseThrow().getText());
+
+        Poll addOption = pollsService.getPollById(pollId).orElseThrow();
+        addOption.addOption(newOption);
+        Assert.assertThrows(PollTextValidationException.class, () -> pollsService.savePoll(addOption));
+        Assert.assertEquals(2, pollsService.getVisibleOptionsForPoll(pollId).size());
+    }
+
     // ========== Vote Tests ==========
 
     @Test

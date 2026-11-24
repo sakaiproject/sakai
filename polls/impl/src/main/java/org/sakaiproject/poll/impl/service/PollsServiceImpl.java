@@ -130,6 +130,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     private static final String DEFAULT_IP_ADDRESS = "Nothing";
     public static final String EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION = "polls.notifyDeletedOption";
 
+    private enum NewOptionText {
+        ALREADY_CLEAN,
+        CLEAN_LEGACY,
+        CLEAN_AND_VALIDATE
+    }
+
     @Setter private AuthzGroupService authzGroupService;
     @Setter private EmailService emailService;
     @Setter private List<String> emailTemplates;
@@ -199,10 +205,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public Poll savePoll(final Poll poll) throws SecurityException, IllegalArgumentException {
-        return poll != null && poll.getId() != null ? updatePoll(poll.getId(), poll, field -> true, true) : savePoll(poll, true);
+        return poll != null && poll.getId() != null
+                ? updatePoll(poll.getId(), poll, field -> true, true)
+                : savePoll(poll, NewOptionText.CLEAN_AND_VALIDATE);
     }
 
-    private Poll savePoll(final Poll poll, boolean cleanNewOptions) {
+    private Poll savePoll(final Poll poll, NewOptionText newOptionText) {
         if (poll == null || StringUtils.isAnyBlank(poll.getText(), poll.getSiteId())
                 || poll.getVoteOpen() == null || poll.getVoteClose() == null) {
             throw new IllegalArgumentException(pollsBundle.getString("poll_error_missing_fields"));
@@ -229,14 +237,18 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll.getDescription() != null) {
             poll.setDescription(cleanupPollFormattedText(poll.getDescription()));
         }
-        if (cleanNewOptions && (isNew || Persistence.getPersistenceUtil().isLoaded(poll, "options"))) {
+        if (newOptionText != NewOptionText.ALREADY_CLEAN && (isNew || Persistence.getPersistenceUtil().isLoaded(poll, "options"))) {
             for (Option option : poll.getOptions()) {
                 if (isNew) {
                     option.setId(null);
                     option.setPoll(poll);
                 }
                 if (option.getId() == null) {
-                    option.setText(cleanupPollFormattedText(option.getText()));
+                    String text = cleanupPollFormattedText(option.getText());
+                    if (newOptionText == NewOptionText.CLEAN_AND_VALIDATE && StringUtils.isBlank(text)) {
+                        throw new PollTextValidationException(pollsBundle.getString("option_empty"));
+                    }
+                    option.setText(text);
                 }
             }
         }
@@ -282,7 +294,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         for (ImportedPoll importedPoll : importedPolls) {
             try {
                 // The import builder cleans option text before validating the option count.
-                savePoll(buildImportedPoll(importedPoll, siteId, ownerId), false);
+                savePoll(buildImportedPoll(importedPoll, siteId, ownerId), NewOptionText.ALREADY_CLEAN);
             } catch (PollTextValidationException e) {
                 throw new PollImportException(PollImportError.MISSING_QUESTION, importedPoll.rowNumber());
             }
@@ -817,8 +829,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             Poll poll = Poll.fromXML(pollElement);
 
             String pollText = poll.getText();
-            if ( pollText == null ) continue;
-            if ( pollTexts.contains(cleanupPollFormattedText(pollText)) ) continue;
+            if (pollText == null) continue;
+            String normalizedQuestion = cleanupPollFormattedText(pollText);
+            if (pollTexts.contains(normalizedQuestion)) continue;
 
             poll.setId(null);
             poll.setSiteId(siteId);
@@ -840,8 +853,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                 // Use poll aggregate pattern - addOption sets bidirectional relationship
                 poll.addOption(option);
             }
-            // Save poll once with all options added
-            savePoll(poll);
+            savePoll(poll, NewOptionText.CLEAN_LEGACY);
+            pollTexts.add(normalizedQuestion);
         }
         return null;
     }
@@ -971,7 +984,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                         toPoll.addOption(toOption);
                     }
                 }
-                savePoll(toPoll);
+                savePoll(toPoll, NewOptionText.CLEAN_LEGACY);
             }
         } catch (Exception e) {
             log.error("Failed to save transfer polls: {}", e.toString());
@@ -1382,7 +1395,11 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                         throw new IllegalArgumentException("Invalid option for poll " + pollId);
                     }
                     if (!Objects.equals(option.getText(), submittedOption.getText())) {
-                        option.setText(cleanupPollFormattedText(submittedOption.getText()));
+                        String text = cleanupPollFormattedText(submittedOption.getText());
+                        if (StringUtils.isBlank(text)) {
+                            throw new PollTextValidationException(pollsBundle.getString("option_empty"));
+                        }
+                        option.setText(text);
                     }
                     option.setDeleted(submittedOption.getDeleted());
                     orderedOptions.add(option);
@@ -1390,7 +1407,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             }
             existingPoll.setOptions(orderedOptions);
         }
-        return savePoll(existingPoll, updateOptions);
+        return savePoll(existingPoll, updateOptions ? NewOptionText.CLEAN_AND_VALIDATE : NewOptionText.ALREADY_CLEAN);
     }
 
     @Override

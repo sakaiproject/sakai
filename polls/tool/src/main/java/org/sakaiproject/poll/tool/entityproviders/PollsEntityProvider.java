@@ -313,6 +313,9 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"The reference must include an id for updates (id is currently null)");
 		}
+		if (params.containsKey("options")) {
+			throw new IllegalArgumentException("poll-update does not accept options");
+		}
 		Poll poll = new Poll();
 		copyParamsToObject(params, poll);
 		pollsService.updatePoll(id, poll, params.keySet());

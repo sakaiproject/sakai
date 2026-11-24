@@ -34,6 +34,7 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.poll.api.PollConstants;
+import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.api.service.PollsService;
@@ -78,9 +79,12 @@ public class PollsEntityTransferrerTest {
         Document document = Xml.createDocument();
         Element archive = document.createElement("polls");
         document.appendChild(archive);
-        for (String question : List.of("Wrapped in storage", "<p>Wrapped in archive</p>", "A new question")) {
+        for (String question : List.of("Wrapped in storage", "<p>Wrapped in archive</p>", "A new question", "<p>A new question</p>", "Another question")) {
             Element archived = document.createElement("poll");
             archived.setAttribute("title", question);
+            if ("A new question".equals(question)) {
+                archived.appendChild(document.createElement("option"));
+            }
             archive.appendChild(archived);
         }
 
@@ -90,8 +94,11 @@ public class PollsEntityTransferrerTest {
         config.creatorId = "instructor";
         producer.getValue().merge(siteId, archive, "", "original-site", config);
 
-        List<String> questions = pollsService.findAllPolls(siteId).stream().map(Poll::getText).sorted().toList();
-        assertEquals(List.of("<p>Wrapped in storage</p>", "A new question", "Wrapped in archive"), questions);
+        List<Poll> merged = pollsService.findAllPolls(siteId);
+        List<String> questions = merged.stream().map(Poll::getText).sorted().toList();
+        assertEquals(List.of("<p>Wrapped in storage</p>", "A new question", "Another question", "Wrapped in archive"), questions);
+        Poll firstImported = merged.stream().filter(poll -> "A new question".equals(poll.getText())).findFirst().orElseThrow();
+        assertEquals(List.of(""), firstImported.getOptions().stream().map(Option::getText).toList());
     }
 
     @Test
@@ -109,6 +116,9 @@ public class PollsEntityTransferrerTest {
         source.setCreationDate(Instant.now());
         source.setVoteOpen(Instant.now());
         source.setVoteClose(Instant.now().plusSeconds(3600));
+        Option legacyOption = new Option();
+        legacyOption.setText("");
+        source.addOption(legacyOption);
         source = pollRepository.save(source);
         List<Boolean> transactions = new ArrayList<>();
         when(ltiService.fixLtiLaunchUrls(anyString(), eq(fromContext), eq(toContext), any(Map.class)))
@@ -126,8 +136,9 @@ public class PollsEntityTransferrerTest {
         List<Poll> copies = pollsService.findAllPolls(toContext);
         assertEquals(1, copies.size());
         assertEquals("Content to copy", copies.get(0).getDescription());
+        assertEquals(List.of(""), copies.get(0).getOptions().stream().map(Option::getText).toList());
         assertEquals("The registered copy callback must retain the service transaction between repository calls",
-            List.of(true), transactions);
+            List.of(true, true), transactions);
         assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
     }
 }
