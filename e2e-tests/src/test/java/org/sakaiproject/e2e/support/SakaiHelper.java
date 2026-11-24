@@ -359,6 +359,40 @@ public class SakaiHelper {
         }
     }
 
+    /** Creates a text file in a new Resources folder and returns its resource ID. */
+    public String createNestedTextResource(String siteUrl, String folder, String filename, String text) {
+        String siteId = siteIdFromUrl(siteUrl);
+        String sessionId = fixtureSession();
+        String collectionId = "/group/" + siteId + "/" + folder + "/";
+        APIResponse createdFolder = fixtureRequest.get("/sakai-ws/rest/contenthosting/createTopFolder",
+            RequestOptions.create().setTimeout(15_000).setQueryParam("sessionId", sessionId)
+                .setQueryParam("context", siteId).setQueryParam("name", folder));
+        try {
+            if (!createdFolder.ok() || !collectionId.equals(createdFolder.text().trim())) {
+                throw new IllegalStateException("Unable to create fixture folder " + collectionId
+                    + ": HTTP " + createdFolder.status());
+            }
+        } finally {
+            createdFolder.dispose();
+        }
+
+        String resourceId = collectionId + filename;
+        APIResponse createdFile = fixtureRequest.get("/sakai-ws/rest/contenthosting/createContentItem",
+            RequestOptions.create().setTimeout(15_000).setQueryParam("sessionid", sessionId)
+                .setQueryParam("collectionId", collectionId).setQueryParam("name", filename)
+                .setQueryParam("contentMime", text).setQueryParam("description", "")
+                .setQueryParam("type", "text/plain").setQueryParam("binary", "false"));
+        try {
+            if (!createdFile.ok() || !"success".equals(createdFile.text().trim())) {
+                throw new IllegalStateException("Unable to create fixture file " + resourceId
+                    + ": HTTP " + createdFile.status());
+            }
+            return resourceId;
+        } finally {
+            createdFile.dispose();
+        }
+    }
+
     /**
      * Adds a group with the given members to a site from createCourse or createProject.
      *
