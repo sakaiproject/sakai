@@ -699,6 +699,30 @@ public class PollsServiceTests {
     // ========== Permission/Authorization Tests ==========
 
     @Test
+    public void testOptionWritesRequirePermissionToEditTheParentPoll() {
+        String pollId = createPoll(USER, LOCATION1_ID);
+        Poll poll = pollsService.getPollById(pollId).orElseThrow();
+        Long optionId = poll.getOptions().get(0).getId();
+        Option newOption = new Option();
+        newOption.setText("New choice");
+
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_ANY, LOCATION1_REF)).thenReturn(false);
+        Assert.assertThrows(SecurityException.class, () -> pollsService.saveNewOption(poll, newOption));
+        Assert.assertThrows(SecurityException.class, () -> pollsService.updateOptionText(optionId, "Updated choice"));
+        Assert.assertThrows(SecurityException.class, () -> pollsService.saveOptionsBatch(pollId, List.of("Batch choice")));
+        Assert.assertThrows(SecurityException.class, () -> pollsService.deleteOption(optionId));
+        Assert.assertThrows(SecurityException.class, () -> pollsService.deleteOption(optionId, true));
+        Assert.assertThrows(SecurityException.class, () -> pollsService.deleteOptionWithVoteHandling(optionId, "return-votes"));
+        Assert.assertEquals(2, pollsService.getVisibleOptionsForPoll(pollId).size());
+        Assert.assertEquals("Option 1", pollsService.getOptionById(optionId).orElseThrow().getText());
+
+        Mockito.when(securityService.unlock(USER, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_OWN, LOCATION1_REF)).thenReturn(true);
+        pollsService.updateOptionText(optionId, "Updated choice");
+        Assert.assertEquals("Updated choice", pollsService.getOptionById(optionId).orElseThrow().getText());
+    }
+
+    @Test
     public void testSavePollRequiresAddForNewPollsAndEditForExistingPolls() {
         String pollId = createPoll(USER, LOCATION1_ID);
         Poll poll = pollsService.getPollById(pollId).orElseThrow();

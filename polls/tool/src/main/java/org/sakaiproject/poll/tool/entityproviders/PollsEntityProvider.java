@@ -60,7 +60,6 @@ import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
-import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
@@ -82,7 +81,6 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
     public static final String ENTITY_PREFIX = "polls";
 
 	@Setter private PollsService pollsService;
-	@Setter private PollPermissionsService pollPermissionsService;
 	@Setter private UsageSessionService usageSessionService;
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private RequestStorage requestStorage = null;
@@ -457,7 +455,10 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"Poll Option text must be set to create an option");
 		}
-		Poll poll = checkOptionPermission(userReference, pollId);
+		Poll poll = getPollById(pollId);
+		if (poll == null) {
+			throw new IllegalArgumentException("Poll not found: " + pollId);
+		}
 		option.setId(null);
 		Poll saved = pollsService.saveNewOption(poll, option);
 		if (saved == null) {
@@ -526,16 +527,8 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new EntityException("Anonymous user cannot update option",
 					ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
 		}
-		Option current = getOptionById(id);
-		if (current == null) {
-			throw new IllegalArgumentException(
-					"No option found to update for the given reference: " + ref);
-		}
-		checkOptionPermission(userReference, current.getPoll().getId());
 		Object text = params.get("text");
-		if (text != null) {
-			pollsService.updateOptionText(current.getId(), text.toString());
-		}
+		pollsService.updateOptionText(Long.valueOf(id), text == null ? null : text.toString());
 	}
 
 	@EntityCustomAction(action = "option-delete", viewKey = EntityView.VIEW_SHOW)
@@ -547,33 +540,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new EntityException("Anonymous user cannot delete option",
 					ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
 		}
-		Option option = getOptionById(id);
-		if (option == null) {
-			throw new IllegalArgumentException(
-					"No option found to delete for the given reference: " + ref);
-		}
-		checkOptionPermission(userReference, option.getPoll().getId());
-		pollsService.deleteOption(option.getId());
-		// return String.format("Poll option id %d removed", id);
-	}
-
-	/**
-	 * Checks if the given user can create/update/delete options
-	 * 
-	 * @param userRef
-	 * @param pollId
-	 */
-	private Poll checkOptionPermission(String userRef, String pollId) {
-		Poll poll = pollsService.getPollById(pollId)
-				.orElseThrow(() -> new IllegalArgumentException("Poll not found: " + pollId));
-		if (!pollPermissionsService.canEditPoll(poll)) {
-			throw new SecurityException(
-					"User ("
-							+ userRef
-							+ ") is not allowed to create/update/delete options in this poll ("
-							+ pollId + ")");
-		}
-		return poll;
+		pollsService.deleteOption(Long.valueOf(id));
 	}
 
 	/**

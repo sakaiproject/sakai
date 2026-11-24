@@ -139,7 +139,7 @@ public class OptionController {
                 option.setText(optionForm.getText());
                 pollsService.saveNewOption(poll, option);
             } else {
-                pollsService.updateOptionText(optionForm.getOptionId(), optionForm.getText());
+                pollsService.updateOptionText(optionForm.getOptionId(), StringUtils.defaultString(optionForm.getText()));
             }
         } catch (PollTextValidationException e) {
             bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage("option_empty", null, locale)));

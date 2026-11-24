@@ -24,7 +24,6 @@ import org.sakaiproject.poll.tool.entityproviders.PollEntityProvider;
 import org.sakaiproject.poll.tool.entityproviders.PollOptionEntityProvider;
 import org.sakaiproject.poll.tool.entityproviders.PollVoteEntityProvider;
 import org.sakaiproject.poll.tool.entityproviders.PollsEntityProvider;
-import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,11 +36,9 @@ public class PollsToolConfig {
                                                    UsageSessionService usageSessionService,
                                                    UserDirectoryService userDirectoryService,
                                                    EntityProviderManager entityProviderManager,
-                                                   DeveloperHelperService developerHelperService,
-                                                   PollPermissionsService pollPermissionsService) {
+                                                   DeveloperHelperService developerHelperService) {
         PollsEntityProvider provider = new PollsEntityProvider();
         provider.setPollsService(pollsService);
-        provider.setPollPermissionsService(pollPermissionsService);
         provider.setUsageSessionService(usageSessionService);
         provider.setUserDirectoryService(userDirectoryService);
         provider.setEntityProviderManager(entityProviderManager);
@@ -63,11 +60,9 @@ public class PollsToolConfig {
     @Bean
     public PollOptionEntityProvider pollOptionEntityProvider(PollsService pollsService,
                                                              EntityProviderManager entityProviderManager,
-                                                             DeveloperHelperService developerHelperService,
-                                                             PollPermissionsService pollPermissionsService) {
+                                                             DeveloperHelperService developerHelperService) {
         PollOptionEntityProvider provider = new PollOptionEntityProvider();
         provider.setPollsService(pollsService);
-        provider.setPollPermissionsService(pollPermissionsService);
         provider.setEntityProviderManager(entityProviderManager);
         provider.setDeveloperHelperService(developerHelperService);
         return provider;

@@ -641,11 +641,11 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         Option option = getOptionById(optionId)
             .orElseThrow(() -> new IllegalArgumentException("Option with id " + optionId + " not found"));
 
-        Poll poll = option.getPoll();
-        if (poll == null) {
-            throw new IllegalStateException("Option is not associated with a poll");
-        }
+        Poll poll = requirePollOptionEdit(option.getPoll().getId());
+        deleteOption(option, poll, soft);
+    }
 
+    private void deleteOption(Option option, Poll poll, boolean soft) {
         if (soft) {
             option.setDeleted(true);
             log.debug("Option id {} soft deleted", option.getId());
@@ -670,13 +670,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
         // Save through poll aggregate
         if (poll.getId() != null && option.getId() == null) {
+            Poll existingPoll = requirePollOptionEdit(poll.getId());
             String text = cleanupPollFormattedText(option.getText());
             if (StringUtils.isBlank(text)) {
                 throw new PollTextValidationException(pollsBundle.getString("option_empty"));
             }
             option.setText(text);
-            Poll existingPoll = pollRepository.findById(poll.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Poll not found: " + poll.getId()));
             existingPoll.addOption(option);
             pollRepository.persistOption(option);
             log.debug("Option {} successfully saved", option);
@@ -693,12 +692,25 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     public void updateOptionText(Long optionId, String text) {
         Option option = getOptionById(optionId)
                 .orElseThrow(() -> new IllegalArgumentException("Option not found: " + optionId));
+        Poll poll = requirePollOptionEdit(option.getPoll().getId());
+        if (text == null) {
+            return;
+        }
         String cleanedText = cleanupPollFormattedText(text);
         if (StringUtils.isBlank(cleanedText)) {
             throw new PollTextValidationException(pollsBundle.getString("option_empty"));
         }
         option.setText(cleanedText);
-        postOptionsChanged(option.getPoll());
+        postOptionsChanged(poll);
+    }
+
+    private Poll requirePollOptionEdit(String pollId) {
+        Poll poll = getPollById(pollId)
+                .orElseThrow(() -> new IllegalArgumentException("Poll not found: " + pollId));
+        if (!isAllowedPollEdit(poll)) {
+            throw new SecurityException("Current user cannot edit options for poll " + pollId);
+        }
+        return poll;
     }
 
     private boolean canDeletePoll(final Poll poll) {
@@ -1395,22 +1407,15 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public Poll deleteOptionWithVoteHandling(Long optionId, String orphanVoteHandling) {
-        Optional<Option> option = getOptionById(optionId);
-        if (option.isEmpty()) {
-            throw new IllegalArgumentException("Option not found");
-        }
-
-        Poll poll = option.get().getPoll();
-        if (poll == null) {
-            throw new IllegalArgumentException("Option has no associated poll");
-        }
-
-        List<Vote> votes = getAllVotesForOption(option.get());
+        Option option = getOptionById(optionId)
+                .orElseThrow(() -> new IllegalArgumentException("Option not found"));
+        Poll poll = requirePollOptionEdit(option.getPoll().getId());
+        List<Vote> votes = getAllVotesForOption(option);
 
         if (votes != null && !votes.isEmpty()) {
             if ("return-votes".equals(orphanVoteHandling)) {
                 Set<String> userIds = new java.util.TreeSet<>();
-                deleteOption(option.get().getId());
+                deleteOption(option, poll, false);
                 for (Vote vote : votes) {
                     if (vote.getUserId() != null) {
                         try {
@@ -1430,10 +1435,10 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                 notifyDeletedOption(new ArrayList<>(userIds), siteTitle, poll.getText());
             } else {
                 // "do-nothing" - soft delete
-                getOptionById(optionId).ifPresent(o -> deleteOption(o.getId(), true));
+                deleteOption(option, poll, true);
             }
         } else {
-            deleteOption(option.get().getId());
+            deleteOption(option, poll, false);
         }
 
         return poll;
@@ -1445,20 +1450,17 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             throw new IllegalArgumentException("Option texts list cannot be empty");
         }
 
-        Optional<Poll> poll = getPollById(pollId);
-        if (poll.isEmpty()) {
-            throw new IllegalArgumentException("Poll not found: " + pollId);
-        }
+        Poll poll = requirePollOptionEdit(pollId);
         // optionOrder is managed by @OrderColumn - position in list determines order
         for (String optionText : optionTexts) {
             if (StringUtils.isNotBlank(optionText)) {
                 Option option = new Option();
                 option.setText(formattedText.escapeHtml(optionText, false));
-                poll.get().addOption(option);
+                poll.addOption(option);
             }
         }
-        pollRepository.save(poll.get());
-        postOptionsChanged(poll.get());
+        pollRepository.save(poll);
+        postOptionsChanged(poll);
     }
 
     @Override

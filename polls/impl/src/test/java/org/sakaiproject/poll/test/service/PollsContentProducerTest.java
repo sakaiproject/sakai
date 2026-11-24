@@ -264,7 +264,9 @@ public class PollsContentProducerTest {
 
     @Test
     public void changingOptionsAnnouncesThePollUpdate() {
-        when(securityService.unlock(STUDENT, PollConstants.PERMISSION_ADD, siteRef)).thenReturn(false);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(INSTRUCTOR);
+        when(securityService.unlock(INSTRUCTOR, PollConstants.PERMISSION_EDIT_OWN, siteRef)).thenReturn(true);
+        when(securityService.unlock(INSTRUCTOR, PollConstants.PERMISSION_ADD, siteRef)).thenReturn(false);
         Poll poll = poll(p -> p.addOption(option("Existing", false)));
         String reference = reference(poll);
         verify(eventTrackingService, never()).newEvent("poll.update", reference, true);
