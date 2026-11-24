@@ -21,6 +21,8 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FilePayload;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +36,7 @@ final class ResourcesUi {
 
     private final Page page;
     private final SakaiHelper sakai;
+    private List<String> pendingFolders = List.of();
 
     ResourcesUi(Page page, SakaiHelper sakai) {
         this.page = page;
@@ -61,8 +64,11 @@ final class ResourcesUi {
 
     /** Opens Create Folders in the given folder with one row per name and every row's access options shown. */
     void openCreateFolders(Locator parentRow, List<String> names) {
+        pendingFolders = List.copyOf(names);
         itemAction(parentRow, "Create Folders");
         assertThat(page.locator("#content_0")).isVisible();
+        // The name inputs render before the script that enables the submit button when they are filled.
+        page.waitForFunction("typeof validateFolderNames === 'function'");
         for (int i = 1; i < names.size(); i++) {
             page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Another Folder").setExact(true)).click();
             assertThat(page.locator("#content_" + i)).isVisible();
@@ -80,7 +86,10 @@ final class ResourcesUi {
 
     void createFolders() {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create Folders Now").setExact(true)).click();
-        assertThat(rootRow()).isVisible();
+        assertThat(page.locator("#content_0")).hasCount(0);
+        for (String name : pendingFolders) {
+            assertThat(itemLink(name).first()).isVisible();
+        }
     }
 
     void restrictToGroup(int row, String groupId) {
@@ -93,6 +102,11 @@ final class ResourcesUi {
         sakai.selectDate("#releaseDatePicker_" + row, value.format(DATE_TIME_LOCAL));
     }
 
+    void setEndDate(int row, LocalDateTime value) {
+        page.locator("#use_end_date_" + row).check();
+        sakai.selectDate("#retractDatePicker_" + row, value.format(DATE_TIME_LOCAL));
+    }
+
     void upload(Locator folderRow, String fileName, String contentType, byte[] content, boolean hidden) {
         itemAction(folderRow, "Upload Files");
         page.locator("input[type=file]").setInputFiles(new FilePayload(fileName, contentType, content));
@@ -103,7 +117,39 @@ final class ResourcesUi {
         assertThat(rootRow()).isVisible();
     }
 
+    /** Uploads several files at once into the folder shown in the given row. */
+    void uploadFiles(Locator folderRow, List<FilePayload> files, boolean overwrite) {
+        itemAction(folderRow, "Upload Files");
+        page.locator("input[type=file]").setInputFiles(files.toArray(new FilePayload[0]));
+        if (overwrite) {
+            page.locator("#overwrite_2").check();
+        }
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        assertThat(rootRow()).isVisible();
+    }
+
+    /** Opens a folder so that its members are listed below it. */
+    void openFolder(String name) {
+        itemLink(name).first().click();
+        assertThat(rootRow()).containsText(name);
+    }
+
+    /** The access URL of the only listed item with this name. */
+    String accessUrl(String name) {
+        assertThat(row(name)).hasCount(1);
+        return row(name).locator("a[href*='/access/content/']").first().getAttribute("href");
+    }
+
     void uploadText(String folder, String fileName, String content) {
         upload(row(folder), fileName, "text/plain", content.getBytes(StandardCharsets.UTF_8), false);
+    }
+
+    /** Path under /access for a resource in the site collection, with each segment percent-encoded. */
+    static String accessPath(String siteId, String relativePath) {
+        try {
+            return new URI(null, null, "/access/content/group/" + siteId + "/" + relativePath, null).toASCIIString();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid resource path " + relativePath, e);
+        }
     }
 }
