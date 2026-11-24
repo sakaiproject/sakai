@@ -841,16 +841,18 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			continue;
 		}
 
-		// embedded fckeditor attachments
-		if (link.contains("/access/content/attachment/")) {
-			String linkRef = link.replace(link.substring(0, link.indexOf("/attachment/")), "");
-			result.add(linkRef);
-			log.info("Found inline attachment asset: {} adding to attachment list as: {}", link, linkRef);
-			continue;
-		}
-
 		// URLs below may include spaces, so URLDecode to turn back into a Sakai content ID
 		try {
+			// embedded fckeditor attachments
+			if (link.contains("/access/content/attachment/")) {
+				String linkRef = link.replace(link.substring(0, link.indexOf("/attachment/")), "");
+				linkRef = StringUtils.substringBefore(StringUtils.substringBefore(linkRef, "?"), "#");
+				linkRef = URLDecoder.decode(linkRef, "UTF-8");
+				result.add(linkRef);
+				log.info("Found inline attachment asset: {} adding to attachment list as: {}", link, linkRef);
+				continue;
+			}
+
 			// cross-site references
 			if (link.contains("/access/content/group/") && !link.contains(siteId)) {
 				String linkRef = URLDecoder.decode(link.replace(link.substring(0, link.indexOf("/group/")), ""), "UTF-8");

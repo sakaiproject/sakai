@@ -1347,11 +1347,10 @@ public class AssessmentService {
 					try{
 						securityService.pushAdvisor(securityAdvisor);
 						for (String attachment : attachments) {
-							String resourceIdOrig = "/" + StringUtils.substringBefore(
-									StringUtils.substringBefore(
-											StringUtils.substringAfter(attachment, "/access/content/"),
-											"?"),
-									"#");
+							String afterContent = StringUtils.substringAfter(attachment, "/access/content/");
+							String pathOnly = StringUtils.substringBefore(StringUtils.substringBefore(afterContent, "?"), "#");
+							String suffix = afterContent.substring(pathOnly.length());
+							String resourceIdOrig = "/" + pathOnly;
 							String resourceId = URLDecoder.decode(resourceIdOrig).trim();
 							String filename = StringUtils.substringAfterLast(resourceIdOrig, "/");
 
@@ -1368,7 +1367,11 @@ public class AssessmentService {
 
 							if (cr != null && StringUtils.isNotEmpty(filename)) {
 								ContentResource crCopy = createCopyOfContentResource(cr.getId(), filename, toContext);
-								text = StringUtils.replace(text, resourceIdOrig, StringUtils.substringAfter(crCopy.getReference(), "/content"));
+								String newAttachment = StringUtils.substringBefore(attachment, "/access/content/")
+										+ "/access/content"
+										+ StringUtils.substringAfter(crCopy.getReference(), "/content")
+										+ suffix;
+								text = StringUtils.replace(text, attachment, newAttachment);
 							}
 						}
 					}
