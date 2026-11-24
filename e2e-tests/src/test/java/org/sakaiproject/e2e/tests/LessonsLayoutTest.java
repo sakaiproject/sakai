@@ -229,10 +229,7 @@ class LessonsLayoutTest extends SakaiUiTestBase {
         assertThat(column).containsClass("colnorange-trans");
     }
 
-    /** An account outside the course roster is never rewritten by the provider refresh. */
     private TestUser newStudent(String prefix) {
-        TestUser student = sakai.createUser(prefix);
-        sakai.addMember(siteUrl, student.username(), "Student");
-        return student;
+        return lessons.newStudent(siteUrl, prefix);
     }
 }

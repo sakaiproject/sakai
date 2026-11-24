@@ -44,6 +44,26 @@ final class LessonsUi {
         assertThat(page.locator("#lessonsCurrentPageId")).isAttached();
     }
 
+    /**
+     * An account outside the course roster is never rewritten by the provider refresh, which
+     * briefly removes promoted members and can leave them with a cached permission denial.
+     * The account is removed again if it cannot join the site.
+     */
+    SakaiHelper.TestUser newStudent(String siteUrl, String prefix) {
+        SakaiHelper.TestUser student = sakai.createUser(prefix);
+        try {
+            sakai.addMember(siteUrl, student.username(), "Student");
+        } catch (RuntimeException e) {
+            try {
+                student.close();
+            } catch (RuntimeException closeFailure) {
+                e.addSuppressed(closeFailure);
+            }
+            throw e;
+        }
+        return student;
+    }
+
     Locator items() {
         return page.locator(".portletBody .item");
     }

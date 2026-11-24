@@ -50,17 +50,7 @@ class LessonsPagesAndContentTest extends SakaiUiTestBase {
     }
 
     private TestUser newStudent(String prefix) {
-        return newStudent(prefix, siteUrl);
-    }
-
-    /**
-     * An account outside the course roster is never rewritten by the provider refresh, which
-     * briefly removes promoted members and can leave them with a cached permission denial.
-     */
-    private TestUser newStudent(String prefix, String memberSiteUrl) {
-        TestUser student = sakai.createUser(prefix);
-        sakai.addMember(memberSiteUrl, student.username(), "Student");
-        return student;
+        return lessons.newStudent(siteUrl, prefix);
     }
 
     private String newPage(String prefix) {
@@ -263,7 +253,7 @@ class LessonsPagesAndContentTest extends SakaiUiTestBase {
     @Test
     void permissionChangeGrantsAndRevokesStudentEditing() {
         String permissionsSite = sakai.createFreshCourse(INSTRUCTOR, TOOLS);
-        try (TestUser student = newStudent("lessons-permissions", permissionsSite)) {
+        try (TestUser student = lessons.newStudent(permissionsSite, "lessons-permissions")) {
             lessons.open(permissionsSite);
 
             lessons.openPermissions();
