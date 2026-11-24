@@ -123,14 +123,8 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (id == null) {
             throw new IllegalArgumentException("The reference must include an id for updates (id is currently null)");
         }
-        Optional<Poll> current = pollsService.getPollByIdForReadOrEdit(id);
-        if (current.isEmpty()) {
-            throw new IllegalArgumentException("No poll found to update for the given reference: " + ref);
-        }
         Poll poll = entity instanceof PollEntity pollEntity ? pollEntity.getPoll() : (Poll) entity;
-        developerHelperService.copyBean(poll, current.get(), 0,
-                new String[] { "id", "owner", "siteId", "creationDate", "options" }, true);
-        pollsService.savePoll(current.get());
+        pollsService.updatePoll(id, poll);
     }
 
     @Deprecated

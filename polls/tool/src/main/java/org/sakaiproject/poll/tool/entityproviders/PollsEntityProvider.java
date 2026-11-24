@@ -313,16 +313,9 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"The reference must include an id for updates (id is currently null)");
 		}
-		Poll current = pollsService.getPollByIdForReadOrEdit(id).orElse(null);
-		if (current == null) {
-			throw new IllegalArgumentException(
-					"No poll found to update for the given reference: " + ref);
-		}
 		Poll poll = new Poll();
 		copyParamsToObject(params, poll);
-		developerHelperService.copyBean(poll, current, 0,
-				new String[] { "id", "owner", "siteId", "creationDate", "options" }, true);
-		pollsService.savePoll(current);
+		pollsService.updatePoll(id, poll);
 	}
 
 	@EntityCustomAction(action = "poll-delete", viewKey = EntityView.VIEW_SHOW)

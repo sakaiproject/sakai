@@ -87,7 +87,6 @@ import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.api.repository.PollRepository;
-import org.sakaiproject.poll.api.repository.PollRepository.PollIdentity;
 import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
@@ -200,7 +199,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public Poll savePoll(final Poll poll) throws SecurityException, IllegalArgumentException {
-        return savePoll(poll, true);
+        return poll != null && poll.getId() != null ? updatePoll(poll.getId(), poll, true) : savePoll(poll, true);
     }
 
     private Poll savePoll(final Poll poll, boolean cleanNewOptions) {
@@ -210,18 +209,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
         String userId = sessionManager.getCurrentSessionUserId();
         boolean isNew = poll.getId() == null;
-        if (isNew) {
-            if (!isAllowedPollAdd(poll.getSiteId())) {
-                throw new SecurityException("User " + userId + " cannot add polls to site " + poll.getSiteId());
-            }
-        } else {
-            PollIdentity existing = pollRepository.findPollIdentity(poll.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Poll not found: " + poll.getId()));
-            if (!isAllowedPollEdit(existing.siteId(), existing.owner())
-                    || !Objects.equals(existing.siteId(), poll.getSiteId())
-                    || !Objects.equals(existing.owner(), poll.getOwner())) {
-                throw new SecurityException("User " + userId + " cannot update poll " + poll.getId());
-            }
+        if (isNew && !isAllowedPollAdd(poll.getSiteId())) {
+            throw new SecurityException("User " + userId + " cannot add polls to site " + poll.getSiteId());
         }
         if (poll.getTypeOfAccess() == Poll.Access.GROUP && (poll.getGroupIds() == null || poll.getGroupIds().isEmpty())) {
             throw new IllegalArgumentException(pollsBundle.getString("poll_error_groups_required"));
@@ -255,7 +244,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll.getCreationDate() == null) poll.setCreationDate(Instant.now());
         if (StringUtils.isBlank(poll.getOwner())) poll.setOwner(userId);
 
-        Poll savedPoll = pollRepository.save(poll);
+        Poll savedPoll = isNew ? pollRepository.save(poll) : poll;
 
         log.debug("Poll {} successfully saved", poll);
 
@@ -818,7 +807,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         log.debug("merge archiveContext={} archiveServerUrl={}", mcx.archiveContext, mcx.archiveServerUrl);
 
         List<Poll> pollsList = findAllPolls(siteId);
-        Set<String> pollTexts = pollsList.stream().map(Poll::getText).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> pollTexts = pollsList.stream().map(Poll::getText).map(this::cleanupPollFormattedText)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         // Add polls not already in the site
         NodeList polls = root.getElementsByTagName("poll");
@@ -828,7 +818,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
             String pollText = poll.getText();
             if ( pollText == null ) continue;
-            if ( pollTexts.contains(pollText) ) continue;
+            if ( pollTexts.contains(cleanupPollFormattedText(pollText)) ) continue;
 
             poll.setId(null);
             poll.setSiteId(siteId);
@@ -1315,22 +1305,26 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public Poll updatePollFromEntity(String pollId, PollEntity pollEntity) throws SecurityException, IllegalArgumentException {
-        Objects.requireNonNull(pollId, "Poll ID must not be null");
         Objects.requireNonNull(pollEntity, "PollEntity must not be null");
+        return updatePoll(pollId, pollEntity.getPoll());
+    }
 
-        // Load existing poll
-        Optional<Poll> existingPollOpt = getPollByIdForReadOrEdit(pollId);
-        if (!existingPollOpt.isPresent()) {
-            throw new IllegalArgumentException("Poll not found with id: " + pollId);
+    @Override
+    public Poll updatePoll(String pollId, Poll changes) {
+        return updatePoll(pollId, changes, false);
+    }
+
+    private Poll updatePoll(String pollId, Poll updates, boolean updateOptions) {
+        Objects.requireNonNull(pollId, "Poll ID must not be null");
+        Objects.requireNonNull(updates, "Poll changes must not be null");
+        Poll existingPoll = pollRepository.findById(pollId)
+                .orElseThrow(() -> new IllegalArgumentException("Poll not found: " + pollId));
+        if (updates == existingPoll || !isAllowedPollEdit(existingPoll)
+                || (updateOptions && (!Objects.equals(existingPoll.getSiteId(), updates.getSiteId())
+                        || !Objects.equals(existingPoll.getOwner(), updates.getOwner())))) {
+            throw new SecurityException("Current user cannot update poll " + pollId);
         }
 
-        Poll existingPoll = existingPollOpt.get();
-
-        // Extract updates from PollEntity's wrapped Poll
-        Poll updates = pollEntity.getPoll();
-
-        // Apply updates to persistent entity
-        // Only update fields that are part of the domain model
         if (updates.getText() != null) {
             existingPoll.setText(updates.getText());
         }
@@ -1352,8 +1346,40 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         existingPoll.setLimitVoting(updates.isLimitVoting());
         existingPoll.setPublic(updates.isPublic());
 
-        // Save and return (savePoll handles security checks)
-        return savePoll(existingPoll);
+        if (updates.getTypeOfAccess() != null) {
+            existingPoll.setTypeOfAccess(updates.getTypeOfAccess());
+        }
+        if (updates.getGroupIds() != null) {
+            Set<String> selectedGroups = new HashSet<>(updates.getGroupIds());
+            existingPoll.getGroupIds().clear();
+            existingPoll.getGroupIds().addAll(selectedGroups);
+        }
+
+        if (updateOptions && Persistence.getPersistenceUtil().isLoaded(updates, "options")) {
+            List<Option> options = existingPoll.getOptions();
+            Map<Long, Option> existingOptions = options.stream()
+                    .collect(Collectors.toMap(Option::getId, Function.identity()));
+            List<Option> orderedOptions = new ArrayList<>();
+            for (Option submittedOption : updates.getOptions()) {
+                if (submittedOption.getId() == null) {
+                    submittedOption.setPoll(existingPoll);
+                    orderedOptions.add(submittedOption);
+                } else {
+                    Option option = existingOptions.remove(submittedOption.getId());
+                    if (option == null) {
+                        throw new IllegalArgumentException("Invalid option for poll " + pollId);
+                    }
+                    if (!Objects.equals(option.getText(), submittedOption.getText())) {
+                        option.setText(cleanupPollFormattedText(submittedOption.getText()));
+                    }
+                    option.setDeleted(submittedOption.getDeleted());
+                    orderedOptions.add(option);
+                }
+            }
+            options.clear();
+            options.addAll(orderedOptions);
+        }
+        return savePoll(existingPoll, updateOptions);
     }
 
     @Override

@@ -229,14 +229,9 @@ public class PollEditorController {
         }
 
         Poll poll = preparePollEntity(pollForm);
-        if (poll == null) {
-            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return "redirect:/votePolls";
-        }
-
         Poll saved;
         try {
-            saved = pollsService.savePoll(poll);
+            saved = isNewPoll ? pollsService.savePoll(poll) : pollsService.updatePoll(pollForm.getPollId(), poll);
         } catch (PollTextValidationException e) {
             bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("error_no_text", null, locale)));
             populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
@@ -295,18 +290,8 @@ public class PollEditorController {
     }
 
     private Poll preparePollEntity(PollForm form) {
-        Poll poll;
-        if (StringUtils.isNotBlank(form.getPollId())) {
-            Optional<Poll> p = pollsService.getPollByIdForReadOrEdit(form.getPollId());
-            if (p.isEmpty()) {
-                return null;
-            } else {
-                poll = p.get();
-            }
-        } else {
-            poll = new Poll();
-            poll.setSiteId(toolManager.getCurrentPlacement().getContext());
-        }
+        Poll poll = new Poll();
+        poll.setSiteId(toolManager.getCurrentPlacement().getContext());
 
         poll.setText(form.getText());
         poll.setDescription(StringUtils.defaultString(form.getDetails()));

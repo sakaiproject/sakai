@@ -39,10 +39,14 @@ import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.MergeConfig;
+import org.sakaiproject.util.Xml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = PollsServiceTestConfiguration.class)
@@ -55,6 +59,40 @@ public class PollsEntityTransferrerTest {
     @Autowired private SiteService siteService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
+
+    @Test
+    public void archiveMergeSkipsDuplicateQuestionsWithDifferentFormatting() {
+        String siteId = UUID.randomUUID().toString();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("instructor");
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        when(securityService.unlock("instructor", PollConstants.PERMISSION_ADD, "/site/" + siteId)).thenReturn(true);
+        for (String question : List.of("<p>Wrapped in storage</p>", "Wrapped in archive")) {
+            Poll existing = new Poll();
+            existing.setSiteId(siteId);
+            existing.setOwner("instructor");
+            existing.setCreationDate(Instant.now());
+            existing.setText(question);
+            pollRepository.save(existing);
+        }
+
+        Document document = Xml.createDocument();
+        Element archive = document.createElement("polls");
+        document.appendChild(archive);
+        for (String question : List.of("Wrapped in storage", "<p>Wrapped in archive</p>", "A new question")) {
+            Element archived = document.createElement("poll");
+            archived.setAttribute("title", question);
+            archive.appendChild(archived);
+        }
+
+        ArgumentCaptor<EntityProducer> producer = ArgumentCaptor.forClass(EntityProducer.class);
+        verify(entityManager).registerEntityProducer(producer.capture(), eq(PollConstants.REFERENCE_ROOT));
+        MergeConfig config = new MergeConfig();
+        config.creatorId = "instructor";
+        producer.getValue().merge(siteId, archive, "", "original-site", config);
+
+        List<String> questions = pollsService.findAllPolls(siteId).stream().map(Poll::getText).sorted().toList();
+        assertEquals(List.of("<p>Wrapped in storage</p>", "A new question", "Wrapped in archive"), questions);
+    }
 
     @Test
     public void registeredCopyCallbackUsesServiceTransaction() {

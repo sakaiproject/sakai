@@ -754,15 +754,16 @@ public class PollsServiceTests {
     @Test
     public void testSavePollRequiresAddForNewPollsAndEditForExistingPolls() {
         String pollId = createPoll(USER, LOCATION1_ID);
-        Poll poll = pollsService.getPollById(pollId).orElseThrow();
+        Poll poll = new Poll();
         poll.setText("Updated question");
 
         Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_ANY, LOCATION1_REF)).thenReturn(false);
-        Assert.assertThrows(SecurityException.class, () -> pollsService.savePoll(poll));
+        Assert.assertThrows(SecurityException.class, () -> pollsService.updatePoll(pollId, poll));
 
         Mockito.when(securityService.unlock(USER, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
         Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_ANY, LOCATION1_REF)).thenReturn(true);
-        Assert.assertEquals("Updated question", pollsService.savePoll(poll).getText());
+        Assert.assertEquals("Updated question", pollsService.updatePoll(pollId, poll).getText());
+        Assert.assertEquals(2, pollsService.getVisibleOptionsForPoll(pollId).size());
         Assert.assertThrows(SecurityException.class, () -> createPoll(USER, LOCATION1_ID));
     }
 

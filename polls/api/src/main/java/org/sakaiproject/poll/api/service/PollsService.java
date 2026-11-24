@@ -370,6 +370,11 @@ public interface PollsService {
     Poll updatePollFromEntity(String pollId, PollEntity pollEntity) throws SecurityException, IllegalArgumentException;
 
     /**
+     * Applies poll settings to the stored poll. Ownership and options are managed separately.
+     */
+    Poll updatePoll(String pollId, Poll changes);
+
+    /**
      * Create new poll from PollEntity (from XHR/REST requests).
      *
      * @param pollEntity PollEntity with poll data
