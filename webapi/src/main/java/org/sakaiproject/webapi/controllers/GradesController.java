@@ -39,14 +39,14 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.GradableObjectRestBean;
 import org.sakaiproject.webapi.beans.GradebookItemRestBean;
 import org.sakaiproject.webapi.beans.GradebookRestBean;
 import org.sakaiproject.webapi.beans.GradeRestBean;
+import org.sakaiproject.webapi.services.GradebookItemOpenDateService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,7 +57,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.annotation.Resource;
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -80,7 +79,8 @@ public class GradesController extends AbstractSakaiApiController {
     @Resource
     private SecurityService securityService;
 
-    private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+    @Autowired
+    private GradebookItemOpenDateService gradebookItemOpenDateService;
 
     private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = siteId -> {
 
@@ -400,7 +400,7 @@ public class GradesController extends AbstractSakaiApiController {
             .or(() -> findItem(items, item -> externalId.equals(item.getReference())))
             .or(() -> findItem(items, item -> StringUtils.endsWith(item.getExternalId(), tail) || StringUtils.endsWith(item.getReference(), tail)));
 
-        return match.map(item -> ResponseEntity.ok(GradableObjectRestBean.of(siteId, getEntityId(item, externalId), item, getSamigoOpenDate(item))))
+        return match.map(item -> ResponseEntity.ok(GradableObjectRestBean.of(siteId, getEntityId(item, externalId), item, gradebookItemOpenDateService.getOpenDate(item))))
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -449,22 +449,5 @@ public class GradesController extends AbstractSakaiApiController {
 
         String storedId = StringUtils.defaultIfBlank(item.getExternalId(), item.getReference());
         return storedId.substring(storedId.lastIndexOf('/') + 1);
-    }
-
-    private Instant getSamigoOpenDate(Assignment item) {
-
-        if (!SamigoConstants.TOOL_ID.equals(item.getExternalAppName())) {
-            return null;
-        }
-
-        try {
-            // the published assessment's start date, or its creation date if no start date is set
-            PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessmentQuick(item.getExternalId());
-            Date openDate = assessment.getStartDate() != null ? assessment.getStartDate() : assessment.getCreatedDate();
-            return Optional.ofNullable(openDate).map(Date::toInstant).orElse(null);
-        } catch (RuntimeException e) {
-            log.warn("Could not get the open date of published assessment {}: {}", item.getExternalId(), e.toString());
-            return null;
-        }
     }
 }

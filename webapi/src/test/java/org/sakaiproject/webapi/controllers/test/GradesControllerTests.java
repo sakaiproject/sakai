@@ -57,6 +57,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.webapi.controllers.GradesController;
+import org.sakaiproject.webapi.services.GradebookItemOpenDateService;
 
 import static org.mockito.Mockito.*;
 
@@ -131,7 +132,10 @@ public class GradesControllerTests extends BaseControllerTests {
         controller.setPortalService(portalService);
         controller.setSecurityService(securityService);
         controller.setSiteService(siteService);
-        controller.setPublishedAssessmentService(publishedAssessmentService);
+
+        GradebookItemOpenDateService gradebookItemOpenDateService = new GradebookItemOpenDateService();
+        gradebookItemOpenDateService.setPublishedAssessmentService(publishedAssessmentService);
+        controller.setGradebookItemOpenDateService(gradebookItemOpenDateService);
 
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn(user1Id);
