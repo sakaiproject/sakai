@@ -45,19 +45,20 @@ class SectionsRosterSearchTest extends SakaiUiTestBase {
         assertTrue(sections.count() > 0, "the course has no roster section to filter by");
         String section = sections.first().getAttribute("value");
         sakai.submitForm(() -> filter.selectOption(section));
+        sakai.waitForPortalFocus();
         assertThat(filter).hasValue(section);
         assertThat(search).hasAttribute("type", "search");
         assertThat(students.nth(1)).isVisible();
         int listed = students.count();
 
-        sakai.submitForm(() -> {
-            search.fill("student0011");
-            search.press("Enter");
-        });
+        search.fill("student0011");
+        assertThat(search).hasValue("student0011");
+        sakai.submitForm(() -> search.press("Enter"));
         assertThat(students).hasCount(1);
         assertThat(search).hasValue("student0011");
 
         // The returned form must install its input handler before we clear the field.
+        sakai.waitForPortalFocus();
         assertThat(search).hasAttribute("type", "search");
         // deleting the text, as the native clear button does, drops the search and keeps the section
         sakai.submitForm(() -> search.fill(""));
