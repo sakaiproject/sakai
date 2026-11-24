@@ -12,6 +12,17 @@ syn_site_heading=Site
 syn_hide_tooltip=Hide this site from this forums/messages view
 no_discussions=No discussions
 widget_title=Discussions
+save_filter=Save filter
+reset_filter=Reset filter
+close_filters=Hide filters
+sort_label=Sort discussions
+sort_none=Sort
+sort_messages_most_to_least=Messages: Most to least
+sort_messages_least_to_most=Messages: Least to most
+sort_forums_most_to_least=Discussions: Most to least
+sort_forums_least_to_most=Discussions: Least to most
+sort_site_a_to_z=Site: A to Z
+sort_site_z_to_a=Site: Z to A
 `;
 
 export const userId = "adrian";

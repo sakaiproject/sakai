@@ -1,4 +1,5 @@
 import { css, html, nothing } from "lit";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { LionCalendar } from "@lion/ui/calendar.js";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-icon";
@@ -12,17 +13,21 @@ export class SakaiCalendar extends LionCalendar {
   static properties = {
 
     siteId: { attribute: "site-id", type: String },
+    userId: { attribute: "user-id", type: String },
     defer: { type: Boolean },
     dashboard: { type: Boolean },
     tileW: { attribute: "tile-w", type: Number },
     tileH: { attribute: "tile-h", type: Number },
     filtersOpen: { attribute: "filters-open", type: Boolean },
+    savedFilters: { attribute: false, type: Object },
+    saveFilters: { attribute: "save-filters", type: Boolean },
     _daysEvents: { state: true },
     _events: { state: true },
     _i18n: { state: true },
     _sites: { state: true },
     _calendarExpanded: { state: true },
     _selectedDayStart: { state: true },
+    _pickerSiteId: { state: true },
   };
 
   constructor() {
@@ -114,8 +119,21 @@ export class SakaiCalendar extends LionCalendar {
 
       this.selectedDate = new Date(this._selectedDayStart);
       this._setDaysEvents(this._selectedDayStart);
+      this._applySavedFilters();
     })
     .catch (error => console.error(error));
+  }
+
+  _applySavedFilters() {
+
+    if (this.siteId || !this.savedFilters?.siteId || this.savedFilters.siteId === SakaiSitePicker.ALL) {
+      return;
+    }
+
+    this._pickerSiteId = this.savedFilters.siteId;
+    this._selectedSite = this.savedFilters.siteId;
+    this._currentFilter = "sites";
+    this._filter();
   }
 
   _filter() {
@@ -133,8 +151,59 @@ export class SakaiCalendar extends LionCalendar {
   _siteSelected(e) {
 
     this._selectedSite = e.detail.value;
+    this._pickerSiteId = e.detail.value === SakaiSitePicker.ALL ? undefined : e.detail.value;
     this._currentFilter = "sites";
     this._filter();
+  }
+
+  _resolveUserId() {
+
+    return this.userId && this.userId !== "undefined" ? this.userId : globalThis.portal?.user?.id;
+  }
+
+  _filterPayload() {
+
+    return {
+      siteId: this._pickerSiteId || SakaiSitePicker.ALL,
+    };
+  }
+
+  _saveFilters() {
+
+    const userId = this._resolveUserId();
+    if (!userId) {
+      return;
+    }
+
+    const url = `/api/users/${userId}/dashboard/filters/calendar`;
+    fetch(url, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(this._filterPayload()),
+    }).catch(error => console.error(error));
+  }
+
+  _resetFilters() {
+
+    const userId = this._resolveUserId();
+    if (!userId) {
+      return;
+    }
+
+    const url = `/api/users/${userId}/dashboard/filters/calendar`;
+    fetch(url, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    }).catch(error => console.error(error));
+
+    this._pickerSiteId = undefined;
+    this._selectedSite = SakaiSitePicker.ALL;
+    this._currentFilter = "sites";
+    this._events = [ ...this._allEvents ];
+    this._setDaysEvents(this._selectedDayStart);
   }
 
   _todayClicked() {
@@ -156,7 +225,24 @@ export class SakaiCalendar extends LionCalendar {
 
     return html`
       <div class="dashboard-filter-toolbar">
-        <div class="dashboard-filter-toolbar-start"></div>
+        <div class="dashboard-filter-toolbar-start">
+          ${this.saveFilters ? html`
+            <button type="button"
+                class="btn btn-icon btn-sm"
+                @click=${this._saveFilters}
+                title="${this._i18n?.save_filter}"
+                aria-label="${this._i18n?.save_filter}">
+              <span class="si si-save fs-6" aria-hidden="true"></span>
+            </button>
+            <button type="button"
+                class="btn btn-icon btn-sm"
+                @click=${this._resetFilters}
+                title="${this._i18n?.reset_filter}"
+                aria-label="${this._i18n?.reset_filter}">
+              <span class="si si-arrow-clockwise fs-6" aria-hidden="true"></span>
+            </button>
+          ` : nothing}
+        </div>
         <button type="button"
             class="btn btn-icon btn-sm"
             @click=${this._closeFilters}
@@ -169,6 +255,7 @@ export class SakaiCalendar extends LionCalendar {
         <div id="site-filter">
           <sakai-site-picker
               .sites=${this._sites}
+              site-id="${ifDefined(this._pickerSiteId)}"
               @sites-selected=${this._siteSelected}>
           </sakai-site-picker>
         </div>

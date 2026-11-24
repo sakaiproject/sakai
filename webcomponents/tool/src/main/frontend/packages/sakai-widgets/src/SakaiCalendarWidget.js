@@ -5,6 +5,10 @@ import { SakaiDashboardWidget } from "./SakaiDashboardWidget.js";
 
 export class SakaiCalendarWidget extends SakaiDashboardWidget {
 
+  static properties = {
+    savedFilters: { attribute: false, type: Object },
+  };
+
   constructor() {
 
     super();
@@ -46,7 +50,9 @@ export class SakaiCalendarWidget extends SakaiDashboardWidget {
         tile-h="${this.tileH || 1}"
         site-id=${ifDefined(this.siteId ? this.siteId : undefined)}
         user-id=${ifDefined(this.userId ? this.userId : undefined)}
+        ?save-filters=${Boolean(this.userId) && !this.siteId}
         ?filters-open=${this.filtersOpen}
+        .savedFilters=${this.savedFilters}
         @filters-closed=${this._closeFilters}
       >
       </sakai-calendar>

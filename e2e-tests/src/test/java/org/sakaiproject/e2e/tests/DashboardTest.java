@@ -96,25 +96,51 @@ class DashboardTest extends SakaiUiTestBase {
         String userId = (String) page.evaluate("portal.user.id");
         org.junit.jupiter.api.Assertions.assertNotNull(userId);
 
-        com.microsoft.playwright.APIResponse clear = page.request().put(
-            "/api/users/" + userId + "/dashboard/filters/courses",
-            com.microsoft.playwright.options.RequestOptions.create()
-                .setHeader("Content-Type", "application/json")
-                .setData("{}"));
-        org.junit.jupiter.api.Assertions.assertTrue(clear.ok());
+        String[][] widgetPayloads = {
+            { "courses", "{\"filter\":\"courses\",\"term\":\"none\",\"sort\":\"alerts_first\",\"density\":\"compact\",\"alertsFirst\":true}",
+                "alerts_first", "compact" },
+            { "grades", "{\"sort\":\"score_high_to_low\",\"siteId\":\"all\"}", "score_high_to_low", null },
+            { "announcements", "{\"sort\":\"latest_first\",\"siteId\":\"all\"}", "latest_first", null },
+            { "calendar", "{\"siteId\":\"site-one\"}", "site-one", null },
+            { "tasks", "{\"filter\":\"overdue\",\"sort\":\"due_earliest_first\"}", "overdue", "due_earliest_first" },
+            { "forums", "{\"sort\":\"messages_most_to_least\",\"siteId\":\"all\"}", "messages_most_to_least", null },
+        };
 
-        com.microsoft.playwright.APIResponse save = page.request().put(
-            "/api/users/" + userId + "/dashboard/filters/courses",
-            com.microsoft.playwright.options.RequestOptions.create()
-                .setHeader("Content-Type", "application/json")
-                .setData("{\"filter\":\"courses\",\"term\":\"none\",\"sort\":\"alerts_first\",\"density\":\"compact\",\"alertsFirst\":true}"));
-        org.junit.jupiter.api.Assertions.assertTrue(save.ok());
+        for (String[] entry : widgetPayloads) {
+            String widgetId = entry[0];
+            String payload = entry[1];
+            String expected1 = entry[2];
+            String expected2 = entry[3];
 
-        com.microsoft.playwright.APIResponse dashboard = page.request().get("/api/users/" + userId + "/dashboard");
-        org.junit.jupiter.api.Assertions.assertTrue(dashboard.ok());
-        String text = dashboard.text();
-        org.junit.jupiter.api.Assertions.assertTrue(text.contains("alerts_first"), text);
-        org.junit.jupiter.api.Assertions.assertTrue(text.contains("compact"), text);
+            com.microsoft.playwright.APIResponse clear = page.request().put(
+                "/api/users/" + userId + "/dashboard/filters/" + widgetId,
+                com.microsoft.playwright.options.RequestOptions.create()
+                    .setHeader("Content-Type", "application/json")
+                    .setData("{}"));
+            org.junit.jupiter.api.Assertions.assertTrue(clear.ok(), widgetId + " clear");
+
+            com.microsoft.playwright.APIResponse save = page.request().put(
+                "/api/users/" + userId + "/dashboard/filters/" + widgetId,
+                com.microsoft.playwright.options.RequestOptions.create()
+                    .setHeader("Content-Type", "application/json")
+                    .setData(payload));
+            org.junit.jupiter.api.Assertions.assertTrue(save.ok(), widgetId + " save");
+
+            com.microsoft.playwright.APIResponse dashboard = page.request().get("/api/users/" + userId + "/dashboard");
+            org.junit.jupiter.api.Assertions.assertTrue(dashboard.ok(), widgetId + " get");
+            String text = dashboard.text();
+            org.junit.jupiter.api.Assertions.assertTrue(text.contains(expected1), widgetId + ": " + text);
+            if (expected2 != null) {
+                org.junit.jupiter.api.Assertions.assertTrue(text.contains(expected2), widgetId + ": " + text);
+            }
+
+            com.microsoft.playwright.APIResponse reset = page.request().put(
+                "/api/users/" + userId + "/dashboard/filters/" + widgetId,
+                com.microsoft.playwright.options.RequestOptions.create()
+                    .setHeader("Content-Type", "application/json")
+                    .setData("{}"));
+            org.junit.jupiter.api.Assertions.assertTrue(reset.ok(), widgetId + " reset");
+        }
     }
 
     @Test

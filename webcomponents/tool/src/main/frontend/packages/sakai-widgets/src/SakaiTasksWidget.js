@@ -5,6 +5,10 @@ import "@sakai-ui/sakai-tasks/sakai-tasks.js";
 
 export class SakaiTasksWidget extends SakaiDashboardWidget {
 
+  static properties = {
+    savedFilters: { attribute: false, type: Object },
+  };
+
   constructor() {
 
     super();
@@ -19,6 +23,8 @@ export class SakaiTasksWidget extends SakaiDashboardWidget {
         user-id="${ifDefined(this.userId ? this.userId : "")}"
         site-id="${ifDefined(this.siteId ? this.siteId : "")}"
         page-size="${this._pageSize()}"
+        ?save-filters=${Boolean(this.userId)}
+        .savedFilters=${this.savedFilters}
       >
       </sakai-tasks>
     `;

@@ -142,6 +142,14 @@ export class SakaiGrades extends SakaiPageableElement {
 
   _filterPayload() {
 
+    if (this.siteId) {
+      const payload = { sort: this._currentSort };
+      if (this.savedFilters?.siteId) {
+        payload.siteId = this.savedFilters.siteId;
+      }
+      return payload;
+    }
+
     return {
       sort: this._currentSort,
       siteId: this._pickerSiteId || SakaiSitePicker.ALL,
