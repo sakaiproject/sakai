@@ -25,10 +25,12 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.model.DateUtils;
 import org.sakaiproject.entitybroker.providers.model.EnrollmentData;
 
 import lombok.extern.slf4j.Slf4j;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Provides a REST API for working with enrollments.
@@ -114,7 +116,7 @@ public class EnrollmentEntityProvider extends AbstractCmEntityProvider {
   private String[] splitEid(String eid) {
     String[] eids = eid.split(",");
     if (eids.length != 2)
-      throw new IllegalArgumentException("Id for enrollment must be of the form <user_eid>,<enrollment_set_eid>");
+      throw new EntityException("Id for enrollment must be of the form <user_eid>,<enrollment_set_eid>", eid, HttpServletResponse.SC_BAD_REQUEST);
     return eids;
   }
 
