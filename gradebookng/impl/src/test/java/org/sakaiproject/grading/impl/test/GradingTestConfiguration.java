@@ -23,7 +23,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -98,11 +97,5 @@ public class GradingTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.plus.api.PlusService")
     public PlusService plusService() {
         return mock(PlusService.class);
-    }
-
-    // The grade notification handler in components.xml registers itself with this
-    @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")
-    public UserMessagingService userMessagingService() {
-        return mock(UserMessagingService.class);
     }
 }
