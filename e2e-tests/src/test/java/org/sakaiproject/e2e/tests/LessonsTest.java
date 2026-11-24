@@ -104,10 +104,12 @@ class LessonsTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Lessons");
 
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click(new Locator.ClickOptions().setForce(true));
-        page.locator(".add-checklist-link:visible").first().click(new Locator.ClickOptions().setForce(true));
+        page.locator("#addcontent").click();
+        Locator menu = page.locator("#addContentDiv");
+        assertThat(menu).isFocused();
+        menu.locator(".add-checklist-link").click();
 
-        Locator nameInput = page.locator("#name");
+        Locator nameInput = page.locator("form.checklistForm #name");
         assertThat(nameInput).isVisible();
         nameInput.fill("Checklist");
 
