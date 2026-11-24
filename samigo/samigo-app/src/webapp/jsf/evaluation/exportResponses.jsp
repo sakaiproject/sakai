@@ -101,6 +101,7 @@
 
 <h:form id="downloadFileSubmissions" rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 0}">
   <h:inputHidden id="publishedId" value="#{downloadFileSubmissions.publishedAssessmentId}" />
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <h:panelGroup layout="block" styleClass="samigo-export-files">
     <h2 class="samigo-download-heading">
       <h:outputText value="#{evaluationMessages.title_download_file_submissions}"/>

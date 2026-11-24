@@ -25,6 +25,9 @@ package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -313,30 +316,34 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
   
   private void processOneMediaData(ZipOutputStream zos, MediaData mediaData, boolean anonymous, int numberSubmission) 
   throws IOException {
-	  int BUFFER_SIZE = 2048;
-	  byte data[] = new byte[ BUFFER_SIZE ];
-	  int count = 0;
 	  String filename = getFilename(mediaData, anonymous, numberSubmission);
 	  //SAM-1468 we need to ensure the fileName is unique
 	  filename = getUniqueFilename(filename);
-	  try (InputStream mediaStream = mediaData.openMediaStream();
-			  BufferedInputStream bufInputStream = mediaStream != null ? new BufferedInputStream(mediaStream) : null) {
-		  if (bufInputStream == null) {
-			  log.warn("No media stream available for mediaId={}", mediaData.getMediaId());
-			  return;
+	  Path stagedFile = null;
+	  try {
+		  stagedFile = Files.createTempFile("samigo-media-", ".part");
+		  try (InputStream mediaStream = mediaData.openMediaStream()) {
+			  if (mediaStream == null) {
+				  log.warn("No media stream available for mediaId={}", mediaData.getMediaId());
+				  return;
+			  }
+			  Files.copy(mediaStream, stagedFile, StandardCopyOption.REPLACE_EXISTING);
 		  }
-		  zos.putNextEntry(new ZipEntry(filename));
-		  while ((count = bufInputStream.read(data, 0, BUFFER_SIZE)) != -1) {
-			  zos.write(data, 0, count);
+		  try (InputStream stagedStream = new BufferedInputStream(Files.newInputStream(stagedFile))) {
+			  zos.putNextEntry(new ZipEntry(filename));
+			  stagedStream.transferTo(zos);
+			  zos.closeEntry();
 		  }
 	  } catch (ServerOverloadException e) {
 		  log.error("Error streaming media into zip for mediaId={}: {}", mediaData.getMediaId(), e.getMessage());
 		  throw new IOException(e);
 	  } finally {
-		  try {
-			  zos.closeEntry();
-		  } catch (IOException e) {
-			  log.error(e.getMessage());
+		  if (stagedFile != null) {
+			  try {
+				  Files.deleteIfExists(stagedFile);
+			  } catch (IOException e) {
+				  log.warn("Could not delete staged media file {}: {}", stagedFile, e.getMessage());
+			  }
 		  }
 	  }
   }

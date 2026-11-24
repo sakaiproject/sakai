@@ -222,9 +222,20 @@ public class ShowMediaServlet extends HttpServlet
     		  BufferedOutputStream buf_outputStream = new BufferedOutputStream(res.getOutputStream())) {
 
         if (buf_inputStream != null)  {
-        	// skip to the start of the possible range request
-        	buf_inputStream.skip(start); 
-        	
+        	long remaining = start;
+        	while (remaining > 0) {
+        		long skipped = buf_inputStream.skip(remaining);
+        		if (skipped > 0) {
+        			remaining -= skipped;
+        			continue;
+        		}
+        		if (buf_inputStream.read() == -1) {
+        			remaining = 0;
+        			break;
+        		}
+        		remaining--;
+        	}
+
         	int bytesLeft = rangeContentLength;
         	byte[] buffer = new byte[1024];
         	int i;

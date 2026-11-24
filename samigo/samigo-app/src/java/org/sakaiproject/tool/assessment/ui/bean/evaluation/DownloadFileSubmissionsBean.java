@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
@@ -174,8 +175,12 @@ public class DownloadFileSubmissionsBean implements Serializable {
 		HttpServletResponse res = (HttpServletResponse) context.getExternalContext().getResponse();
 		String siteId = AgentFacade.getCurrentSiteId();
 		List<String> selectedQuestions = ContextUtil.paramArrayValueLike("questionCheckbox");
-		downloadFiles(req, res, siteId, firstTargetSelected, sectionsSelected, selectedQuestions);
-		context.responseComplete();
+		if (downloadFiles(req, res, siteId, firstTargetSelected, sectionsSelected, selectedQuestions)) {
+			context.responseComplete();
+		} else {
+			context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+					rb.getString("download_file_submissions_select"), null));
+		}
 	}
 
 	/**
