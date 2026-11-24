@@ -25,7 +25,12 @@ import com.microsoft.playwright.options.LoadState;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
@@ -103,11 +108,20 @@ class LessonsReleaseTest extends SakaiUiTestBase {
         settings.locator("#release_date").fill(releaseDate.format(DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm")));
         lessons.savePageSettings(settings);
         assertThat(page.getByText("Future content")).isVisible();
+        // Lessons reads the date in the instructor's time zone and shows it in the student's one.
+        String timeZone = (String) page.evaluate("() => portal.user.timezone");
 
         try (TestUser student = newStudent("lessons-release-date")) {
+            sakai.login(student.username());
+            sakai.setUserTimeZone(student.username(), timeZone);
             openAsStudent(student, title);
-            assertThat(page.getByText("This page will not be available until")).containsText(
-                String.valueOf(releaseDate.getYear()));
+            String expected = releaseDate.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                .withLocale(Locale.US));
+            // JDK versions differ in the space they put before AM and PM. Playwright runs the pattern as a
+            // JavaScript regex, where \s also matches no-break spaces and Pattern.quote is not understood.
+            assertThat(page.getByText("This page will not be available until")).containsText(Pattern.compile(
+                Arrays.stream(expected.split("[\\s\\u202f]+")).map(part -> part.replaceAll("[\\\\^$.|?*+()\\[\\]{}]", "\\\\$0"))
+                    .collect(Collectors.joining("\\s+"))));
             assertThat(page.getByText("Future content")).hasCount(0);
         }
     }
