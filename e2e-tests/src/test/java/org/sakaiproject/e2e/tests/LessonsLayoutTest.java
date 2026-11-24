@@ -101,6 +101,7 @@ class LessonsLayoutTest extends SakaiUiTestBase {
         Locator settings = lessons.openColumnSettings(column);
         // Typing fires the key event that enables the collapsible option.
         settings.locator("#sectionTitle").pressSequentially("Collapsible section");
+        assertThat(settings.locator("#sectionTitle")).hasValue("Collapsible section");
         settings.locator("#collapsible").check();
         lessons.saveColumnSettings(settings);
 

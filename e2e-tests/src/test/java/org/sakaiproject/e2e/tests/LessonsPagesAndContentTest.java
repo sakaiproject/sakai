@@ -17,7 +17,6 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
@@ -169,11 +168,11 @@ class LessonsPagesAndContentTest extends SakaiUiTestBase {
         lessons.addText("<p>Second entry</p>");
 
         lessons.openReorder();
-        String before = page.locator("#order").inputValue();
+        sakai.waitForPortalFocus();
         Locator second = lessons.reorderItem("Second entry");
-        second.focus();
-        page.keyboard().press("Control+ArrowUp");
-        assertNotEquals(before, page.locator("#order").inputValue());
+        assertThat(second).hasAttribute("draggable", "true");
+        second.press("Control+ArrowUp");
+        assertThat(page.locator("#reorderCol1 .reorder-item").first()).containsText("Second entry");
         lessons.saveReorder();
 
         assertThat(lessons.items().first()).containsText("Second entry");

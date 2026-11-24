@@ -150,9 +150,12 @@ final class LessonsUi {
     /** Typing fires the key events that enable the collapsible options. */
     Locator openSectionLayout(String title) {
         page.locator("button[data-bs-target='#layout-dialog']").click();
-        assertThat(page.locator("#layout-dialog")).isVisible();
+        // Bootstrap moves focus to the modal at the end of its opening transition.
+        assertThat(page.locator("#layout-dialog")).isFocused();
         Locator form = page.locator("#sectionlayout form");
-        form.locator("#layout-section-title").pressSequentially(title);
+        Locator titleField = form.locator("#layout-section-title");
+        titleField.pressSequentially(title);
+        assertThat(titleField).hasValue(title);
         return form;
     }
 
@@ -185,7 +188,7 @@ final class LessonsUi {
     Locator openColumnSettings(Locator column) {
         column.locator(".columnopen").click();
         Locator dialog = page.locator("#column-dialog");
-        assertThat(dialog).isVisible();
+        assertThat(dialog).isFocused();
         return dialog;
     }
 
