@@ -175,6 +175,18 @@ jobs:
           tail -n 80 tomcat/logs/catalina.out
           exit 1
 
+      - name: Verify instructor Home before parallel tests
+        id: instructor-home-preflight
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PLAYWRIGHT_BASE_URL: http://localhost:8080
+        run: |
+          set -o pipefail
+          mkdir -p e2e-tests/target
+          mvn -B -ntp -f e2e-tests/pom.xml -Dsakai.test.forks=1 \
+            -Dtest=LoginTest#reusableLoginHelperCanAccessProtectedPages test 2>&1 \
+            | tee e2e-tests/target/playwright-java-preflight.log
+
       - name: Run Playwright Java tests
         id: playwright-tests
         env:
@@ -221,6 +233,9 @@ jobs:
           if [ -f e2e-tests/target/playwright-java-run.log ]; then
             cp e2e-tests/target/playwright-java-run.log playwright-java-artifacts/
           fi
+          if [ -f e2e-tests/target/playwright-java-preflight.log ]; then
+            cp e2e-tests/target/playwright-java-preflight.log playwright-java-artifacts/
+          fi
 
           if [ -d e2e-tests/target/surefire-reports ]; then
             awk '
@@ -252,6 +267,7 @@ jobs:
           fi
 
           if [ ! -e playwright-java-artifacts/surefire-reports ] \
+            && [ ! -f playwright-java-artifacts/playwright-java-preflight.log ] \
             && [ ! -f playwright-java-artifacts/playwright-java-run.log ]; then
             echo "No Playwright Java artifacts were produced in this run." > playwright-java-artifacts/README.txt
           fi
@@ -272,6 +288,7 @@ jobs:
             echo "## Sakai server and test status"
             echo ""
             echo "- Readiness: ${{ steps.wait-for-sakai.outcome }}"
+            echo "- Instructor Home preflight: ${{ steps.instructor-home-preflight.outcome }}"
             echo "- Final server check: ${{ steps.server-check.outcome }}"
             case '${{ steps.playwright-tests.outcome }}' in
               success) echo "- Browser tests: passed" ;;

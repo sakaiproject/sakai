@@ -104,6 +104,8 @@ class LoginTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("^Home$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
 
         page.navigate("/portal/site/~" + username);
+        assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("Worksite Setup").setExact(true)).first()).isVisible();
         page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).first().click();
         assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
