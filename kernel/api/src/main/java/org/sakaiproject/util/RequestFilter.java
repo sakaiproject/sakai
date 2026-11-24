@@ -47,6 +47,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadByteCountLimitException;
 import org.apache.commons.fileupload2.core.FileUploadException;
 import org.apache.commons.fileupload2.core.FileUploadSizeException;
 import org.apache.commons.fileupload2.core.DiskFileItem;
@@ -156,6 +157,8 @@ public class RequestFilter implements Filter
 	 * request).
 	 */
 	protected static final String CONFIG_MAX_PER_FILE = "upload.maxPerFile";
+	private static final String CONFIG_REQUEST_OVERHEAD = "upload.requestOverheadBytes";
+	private static final long DEFAULT_UPLOAD_OVERHEAD = 64L * 1024L;
 	/** sakaiHttpSession setting for don't do anything. */
 	protected final static int CONTAINER_SESSION = 0;
 	/** sakaiHttpSession setting for use the sakai wide session. */
@@ -235,6 +238,8 @@ public class RequestFilter implements Filter
 	protected long m_uploadMaxSize = 1L * 1024L * 1024L;
 
 	protected long m_uploadCeiling = 1L * 1024L * 1024L;
+
+	private long uploadRequestOverhead = DEFAULT_UPLOAD_OVERHEAD;
 
 	protected int m_uploadThreshold = 1024;
 
@@ -866,6 +871,12 @@ public class RequestFilter implements Filter
 			m_uploadMaxPerFile = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_MAX_PER_FILE)).booleanValue();
 		}
 
+		String requestOverhead = filterConfig.getInitParameter(CONFIG_REQUEST_OVERHEAD);
+		if (requestOverhead != null)
+		{
+			uploadRequestOverhead = Long.parseLong(requestOverhead);
+		}
+
 		// Note: if set to continue processing max exceeded uploads, we only support per-file max, not overall max
 		if (m_uploadContinue && !m_uploadMaxPerFile)
 		{
@@ -988,14 +999,9 @@ public class RequestFilter implements Filter
 		// to let commons-fileupload throw the exception on over-max, and also halt full processing of input fields
 		if (!m_uploadContinue)
 		{
-			// Apache Commons FileUpload uses >= internally, but we want to allow files exactly at the limit
-			// Add margin to account for HTTP multipart protocol overhead:
-			// - HTTP headers (~250 bytes), multipart boundaries (~300 bytes), form fields (~350 bytes)
-			// - Total typical overhead: ~1KB, but use 64KB margin for safety with large files
-			long margin = 64L * 1024L; // 64KB margin for multipart overhead
-
-			upload.setMaxSize(uploadMax + margin);
-			upload.setMaxFileSize(uploadMax + margin);
+			// Allow room for multipart metadata and application form fields on the full request.
+			upload.setMaxSize(uploadMax + uploadRequestOverhead);
+			upload.setMaxFileSize(uploadMax + DEFAULT_UPLOAD_OVERHEAD);
 		}
 
 		try
@@ -1080,25 +1086,16 @@ public class RequestFilter implements Filter
 		}
 		catch (FileUploadSizeException ex)
 		{
-			log.info("Upload size limit exceeded: " + ((upload.getMaxSize() / 1024L) / 1024L));
+			long limit = ex instanceof FileUploadByteCountLimitException ? upload.getMaxFileSize() : upload.getMaxSize();
+			long limitMiB = limit / (1024L * 1024L);
+			log.info("Upload size limit exceeded: {}", limitMiB);
 
 			// DON'T throw an exception, instead note the exception
 			// so that the tool down-the-line can handle the problem
 			req.setAttribute("upload.status", "size_limit_exceeded");
 			req.setAttribute("upload.exception", ex);
-			req.setAttribute("upload.limit", Long.valueOf((upload.getMaxSize() / 1024L) / 1024L));
+			req.setAttribute("upload.limit", limitMiB);
 		}
-		// TODO: put in for commons-fileupload 1.2
-		// catch (FileUploadBase.FileSizeLimitExceededException ex)
-		// {
-		// log.info("Upload size limit exceeded: " + ((upload.getFileSizeMax() / 1024L) / 1024L));
-		//
-		// // DON'T throw an exception, instead note the exception
-		// // so that the tool down-the-line can handle the problem
-		// req.setAttribute("upload.status", "size_limit_exceeded");
-		// req.setAttribute("upload.exception", ex);
-		// req.setAttribute("upload.limit", Long.valueOf((upload.getFileSizeMax() / 1024L) / 1024L));
-		// }
 		catch (FileUploadException ex)
 		{
 			log.info("Unexpected exception in upload parsing", ex);
