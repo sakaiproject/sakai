@@ -699,6 +699,35 @@ public class PollsServiceTests {
     // ========== Permission/Authorization Tests ==========
 
     @Test
+    public void testOwnerCanEditGroupPollOptionsWithoutVotingGroupMembership() {
+        Poll poll = new Poll();
+        poll.setSiteId(LOCATION1_ID);
+        poll.setText("Group question");
+        poll.setTypeOfAccess(Poll.Access.GROUP);
+        poll.setGroupIds(Set.of("g1"));
+        String pollId = pollsService.savePoll(poll).getId();
+
+        Mockito.when(securityService.unlock(USER, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_ANY, LOCATION1_REF)).thenReturn(false);
+        Mockito.when(securityService.unlock(USER, PERMISSION_EDIT_OWN, LOCATION1_REF)).thenReturn(true);
+        Mockito.when(securityService.unlock(USER, PERMISSION_VOTE, LOCATION1_REF)).thenReturn(true);
+
+        Assert.assertThrows(SecurityException.class, () -> pollsService.getPollById(pollId));
+        Poll editable = pollsService.getPollByIdForReadOrEdit(pollId).orElseThrow();
+        Assert.assertFalse(pollsService.pollIsVotable(editable));
+
+        Option option = new Option();
+        option.setText("New group choice");
+        pollsService.saveNewOption(editable, option);
+        pollsService.updateOptionText(option.getId(), "Updated group choice");
+        Assert.assertEquals("Updated group choice", pollsService.getOptionById(option.getId()).orElseThrow().getText());
+
+        pollsService.saveOptionsBatch(pollId, List.of("Batch group choice"));
+        pollsService.deleteOption(option.getId());
+        Assert.assertEquals(1, pollsService.getVisibleOptionsForPoll(pollId).size());
+    }
+
+    @Test
     public void testOptionWritesRequirePermissionToEditTheParentPoll() {
         String pollId = createPoll(USER, LOCATION1_ID);
         Poll poll = pollsService.getPollById(pollId).orElseThrow();

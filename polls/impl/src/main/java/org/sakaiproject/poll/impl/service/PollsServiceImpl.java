@@ -595,6 +595,15 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     }
 
     public Optional<Poll> getPollById(final String pollId) throws SecurityException {
+        return getPollById(pollId, false);
+    }
+
+    @Override
+    public Optional<Poll> getPollByIdForReadOrEdit(String pollId) throws SecurityException {
+        return getPollById(pollId, true);
+    }
+
+    private Optional<Poll> getPollById(String pollId, boolean allowEditors) {
         // User needs at least site visit to read a poll
         Optional<Poll> poll = pollRepository.findById(pollId);
         if (poll.isPresent()) {
@@ -602,7 +611,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             if (!securityService.unlock(userId, "site.visit", siteService.siteReference(poll.get().getSiteId()))) {
                 throw new SecurityException("user:" + userId + " can't read poll " + pollId);
             }
-            if (!userCanViewPoll(poll.get(), userId)) {
+            if (!(allowEditors && isAllowedPollEdit(poll.get())) && !userCanViewPoll(poll.get(), userId)) {
                 throw new SecurityException("User cannot view this poll due to group restrictions");
             }
         }
@@ -705,7 +714,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     }
 
     private Poll requirePollOptionEdit(String pollId) {
-        Poll poll = getPollById(pollId)
+        Poll poll = pollRepository.findById(pollId)
                 .orElseThrow(() -> new IllegalArgumentException("Poll not found: " + pollId));
         if (!isAllowedPollEdit(poll)) {
             throw new SecurityException("Current user cannot edit options for poll " + pollId);
@@ -1310,7 +1319,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         Objects.requireNonNull(pollEntity, "PollEntity must not be null");
 
         // Load existing poll
-        Optional<Poll> existingPollOpt = getPollById(pollId);
+        Optional<Poll> existingPollOpt = getPollByIdForReadOrEdit(pollId);
         if (!existingPollOpt.isPresent()) {
             throw new IllegalArgumentException("Poll not found with id: " + pollId);
         }

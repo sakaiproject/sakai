@@ -97,7 +97,7 @@ public class PollEditorController {
             }
             form = newPollForm();
         } else {
-            Optional<Poll> poll = pollsService.getPollById(pollId);
+            Optional<Poll> poll = pollsService.getPollByIdForReadOrEdit(pollId);
             if (poll.isEmpty()) {
                 model.addAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
                 return "redirect:/votePolls";
@@ -155,7 +155,7 @@ public class PollEditorController {
                 return "polls/edit";
             }
         } else {
-            Optional<Poll> poll = pollsService.getPollById(pollForm.getPollId());
+            Optional<Poll> poll = pollsService.getPollByIdForReadOrEdit(pollForm.getPollId());
             if (poll.isEmpty() || !StringUtils.equals(poll.get().getSiteId(), currentSiteId)) {
                 bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
                 populateModelForEdit(model, pollForm, List.of(), false);
@@ -284,7 +284,7 @@ public class PollEditorController {
             return new PollEditContext(List.of(), false);
         }
 
-        Optional<Poll> poll = pollsService.getPollById(pollId);
+        Optional<Poll> poll = pollsService.getPollByIdForReadOrEdit(pollId);
         if (poll.isEmpty()) {
             return new PollEditContext(List.of(), false);
         }
@@ -297,7 +297,7 @@ public class PollEditorController {
     private Poll preparePollEntity(PollForm form) {
         Poll poll;
         if (StringUtils.isNotBlank(form.getPollId())) {
-            Optional<Poll> p = pollsService.getPollById(form.getPollId());
+            Optional<Poll> p = pollsService.getPollByIdForReadOrEdit(form.getPollId());
             if (p.isEmpty()) {
                 return null;
             } else {

@@ -81,7 +81,7 @@ public class OptionController {
                 return "redirect:/votePolls";
             }
             form.setPollId(pollId);
-            poll = pollsService.getPollById(pollId).orElse(null);
+            poll = pollsService.getPollByIdForReadOrEdit(pollId).orElse(null);
         }
         if (!pollPermissionsService.canEditPoll(poll)) {
             return "redirect:/votePolls";
@@ -100,7 +100,7 @@ public class OptionController {
                              RedirectAttributes redirectAttributes,
                              Locale locale,
                              Model model) {
-        Optional<Poll> submittedPoll = pollsService.getPollById(optionForm.getPollId());
+        Optional<Poll> submittedPoll = pollsService.getPollByIdForReadOrEdit(optionForm.getPollId());
         if (submittedPoll.isEmpty()) {
             bindingResult.addError(new FieldError("optionForm", "text", "Poll not found"));
             model.addAttribute("poll", null);
@@ -159,7 +159,7 @@ public class OptionController {
     @GetMapping("/pollOptionBatch")
     public String batchOption(@RequestParam("pollId") String pollId,
                               Model model) {
-        Optional<Poll> poll = pollsService.getPollById(pollId);
+        Optional<Poll> poll = pollsService.getPollByIdForReadOrEdit(pollId);
         if (poll.isEmpty()) {
             return "redirect:/votePolls";
         }
@@ -182,7 +182,7 @@ public class OptionController {
                               Locale locale,
                               Model model) {
         batchForm.setFile(file);
-        Optional<Poll> poll = pollsService.getPollById(batchForm.getPollId());
+        Optional<Poll> poll = pollsService.getPollByIdForReadOrEdit(batchForm.getPollId());
         if (poll.isEmpty()) {
             bindingResult.addError(new FieldError("batchForm", "file", "Poll not found"));
             model.addAttribute("poll", null);

@@ -85,8 +85,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if ("".equals(id)) {
             return true;
         }
-        Optional<Poll> poll = getPollById(id);
-        return poll.isPresent();
+        return pollsService.getPollByIdForReadOrEdit(id).isPresent();
     }
 
     /**
@@ -124,7 +123,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (id == null) {
             throw new IllegalArgumentException("The reference must include an id for updates (id is currently null)");
         }
-        Optional<Poll> current = getPollById(id);
+        Optional<Poll> current = pollsService.getPollByIdForReadOrEdit(id);
         if (current.isEmpty()) {
             throw new IllegalArgumentException("No poll found to update for the given reference: " + ref);
         }
@@ -140,36 +139,31 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (id == null) {
             return new Poll();
         }
-        Optional<Poll> poll = getPollById(id);
-        if (poll.isEmpty()) {
-            throw new IllegalArgumentException("No poll found for the given reference: " + ref);
-        }
+        Poll poll = pollsService.getPollByIdForReadOrEdit(id)
+                .orElseThrow(() -> new IllegalArgumentException("No poll found for the given reference: " + ref));
 
-        // Security checks
-        if (! developerHelperService.isEntityRequestInternal(ref+"")) {
-            if (!pollsService.isPollPublic(poll.get())) {
-                //this is not a public poll? (ie .anon role has poll.vote)
-                String userReference = developerHelperService.getCurrentUserReference();
-                if(userReference == null) {
-                    throw new EntityException("User must be logged in in order to access poll data", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
-                }
-                boolean allowedManage = pollsService.isAllowedPollAdd(poll.get().getSiteId()) || pollsService.isAllowedPollEdit(poll.get());
-                boolean allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_VOTE, "/site/" + poll.get().getSiteId());
-                if (!allowedManage && !allowedVote) {
-                    throw new SecurityException("User ("+userReference+") not allowed to access poll data: " + ref);
-                }
-           }
+        boolean allowedRead = developerHelperService.isEntityRequestInternal(ref.toString()) || pollsService.isPollPublic(poll);
+        if (!allowedRead) {
+            String userReference = developerHelperService.getCurrentUserReference();
+            if (userReference == null) {
+                throw new EntityException("User must be logged in in order to access poll data", id, HttpServletResponse.SC_UNAUTHORIZED);
+            }
+            allowedRead = pollsService.isAllowedPollAdd(poll.getSiteId())
+                    || developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_VOTE, "/site/" + poll.getSiteId());
+            if (!allowedRead && !pollsService.isAllowedPollEdit(poll)) {
+                throw new SecurityException("User (" + userReference + ") not allowed to access poll data: " + ref);
+            }
         }
 
         // Get hydration flags
-        Boolean includeVotes = requestStorage.getStoredValueAsType(Boolean.class, "includeVotes");
-        if (includeVotes == null) { includeVotes = false; }
+        boolean includeVotes = Boolean.TRUE.equals(requestStorage.getStoredValueAsType(Boolean.class, "includeVotes"))
+                && allowedRead && pollsService.userCanViewPoll(poll, developerHelperService.getCurrentUserId());
         Boolean includeOptions = requestStorage.getStoredValueAsType(Boolean.class, "includeOptions");
         if (includeOptions == null) { includeOptions = false; }
 
         // Use service to create PollEntity with computed presentation fields
         // Service constructs Reference internally
-        PollEntity pollEntity = pollsService.createPollEntity(poll.get(), includeVotes, includeOptions);
+        PollEntity pollEntity = pollsService.createPollEntity(poll, includeVotes, includeOptions);
 
         return pollEntity;
     }

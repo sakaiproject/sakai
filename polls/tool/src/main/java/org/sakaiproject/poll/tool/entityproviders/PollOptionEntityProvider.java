@@ -157,7 +157,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         }
         String pollId = developerHelperService.convert(pollRes.getSingleValue(), String.class);
         // get the poll
-        Optional<Poll> poll = pollsService.getPollById(pollId);
+        Optional<Poll> poll = pollsService.getPollByIdForReadOrEdit(pollId);
         if (poll.isEmpty()) {
             throw new IllegalArgumentException("pollId ("+pollId+") is invalid and does not match any known polls");
         } else {
@@ -171,7 +171,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
                     boolean allowedVote = false;
                     allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_ADD, "/site/" + poll.get().getSiteId());
                     allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_VOTE, "/site/" + poll.get().getSiteId());
-                    if ( !(allowedManage || allowedVote)) {
+                    if (!(allowedManage || allowedVote || pollsService.isAllowedPollEdit(poll.get()))) {
                         throw new SecurityException("User ("+userReference+") not allowed to access poll data: " + ref);
                     }
                 }

@@ -118,6 +118,12 @@ public interface PollsService {
     Optional<Poll> getPollById(String id) throws SecurityException;
 
     /**
+     * Loads poll content for display or editing, including for users who can edit
+     * the poll but are outside its voting groups.
+     */
+    Optional<Poll> getPollByIdForReadOrEdit(String id) throws SecurityException;
+
+    /**
      * Get a specific poll with all its votes
      * @param pollId
      * @return a poll object or empty if not found

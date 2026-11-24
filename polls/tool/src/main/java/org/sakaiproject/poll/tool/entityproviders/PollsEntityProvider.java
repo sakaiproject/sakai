@@ -239,45 +239,41 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			// Service will construct Reference internally
 			return pollsService.createPollEntity(emptyPoll, false, false);
 		}
-		Poll poll = getPollById(id);
+		Poll poll = pollsService.getPollByIdForReadOrEdit(id).orElse(null);
 		if (poll == null) {
 			throw new IllegalArgumentException(
 					"No poll found for the given reference: " + id);
 		}
 
-		// Security checks
-		if (!developerHelperService.isEntityRequestInternal(id + "")) {
-			if (!pollsService.isPollPublic(poll)) {
-				// this is not a public poll? (ie .anon role has poll.vote)
-				String userReference = developerHelperService
-						.getCurrentUserReference();
-				if (userReference == null) {
-					throw new EntityException(
-							"User must be logged in in order to access poll data",
-							id, HttpServletResponse.SC_UNAUTHORIZED);
-				}
-				boolean allowedManage = developerHelperService
-						.isUserAllowedInEntityReference(userReference,
-								PERMISSION_ADD,
-								"/site/" + poll.getSiteId());
-				boolean allowedVote = developerHelperService
-						.isUserAllowedInEntityReference(userReference,
-								PERMISSION_VOTE, "/site/"
-										+ poll.getSiteId());
-				if (!allowedManage && !allowedVote) {
-					throw new SecurityException("User (" + userReference
-							+ ") not allowed to access poll data: " + id);
-				}
+		boolean allowedRead = developerHelperService.isEntityRequestInternal(id)
+				|| pollsService.isPollPublic(poll);
+		if (!allowedRead) {
+			String userReference = developerHelperService
+					.getCurrentUserReference();
+			if (userReference == null) {
+				throw new EntityException(
+						"User must be logged in in order to access poll data",
+						id, HttpServletResponse.SC_UNAUTHORIZED);
+			}
+			boolean allowedManage = developerHelperService
+					.isUserAllowedInEntityReference(userReference,
+							PERMISSION_ADD,
+							"/site/" + poll.getSiteId());
+			boolean allowedVote = developerHelperService
+					.isUserAllowedInEntityReference(userReference,
+							PERMISSION_VOTE, "/site/"
+									+ poll.getSiteId());
+			allowedRead = allowedManage || allowedVote;
+			if (!allowedRead && !pollsService.isAllowedPollEdit(poll)) {
+				throw new SecurityException("User (" + userReference
+						+ ") not allowed to access poll data: " + id);
 			}
 		}
 
 		// Get hydration flags
 		log.debug("requestStorage: {}", requestStorage);
-		Boolean includeVotes = requestStorage.getStoredValueAsType(
-				Boolean.class, "includeVotes");
-		if (includeVotes == null) {
-			includeVotes = false;
-		}
+		boolean includeVotes = Boolean.TRUE.equals(requestStorage.getStoredValueAsType(Boolean.class, "includeVotes"))
+				&& allowedRead && pollsService.userCanViewPoll(poll, developerHelperService.getCurrentUserId());
 		Boolean includeOptions = requestStorage.getStoredValueAsType(
 				Boolean.class, "includeOptions");
 		if (includeOptions == null) {
@@ -317,7 +313,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"The reference must include an id for updates (id is currently null)");
 		}
-		Poll current = getPollById(id);
+		Poll current = pollsService.getPollByIdForReadOrEdit(id).orElse(null);
 		if (current == null) {
 			throw new IllegalArgumentException(
 					"No poll found to update for the given reference: " + ref);
@@ -367,7 +363,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 
 		String pollId = id;
 		// get the poll
-		Optional<Poll> poll = pollsService.getPollById(pollId);
+		Optional<Poll> poll = pollsService.getPollByIdForReadOrEdit(pollId);
 		if (poll.isEmpty()) {
 			throw new IllegalArgumentException("pollId (" + pollId
 					+ ") is invalid and does not match any known polls");
@@ -391,7 +387,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 							.isUserAllowedInEntityReference(userReference,
 									PERMISSION_VOTE, "/site/"
 											+ poll.get().getSiteId());
-					if (!(allowedManage || allowedVote)) {
+					if (!(allowedManage || allowedVote || pollsService.isAllowedPollEdit(poll.get()))) {
 						throw new SecurityException("User (" + userReference
 								+ ") not allowed to access poll data: " + id);
 					}
@@ -455,7 +451,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"Poll Option text must be set to create an option");
 		}
-		Poll poll = getPollById(pollId);
+		Poll poll = pollsService.getPollByIdForReadOrEdit(pollId).orElse(null);
 		if (poll == null) {
 			throw new IllegalArgumentException("Poll not found: " + pollId);
 		}
