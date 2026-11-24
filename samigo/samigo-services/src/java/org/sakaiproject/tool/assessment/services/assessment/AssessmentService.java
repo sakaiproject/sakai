@@ -1347,10 +1347,13 @@ public class AssessmentService {
 					try{
 						securityService.pushAdvisor(securityAdvisor);
 						for (String attachment : attachments) {
-							String resourceIdOrig = "/" + StringUtils.substringAfter(attachment, "/access/content/");
-							String resourceId = URLDecoder.decode(resourceIdOrig);
-							resourceId = resourceId.trim();
-							String filename = StringUtils.substringAfterLast(attachment, "/");
+							String resourceIdOrig = "/" + StringUtils.substringBefore(
+									StringUtils.substringBefore(
+											StringUtils.substringAfter(attachment, "/access/content/"),
+											"?"),
+									"#");
+							String resourceId = URLDecoder.decode(resourceIdOrig).trim();
+							String filename = StringUtils.substringAfterLast(resourceIdOrig, "/");
 
 							ContentResource cr = null;
 							try {

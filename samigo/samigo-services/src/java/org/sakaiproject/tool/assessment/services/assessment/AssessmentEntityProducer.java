@@ -836,7 +836,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	Elements media = htmlDoc.select("[src], a[href]");
 
 	for (org.jsoup.nodes.Element el : media) {
-		String link = el.hasAttr("src") ? el.attr("abs:src") : el.attr("abs:href");
+		String link = el.hasAttr("src") ? el.attr("abs:src") : el.attr("href");
 		if (StringUtils.isBlank(link)) {
 			continue;
 		}
