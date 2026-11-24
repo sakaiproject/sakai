@@ -29,8 +29,10 @@
 <h:outputLabel value="#{deliveryMessages.attachments}" rendered="#{delivery.hasAttachment}"/>
 
 <h:panelGroup rendered="#{delivery.hasAttachment}">
-  <t:aliasBean alias="#{itemAttachmentList}" value="#{delivery.attachmentList}">
-    <%@ include file="/jsf/shared/itemAttachmentList.jsp" %>
+  <t:aliasBean alias="#{attachmentsAccordionId}" value="#{'assessmentAttachments-' += delivery.assessmentId}">
+    <t:aliasBean alias="#{itemAttachmentList}" value="#{delivery.attachmentList}">
+      <%@ include file="/jsf/shared/itemAttachmentList.jsp" %>
+    </t:aliasBean>
   </t:aliasBean>
 </h:panelGroup>
 

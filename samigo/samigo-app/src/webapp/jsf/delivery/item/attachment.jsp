@@ -24,6 +24,8 @@
 
 <!-- ATTACHMENTS -->
 <%-- Expects 'question' is an instance of ItemContentsBean --%>
-<t:aliasBean alias="#{itemAttachmentList}" value="#{question.itemData.itemAttachmentList}" >
-  <%@ include file="/jsf/shared/itemAttachmentList.jsp" %>
+<t:aliasBean alias="#{attachmentsAccordionId}" value="#{'itemAttachments-' += question.itemData.itemId}">
+  <t:aliasBean alias="#{itemAttachmentList}" value="#{question.itemData.itemAttachmentList}" >
+    <%@ include file="/jsf/shared/itemAttachmentList.jsp" %>
+  </t:aliasBean>
 </t:aliasBean>

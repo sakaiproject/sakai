@@ -21,7 +21,7 @@
 
 <h:outputText value="#{printMessages.attachments} " escape="false" rendered="#{not empty itemAttachmentList && delivery.fromPrint}"/>
 
-<div class="accordion my-3" id="attachmentsAccordion">
+<div class="accordion my-3" id="<h:outputText value="#{attachmentsAccordionId}"/>">
 
   <h:dataTable value="#{itemAttachmentList}" var="attach" border="0" styleClass="w-100 table table-borderless m-0 p-0" columnClasses="p-0" cellpadding="0" cellspacing="0">
     <h:column>
@@ -53,9 +53,9 @@
 
           <h:panelGroup rendered="#{attach.isMedia && !delivery.fromPrint}">
             <button class="accordion-button collapsed w-auto p-2 ms-3 rounded gap-3" type="button" data-bs-toggle="collapse" 
-                    data-bs-target="[id='collapse-<h:outputText value="#{attach.encodedResourceId}"/>']" 
+                    data-bs-target="[id='<h:outputText value="#{attachmentsAccordionId}"/>-collapse-<h:outputText value="#{attach.encodedResourceId}"/>']" 
                     aria-expanded="false" 
-                    aria-controls="collapse-<h:outputText value="#{attach.encodedResourceId}"/>">
+                    aria-controls="<h:outputText value="#{attachmentsAccordionId}"/>-collapse-<h:outputText value="#{attach.encodedResourceId}"/>">
               <h:outputText value="#{commonMessages.action_preview}"/>
             </button>
           </h:panelGroup>
@@ -64,7 +64,7 @@
 
         <h:panelGroup rendered="#{attach.isMedia && !delivery.fromPrint}">
 
-          <div id="collapse-<h:outputText value="#{attach.encodedResourceId}"/>" class="accordion-collapse collapse" data-bs-parent="#attachmentsAccordion">
+          <div id="<h:outputText value="#{attachmentsAccordionId}"/>-collapse-<h:outputText value="#{attach.encodedResourceId}"/>" class="accordion-collapse collapse" data-bs-parent="#<h:outputText value="#{attachmentsAccordionId}"/>">
 
             <div class="accordion-body border-top p-3">
 
