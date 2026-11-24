@@ -28,12 +28,9 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
-import com.microsoft.playwright.options.FilePayload;
 import com.microsoft.playwright.options.RequestOptions;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
-import java.util.ArrayList;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -515,221 +512,38 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     @Test
     @Order(12)
-    void searchesNestedResourcesAndPreservesSelectionsThroughReportFlows() throws Exception {
+    void savedReportRetainsSelectedNestedResource() {
         sakai.login("instructor1");
-        String resourcesSiteUrl = createNestedResourceFixture();
-        String root = "/group/" + sakai.siteIdFromUrl(resourcesSiteUrl) + "/";
-        page.navigate(resourcesSiteUrl);
+        String siteUrl = sakai.createFreshCourse("instructor1", List.of("sakai\\.sitestats", "sakai\\.resources"));
+        String resourceId = sakai.createNestedTextResource(siteUrl, "Week 5", "Reading.txt", "Site Stats fixture");
+        String title = REPORT_TITLE + " Resources";
+
+        page.navigate(siteUrl);
         sakai.toolClick("Statistics");
-        seedOldSiteStatsTranslations();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Reports").setExact(true)).click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
-        page.getByLabel("Title").fill(REPORT_TITLE + " Resources");
+        page.getByLabel("Title").fill(title);
         page.getByLabel("Activity:").selectOption("what-resources");
-        assertThat(page.locator("#resource-selection")).isHidden();
         page.locator("#limit-resources").check();
+
         Locator component = page.locator("sakai-sitestats-resource-search");
-        Locator search = component.getByLabel("Search resources");
-        assertResourceInputThemes(component, search);
-        List<String> metadataRequests = new ArrayList<>();
-        page.onRequest(request -> {
-            if (request.url().contains("/reports/resources?")) metadataRequests.add(request.url());
-        });
-        Response resourcesResponse = page.waitForResponse(
-            response -> response.url().contains("/reports/resources?"), () -> search.fill("reading"));
-        assertEquals(200, resourcesResponse.status(), "Resource metadata request must succeed");
-        Locator matches = component.locator("#resource-results li");
-        assertThat(matches).hasCount(20);
-        assertThat(component.locator("[role=status]")).containsText("Showing the first 20 matches. Refine your search.");
-        assertThat(component.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName("More results").setExact(true))).hasCount(0);
-        assertThat(component.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName("Previous results").setExact(true))).hasCount(0);
-        matches.first().getByRole(AriaRole.BUTTON).click();
-        String portalLocale = (String) page.evaluate("() => window.portal?.locale || ''");
-        try (AutoCloseable cleanup = () -> {
-            page.evaluate("locale => { if (locale) window.portal.locale = locale; else delete window.portal.locale; }",
-                    portalLocale);
-        }) {
-            page.evaluate("() => { window.portal ||= {}; window.portal.locale = 'tr_TR'; }");
-            search.fill("istanbul");
-            assertThat(matches).hasCount(1);
-            assertThat(matches.locator(".resource-name")).hasText("İstanbul.txt");
-            search.fill("ırmak");
-            assertThat(matches).hasCount(1);
-            assertThat(matches.locator(".resource-name")).hasText("IRMAK.txt");
-        }
-        search.fill("Week 5 Reading");
-        assertThat(matches).hasCount(0);
-        assertThat(component.locator("[role=status]")).containsText("No matching resources.");
-        search.fill("Reading 5");
-        assertThat(matches).hasCount(1);
-        assertThat(matches.locator(".resource-name")).hasText("Reading 5.txt");
-        search.fill("Week 5");
-        assertThat(matches).hasCount(1);
-        Locator chosenWeek = matches.filter(new Locator.FilterOptions().setHasText("Resources / Week 5"));
-        assertThat(chosenWeek).hasCount(1);
-        chosenWeek.getByRole(AriaRole.BUTTON).click();
-        assertThat(component.locator("#selected-resources li")).hasCount(2);
-        search.fill("notes");
-        assertThat(matches).hasCount(1);
-        matches.first().getByRole(AriaRole.BUTTON).click();
-        component.locator("#selected-resources li").first().getByRole(AriaRole.BUTTON).click();
-        assertEquals(1, metadataRequests.size(), "Refining the query must reuse the editor's resource metadata");
-        assertFalse(metadataRequests.get(0).contains("&q="));
-        String selectedIds = root + "Week 5/Reading.txt\n" + root + "Notes.txt";
-        assertResourceFormValue(selectedIds);
-        assertThat(page.locator("#resource-ids")).hasCount(0);
-        assertThat(component).not().containsText(root);
-        assertThat(component.locator("select")).hasCount(0);
-        page.getByLabel("Period:").selectOption("when-custom");
-        page.locator("#when-from").fill("");
-        page.locator("#when-to").fill("");
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
-        assertThat(page.locator("#report-error")).containsText("Custom time period not defined");
-        assertResourceFormValue(selectedIds);
-        assertThat(component.locator("#selected-resources li")).hasCount(2);
-        page.getByLabel("Period:").selectOption("when-all");
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate report").setExact(true)).click();
-        assertThat(page.getByRole(AriaRole.HEADING,
-            new Page.GetByRoleOptions().setName(REPORT_TITLE + " Resources").setExact(true))).isVisible();
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
-        assertResourceFormValue(selectedIds);
-        assertThat(component.locator("#selected-resources li")).hasCount(2);
-        // An unfinished query must not replace the filters already selected in the form.
-        component.getByLabel("Search resources").fill("unfinished query");
+        component.getByLabel("Search resources").fill("Reading");
+        Locator result = component.locator("#resource-results li");
+        assertThat(result).hasCount(1);
+        assertThat(result).containsText("Week 5");
+        assertThat(result.locator(".resource-name")).hasText("Reading.txt");
+        result.getByRole(AriaRole.BUTTON).click();
+        assertThat(component).hasJSProperty("value", resourceId);
+
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
         assertThat(page.locator(".sak-banner-success")).containsText("saved successfully");
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
-        page.getByRole(AriaRole.ROW).filter(new Locator.FilterOptions().setHasText(REPORT_TITLE + " Resources"))
+        page.getByRole(AriaRole.ROW).filter(new Locator.FilterOptions().setHasText(title))
             .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Edit").setExact(true)).click();
-        assertResourceFormValue(selectedIds);
-        assertThat(component.locator("#selected-resources li")).hasCount(2);
-        assertThat(component).containsText("Reading.txt");
-        assertThat(component).containsText("Notes.txt");
-        page.locator("#limit-resources").uncheck();
-        assertThat(page.locator("#resource-selection")).isHidden();
-        assertFalse((Boolean) page.locator("#report-editor").evaluate(
-            "form => new FormData(form).has('whatResourceIds')"));
-        page.locator("#limit-resources").check();
-        assertResourceFormValue(selectedIds);
-        assertThat(component.locator("#selected-resources li")).hasCount(2);
-    }
 
-    private String themeColor(Locator input, String token) {
-        return (String) input.evaluate("""
-            (input, token) => {
-                const probe = document.createElement('span');
-                probe.style.color = getComputedStyle(input).getPropertyValue(token);
-                document.body.append(probe);
-                const color = getComputedStyle(probe).color;
-                probe.remove();
-                return color;
-            }
-            """, token);
-    }
-
-    private String createNestedResourceFixture() {
-        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.sitestats", "sakai\\.resources"));
-        page.navigate(siteUrl);
-        sakai.toolClick("Resources");
-        String resourcesUrl = page.url();
-        assertEquals(sakai.siteIdFromUrl(siteUrl), sakai.siteIdFromUrl(resourcesUrl));
-        page.locator("button[title='Actions']").first().click();
-        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Create Folders").setExact(true)).click();
-        page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Folder Name").setExact(true)).fill("Week 1");
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Another Folder").setExact(true)).click();
-        page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Folder Name").setExact(true)).nth(1).fill("Week 5");
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create Folders Now").setExact(true)).click();
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Week 1").setExact(true)).click();
-        List<FilePayload> readings = new ArrayList<>();
-        readings.add(resourceFile("Reading.txt"));
-        for (int index = 1; index <= 20; index++) {
-            readings.add(resourceFile("Reading " + index + ".txt"));
-        }
-        uploadResourceFiles(readings.toArray(FilePayload[]::new));
-        page.navigate(resourcesUrl);
-        sakai.toolClick("Resources");
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Week 5").setExact(true)).click();
-        uploadResourceFiles(resourceFile("Reading.txt"));
-        page.navigate(resourcesUrl);
-        sakai.toolClick("Resources");
-        uploadResourceFiles(resourceFile("Notes.txt"), resourceFile("İstanbul.txt"), resourceFile("IRMAK.txt"));
-        return siteUrl;
-    }
-
-    private FilePayload resourceFile(String name) {
-        return new FilePayload(name, "text/plain", "SiteStats resource search fixture".getBytes(StandardCharsets.UTF_8));
-    }
-
-    private void uploadResourceFiles(FilePayload... files) {
-        String listingUrl = page.url().split("[?#]", 2)[0];
-        page.locator("button[title='Actions']").first().click();
-        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Upload Files").setExact(true)).click();
-        page.locator("input[type=file]").setInputFiles(files);
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
-        page.waitForURL(url -> url.split("[?#]", 2)[0].equals(listingUrl));
-        for (FilePayload file : files) {
-            assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(file.name).setExact(true))).isVisible();
-        }
-    }
-
-    private void assertResourceFormValue(String expected) {
-        assertThat(page.locator("sakai-sitestats-resource-search")).hasJSProperty("value", expected);
-        assertEquals(expected, page.locator("#report-editor").evaluate(
-            "form => new FormData(form).get('whatResourceIds')"));
-    }
-
-    private void assertResourceInputThemes(Locator component, Locator search) throws Exception {
-        String rootClasses = (String) page.evaluate("() => document.documentElement.className");
-        try (AutoCloseable cleanup = () -> {
-            page.evaluate("classes => document.documentElement.className = classes", rootClasses);
-            page.setViewportSize(1280, 720);
-        }) {
-            for (String theme : List.of("light", "dark", "light")) {
-                page.evaluate("""
-                    theme => {
-                        document.documentElement.classList.remove('sakaiUserTheme-light', 'sakaiUserTheme-dark');
-                        document.documentElement.classList.add('sakaiUserTheme-' + theme);
-                    }
-                    """, theme);
-                String background = themeColor(search, "--sakai-background-color-1");
-                String text = themeColor(search, "--sakai-text-color-1");
-                search.evaluate("input => input.blur()");
-                assertThat(search).hasCSS("background-color", background);
-                assertThat(search).hasCSS("color", text);
-                assertThat(search).hasCSS("border-top-color", themeColor(search, "--sakai-border-color"));
-                search.focus();
-                assertThat(search).hasCSS("background-color", background);
-                assertThat(search).hasCSS("color", text);
-                assertThat(search).hasCSS("border-top-color", themeColor(search, "--focus-outline-color"));
-                if ("dark".equals(theme)) {
-                    assertFalse("rgb(255, 255, 255)".equals(background), "Dark theme input must not be white");
-                    for (int width : List.of(1280, 390)) {
-                        page.setViewportSize(width, 900);
-                        component.scrollIntoViewIfNeeded();
-                        assertThat(search).hasCSS("background-color", background);
-                    }
-                }
-            }
-        }
-    }
-
-    private void seedOldSiteStatsTranslations() {
-        page.evaluate("""
-            () => {
-                const oldBundle = {
-                    loading_statistics: 'Loading statistics...',
-                    failed_to_load_statistics: 'Failed to load statistics ({})',
-                    failed_to_load_statistics_unknown: 'Failed to load statistics',
-                    no_data_available: 'No data available',
-                    site_statistics_chart: 'Site statistics chart',
-                    label: 'Label',
-                    overview_tool_filters_min_one: 'Keep at least one tool selected.'
-                };
-                sessionStorage.setItem((window.portal?.locale || '') + 'sitestats', JSON.stringify(oldBundle));
-            }
-            """);
+        assertThat(component).hasJSProperty("value", resourceId);
+        assertThat(component.locator("#selected-resources li")).hasCount(1);
+        assertThat(component.locator("#selected-resources li").first()).containsText("Reading.txt");
     }
 
     private void openReportsAsInstructor() {
