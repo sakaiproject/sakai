@@ -20,10 +20,13 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: JDK 21
-        uses: actions/setup-java@v6.0.1
+        uses: actions/setup-java@v6.3.0
         with:
           java-version: 21
           distribution: temurin
+          # GitHub-hosted runners share egress that Maven Central rate-limits.
+          # Mirror only central. Sakai, Shibboleth, CodeLibs, and snapshot repositories stay on their own URLs.
+          mvn-mirrors: google-maven-central:https://maven-central.storage-download.googleapis.com/maven2/:central
 
       - name: Node 24
         uses: actions/setup-node@v7.1.0
@@ -45,6 +48,9 @@ jobs:
 
       - name: Resolve Playwright dependencies
         run: mvn -B -ntp -V -Pe2e -DskipTests test
+
+      - name: Resolve shared deployment dependencies
+        run: mvn -B -ntp -pl deploy dependency:resolve
 
       - name: Save Maven local repository cache
         uses: actions/cache/save@v6.1.0
