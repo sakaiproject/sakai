@@ -1052,16 +1052,18 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void assignmentsScoresDoNotPostGradePosted() {
+    public void externalItemScoresDoNotPostGradePosted() {
 
         Gradebook gradebook = createGradebook();
         switchToInstructor();
-        gradingService.addExternalAssessment(gradebook.getUid(), gradebook.getUid(), "asn-ref", null,
-                "Assignment Item", 10.0D, null, "sakai.assignment.grades", null, false, null, null);
+        gradingService.addExternalAssessment(gradebook.getUid(), gradebook.getUid(), "quiz-ref", null,
+                "Quiz Item", 10.0D, null, "sakai.samigo", null, false, null, null);
+        Long itemId = gradingService.getAssignmentByNameOrId(gradebook.getUid(), siteId, "Quiz Item").getId();
         clearInvocations(eventTrackingService);
 
-        // Assignments sends its own notification when it releases the grade
-        gradingService.updateExternalAssessmentScore(gradebook.getUid(), siteId, "asn-ref", user1, "8");
+        // The tool that owns an external item notifies its own students
+        gradingService.updateExternalAssessmentScore(gradebook.getUid(), siteId, "quiz-ref", user1, "8");
+        gradingService.setAssignmentScoreString(gradebook.getUid(), siteId, itemId, user1, "9", "External Outcome", "quiz-ref");
 
         verify(eventTrackingService, never()).newEvent(eq(GradingConstants.EVENT_GRADE_POSTED), anyString(), anyString(), anyBoolean(), anyInt());
     }

@@ -4162,9 +4162,6 @@ public class GradingServiceImpl implements GradingService {
                 gradingPersistenceManager.saveAssignmentGradeRecord(agr);
                 changedStudents.add(studentUid);
                 postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
-                if (isNewScore(oldPointsEarned, newPointsEarned)) {
-                    postGradePostedEvent(siteId, assignment, studentUid);
-                }
             }
         }
         for (String studentUid : previouslyUnscoredStudents) {
@@ -4177,7 +4174,6 @@ public class GradingServiceImpl implements GradingService {
                 gradingPersistenceManager.saveAssignmentGradeRecord(agr);
                 changedStudents.add(studentUid);
                 postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
-                postGradePostedEvent(siteId, assignment, studentUid);
             }
         }
 
@@ -4230,9 +4226,6 @@ public class GradingServiceImpl implements GradingService {
                 gradingPersistenceManager.saveAssignmentGradeRecord(agr);
                 changedStudents.add(studentUid);
                 postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
-                if (isNewScore(oldPointsEarned, newPointsEarned)) {
-                    postGradePostedEvent(siteId, assignment, studentUid);
-                }
             }
         }
         for (String studentUid : previouslyUnscoredStudents) {
@@ -4246,9 +4239,6 @@ public class GradingServiceImpl implements GradingService {
                 gradingPersistenceManager.saveAssignmentGradeRecord(agr);
                 changedStudents.add(studentUid);
                 postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, convertStringToDouble(newPointsEarned));
-                if (isNewScore(null, agr.getPointsEarned())) {
-                    postGradePostedEvent(siteId, assignment, studentUid);
-                }
             }
         }
 
@@ -4570,9 +4560,6 @@ public class GradingServiceImpl implements GradingService {
 
             // Sync database.
             postUpdateGradeEvent(gradebookUid, asn.getName(), studentUid, newPointsEarned);
-            if (isNewScore(oldPointsEarned, newPointsEarned)) {
-                postGradePostedEvent(siteId, asn, studentUid);
-            }
         } else {
             log.debug("Ignoring updateExternalAssessmentScore, since the new points value is the same as the old");
         }
@@ -5128,12 +5115,12 @@ public class GradingServiceImpl implements GradingService {
     }
 
     /**
-     * Tells the student's notification handler that a grade was posted for this item. Assignments
-     * notifies on grade release itself, so its items don't post this.
+     * Tells the student's notification handler that a grade was posted for this item. Externally
+     * maintained items are skipped: the tool that owns them notifies its own students.
      */
     private void postGradePostedEvent(String siteId, GradebookAssignment assignment, String studentUid) {
 
-        if (ASSIGNMENTS_APP_NAME.equals(assignment.getExternalAppName())) {
+        if (assignment.isExternallyMaintained()) {
             return;
         }
         String ref = "/gradebook/" + assignment.getGradebook().getUid() + "/" + assignment.getId() + "/" + studentUid;
@@ -5430,7 +5417,6 @@ public class GradingServiceImpl implements GradingService {
 
     private static final String GB_GROUP_SITE_PROPERTY = "gradebook_group";
     private static final String GB_GROUP_TOOL_PROPERTY = "gb-group";
-    private static final String ASSIGNMENTS_APP_NAME = "sakai.assignment.grades";
 
     @Override
     public boolean isGradebookGroupEnabled(String siteId) {
