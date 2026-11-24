@@ -47,6 +47,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadByteCountLimitException;
 import org.apache.commons.fileupload2.core.FileUploadException;
 import org.apache.commons.fileupload2.core.FileUploadSizeException;
 import org.apache.commons.fileupload2.core.DiskFileItem;
@@ -1085,25 +1086,16 @@ public class RequestFilter implements Filter
 		}
 		catch (FileUploadSizeException ex)
 		{
-			log.info("Upload size limit exceeded: " + ((upload.getMaxSize() / 1024L) / 1024L));
+			long limit = ex instanceof FileUploadByteCountLimitException ? upload.getMaxFileSize() : upload.getMaxSize();
+			long limitMiB = limit / (1024L * 1024L);
+			log.info("Upload size limit exceeded: {}", limitMiB);
 
 			// DON'T throw an exception, instead note the exception
 			// so that the tool down-the-line can handle the problem
 			req.setAttribute("upload.status", "size_limit_exceeded");
 			req.setAttribute("upload.exception", ex);
-			req.setAttribute("upload.limit", Long.valueOf((upload.getMaxSize() / 1024L) / 1024L));
+			req.setAttribute("upload.limit", limitMiB);
 		}
-		// TODO: put in for commons-fileupload 1.2
-		// catch (FileUploadBase.FileSizeLimitExceededException ex)
-		// {
-		// log.info("Upload size limit exceeded: " + ((upload.getFileSizeMax() / 1024L) / 1024L));
-		//
-		// // DON'T throw an exception, instead note the exception
-		// // so that the tool down-the-line can handle the problem
-		// req.setAttribute("upload.status", "size_limit_exceeded");
-		// req.setAttribute("upload.exception", ex);
-		// req.setAttribute("upload.limit", Long.valueOf((upload.getFileSizeMax() / 1024L) / 1024L));
-		// }
 		catch (FileUploadException ex)
 		{
 			log.info("Unexpected exception in upload parsing", ex);
