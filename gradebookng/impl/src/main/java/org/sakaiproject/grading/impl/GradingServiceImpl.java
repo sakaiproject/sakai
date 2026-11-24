@@ -55,6 +55,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentInUseException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
@@ -2258,6 +2259,7 @@ public class GradingServiceImpl implements GradingService {
         final List<Comment> commentsToUpdate = new ArrayList<>();
         final Set<GradingEvent> eventsToAdd = new HashSet<>();
         final Set<AssignmentGradeRecord> gradeRecordsToUpdate = new HashSet<>();
+        final List<String> gradedStudentIds = new ArrayList<>();
         for (final GradeDefinition gradeDef : gradeDefList) {
             final String studentId = gradeDef.getStudentUid();
 
@@ -2290,6 +2292,9 @@ public class GradingServiceImpl implements GradingService {
 
             if (gradeRec != null) {
                 final Double pointsEarned = gradeRec.getPointsEarned();
+                if (isNewScore(pointsEarned, convertedGrade)) {
+                    gradedStudentIds.add(studentId);
+                }
                 if ((convertedGrade == null && pointsEarned != null)
                         || (convertedGrade != null && pointsEarned == null)
                         || (convertedGrade != null && pointsEarned != null && !convertedGrade.equals(pointsEarned))
@@ -2313,6 +2318,9 @@ public class GradingServiceImpl implements GradingService {
             } else {
                 // A score or an excused status requires a grade record.
                 if (StringUtils.isNotBlank(newGrade) || excuse) {
+                    if (isNewScore(null, convertedGrade)) {
+                        gradedStudentIds.add(studentId);
+                    }
                     gradeRec = new AssignmentGradeRecord(assignment, studentId, convertedGrade);
                     gradeRec.setGraderId(graderUid);
                     gradeRec.setDateRecorded(gradedDate);
@@ -2361,6 +2369,7 @@ public class GradingServiceImpl implements GradingService {
             commentsToUpdate.forEach(gradingPersistenceManager::saveComment);
             eventsToAdd.forEach(gradingPersistenceManager::saveGradingEvent);
             eventsToAdd.forEach(this::sendGradingEvent);
+            gradedStudentIds.forEach(studentId -> postGradePostedEvent(siteId, assignment, studentId));
         } catch (final HibernateOptimisticLockingFailureException | StaleObjectStateException holfe) {
             // TODO: Adrian How janky is this?
             log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item {}", gradableObjectId);
@@ -2526,6 +2535,7 @@ public class GradingServiceImpl implements GradingService {
         final Date now = new Date();
         final String graderId = sessionManager.getCurrentSessionUserId();
         AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid);
+        final Double oldPointsEarned = gradeRecord == null ? null : gradeRecord.getPointsEarned();
         if (gradeRecord == null) {
             // Creating a new grade record.
             gradeRecord = new AssignmentGradeRecord(assignment, studentUid, convertStringToDouble(score));
@@ -2542,6 +2552,9 @@ public class GradingServiceImpl implements GradingService {
 
         // Post an event in SAKAI_EVENT table
         postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, convertStringToDouble(score));
+        if (isNewScore(oldPointsEarned, gradeRecord.getPointsEarned())) {
+            postGradePostedEvent(siteId, assignment, studentUid);
+        }
 
         log.debug("Score updated in gradebookUid={}, assignmentId={} by userUid={} from client={}, new score={}", gradebookUid, assignmentId, getUserUid()
                 , clientServiceDescription, score);
@@ -4149,6 +4162,9 @@ public class GradingServiceImpl implements GradingService {
                 gradingPersistenceManager.saveAssignmentGradeRecord(agr);
                 changedStudents.add(studentUid);
                 postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
+                if (isNewScore(oldPointsEarned, newPointsEarned)) {
+                    postGradePostedEvent(siteId, assignment, studentUid);
+                }
             }
         }
         for (String studentUid : previouslyUnscoredStudents) {
@@ -4161,6 +4177,7 @@ public class GradingServiceImpl implements GradingService {
                 gradingPersistenceManager.saveAssignmentGradeRecord(agr);
                 changedStudents.add(studentUid);
                 postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
+                postGradePostedEvent(siteId, assignment, studentUid);
             }
         }
 
@@ -4213,6 +4230,9 @@ public class GradingServiceImpl implements GradingService {
                 gradingPersistenceManager.saveAssignmentGradeRecord(agr);
                 changedStudents.add(studentUid);
                 postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
+                if (isNewScore(oldPointsEarned, newPointsEarned)) {
+                    postGradePostedEvent(siteId, assignment, studentUid);
+                }
             }
         }
         for (String studentUid : previouslyUnscoredStudents) {
@@ -4226,6 +4246,9 @@ public class GradingServiceImpl implements GradingService {
                 gradingPersistenceManager.saveAssignmentGradeRecord(agr);
                 changedStudents.add(studentUid);
                 postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, convertStringToDouble(newPointsEarned));
+                if (isNewScore(null, agr.getPointsEarned())) {
+                    postGradePostedEvent(siteId, assignment, studentUid);
+                }
             }
         }
 
@@ -4547,6 +4570,9 @@ public class GradingServiceImpl implements GradingService {
 
             // Sync database.
             postUpdateGradeEvent(gradebookUid, asn.getName(), studentUid, newPointsEarned);
+            if (isNewScore(oldPointsEarned, newPointsEarned)) {
+                postGradePostedEvent(siteId, asn, studentUid);
+            }
         } else {
             log.debug("Ignoring updateExternalAssessmentScore, since the new points value is the same as the old");
         }
@@ -5092,6 +5118,22 @@ public class GradingServiceImpl implements GradingService {
 
     private AssignmentGradeRecord getAssignmentGradeRecord(GradebookAssignment assignment, String studentUid) {
         return gradingPersistenceManager.getAssignmentGradeRecordForAssignmentAndStudent(assignment.getId(), studentUid);
+    }
+
+    /**
+     * True when a score was set to a new value. Clearing a score or saving the same one is not a new grade.
+     */
+    private boolean isNewScore(Double oldPoints, Double newPoints) {
+        return newPoints != null && !newPoints.equals(oldPoints);
+    }
+
+    /**
+     * Tells the student's notification handler that a grade was posted for this item.
+     */
+    private void postGradePostedEvent(String siteId, GradebookAssignment assignment, String studentUid) {
+
+        String ref = GradingConstants.EVENT_REF_ROOT + "/" + assignment.getGradebook().getUid() + "/" + assignment.getId() + "/" + studentUid;
+        eventTrackingService.post(eventTrackingService.newEvent(GradingConstants.EVENT_GRADE_POSTED, ref, siteId, true, NotificationService.NOTI_NONE));
     }
 
     public void postEvent(final String event, final String objectReference) {

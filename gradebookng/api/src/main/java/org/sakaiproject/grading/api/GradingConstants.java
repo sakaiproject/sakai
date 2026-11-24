@@ -35,6 +35,10 @@ public interface GradingConstants {
 
     String REFERENCE_ROOT = "/gbassignment";
 
+    // Posted when a student's score is set to a new value; ref is EVENT_REF_ROOT/{gradebookUid}/{itemId}/{studentId}
+    String EVENT_GRADE_POSTED = "gradebook.grade.posted";
+    String EVENT_REF_ROOT = "/gradebook";
+
     String[] validLetterGrade = { "a+", "a", "a-", "b+", "b", "b-", "c+", "c", "c-", "d+", "d", "d-", "f" };
 
     // These Strings have been kept for backwards compatibility as they are used everywhere,

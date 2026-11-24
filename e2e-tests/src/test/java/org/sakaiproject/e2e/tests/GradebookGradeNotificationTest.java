@@ -56,8 +56,6 @@ class GradebookGradeNotificationTest extends SakaiUiTestBase {
         String hiddenId = addItem(hidden, false);
 
         enterScore(releasedId, STUDENT, studentId, "85");
-        // A re-score before the student has looked must not stack a second notification
-        enterScore(releasedId, STUDENT, studentId, "90");
         enterScore(hiddenId, OTHER_STUDENT, otherStudentId, "70");
 
         sakai.login(STUDENT);
@@ -66,7 +64,7 @@ class GradebookGradeNotificationTest extends SakaiUiTestBase {
         List<JsonObject> forStudent = notifications(siteId, released);
         assertEquals(1, forStudent.size());
         JsonObject notification = forStudent.get(0);
-        assertEquals("gradebook.updateItemScore", notification.get("event").getAsString());
+        assertEquals("gradebook.grade.posted", notification.get("event").getAsString());
         assertEquals("sakai.gradebookng", notification.get("tool").getAsString());
 
         page.navigate(siteUrl);

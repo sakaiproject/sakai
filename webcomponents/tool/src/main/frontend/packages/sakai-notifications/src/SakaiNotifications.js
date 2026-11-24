@@ -252,7 +252,7 @@ export class SakaiNotifications extends SakaiElement {
 
   _decorateGradebookNotification(noti) {
 
-    if (noti.event === "gradebook.updateItemScore") {
+    if (noti.event === "gradebook.grade.posted") {
       noti.title = this._i18n.gradebook_item_graded.replace("{0}", () => noti.title).replace("{1}", () => noti.siteTitle);
     }
   }
