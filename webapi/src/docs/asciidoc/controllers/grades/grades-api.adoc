@@ -203,6 +203,10 @@ Returns the gradebook item with the supplied external id, if the current user ca
 externalId parameter can be the item's full external id or the last path segment of it, such as an
 assignment id or a published assessment id.
 
+For a Tests & Quizzes item, openDate is the assessment's default open date: its start date, or the
+date it was published if it has no start date. A student's actual start date can differ, because
+exceptions for individual users or groups are not applied.
+
 [cols="1h,3", grid=rows, frame=topbot]
 |===
 | Authentication | User must be authenticated

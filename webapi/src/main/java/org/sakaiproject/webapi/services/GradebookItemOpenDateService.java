@@ -17,12 +17,9 @@
 package org.sakaiproject.webapi.services;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
 
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 import org.springframework.stereotype.Service;
@@ -37,7 +34,7 @@ public class GradebookItemOpenDateService {
 
     private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
-    /** Returns the date a gradebook item opens to students. Only Tests & Quizzes items have one. */
+    /** Returns the date a gradebook item opens to students by default. Only Tests & Quizzes items have one. */
     public Instant getOpenDate(Assignment item) {
 
         if (!SamigoConstants.TOOL_ID.equals(item.getExternalAppName())) {
@@ -45,11 +42,7 @@ public class GradebookItemOpenDateService {
         }
 
         try {
-            PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessmentQuick(item.getExternalId());
-            // Samigo sets the start date when it publishes an assessment, but older ones can lack it.
-            // They opened when they were published, which is their creation date
-            Date openDate = assessment.getStartDate() != null ? assessment.getStartDate() : assessment.getCreatedDate();
-            return Optional.ofNullable(openDate).map(Date::toInstant).orElse(null);
+            return publishedAssessmentService.getDefaultOpenDate(item.getExternalId());
         } catch (RuntimeException e) {
             log.warn("Could not get the open date of published assessment {}: {}", item.getExternalId(), e.toString());
             return null;

@@ -573,6 +573,21 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         assertRejectedWithoutChanges();
     }
 
+    @Test
+    public void defaultOpenDateIsTheStartDate() {
+        Instant startDate = Instant.parse("2026-11-10T08:00:00Z");
+        data().getAssessmentAccessControl().setStartDate(Date.from(startDate));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertEquals(startDate, service.getDefaultOpenDate(assessment.getId()));
+    }
+
+    @Test
+    public void defaultOpenDateIsThePublishDateWithoutAStartDate() {
+        assertNull(data().getAssessmentAccessControl().getStartDate());
+        assertEquals(data().getCreatedDate().toInstant(), service.getDefaultOpenDate(assessment.getId()));
+    }
+
     private void assertRejectedWithoutChanges() {
         List<Object> before = snapshot();
         assertThrows(TotalScoreCancellationException.class,

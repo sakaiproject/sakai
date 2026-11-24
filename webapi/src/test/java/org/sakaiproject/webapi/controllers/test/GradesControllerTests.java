@@ -54,7 +54,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.webapi.controllers.GradesController;
 import org.sakaiproject.webapi.services.GradebookItemOpenDateService;
@@ -472,7 +471,7 @@ public class GradesControllerTests extends BaseControllerTests {
     @Test
     public void testGetGradableObjectPrefersExactMatchAndAddsSamigoOpenDate() throws Exception {
 
-        Instant createdDate = Instant.parse("2026-11-01T09:00:00Z");
+        Instant openDate = Instant.parse("2026-11-01T09:00:00Z");
 
         Assignment other = new Assignment();
         other.setId(1L);
@@ -489,16 +488,13 @@ public class GradesControllerTests extends BaseControllerTests {
         mockGradebook(site1Id, true);
         when(gradingService.getViewableAssignmentsForCurrentUser(site1Id, site1Id, SortType.SORT_BY_NONE)).thenReturn(List.of(other, quiz));
 
-        // no start date is set, so the creation date is the open date
-        PublishedAssessmentFacade assessment = mock(PublishedAssessmentFacade.class);
-        when(assessment.getCreatedDate()).thenReturn(Date.from(createdDate));
-        when(publishedAssessmentService.getPublishedAssessmentQuick("42")).thenReturn(assessment);
+        when(publishedAssessmentService.getDefaultOpenDate("42")).thenReturn(openDate);
 
         mockMvc.perform(get("/sites/{siteId}/grades/gradable-object", site1Id).param("externalId", "42"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.entityId", is("42")))
             .andExpect(jsonPath("$.title", is("Quiz")))
-            .andExpect(jsonPath("$.openDate").value((double) createdDate.getEpochSecond()));
+            .andExpect(jsonPath("$.openDate").value((double) openDate.getEpochSecond()));
     }
 
     @Test

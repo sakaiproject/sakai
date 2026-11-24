@@ -23,13 +23,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import org.sakaiproject.grading.api.Assignment;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 public class GradebookItemOpenDateServiceTests {
@@ -63,34 +61,19 @@ public class GradebookItemOpenDateServiceTests {
     }
 
     @Test
-    public void testOpenDateIsTheStartDate() {
+    public void testOpenDateIsTheDefaultOpenDateOfThePublishedAssessment() {
 
-        Instant startDate = Instant.parse("2026-11-10T08:00:00Z");
+        Instant openDate = Instant.parse("2026-11-10T08:00:00Z");
 
-        PublishedAssessmentFacade assessment = mock(PublishedAssessmentFacade.class);
-        when(assessment.getStartDate()).thenReturn(Date.from(startDate));
-        when(assessment.getCreatedDate()).thenReturn(Date.from(Instant.parse("2026-11-01T09:00:00Z")));
-        when(publishedAssessmentService.getPublishedAssessmentQuick("42")).thenReturn(assessment);
+        when(publishedAssessmentService.getDefaultOpenDate("42")).thenReturn(openDate);
 
-        assertEquals(startDate, service.getOpenDate(quiz));
-    }
-
-    @Test
-    public void testOpenDateIsTheCreationDateWithoutAStartDate() {
-
-        Instant createdDate = Instant.parse("2026-11-01T09:00:00Z");
-
-        PublishedAssessmentFacade assessment = mock(PublishedAssessmentFacade.class);
-        when(assessment.getCreatedDate()).thenReturn(Date.from(createdDate));
-        when(publishedAssessmentService.getPublishedAssessmentQuick("42")).thenReturn(assessment);
-
-        assertEquals(createdDate, service.getOpenDate(quiz));
+        assertEquals(openDate, service.getOpenDate(quiz));
     }
 
     @Test
     public void testNoOpenDateWhenThePublishedAssessmentCannotBeRead() {
 
-        when(publishedAssessmentService.getPublishedAssessmentQuick("42")).thenThrow(new RuntimeException("not found"));
+        when(publishedAssessmentService.getDefaultOpenDate("42")).thenThrow(new RuntimeException("not found"));
 
         assertNull(service.getOpenDate(quiz));
     }

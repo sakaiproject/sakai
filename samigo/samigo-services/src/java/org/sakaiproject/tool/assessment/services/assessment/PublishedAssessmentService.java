@@ -17,6 +17,7 @@
 
 package org.sakaiproject.tool.assessment.services.assessment;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -208,6 +209,17 @@ public class PublishedAssessmentService extends AssessmentService{
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Returns the date the published assessment opens by default: its start date, or the date it was
+	 * published if it has no start date. Exceptions for individual users or groups are not applied.
+	 */
+	public Instant getDefaultOpenDate(String publishedAssessmentId) {
+		PublishedAssessmentFacade assessment = getPublishedAssessmentQuick(publishedAssessmentId);
+		// Without a start date an assessment has no start limit, so the earliest it can open is when it was published
+		Date openDate = assessment.getStartDate() != null ? assessment.getStartDate() : assessment.getCreatedDate();
+		return openDate != null ? openDate.toInstant() : null;
 	}
 
 	public Map<Long, String> getAssessmentMetaDataEntriesByLabel(List<Long> publishedAssessmentIds, String label) {
