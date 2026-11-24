@@ -700,11 +700,14 @@ class SamigoTest extends SakaiUiTestBase {
         trashSearch.fill("Quiz " + RUN_ID);
         assertThat(deletedRows).hasCount(2);
         trashSearch.fill(RUN_ID + " Quiz");
-        assertThat(deletedRows).hasCount(0);
+        Locator emptyTrashResults = page.locator("[id='restoreAssessmentsForm:deletedAssessmentsTable'] td.dt-empty");
+        assertThat(emptyTrashResults).isVisible();
         page.reload();
         assertThat(trashSearch).hasValue(RUN_ID + " Quiz");
-        assertThat(deletedRows).hasCount(0);
-        trashSearch.fill("");
+        assertThat(emptyTrashResults).isVisible();
+        trashSearch.press("ControlOrMeta+a");
+        trashSearch.press("Backspace");
+        assertThat(trashSearch).hasValue("");
         assertThat(deletedRows).hasCount(2);
 
         sakai.toolClick("Lessons");

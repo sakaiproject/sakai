@@ -279,9 +279,21 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertThat(selectAll).not().isChecked();
 
         selectAll.check();
-        Locator search = page.locator(".sakai-table-searchFilter-searchField");
+        Locator search = page.locator("#search-announcement");
+        search.fill("No matching SAK-49926 announcement");
+        search.press("Enter");
+        assertThat(page.locator(".announcement-select-checkbox")).hasCount(0);
+        assertThat(page.locator("#announcement-publish-button")).isDisabled();
+        search.press("ControlOrMeta+a");
+        search.press("Backspace");
+        assertThat(page.locator(".announcement-select-checkbox:enabled")).hasCount(5);
+        assertThat(selectAll).not().isChecked();
+        selectAll.check();
+        assertThat(selected).hasCount(5);
+
         search.fill(FUTURE_ANNOUNCEMENT_TITLE);
         search.press("Enter");
+        assertThat(page.locator("#announcements-list")).containsText(FUTURE_ANNOUNCEMENT_TITLE);
         assertThat(page.locator(".announcement-select-checkbox:enabled")).hasCount(1);
         assertThat(selectAll).not().isChecked();
         assertThat(selected).hasCount(0);
@@ -292,16 +304,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertThat(page.locator("table.table-bordered")).containsText(FUTURE_ANNOUNCEMENT_TITLE);
         assertThat(page.locator("table.table-bordered")).not().containsText(CURRENT_ANNOUNCEMENT_TITLE);
         sakai.submitForm(() -> page.locator("input[name=\"eventSubmit_doCancel\"]").click());
-
-        search.fill("No matching SAK-49926 announcement");
-        search.press("Enter");
-        assertThat(page.locator(".announcement-select-checkbox")).hasCount(0);
-        assertThat(page.locator("#announcement-publish-button")).isDisabled();
-        search.fill("");
-        assertThat(page.locator(".announcement-select-checkbox:enabled")).hasCount(5);
-        assertThat(selectAll).not().isChecked();
-        selectAll.check();
-        assertThat(selected).hasCount(5);
+        assertThat(search).hasValue(FUTURE_ANNOUNCEMENT_TITLE);
     }
 
     private void assertAnnouncementReorderChrome() {
