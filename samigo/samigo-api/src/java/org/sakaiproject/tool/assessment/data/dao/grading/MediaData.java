@@ -21,10 +21,12 @@
 
 package org.sakaiproject.tool.assessment.data.dao.grading;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
-import java.net.URI;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -149,6 +151,19 @@ public class MediaData implements Serializable {
 			}
 		}
 		return media;
+	}
+
+	public InputStream openMediaStream() throws IOException, ServerOverloadException {
+		if (contentResource != null) {
+			return contentResource.streamContent();
+		}
+		if (location != null && !location.trim().isEmpty()) {
+			return new FileInputStream(location);
+		}
+		if (media != null) {
+			return new ByteArrayInputStream(media);
+		}
+		return null;
 	}
 
 	public void setMedia(byte[] media) {

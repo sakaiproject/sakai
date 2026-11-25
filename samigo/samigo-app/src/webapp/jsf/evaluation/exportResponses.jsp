@@ -64,6 +64,13 @@
       sections.classList.toggle("is-open", !!(selected && selected.value === "sections"));
     }
   }
+
+  function prepareSamigoDownload(form) {
+    if (form.action.indexOf("samigoDownload=") === -1) {
+      form.action += (form.action.indexOf("?") >= 0 ? "&" : "?") + "samigoDownload=1";
+    }
+    return true;
+  }
 </script>
  <div class="portletBody">
 <!-- content... -->
@@ -94,6 +101,7 @@
 
 <h:form id="downloadFileSubmissions" rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 0}">
   <h:inputHidden id="publishedId" value="#{downloadFileSubmissions.publishedAssessmentId}" />
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <h:panelGroup layout="block" styleClass="samigo-export-files">
     <h2 class="samigo-download-heading">
       <h:outputText value="#{evaluationMessages.title_download_file_submissions}"/>
@@ -133,7 +141,8 @@
     </h:panelGroup>
 
     <p class="act">
-      <h:commandButton value="#{evaluationMessages.download}" actionListener="#{downloadFileSubmissions.downloadFiles}" styleClass="active" />
+      <h:commandButton value="#{evaluationMessages.download}" actionListener="#{downloadFileSubmissions.downloadFiles}"
+          styleClass="active" onclick="return prepareSamigoDownload(this.form);" />
     </p>
   </h:panelGroup>
 </h:form>

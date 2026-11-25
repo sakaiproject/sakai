@@ -16,11 +16,11 @@
 package org.sakaiproject.tool.assessment.util;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,16 +30,13 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -158,6 +155,7 @@ public class DownloadFileUtil {
 		zipFilename.append((".zip"));
 
 		String anonymous = totalScores.getAnonymous();
+		res.setContentType("application/x-zip-compressed");
 		res.setHeader("Content-Disposition", "attachment;filename=\"" + zipFilename + "\";");
 
 		ServletOutputStream outputStream = null;
@@ -384,65 +382,38 @@ public class DownloadFileUtil {
 	}
 
 	private void processOneMediaData(ZipOutputStream zos, MediaData mediaData, boolean anonymous, int numberSubmission, String sectionFolderPath) {
-		int BUFFER_SIZE = 2048;
-		byte data[] = new byte[ BUFFER_SIZE ];
-		int count = 0;
-		BufferedInputStream bufInputStream = null;
-		ZipEntry ze = null;
-		String mediaLocation = mediaData.getLocation();
-		log.debug("mediaLocation = " + mediaLocation);
 		String filename = getFilename(mediaData, anonymous, numberSubmission);
 		if (sectionFolderPath != null) {
 			filename = sectionFolderPath + filename;
 		}
-		if (mediaLocation == null || (mediaLocation.trim()).equals("")){          		  
-			byte[] media = mediaData.getMedia();
-			log.debug("media.length = " + media.length);
-			bufInputStream = new BufferedInputStream(new ByteArrayInputStream(media));
-		}
-		else {
-			bufInputStream = new BufferedInputStream(getFileStream(mediaLocation));
-		}
-		ze = new ZipEntry(filename);
+		Path stagedFile = null;
 		try {
-			zos.putNextEntry(ze);
-			while( (count = bufInputStream.read(data, 0, BUFFER_SIZE)) != -1 ) {
-				zos.write(data, 0, count);
+			stagedFile = Files.createTempFile("samigo-media-", ".part");
+			try (InputStream mediaStream = mediaData.openMediaStream()) {
+				if (mediaStream == null) {
+					log.warn("No media stream available for mediaId={}", mediaData.getMediaId());
+					return;
+				}
+				Files.copy(mediaStream, stagedFile, StandardCopyOption.REPLACE_EXISTING);
 			}
-		}
-		catch(IOException e){
-			log.error(e.getMessage());
-		}
-		finally {
-			if (bufInputStream != null) {
+			try (InputStream stagedStream = new BufferedInputStream(Files.newInputStream(stagedFile))) {
+				zos.putNextEntry(new ZipEntry(filename));
+				stagedStream.transferTo(zos);
+				zos.closeEntry();
+			}
+		} catch (ServerOverloadException e) {
+			log.error("Error streaming media into zip for mediaId={}: {}", mediaData.getMediaId(), e.getMessage());
+		} catch (IOException e) {
+			log.error("Error streaming media into zip for mediaId={}: {}", mediaData.getMediaId(), e.getMessage());
+		} finally {
+			if (stagedFile != null) {
 				try {
-					bufInputStream.close();
-				}
-				catch(IOException e) {
-					log.error(e.getMessage());
-				}
-			}
-			if (zos != null) {
-				try {
-					zos.closeEntry();
-				}
-				catch(IOException e) {
-					log.error(e.getMessage());
+					Files.deleteIfExists(stagedFile);
+				} catch (IOException e) {
+					log.warn("Could not delete staged media file {}: {}", stagedFile, e.getMessage());
 				}
 			}
-		}	  
-	}
-
-	private FileInputStream getFileStream(String mediaLocation){
-		FileInputStream inputStream=null;
-		try{
-			File media=new File(mediaLocation);
-			inputStream = new FileInputStream(media);
 		}
-		catch (FileNotFoundException ex) {
-			log.warn("file not found="+ex.getMessage());
-		}
-		return inputStream;
 	}
 
 	private String getPartNumAndQuestionNum(ItemDataIfc item) {

@@ -23,12 +23,11 @@ package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -98,9 +97,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
     res.setContentType(mimeType);
     
 	ContentResource cr = null;
-	byte[] media = null;
 	try {
-		// create a copy of the resource
 		cr = AssessmentService.getContentHostingService().getResource(resourceId);
 		if (cr == null) {
 			return;
@@ -115,6 +112,9 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 		log.warn("TypeException from doPost(): " + e.getMessage());
 	}
 
+	if (cr == null) {
+		return;
+	}
 
 	  try {
 		  URI directLink = AssessmentService.getContentHostingService().getDirectLinkToAsset(cr);
@@ -138,67 +138,19 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 		  log.warn("Tried to fetch direct link to asset", e);
 	  }
 
-	  // This will fetch the byte array
-	  try {
-		  media = cr!=null?cr.getContent():null;
-	  } catch (ServerOverloadException e) {
-		  log.warn("ServerOverload trying to fetch getContent", e);
-	  }
-
-	  if (media == null) {
-		  return;
-	  }
-	ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(media);
-	BufferedInputStream buf_inputStream = new BufferedInputStream(byteArrayInputStream);
-	ServletOutputStream outputStream = res.getOutputStream();
-    BufferedOutputStream buf_outputStream = null;
-    try{
-    	buf_outputStream = new BufferedOutputStream(outputStream);
-
-    	int i=0;
-    	while ((i=buf_inputStream.read()) != -1){
-    		buf_outputStream.write(i);
-    	}
-
-    	//res.setContentLength(count);
-    	res.flushBuffer();
-    }
-    catch(Exception e){
-    	log.warn(e.getMessage());
-    }
-    finally {
-    	if (buf_outputStream != null) {
-    		try {
-    			buf_outputStream.close();
-    		}
-    		catch(IOException e) {
-    			log.error(e.getMessage());
-    		}
-    	}
-    	if (buf_inputStream != null) {
-    		try {
-    			buf_inputStream.close();
-    		}
-    		catch(IOException e) {
-    			log.error(e.getMessage());
-    		}
-    	}
-    	if (outputStream != null) {
-    		try {
-    			outputStream.close();
-    		}
-    		catch(IOException e) {
-    			log.error(e.getMessage());
-    		}
-    	}
-    	if (byteArrayInputStream != null) {
-    		try {
-    			byteArrayInputStream.close();
-    		}
-    		catch(IOException e) {
-    			log.error(e.getMessage());
-    		}
-    	}
-    }
+	try (InputStream inputStream = cr.streamContent();
+			BufferedInputStream bufInputStream = new BufferedInputStream(inputStream);
+			BufferedOutputStream bufOutputStream = new BufferedOutputStream(res.getOutputStream())) {
+		byte[] buffer = new byte[8192];
+		int bytesRead;
+		while ((bytesRead = bufInputStream.read(buffer)) != -1) {
+			bufOutputStream.write(buffer, 0, bytesRead);
+		}
+		res.flushBuffer();
+	} catch (ServerOverloadException e) {
+		log.warn("ServerOverload trying to stream content", e);
+	} catch (IOException e) {
+		log.warn("IOException streaming attachment media", e);
+	}
   }
 }

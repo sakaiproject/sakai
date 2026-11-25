@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
@@ -168,92 +169,104 @@ public class DownloadFileSubmissionsBean implements Serializable {
 		this.sectionUuidNameMap = sectionUuidNameMap;
 	}
 
-	public void downloadFiles(ActionEvent event){	
+	public void downloadFiles(ActionEvent event){
 		FacesContext context = FacesContext.getCurrentInstance();
 		HttpServletRequest req = (HttpServletRequest) context.getExternalContext().getRequest();
 		HttpServletResponse res = (HttpServletResponse) context.getExternalContext().getResponse();
-
-		TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-		StringBuilder zipFilename = new StringBuilder();
-		zipFilename.append(totalScores.getAssessmentName());
-		DownloadFileUtil downloadFileUtil = new DownloadFileUtil();
-
-		ArrayList<ItemDataIfc> fileUPloadQuestionList = getFileUploadQuestionList();
-		ArrayList<ItemDataIfc> idataList = new ArrayList<ItemDataIfc>();
-
-		if (fileUPloadQuestionList.size() == 1) {
-			ItemDataIfc idata = (ItemDataIfc) fileUPloadQuestionList.get(0);
-			idataList.add(idata);
+		String siteId = AgentFacade.getCurrentSiteId();
+		List<String> selectedQuestions = ContextUtil.paramArrayValueLike("questionCheckbox");
+		if (downloadFiles(req, res, siteId, firstTargetSelected, sectionsSelected, selectedQuestions)) {
+			context.responseComplete();
+		} else {
+			context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+					rb.getString("download_file_submissions_select"), null));
 		}
-		else {
-			ArrayList<String> selectedQuestions = ContextUtil.paramArrayValueLike("questionCheckbox");
-			Iterator iter = selectedQuestions.iterator();
-			while (iter.hasNext()) {
-				Long itemId = Long.valueOf((String) iter.next());
-				idataList.add((ItemDataIfc) fileUploadQuestionMap.get(itemId));
-			}
-		}
-
-		if (availableSectionItems.size() == 0) {
-			ArrayList<String> userUidList = getUserUidList(totalScores, null);
-			downloadFileUtil.processWholeSiteOrOneSection(req, res, idataList, userUidList);
-		}
-		else {
-			if (this.SITE.equals(firstTargetSelected)) {
-				ArrayList<String> userUidList = getUserUidList(totalScores, null);
-				downloadFileUtil.processWholeSiteOrOneSection(req, res, idataList, userUidList);
-			}
-			else if (this.SELECTED_SECTIONS_GROUPS.equals(firstTargetSelected)) {
-				if (sectionsSelected.size() == 1) {
-					String sectionUuid = sectionsSelected.get(0);
-					String sectionName = (String) sectionUuidNameMap.get(sectionUuid);
-					ArrayList<String> userUidList = getUserUidList(totalScores, sectionUuid);
-					downloadFileUtil.processWholeSiteOrOneSection(req, res, idataList, userUidList, sectionName);
-				}
-				else {
-					HashMap sectionUsersMap = getSectionUsersMap(totalScores, sectionsSelected);
-					downloadFileUtil.processMultipleSection(req, res, idataList, sectionUsersMap);
-				}
-			}
-			else {
-				SelectItem item = (SelectItem) availableSectionItems.get(0);
-				ArrayList<String> userUidList = getUserUidList(totalScores, (String) item.getValue());
-				if (item != null) {
-					downloadFileUtil.processWholeSiteOrOneSection(req, res, idataList, userUidList, item.getLabel());
-				}
-			}
-		}
-		context.responseComplete();  
 	}
 
-	private ArrayList<String> getUserUidList(TotalScoresBean totalScores, String sectionUuid) {
-		List<EnrollmentRecord> enrollments = null;
-		ArrayList<String> userUidList = new ArrayList<String>();
-		if (sectionUuid != null) {
-			enrollments = totalScores.getSectionEnrollments(sectionUuid, AgentFacade.getCurrentSiteId());
-			for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
-				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-				userUidList.add(enr.getUser().getUserUid());
+	/**
+	 * Build and stream the ZIP of file-upload submissions.
+	 * @return true if a ZIP response was started
+	 */
+	public boolean downloadFiles(HttpServletRequest req, HttpServletResponse res, String siteId,
+			String targetSelected, List<String> sectionUuids, List<String> selectedQuestionIds) {
+		TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+		DownloadFileUtil downloadFileUtil = new DownloadFileUtil();
+
+		ArrayList<ItemDataIfc> idataList = new ArrayList<ItemDataIfc>();
+		ArrayList<ItemDataIfc> allQuestions = getFileUploadQuestionList();
+		if (allQuestions != null && allQuestions.size() == 1) {
+			idataList.add(allQuestions.get(0));
+		} else if (selectedQuestionIds != null) {
+			for (String selectedQuestionId : selectedQuestionIds) {
+				ItemDataIfc item = fileUploadQuestionMap.get(Long.valueOf(selectedQuestionId));
+				if (item != null) {
+					idataList.add(item);
+				}
 			}
 		}
-		else {
-			enrollments = totalScores.getAvailableEnrollments(false, AgentFacade.getCurrentSiteId());
-			for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
-				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+
+		if (idataList.isEmpty()) {
+			log.warn("No file upload questions selected for download, publishedAssessmentId={}", publishedAssessmentId);
+			return false;
+		}
+
+		List<SelectItem> sections = availableSectionItems;
+		if (sections == null || sections.isEmpty()) {
+			ArrayList<String> userUidList = getUserUidList(totalScores, null, siteId);
+			downloadFileUtil.processWholeSiteOrOneSection(req, res, idataList, userUidList);
+			return true;
+		}
+
+		String target = targetSelected != null ? targetSelected : firstTargetSelected;
+		if (SITE.equals(target)) {
+			ArrayList<String> userUidList = getUserUidList(totalScores, null, siteId);
+			downloadFileUtil.processWholeSiteOrOneSection(req, res, idataList, userUidList);
+		} else if (SELECTED_SECTIONS_GROUPS.equals(target)) {
+			List<String> selectedSections = sectionUuids != null ? sectionUuids : sectionsSelected;
+			if (selectedSections == null || selectedSections.isEmpty()) {
+				log.warn("No sections selected for download, publishedAssessmentId={}", publishedAssessmentId);
+				return false;
+			}
+			if (selectedSections.size() == 1) {
+				String sectionUuid = selectedSections.get(0);
+				String sectionName = sectionUuidNameMap != null ? sectionUuidNameMap.get(sectionUuid) : null;
+				ArrayList<String> userUidList = getUserUidList(totalScores, sectionUuid, siteId);
+				downloadFileUtil.processWholeSiteOrOneSection(req, res, idataList, userUidList, sectionName);
+			} else {
+				HashMap sectionUsersMap = getSectionUsersMap(totalScores, selectedSections, siteId);
+				downloadFileUtil.processMultipleSection(req, res, idataList, sectionUsersMap);
+			}
+		} else {
+			SelectItem item = sections.get(0);
+			ArrayList<String> userUidList = getUserUidList(totalScores, (String) item.getValue(), siteId);
+			downloadFileUtil.processWholeSiteOrOneSection(req, res, idataList, userUidList, item.getLabel());
+		}
+		return true;
+	}
+
+	private ArrayList<String> getUserUidList(TotalScoresBean totalScores, String sectionUuid, String siteId) {
+		List<EnrollmentRecord> enrollments;
+		ArrayList<String> userUidList = new ArrayList<String>();
+		if (sectionUuid != null) {
+			enrollments = totalScores.getSectionEnrollments(sectionUuid, siteId);
+		} else {
+			enrollments = totalScores.getAvailableEnrollments(false, siteId);
+		}
+		if (enrollments != null) {
+			for (EnrollmentRecord enr : enrollments) {
 				userUidList.add(enr.getUser().getUserUid());
 			}
 		}
 		return userUidList;
 	}
 
-	private HashMap getSectionUsersMap(TotalScoresBean totalScores, List sectionList) {
-		List<EnrollmentRecord> enrollments = null;;
+	private HashMap getSectionUsersMap(TotalScoresBean totalScores, List sectionList, String siteId) {
 		HashMap<String, List<String>> sectionUsersMap = new HashMap<String, List<String>>();
 		if (sectionList != null) {
 			Iterator iter = sectionList.iterator();
 			while (iter.hasNext()) {
 				String sectionUuid = (String) iter.next();
-				sectionUsersMap.put(sectionUuid, getUserUidList(totalScores, sectionUuid));
+				sectionUsersMap.put(sectionUuid, getUserUidList(totalScores, sectionUuid, siteId));
 			}
 		}
 		return sectionUsersMap;
