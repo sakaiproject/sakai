@@ -791,14 +791,17 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvProcessesQuestion() {
+        Mockito.when(formattedText.processFormattedText("Submitted CSV question", null, true, true))
+               .thenReturn("<p>Formatted CSV question</p>");
         String csv = importCsvHeader(2) + "\n"
-            + "<p>Imported question</p>,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Yes,No\n";
+            + "Submitted CSV question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,Yes,No\n";
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
         List<String> questions = pollsService.findAllPolls(LOCATION1_ID).stream().map(Poll::getText).toList();
-        Assert.assertTrue(questions.contains("Imported question"));
-        Assert.assertFalse(questions.contains("<p>Imported question</p>"));
+        Assert.assertTrue(questions.contains("Formatted CSV question"));
+        Assert.assertFalse(questions.contains("Submitted CSV question"));
+        Mockito.verify(formattedText, Mockito.times(1)).processFormattedText("Submitted CSV question", null, true, true);
     }
 
     @Test
