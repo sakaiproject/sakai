@@ -60,6 +60,8 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
@@ -91,6 +93,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private CourseGradeRepository courseGradeRepository;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
+    @Autowired private EventTrackingService eventTrackingService;
     @Autowired private LocaleService localeService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -1171,6 +1174,39 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         assertEquals(grade, gradeDef.getGrade());
         assertEquals(comment, gradeDef.getGradeComment());
+    }
+
+    @Test
+    public void savingANewScorePostsGradePostedOnce() {
+
+        Gradebook gradebook = createGradebook();
+        Long assId = createAssignment1(gradebook);
+        clearInvocations(eventTrackingService);
+        String ref = "/gradebook/" + gradebook.getUid() + "/" + assId + "/" + user1;
+
+        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assId, user1, "3.7", "");
+        // The same score again, and a cleared score, are not new grades
+        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assId, user1, "3.7", "Comment");
+        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assId, user1, "", "");
+
+        verify(eventTrackingService).newEvent(GradingConstants.EVENT_GRADE_POSTED, ref, siteId, true, NotificationService.NOTI_NONE);
+    }
+
+    @Test
+    public void externalItemScoresDoNotPostGradePosted() {
+
+        Gradebook gradebook = createGradebook();
+        switchToInstructor();
+        gradingService.addExternalAssessment(gradebook.getUid(), gradebook.getUid(), "quiz-ref", null,
+                "Quiz Item", 10.0D, null, "sakai.samigo", null, false, null, null);
+        Long itemId = gradingService.getAssignmentByNameOrId(gradebook.getUid(), siteId, "Quiz Item").getId();
+        clearInvocations(eventTrackingService);
+
+        // The tool that owns an external item notifies its own students
+        gradingService.updateExternalAssessmentScore(gradebook.getUid(), siteId, "quiz-ref", user1, "8");
+        gradingService.setAssignmentScoreString(gradebook.getUid(), siteId, itemId, user1, "9", "External Outcome", "quiz-ref");
+
+        verify(eventTrackingService, never()).newEvent(eq(GradingConstants.EVENT_GRADE_POSTED), anyString(), anyString(), anyBoolean(), anyInt());
     }
 
     @Test

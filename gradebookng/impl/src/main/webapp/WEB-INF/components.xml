@@ -113,4 +113,7 @@
           class="org.sakaiproject.grading.impl.GradingServiceImpl">
     </bean>
 
+    <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.gradebook.score"
+          class="org.sakaiproject.grading.impl.messaging.GradebookUserNotificationHandler"/>
+
 </beans>
