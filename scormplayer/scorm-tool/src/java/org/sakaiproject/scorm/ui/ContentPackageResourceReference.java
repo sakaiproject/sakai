@@ -35,7 +35,6 @@ import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.memory.api.Cache;
 import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
 import org.sakaiproject.scorm.service.sakai.impl.ContentPackageSakaiResource;
 import org.sakaiproject.scorm.ui.player.util.CompressingContentPackageResourceStream;
@@ -54,18 +53,15 @@ public class ContentPackageResourceReference extends ResourceReference
 {
     private final ServerConfigurationService serverConfigurationService;
     private final ContentHostingService contentHostingService;
-    private final transient Cache<String, byte[]> compressedAssetCache;
 
     public ContentPackageResourceReference(ServerConfigurationService serverConfigurationService,
-                                           ContentHostingService contentHostingService,
-                                           Cache<String, byte[]> compressedAssetCache)
+                                           ContentHostingService contentHostingService)
     {
         super(ContentPackageResourceReference.class, "contentPackages");
         this.serverConfigurationService = Objects.requireNonNull(serverConfigurationService,
             "ServerConfigurationService must be available");
         this.contentHostingService = Objects.requireNonNull(contentHostingService,
             "ContentHostingService must be available");
-        this.compressedAssetCache = compressedAssetCache;
     }
 
     @Override
@@ -99,7 +95,7 @@ public class ContentPackageResourceReference extends ResourceReference
 
                 // resource not found in shared resources, so attempt to get resource from Sakai
                 ContentPackageSakaiResource cpResource = new ContentPackageSakaiResource(path, path);
-                ContentPackageWebResource webResource = new ContentPackageWebResource(cpResource, compressedAssetCache);
+                ContentPackageWebResource webResource = new ContentPackageWebResource(cpResource);
                 IResourceStream stream = webResource.getResourceStream();
 
                 try {

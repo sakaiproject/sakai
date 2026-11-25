@@ -48,37 +48,18 @@ import org.apache.wicket.util.io.Streams;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
 public class CompressingContentPackageResourceStream extends ContentPackageResourceStream
 {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Optional shared cache of gzipped bytes, owned by the Wicket application (see
-	 * ScormWebApplication) and managed by the kernel MemoryService. Keys embed the resource's
-	 * last-modified time, so a republished file simply gets a new key and stale entries age
-	 * out under the cache's normal eviction policy. Transient: this stream lives for a single
-	 * request and the cache must never be serialized with it.
-	 */
-	private final transient Cache<String, byte[]> compressedCache;
-
-	private final String cacheKey;
-
 	/** Holds the compressed bytes for this request so length() and getInputStream() compress only once. */
 	private transient byte[] compressedContent;
 
 	public CompressingContentPackageResourceStream(ContentPackageResource resource)
 	{
-		this(resource, null);
-	}
-
-	public CompressingContentPackageResourceStream(ContentPackageResource resource, Cache<String, byte[]> compressedCache)
-	{
 		super(resource);
-		this.compressedCache = compressedCache;
-		this.cacheKey = resource.getPath() + '|' + resource.getLastModified();
 	}
 
 	@Override
@@ -94,13 +75,6 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 			return compressedContent;
 		}
 
-		byte[] cached = compressedCache != null ? compressedCache.get(cacheKey) : null;
-		if (cached != null)
-		{
-			compressedContent = cached;
-			return cached;
-		}
-
 		try (InputStream stream = super.getInputStream())
 		{
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -109,13 +83,8 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 				Streams.copy(stream, zout);
 			}
 
-			byte[] ret = out.toByteArray();
-			if (compressedCache != null)
-			{
-				compressedCache.put(cacheKey, ret);
-			}
-			compressedContent = ret;
-			return ret;
+			compressedContent = out.toByteArray();
+			return compressedContent;
 		}
 		catch (IOException e)
 		{

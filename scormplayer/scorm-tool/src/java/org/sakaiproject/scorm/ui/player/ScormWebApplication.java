@@ -26,8 +26,6 @@ import org.apache.wicket.request.Response;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.ContentPackageResourceReference;
 import org.sakaiproject.scorm.ui.player.pages.ScormCompletionPage;
@@ -40,13 +38,6 @@ import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
  */
 public abstract class ScormWebApplication extends SakaiWebApplication
 {
-    /**
-     * MemoryService cache holding gzipped package assets (HTML/JS/CSS), shared by all
-     * requests. Sizing/TTL can be tuned in sakai.properties via
-     * memory.org.sakaiproject.scorm.ui.player.CompressedAssetCache
-     */
-    public static final String COMPRESSED_ASSET_CACHE_NAME = "org.sakaiproject.scorm.ui.player.CompressedAssetCache";
-
     @Getter @Setter
     private ScormResourceService resourceService;
 
@@ -59,9 +50,6 @@ public abstract class ScormWebApplication extends SakaiWebApplication
     @Getter @Setter
     private LocaleService localeService;
 
-    @Getter @Setter
-    private MemoryService memoryService;
-
     @Override
     public void init()
     {
@@ -71,12 +59,9 @@ public abstract class ScormWebApplication extends SakaiWebApplication
         Objects.requireNonNull(serverConfigurationService, "serverConfigurationService must be set before init()");
         Objects.requireNonNull(contentHostingService, "contentHostingService must be set before init()");
         Objects.requireNonNull(localeService, "localeService must be set before init()");
-        Objects.requireNonNull(memoryService, "memoryService must be set before init()");
-
-        Cache<String, byte[]> compressedAssetCache = memoryService.getCache(COMPRESSED_ASSET_CACHE_NAME);
 
         mountResource( "/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}",
-            new ContentPackageResourceReference(serverConfigurationService, contentHostingService, compressedAssetCache) );
+            new ContentPackageResourceReference(serverConfigurationService, contentHostingService) );
     }
 
     /**
