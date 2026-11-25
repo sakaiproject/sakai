@@ -389,6 +389,10 @@ $(document).ready(function () {
       $("#page-releasedate").prop('checked', true);
     });
 
+    $("#releaseDiv2 input").change(function () {
+      $("#page-releasedate2").prop('checked', true);
+    });
+
     $('#announcements-link').click(function () {
 
       oldloc = $(this);
@@ -1733,14 +1737,12 @@ $(document).ready(function () {
           val: sbpgreleasedate,
           ashidden: { iso8601: 'releaseDate2ISO8601' }
         });
-        if (sbpgreleasedate === '') {  //if there is no release date set, don't check the box and se the date-related fields blank
+        if (sbpgreleasedate === '') {
           $("#page-releasedate2").prop('checked', false);
           $("#release_date2").val('');
           $("#releaseDate2ISO8601").val('');
         } else {
           $("#page-releasedate2").prop('checked', true);
-          $("#releaseDate2ISO8601").val(sbpgreleasedate);
-          $("#release_date2").val(moment(sbpgreleasedate).format('YYYY-MM-DDTHH:mm'));
         }
 
         let pagenext = row.find(".page-next").text();
@@ -3166,31 +3168,13 @@ function checkEditItemForm() {
     return false;
   } else {
     if ($("#page-releasedate2").prop('checked')) {
-      const releaseDate2ISO8601Value = $("#releaseDate2ISO8601").val();
-      const localFormatValue = convertISO8601ToLocal(releaseDate2ISO8601Value);
-      $("#release_date2").val(localFormatValue);
-      $("#sbReleaseDate").text(releaseDate2ISO8601Value);
-    }
-    else {
-      $("#release_date2").val('');
-      $("#sbReleaseDate").text('');
+      $("#release_date2_string").val($("#releaseDate2ISO8601").val());
+    } else {
+      $("#release_date2_string").val('');
     }
     $('#edit-item-error-container').hide();
     return true;
   }
-}
-
-function convertISO8601ToLocal(iso8601String) {
-    if (!iso8601String) return '';
-
-    const date = new Date(iso8601String);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function checkSubpageForm() {

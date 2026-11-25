@@ -16,7 +16,9 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Frame;
 import com.microsoft.playwright.Locator;
@@ -123,6 +125,59 @@ class LessonsReleaseTest extends SakaiUiTestBase {
                 Arrays.stream(expected.split("[\\s\\u202f]+")).map(part -> part.replaceAll("[\\\\^$.|?*+()\\[\\]{}]", "\\\\$0"))
                     .collect(Collectors.joining("\\s+"))));
             assertThat(page.getByText("Future content")).hasCount(0);
+        }
+    }
+
+    /**
+     * Subpage release dates used a different submit path than page Settings and drifted by the
+     * browser/user timezone offset on every Update. Keep Europe/Madrid while the Playwright browser
+     * stays on America/New_York so a regression shows up as a multi-hour shift.
+     */
+    @Test
+    void subpageReleaseDateDoesNotDriftAcrossEditAndSettings() {
+        try (TestUser instructor = sakai.createUser("lessons-subpage-release")) {
+            sakai.login(instructor.username());
+            String courseUrl = sakai.createFreshCourse(instructor.username(), TOOLS);
+            sakai.setUserTimeZone(instructor.username(), "Europe/Madrid");
+            assertEquals("Europe/Madrid", page.evaluate("() => portal.user.timezone"));
+
+            lessons = new LessonsUi(page, sakai);
+            lessons.open(courseUrl);
+
+            String parent = "Release parent " + sakai.randomId();
+            lessons.createTopLevelPage(parent);
+            String child = "Release child " + sakai.randomId();
+            lessons.addSubpage(child);
+            lessons.backToParent(parent);
+
+            String releaseValue = "2025-09-10T00:00";
+            Locator edit = lessons.openItemEditor(lessons.item(child));
+            edit.locator("#page-releasedate2").check();
+            edit.locator("#release_date2").fill(releaseValue);
+            edit.locator("#release_date2").dispatchEvent("change");
+            lessons.saveItemEditor(edit);
+
+            lessons.openSubpageFromParent(child);
+            Locator settings = lessons.openPageSettings();
+            assertTrue(settings.locator("#page-releasedate").isChecked());
+            assertEquals(releaseValue, settings.locator("#release_date").inputValue());
+            settings.locator("button.btn-close").click();
+            assertThat(settings).isHidden();
+
+            lessons.backToParent(parent);
+            edit = lessons.openItemEditor(lessons.item(child));
+            assertTrue(edit.locator("#page-releasedate2").isChecked());
+            assertEquals(releaseValue, edit.locator("#release_date2").inputValue());
+            lessons.saveItemEditor(edit);
+
+            edit = lessons.openItemEditor(lessons.item(child));
+            assertEquals(releaseValue, edit.locator("#release_date2").inputValue());
+            edit.locator("button.btn-close").click();
+            assertThat(edit).isHidden();
+
+            lessons.openSubpageFromParent(child);
+            settings = lessons.openPageSettings();
+            assertEquals(releaseValue, settings.locator("#release_date").inputValue());
         }
     }
 
