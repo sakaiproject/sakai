@@ -21,7 +21,7 @@ export const dashboardData = {
     { id: "widget2", w: 1, h: 1 },
     { id: "widget3", w: 1, h: 1 },
   ],
-  heroWidth: "wide",
+  heroWidth: "full",
   showImage: false,
   image: "",
   layoutEditable: true,

@@ -31,7 +31,11 @@ public class DashboardRestBean {
     private String overview;
     private String programme;
     /** full | wide | narrow — width of the overview/image hero relative to widgets. */
-    private String heroWidth = "wide";
+    private String heroWidth = "full";
+    /** When true, site heroWidth applies to every user; personal prefs are ignored. */
+    private Boolean heroWidthForced = Boolean.FALSE;
+    /** When true, persist heroWidth to the caller's personal course layout prefs. */
+    private Boolean updateHeroWidth = Boolean.FALSE;
     /** Whether the course image is shown in the hero. */
     private Boolean showImage = Boolean.TRUE;
     private String image;
