@@ -244,7 +244,8 @@ class LessonsPagesAndContentTest extends SakaiUiTestBase {
 
         sakai.toolClick(source);
         lessons.openSubpage("Shared child");
-        assertThat(page.locator(".item.textType .textbox")).containsText("shared-changed");
+        assertThat(lessons.item("shared-original")).hasCount(1);
+        assertThat(lessons.item("shared-changed")).hasCount(1);
     }
 
     @Test

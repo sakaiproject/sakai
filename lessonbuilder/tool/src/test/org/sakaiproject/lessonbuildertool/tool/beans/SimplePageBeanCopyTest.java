@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -36,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Before;
@@ -259,6 +261,46 @@ public class SimplePageBeanCopyTest {
 
 		assertFalse(ok);
 		assertTrue(savedObjects.stream().noneMatch(o -> o instanceof SimplePageItem));
+	}
+
+	@Test
+	public void sharedCopyRollbackDeletesLinkButKeepsOriginalSubpage() {
+		SimplePage original = page(40L, null, null, "Child");
+		SimplePageItem pageLink = new SimplePageItemImpl(5, 1, 1, SimplePageItem.PAGE, "40", "Child");
+		SimplePageItem text = new SimplePageItemImpl(6, 1, 2, SimplePageItem.TEXT, null, "Body");
+		when(dao.findItemsOnPage(1L)).thenReturn(List.of(pageLink, text));
+		when(dao.getPage(40L)).thenReturn(original);
+		when(dao.deleteItem(any())).thenReturn(true);
+
+		AtomicInteger itemSaves = new AtomicInteger();
+		when(dao.saveItem(any(), anyList(), anyString(), anyBoolean())).thenAnswer(invocation -> {
+			Object o = invocation.getArgument(0);
+			if (o instanceof SimplePageItem item) {
+				if (itemSaves.getAndIncrement() >= 1) {
+					List<String> elist = invocation.getArgument(1);
+					elist.add("save failed");
+					return false;
+				}
+				if (item.getId() == 0) {
+					item.setId(nextItemId.getAndIncrement());
+				}
+				savedObjects.add(item);
+				return true;
+			}
+			if (o instanceof SimplePage page && page.getPageId() == 0) {
+				page.setPageId(nextPageId.getAndIncrement());
+			}
+			savedObjects.add(o);
+			return true;
+		});
+
+		assertFalse(bean.copyPageItems(1L, 30L, SimplePageBean.SUBPAGE_COPY_SHARED, SITE_ID));
+
+		verify(dao, never()).deleteItem(original);
+		verify(dao).deleteItem(argThat(o -> o instanceof SimplePageItem
+				&& ((SimplePageItem) o).getType() == SimplePageItem.PAGE
+				&& "40".equals(((SimplePageItem) o).getSakaiId())));
+		verify(dao, never()).findItemsOnPage(40L);
 	}
 
 	@Test

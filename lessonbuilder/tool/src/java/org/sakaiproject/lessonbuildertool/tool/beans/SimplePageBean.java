@@ -5622,10 +5622,14 @@ public class SimplePageBean {
 	}
 
 	private void rollbackCopiedItems(List<SimplePageItem> createdItems, Map<Long, Long> pageMap) {
+		Set<Long> visited = new HashSet<>();
 		for (int i = createdItems.size() - 1; i >= 0; i--) {
 			SimplePageItem item = createdItems.get(i);
 			if (item.getType() == SimplePageItem.PAGE) {
-				deleteCopiedPageTree(item.getSakaiId(), pageMap);
+				Long copiedPageId = parsePageId(item.getSakaiId());
+				if (copiedPageId != null && pageMap.containsValue(copiedPageId)) {
+					deleteCopiedPageTree(item.getSakaiId(), pageMap, visited);
+				}
 			}
 			simplePageToolDao.deleteItem(item);
 		}
@@ -5645,21 +5649,19 @@ public class SimplePageBean {
 		simplePageToolDao.deleteItem(newPage);
 	}
 
-	private void deleteCopiedPageTree(String sakaiId, Map<Long, Long> pageMap) {
-		if (StringUtils.isBlank(sakaiId)) {
-			return;
-		}
-		Long pageId;
-		try {
-			pageId = Long.valueOf(sakaiId);
-		} catch (NumberFormatException e) {
+	private void deleteCopiedPageTree(String sakaiId, Map<Long, Long> pageMap, Set<Long> visited) {
+		Long pageId = parsePageId(sakaiId);
+		if (pageId == null || !pageMap.containsValue(pageId) || !visited.add(pageId)) {
 			return;
 		}
 		List<SimplePageItem> childItems = simplePageToolDao.findItemsOnPage(pageId);
 		if (childItems != null) {
 			for (SimplePageItem child : childItems) {
 				if (child.getType() == SimplePageItem.PAGE) {
-					deleteCopiedPageTree(child.getSakaiId(), pageMap);
+					Long childPageId = parsePageId(child.getSakaiId());
+					if (childPageId != null && pageMap.containsValue(childPageId)) {
+						deleteCopiedPageTree(child.getSakaiId(), pageMap, visited);
+					}
 				}
 				simplePageToolDao.deleteItem(child);
 			}
@@ -5675,6 +5677,17 @@ public class SimplePageBean {
 				}
 			}
 			simplePageToolDao.deleteItem(page);
+		}
+	}
+
+	private static Long parsePageId(String sakaiId) {
+		if (StringUtils.isBlank(sakaiId)) {
+			return null;
+		}
+		try {
+			return Long.valueOf(sakaiId);
+		} catch (NumberFormatException e) {
+			return null;
 		}
 	}
 
