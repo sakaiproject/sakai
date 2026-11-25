@@ -335,6 +335,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
             id="${r}"
             site-id="${ifDefined(this.siteId ? this.siteId : "")}"
             user-id="${ifDefined(this.userId ? this.userId : "")}"
+            .savedFilters=${this.widgetFilters?.tasks}
             class="widget"
             state="${w?.state}"
             tile-w="${bindings.tileW}"
@@ -395,6 +396,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
             id="${r}"
             site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
             user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+            .savedFilters=${this.widgetFilters?.calendar}
             class="widget"
             state="${w?.state}"
             tile-w="${bindings.tileW}"
@@ -433,6 +435,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
             id="${r}"
             site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
             user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+            .savedFilters=${this.widgetFilters?.forums}
             state="${w?.state}"
             class="widget"
             tile-w="${bindings.tileW}"

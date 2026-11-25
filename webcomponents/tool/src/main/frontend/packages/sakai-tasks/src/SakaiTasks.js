@@ -11,7 +11,10 @@ export class SakaiTasks extends SakaiPageableElement {
 
   static properties = {
 
+    savedFilters: { attribute: false, type: Object },
+    saveFilters: { attribute: "save-filters", type: Boolean },
     _currentFilter: { state: true },
+    _currentSort: { state: true },
     _canAddTask: { state: true },
     _canUpdateSite: { state: true },
     _groups: { state: true },
@@ -26,6 +29,7 @@ export class SakaiTasks extends SakaiPageableElement {
     this.showPager = true;
     this._canUpdateSite = false;
     this._currentFilter = constants.CURRENT;
+    this._currentSort = "none";
     this.loadTranslations("tasks");
   }
 
@@ -73,14 +77,24 @@ export class SakaiTasks extends SakaiPageableElement {
         this._canAddTask = data.canAddTask;
         this._canUpdateSite = data.canUpdateSite;
         this._groups = data.groups;
-        this.filter(constants.CURRENT);
+        this._applySavedFilters();
       })
       .catch (error => console.error(error));
   }
 
-  sortChanged(e) {
+  _applySavedFilters() {
 
-    switch (e.target.value) {
+    const filter = this.savedFilters?.filter || constants.CURRENT;
+    const sort = this.savedFilters?.sort || "none";
+    this.filter(filter);
+    this._applySort(sort);
+  }
+
+  _applySort(sort) {
+
+    this._currentSort = sort || "none";
+
+    switch (this._currentSort) {
       case "due_latest_first":
         this.data.sort((t1, t2) => t2.due - t1.due);
         break;
@@ -94,9 +108,63 @@ export class SakaiTasks extends SakaiPageableElement {
         this.data.sort((t1, t2) => t2.priority - t1.priority);
         break;
       default:
+        this.data.sort((t1, t2) => t2.priority - t1.priority);
         break;
     }
     this.repage();
+  }
+
+  sortChanged(e) {
+
+    this._applySort(e.target.value);
+  }
+
+  _resolveUserId() {
+
+    return this.userId && this.userId !== "undefined" ? this.userId : globalThis.portal?.user?.id;
+  }
+
+  _filterPayload() {
+
+    return {
+      filter: this._currentFilter,
+      sort: this._currentSort,
+    };
+  }
+
+  _saveFilters() {
+
+    const userId = this._resolveUserId();
+    if (!userId) {
+      return;
+    }
+
+    const url = `/api/users/${userId}/dashboard/filters/tasks`;
+    fetch(url, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(this._filterPayload()),
+    }).catch(error => console.error(error));
+  }
+
+  _resetFilters() {
+
+    const userId = this._resolveUserId();
+    if (!userId) {
+      return;
+    }
+
+    const url = `/api/users/${userId}/dashboard/filters/tasks`;
+    fetch(url, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    }).catch(error => console.error(error));
+
+    this.filter(constants.CURRENT);
+    this._applySort("none");
   }
 
   // Override the method to apply custom filtering, used within the repage() method of SakaiPageableElement
@@ -295,6 +363,24 @@ export class SakaiTasks extends SakaiPageableElement {
       ` : nothing}
 
       <div id="controls">
+        ${this.saveFilters ? html`
+          <div id="filter-actions" class="mb-1">
+            <button type="button"
+                class="btn btn-icon btn-sm"
+                @click=${this._saveFilters}
+                title="${this._i18n.save_filter}"
+                aria-label="${this._i18n.save_filter}">
+              <span class="si si-save fs-6" aria-hidden="true"></span>
+            </button>
+            <button type="button"
+                class="btn btn-icon btn-sm"
+                @click=${this._resetFilters}
+                title="${this._i18n.reset_filter}"
+                aria-label="${this._i18n.reset_filter}">
+              <span class="si si-arrow-clockwise fs-6" aria-hidden="true"></span>
+            </button>
+          </div>
+        ` : nothing}
         <div id="filter">
           <select class="w-100 mb-1" @change=${this.filterChanged} .value=${this._currentFilter} aria-label="${this._i18n.filter_label}">
             <option value="current">${this._i18n.filter_current}</option>
@@ -309,7 +395,7 @@ export class SakaiTasks extends SakaiPageableElement {
           </select>
         </div>
         <div id="sort">
-          <select class="w-100 mb-3" @change=${this.sortChanged} aria-label="${this._i18n.sort_label}">
+          <select class="w-100 mb-3" @change=${this.sortChanged} .value=${this._currentSort} aria-label="${this._i18n.sort_label}">
             <option value="none">${this._i18n.sort_none}</option>
             <option value="due_latest_first">${this._i18n.sort_due_latest_first}</option>
             <option value="due_earliest_first">${this._i18n.sort_due_earliest_first}</option>
@@ -428,6 +514,14 @@ export class SakaiTasks extends SakaiPageableElement {
           color: var(--button-primary-text-color);
         }
 
+        #filter-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+        #filter-actions .btn-icon {
+          --bs-btn-color: var(--sakai-text-color-2);
+        }
         #filter {
           flex: 1;
         }

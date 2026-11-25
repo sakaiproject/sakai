@@ -28,7 +28,7 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
         site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
         page-size="${this._pageSize()}"
         ?secret=${this.revealOnClick !== false}
-        ?save-filters=${Boolean(this.userId) && !this.siteId}
+        ?save-filters=${Boolean(this.userId)}
         ?filters-open=${this.filtersOpen}
         .savedFilters=${this.savedFilters}
         @filters-closed=${this._closeFilters}

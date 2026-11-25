@@ -24,7 +24,7 @@ export class SakaiAnnouncementsWidget extends SakaiDashboardWidget {
         user-id="${ifDefined(this.userId ? this.userId : undefined)}"
         site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
         page-size="${this._pageSize()}"
-        ?save-filters=${Boolean(this.userId) && !this.siteId}
+        ?save-filters=${Boolean(this.userId)}
         ?filters-open=${this.filtersOpen}
         .savedFilters=${this.savedFilters}
         @filters-closed=${this._closeFilters}
