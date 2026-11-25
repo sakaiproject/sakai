@@ -752,6 +752,15 @@ td.disabled{
   color: white;
 }
 
+input[type="checkbox"], input[type="radio"], input.form-check-input[type="checkbox"], input.form-check-input[type="radio"]{
+  min-width: 16px;
+}
+
+.item-parent-label{
+  font-size: 0.75rem;
+  margin-top: -4px;
+}
+
 #tool-order-app {
   .tool-order-busy {
     cursor: progress;

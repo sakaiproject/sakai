@@ -16,11 +16,14 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -71,12 +74,16 @@ public class LessonBuilderEntityProducerTest {
     @Mock
     private RemovedPageService removedPageService;
 
+    @Mock
+    private PageIndexService pageIndexService;
+
     @Before
     public void setUp() {
         producer = new LessonBuilderEntityProducer();
         producer.setSimplePageToolDao(dao);
         producer.setSiteService(siteService);
         producer.setRemovedPageService(removedPageService);
+        producer.setPageIndexService(pageIndexService);
     }
 
     @Test
@@ -144,6 +151,37 @@ public class LessonBuilderEntityProducerTest {
                 .thenReturn(new RemovedPageService.DeleteResult(RemovedPageService.OperationStatus.INVALID, 0));
 
         assertEquals("status=INVALID, deletedCount=0", producer.deleteOrphanPages("siteId"));
+    }
+
+    /**
+     * Site import lists Lessons pages with parentId so Site Info can show hierarchy.
+     * Prefer the stored parent when present; otherwise infer it from PAGE item references
+     * (pseudo-orphan subpages that still hang under a parent in content).
+     */
+    @Test
+    public void getEntityMapExposesStoredAndInferredParents() {
+        String siteId = "import-site";
+        SimplePage week1 = newPage(1L, siteId, "Week 1", "tool-1", null, null);
+        SimplePage assignments = newPage(2L, siteId, "Assignments", null, null, null);
+        SimplePage readings = newPage(3L, siteId, "Readings", null, 1L, 1L);
+
+        SimplePageItem assignmentsLink = new SimplePageItemImpl();
+        assignmentsLink.setType(SimplePageItem.PAGE);
+        assignmentsLink.setSakaiId("2");
+        assignmentsLink.setPageId(1L);
+
+        when(pageIndexService.getRemovedPageIds(siteId)).thenReturn(Collections.emptySet());
+        when(dao.getSitePages(siteId)).thenReturn(List.of(week1, assignments, readings));
+        when(dao.findItemsOnPage(1L)).thenReturn(List.of(assignmentsLink));
+        when(dao.findItemsOnPage(2L)).thenReturn(List.of());
+        when(dao.findItemsOnPage(3L)).thenReturn(List.of());
+
+        Map<String, Map<String, String>> byTitle = producer.getEntityMap(siteId).stream()
+                .collect(Collectors.toMap(entry -> entry.get("title"), Function.identity()));
+
+        assertEquals("0", byTitle.get("Week 1").get("parentId"));
+        assertEquals("1", byTitle.get("Assignments").get("parentId"));
+        assertEquals("1", byTitle.get("Readings").get("parentId"));
     }
 
     /**

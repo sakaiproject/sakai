@@ -2304,12 +2304,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// Find pages referenced by items, but only from active pages.
 		Map<Long, List<Long>> referencedPages = findReferencedPagesByItems(sitePages);
 		Set<Long> validReferencedPageIds = new HashSet<>();
+		Map<Long, Long> inferredParentByItem = new HashMap<>();
 
 		for (Map.Entry<Long, List<Long>> entry : referencedPages.entrySet()) {
 			Long referencingPageId = entry.getKey();
 			// Only include references from active pages.
 			if (!removedPageIds.contains(referencingPageId)) {
 				validReferencedPageIds.addAll(entry.getValue());
+				for (Long childPageId : entry.getValue()) {
+					inferredParentByItem.putIfAbsent(childPageId, referencingPageId);
+				}
 			}
 		}
 
@@ -2322,7 +2326,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			})
 			.map(p -> {
 				String title = p.getTitle() != null ? p.getTitle() : "";
-				return Map.of("id", Long.toString(p.getPageId()), "title", title);
+				String parentId;
+				if (p.getParent() != null) {
+					parentId = Long.toString(p.getParent());
+				} else {
+					Long inferredParent = inferredParentByItem.get(p.getPageId());
+					parentId = inferredParent != null ? Long.toString(inferredParent) : "0";
+				}
+				return Map.of("id", Long.toString(p.getPageId()), "title", title, "parentId", parentId);
 			})
 			.collect(Collectors.toList());
 	}
