@@ -5431,6 +5431,8 @@ public class SimplePageBean {
 				return false;
 			}
 			if (!saveItem(newItem)) {
+				// prepareCopiedItem may have created pages that are not yet linked by a saved item.
+				rollbackOperationCreatedPages(newItem, pageMap);
 				rollbackCopiedItems(createdItems, pageMap);
 				return false;
 			}
@@ -5627,11 +5629,26 @@ public class SimplePageBean {
 			SimplePageItem item = createdItems.get(i);
 			if (item.getType() == SimplePageItem.PAGE) {
 				Long copiedPageId = parsePageId(item.getSakaiId());
+				// Only tear down pages created by this copy. Shared links keep the original page.
 				if (copiedPageId != null && pageMap.containsValue(copiedPageId)) {
 					deleteCopiedPageTree(item.getSakaiId(), pageMap, visited);
 				}
 			}
 			simplePageToolDao.deleteItem(item);
+		}
+	}
+
+	/**
+	 * Remove pages created by {@link #prepareCopiedItem} when the enclosing link was never saved.
+	 * Uses {@code pageMap} so shared links to originals are left alone.
+	 */
+	private void rollbackOperationCreatedPages(SimplePageItem unsavedLink, Map<Long, Long> pageMap) {
+		if (unsavedLink == null || unsavedLink.getType() != SimplePageItem.PAGE) {
+			return;
+		}
+		Long copiedPageId = parsePageId(unsavedLink.getSakaiId());
+		if (copiedPageId != null && pageMap.containsValue(copiedPageId)) {
+			deleteCopiedPageTree(unsavedLink.getSakaiId(), pageMap, new HashSet<>());
 		}
 	}
 
@@ -5832,7 +5849,6 @@ public class SimplePageBean {
 		Object subpageModeAttr = toolSession.getAttribute("lessonbuilder.subpagecopymode");
 		if (subpageModeAttr != null) {
 			subpageMode = subpageModeAttr.toString();
-			toolSession.setAttribute("lessonbuilder.subpagecopymode", null);
 		}
 		if (selectedEntity != null && !selectedEntity.equals("")) {
 		    // second page is involved
@@ -5863,7 +5879,7 @@ public class SimplePageBean {
 			if (!used.add(split[i].trim())) {
 				log.warn("reorder: duplicate value");
 				setErrMessage(messageLocator.getMessage("simplepage.reorder-duplicates"));
-				return "failed"; // it was already there. Oops.
+				return "failed"; // it was already there. Oops. Keep subpagecopymode for retry.
 			}
 		}
 
@@ -5887,6 +5903,7 @@ public class SimplePageBean {
 			    }
 			    newItem.setSequence(i + 1);
 			    if (!saveItem(newItem)) {
+					rollbackOperationCreatedPages(newItem, pageMap);
 					return "failed";
 			    }
 			    simplePageToolDao.copyItem2(oldItem, newItem);
@@ -5907,6 +5924,7 @@ public class SimplePageBean {
 		fixorder();
 		itemsCache.remove(getCurrentPage().getPageId());
 
+		toolSession.setAttribute("lessonbuilder.subpagecopymode", null);
 		return "success";
 	}
 

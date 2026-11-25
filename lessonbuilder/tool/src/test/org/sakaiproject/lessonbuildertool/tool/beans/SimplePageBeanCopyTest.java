@@ -264,6 +264,56 @@ public class SimplePageBeanCopyTest {
 	}
 
 	@Test
+	public void copyPageItemsRollsBackDuplicatedPageWhenEnclosingLinkSaveFails() {
+		SimplePageItem pageLink = new SimplePageItemImpl(5, 1, 1, SimplePageItem.PAGE, "40", "Child");
+		when(dao.findItemsOnPage(1L)).thenReturn(List.of(pageLink));
+		when(dao.findItemsOnPage(40L)).thenReturn(Collections.emptyList());
+		when(dao.findItemsOnPage(100L)).thenReturn(Collections.emptyList());
+		when(dao.canEditPage(40L)).thenReturn(true);
+		when(dao.getPage(40L)).thenReturn(page(40L, null, null, "Child"));
+		when(dao.deleteItem(any())).thenReturn(true);
+
+		Map<Long, SimplePage> pagesById = new HashMap<>();
+		when(dao.saveItem(any(), anyList(), anyString(), anyBoolean())).thenAnswer(invocation -> {
+			Object o = invocation.getArgument(0);
+			if (o instanceof SimplePage page) {
+				if (page.getPageId() == 0) {
+					page.setPageId(nextPageId.getAndIncrement());
+				}
+				pagesById.put(page.getPageId(), page);
+				savedObjects.add(page);
+				return true;
+			}
+			if (o instanceof SimplePageItem) {
+				List<String> elist = invocation.getArgument(1);
+				elist.add("save failed");
+				return false;
+			}
+			savedObjects.add(o);
+			return true;
+		});
+		when(dao.getPage(any(Long.class))).thenAnswer(invocation -> {
+			Long id = invocation.getArgument(0);
+			if (pagesById.containsKey(id)) {
+				return pagesById.get(id);
+			}
+			if (id == 40L) {
+				return page(40L, null, null, "Child");
+			}
+			if (id == 1L) {
+				return page(1L, null, null, "Current");
+			}
+			return null;
+		});
+
+		assertFalse(bean.copyPageItems(1L, 30L, SimplePageBean.SUBPAGE_COPY_DUPLICATE, SITE_ID));
+
+		verify(dao).deleteItem(argThat(o -> o instanceof SimplePage
+				&& ((SimplePage) o).getPageId() == 100L));
+		assertTrue(savedObjects.stream().noneMatch(o -> o instanceof SimplePageItem));
+	}
+
+	@Test
 	public void sharedCopyRollbackDeletesLinkButKeepsOriginalSubpage() {
 		SimplePage original = page(40L, null, null, "Child");
 		SimplePageItem pageLink = new SimplePageItemImpl(5, 1, 1, SimplePageItem.PAGE, "40", "Child");
