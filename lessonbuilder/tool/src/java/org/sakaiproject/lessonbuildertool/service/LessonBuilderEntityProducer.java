@@ -2305,6 +2305,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		Map<Long, List<Long>> referencedPages = findReferencedPagesByItems(sitePages);
 		Set<Long> validReferencedPageIds = new HashSet<>();
 		Map<Long, Long> inferredParentByItem = new HashMap<>();
+		Map<Long, SimplePage> pagesById = sitePages.stream()
+			.collect(Collectors.toMap(SimplePage::getPageId, p -> p, (a, b) -> a));
 
 		for (Map.Entry<Long, List<Long>> entry : referencedPages.entrySet()) {
 			Long referencingPageId = entry.getKey();
@@ -2312,6 +2314,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			if (!removedPageIds.contains(referencingPageId)) {
 				validReferencedPageIds.addAll(entry.getValue());
 				for (Long childPageId : entry.getValue()) {
+					SimplePage childPage = pagesById.get(childPageId);
+					if (childPage != null && childPage.getParent() == null) {
+						String toolId = childPage.getToolId();
+						if (StringUtils.isNotBlank(toolId) && !"0".equals(toolId)) {
+							continue;
+						}
+					}
 					inferredParentByItem.putIfAbsent(childPageId, referencingPageId);
 				}
 			}

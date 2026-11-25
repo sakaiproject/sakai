@@ -1544,7 +1544,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let subtextHtml = '';
                 if (item.parentTitle) {
                   const parentLabelTemplate = document.getElementById('import-item-childof-template')?.value || "Child of {0}";
-                  const parentLabel = parentLabelTemplate.replace('{0}', item.parentTitle);
+                  const escapedParentTitle = $('<div>').text(item.parentTitle ?? "").html();
+                  const parentLabel = parentLabelTemplate.replace('{0}', escapedParentTitle);
                   subtextHtml = `<div class="ms-2 item-parent-label text-muted small">${parentLabel}</div>`;
                 }
                 tr += `
@@ -1587,7 +1588,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
               const isChecked = e.target.checked;
               const checkDescendants = (parentId) => {
-                const children = document.querySelectorAll(`.tool-item-checkbox[data-parent-id="${parentId}"][data-site-id="${siteId}"]`);
+                const children = document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-parent-id="${parentId}"][data-site-id="${siteId}"]`);
                 children.forEach(child => {
                   child.checked = isChecked;
                   checkDescendants(child.value);

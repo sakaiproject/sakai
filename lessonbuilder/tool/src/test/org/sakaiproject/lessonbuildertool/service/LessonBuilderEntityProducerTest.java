@@ -156,12 +156,14 @@ public class LessonBuilderEntityProducerTest {
     /**
      * Site import lists Lessons pages with parentId so Site Info can show hierarchy.
      * Prefer the stored parent when present; otherwise infer it from PAGE item references
-     * (pseudo-orphan subpages that still hang under a parent in content).
+     * (pseudo-orphan subpages that still hang under a parent in content). Placed top-level
+     * pages stay roots even when they mutually link to each other.
      */
     @Test
     public void getEntityMapExposesStoredAndInferredParents() {
         String siteId = "import-site";
         SimplePage week1 = newPage(1L, siteId, "Week 1", "tool-1", null, null);
+        SimplePage week2 = newPage(4L, siteId, "Week 2", "tool-2", null, null);
         SimplePage assignments = newPage(2L, siteId, "Assignments", null, null, null);
         SimplePage readings = newPage(3L, siteId, "Readings", null, 1L, 1L);
 
@@ -170,16 +172,28 @@ public class LessonBuilderEntityProducerTest {
         assignmentsLink.setSakaiId("2");
         assignmentsLink.setPageId(1L);
 
+        SimplePageItem week2Link = new SimplePageItemImpl();
+        week2Link.setType(SimplePageItem.PAGE);
+        week2Link.setSakaiId("4");
+        week2Link.setPageId(1L);
+
+        SimplePageItem week1Link = new SimplePageItemImpl();
+        week1Link.setType(SimplePageItem.PAGE);
+        week1Link.setSakaiId("1");
+        week1Link.setPageId(4L);
+
         when(pageIndexService.getRemovedPageIds(siteId)).thenReturn(Collections.emptySet());
-        when(dao.getSitePages(siteId)).thenReturn(List.of(week1, assignments, readings));
-        when(dao.findItemsOnPage(1L)).thenReturn(List.of(assignmentsLink));
+        when(dao.getSitePages(siteId)).thenReturn(List.of(week1, assignments, readings, week2));
+        when(dao.findItemsOnPage(1L)).thenReturn(List.of(assignmentsLink, week2Link));
         when(dao.findItemsOnPage(2L)).thenReturn(List.of());
         when(dao.findItemsOnPage(3L)).thenReturn(List.of());
+        when(dao.findItemsOnPage(4L)).thenReturn(List.of(week1Link));
 
         Map<String, Map<String, String>> byTitle = producer.getEntityMap(siteId).stream()
                 .collect(Collectors.toMap(entry -> entry.get("title"), Function.identity()));
 
         assertEquals("0", byTitle.get("Week 1").get("parentId"));
+        assertEquals("0", byTitle.get("Week 2").get("parentId"));
         assertEquals("1", byTitle.get("Assignments").get("parentId"));
         assertEquals("1", byTitle.get("Readings").get("parentId"));
     }

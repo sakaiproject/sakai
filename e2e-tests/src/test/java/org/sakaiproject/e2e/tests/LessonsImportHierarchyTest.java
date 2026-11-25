@@ -76,13 +76,13 @@ class LessonsImportHierarchyTest extends SakaiUiTestBase {
             .locator("xpath=ancestor::td[1]//input.tool-item-checkbox");
         Locator assignmentCheckbox = assignmentCell.locator("input.tool-item-checkbox");
         Locator readingsCheckbox = readingsCell.locator("input.tool-item-checkbox");
-        weekCheckbox.uncheck(new Locator.UncheckOptions().setForce(true));
-        assertTrue(!assignmentCheckbox.isChecked());
-        assertTrue(!readingsCheckbox.isChecked());
-
         weekCheckbox.check(new Locator.CheckOptions().setForce(true));
         assertTrue(assignmentCheckbox.isChecked());
         assertTrue(readingsCheckbox.isChecked());
+
+        weekCheckbox.uncheck(new Locator.UncheckOptions().setForce(true));
+        assertTrue(!assignmentCheckbox.isChecked());
+        assertTrue(!readingsCheckbox.isChecked());
         assertThat(page.locator("#toolSite-sakai\\.lessonbuildertool-" + sourceSiteId)).isVisible();
     }
 
