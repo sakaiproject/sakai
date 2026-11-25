@@ -443,7 +443,9 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 	public void startRenderResponse() {
 		log.debug("startRenderResponse");
 		init();
-		ensureResultsCacheComplete();
+		if (getIsOneSelectionType()) {
+			ensureResultsCacheComplete();
+		}
 	}
 	
   /**

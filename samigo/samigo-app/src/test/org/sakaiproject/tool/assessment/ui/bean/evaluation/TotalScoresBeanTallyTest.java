@@ -108,6 +108,28 @@ public class TotalScoresBeanTallyTest {
 		assertEquals(3, bean.tallyCalls);
 	}
 
+	@Test
+	public void startRenderResponseSkipsTallyWhenColumnHidden() {
+		RecordingTotalScoresBean hidden = new RecordingTotalScoresBean(false);
+		hidden.setAllAgents(List.of(agent(10L)));
+
+		hidden.startRenderResponse();
+
+		assertEquals(0, hidden.tallyCalls);
+	}
+
+	@Test
+	public void startRenderResponseTalliesWhenColumnShown() {
+		RecordingTotalScoresBean shown = new RecordingTotalScoresBean(true);
+		shown.setAllAgents(List.of(agent(10L)));
+
+		shown.startRenderResponse();
+
+		assertEquals(1, shown.tallyCalls);
+		assertEquals(List.of(1, 0, 0), shown.getResults().get(10L));
+		assertEquals(1, shown.tallyCalls);
+	}
+
 	private static AgentResults agent(long gradingId) {
 		AgentResults agent = new AgentResults();
 		agent.setAssessmentGradingId(gradingId);
@@ -117,6 +139,20 @@ public class TotalScoresBeanTallyTest {
 	private static final class RecordingTotalScoresBean extends TotalScoresBean {
 		private int tallyCalls;
 		private final Set<Long> talliedGradingIds = new HashSet<>();
+		private final Boolean oneSelectionType;
+
+		private RecordingTotalScoresBean() {
+			this(null);
+		}
+
+		private RecordingTotalScoresBean(Boolean oneSelectionType) {
+			this.oneSelectionType = oneSelectionType;
+		}
+
+		@Override
+		public boolean getIsOneSelectionType() {
+			return oneSelectionType != null ? oneSelectionType : super.getIsOneSelectionType();
+		}
 
 		@Override
 		void tallyAgents(Collection agentsToTally, Map<Long, List<Integer>> resultsByUser) {
