@@ -274,6 +274,42 @@ public class SimplePageBeanCopyTest {
 		when(dao.deleteItem(any())).thenReturn(true);
 
 		Map<Long, SimplePage> pagesById = new HashMap<>();
+		stubPageSavesFailingEnclosingLink(pagesById);
+
+		assertFalse(bean.copyPageItems(1L, 30L, SimplePageBean.SUBPAGE_COPY_DUPLICATE, SITE_ID));
+
+		verify(dao).deleteItem(argThat(o -> o instanceof SimplePage
+				&& ((SimplePage) o).getPageId() == 100L));
+		assertTrue(savedObjects.stream().noneMatch(o -> o instanceof SimplePageItem));
+	}
+
+	@Test
+	public void duplicateSubpageTreeRollsBackNestedPagesWhenLinkSaveFails() {
+		SimplePage source = page(20L, null, null, "Parent");
+		SimplePage child = page(40L, 20L, 20L, "Child");
+		SimplePageItem childLink = new SimplePageItemImpl(5, 20, 1, SimplePageItem.PAGE, "40", "Child");
+		when(dao.getPage(20L)).thenReturn(source);
+		when(dao.getPage(40L)).thenReturn(child);
+		when(dao.canEditPage(20L)).thenReturn(true);
+		when(dao.canEditPage(40L)).thenReturn(true);
+		when(dao.findItemsOnPage(20L)).thenReturn(List.of(childLink));
+		when(dao.findItemsOnPage(40L)).thenReturn(Collections.emptyList());
+		when(dao.findItemsOnPage(100L)).thenReturn(Collections.emptyList());
+		when(dao.findItemsOnPage(101L)).thenReturn(Collections.emptyList());
+		when(dao.deleteItem(any())).thenReturn(true);
+
+		Map<Long, SimplePage> pagesById = new HashMap<>();
+		stubPageSavesFailingEnclosingLink(pagesById);
+
+		assertNull(bean.duplicateSubpageTree(20L, 1L, new HashMap<>()));
+
+		verify(dao).deleteItem(argThat(o -> o instanceof SimplePage
+				&& ((SimplePage) o).getPageId() == 101L));
+		verify(dao).deleteItem(argThat(o -> o instanceof SimplePage
+				&& ((SimplePage) o).getPageId() == 100L));
+	}
+
+	private void stubPageSavesFailingEnclosingLink(Map<Long, SimplePage> pagesById) {
 		when(dao.saveItem(any(), anyList(), anyString(), anyBoolean())).thenAnswer(invocation -> {
 			Object o = invocation.getArgument(0);
 			if (o instanceof SimplePage page) {
@@ -298,19 +334,16 @@ public class SimplePageBeanCopyTest {
 				return pagesById.get(id);
 			}
 			if (id == 40L) {
-				return page(40L, null, null, "Child");
+				return page(40L, 20L, 20L, "Child");
+			}
+			if (id == 20L) {
+				return page(20L, null, null, "Parent");
 			}
 			if (id == 1L) {
 				return page(1L, null, null, "Current");
 			}
 			return null;
 		});
-
-		assertFalse(bean.copyPageItems(1L, 30L, SimplePageBean.SUBPAGE_COPY_DUPLICATE, SITE_ID));
-
-		verify(dao).deleteItem(argThat(o -> o instanceof SimplePage
-				&& ((SimplePage) o).getPageId() == 100L));
-		assertTrue(savedObjects.stream().noneMatch(o -> o instanceof SimplePageItem));
 	}
 
 	@Test

@@ -5554,6 +5554,7 @@ public class SimplePageBean {
 				return null;
 			}
 			if (!saveItem(newItem)) {
+				rollbackOperationCreatedPages(newItem, pageMap);
 				rollbackDuplicatedSubtree(newPage, createdItems, pageMap, sourcePageId);
 				return null;
 			}
