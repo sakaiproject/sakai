@@ -109,7 +109,7 @@ final class LessonsUi {
     void openSubpage(String title) {
         item(title).locator("a.itemlink").first().click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        assertThat(page.locator(".neoPortletTitleWrap")).containsText(title);
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
     }
 
     private Locator openAddContent() {

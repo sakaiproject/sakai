@@ -368,7 +368,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         if (StringUtils.equals(returnView, "reorder")) {
             UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"),
-                    "#{simplePageBean.addItemsFromPage}");
+                    "#{simplePageBean.selectPage}");
         } else if (params.newTopLevel) {
             UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", params.getAddBefore());
             UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"),
