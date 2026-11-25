@@ -32,7 +32,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
-/** SAK-50040: scores entered in the Gradebook notify the student when the item is released. */
+/**
+ * SAK-50040: scores entered in the Gradebook notify the student when the item is released.
+ * SAK-53146: re-grading the item while that alert is unread doesn't add another one.
+ */
 class GradebookGradeNotificationTest extends SakaiUiTestBase {
 
     private static final String STUDENT = "student0011";
@@ -56,6 +59,7 @@ class GradebookGradeNotificationTest extends SakaiUiTestBase {
         String hiddenId = addItem(hidden, false);
 
         enterScore(releasedId, STUDENT, studentId, "85");
+        enterScore(releasedId, STUDENT, studentId, "90");
         enterScore(hiddenId, OTHER_STUDENT, otherStudentId, "70");
 
         sakai.login(STUDENT);
