@@ -3149,7 +3149,9 @@ public class SimplePageBean {
 		if (!simplePageToolDao.canEditPage(sourcePageId))
 		    return "permission-failed";
 
-		copyPageItems(sourcePageId, getCurrentPageId(), getSubpageCopyMode(), sourcePage.getSiteId());
+		if (!copyPageItems(sourcePageId, getCurrentPageId(), getSubpageCopyMode(), sourcePage.getSiteId())) {
+		    return "failure";
+		}
 		fixorder();
 		itemsCache.remove(getCurrentPage().getPageId());
 		setTopRefresh();
@@ -3225,7 +3227,9 @@ public class SimplePageBean {
 		        subpage.setOwned(owner!=null);
 		    }
 		    subpage.setGroup(group);
-		    saveItem(subpage);
+		    if (!saveItem(subpage)) {
+				return "failure";
+		    }
 		    selectedEntity = String.valueOf(subpage.getPageId());
 		} else if (SUBPAGE_COPY_DUPLICATE.equals(getSubpageCopyMode())) {
 		    // pick existing page: create an independent copy of the page and its subpages
@@ -5399,7 +5403,9 @@ public class SimplePageBean {
 		}
 
 	    if (StringUtils.isNotBlank(copyMode)) {
-	    	copyPageItems(getCurrentPageId(), page.getPageId(), copyMode, getCurrentSiteId());
+	    	if (!copyPageItems(getCurrentPageId(), page.getPageId(), copyMode, getCurrentSiteId())) {
+	    		log.warn("addPage: copy of items onto page {} failed", page.getPageId());
+	    	}
 	    }
 
 	    setTopRefresh();
@@ -5407,10 +5413,11 @@ public class SimplePageBean {
 	    return page;
 	}
 
-	private void copyPageItems(long sourcePageId, long targetPageId, String subpageMode, String sourceSiteId) {
+	boolean copyPageItems(long sourcePageId, long targetPageId, String subpageMode, String sourceSiteId) {
 		Map<Long, Long> pageMap = new HashMap<>();
 		List<SimplePageItem> sourceItems = simplePageToolDao.findItemsOnPage(sourcePageId);
 		int seq = nextItemSequence(targetPageId);
+		List<SimplePageItem> createdItems = new ArrayList<>();
 
 		for (SimplePageItem oldItem : sourceItems) {
 			if (oldItem.getSequence() <= 0) {
@@ -5419,10 +5426,18 @@ public class SimplePageBean {
 			SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
 			newItem.setPageId(targetPageId);
 			newItem.setSequence(seq++);
-			prepareCopiedItem(newItem, oldItem, sourceSiteId, subpageMode, pageMap);
-			saveItem(newItem);
+			if (!prepareCopiedItem(newItem, oldItem, sourceSiteId, subpageMode, pageMap)) {
+				rollbackCopiedItems(createdItems, pageMap);
+				return false;
+			}
+			if (!saveItem(newItem)) {
+				rollbackCopiedItems(createdItems, pageMap);
+				return false;
+			}
+			createdItems.add(newItem);
 			simplePageToolDao.copyItem2(oldItem, newItem);
 		}
+		return true;
 	}
 
 	private int nextItemSequence(long pageId) {
@@ -5436,21 +5451,23 @@ public class SimplePageBean {
 		return seq;
 	}
 
-	private void prepareCopiedItem(SimplePageItem newItem, SimplePageItem oldItem, String sourceSiteId,
+	boolean prepareCopiedItem(SimplePageItem newItem, SimplePageItem oldItem, String sourceSiteId,
 			String subpageMode, Map<Long, Long> pageMap) {
 		if (newItem.getType() == SimplePageItem.PAGE) {
 			if (SUBPAGE_COPY_DUPLICATE.equals(subpageMode)) {
 				Long oldSubpageId = Long.valueOf(oldItem.getSakaiId());
 				Long newSubpageId = duplicateSubpageTree(oldSubpageId, newItem.getPageId(), pageMap);
-				if (newSubpageId != null) {
-					newItem.setSakaiId(newSubpageId.toString());
+				if (newSubpageId == null) {
+					return false;
 				}
+				newItem.setSakaiId(newSubpageId.toString());
 			} else {
 				adjustSharedSubpageItem(newItem, sourceSiteId);
 			}
 		} else {
 			adjustCopiedNonPageItem(newItem, sourceSiteId);
 		}
+		return true;
 	}
 
 	private void adjustSharedSubpageItem(SimplePageItem newItem, String sourceSiteId) {
@@ -5495,9 +5512,14 @@ public class SimplePageBean {
 		}
 	}
 
-	private Long duplicateSubpageTree(Long sourcePageId, Long parentPageId, Map<Long, Long> pageMap) {
+	Long duplicateSubpageTree(Long sourcePageId, Long parentPageId, Map<Long, Long> pageMap) {
 		if (pageMap.containsKey(sourcePageId)) {
 			return pageMap.get(sourcePageId);
+		}
+
+		if (!simplePageToolDao.canEditPage(sourcePageId)) {
+			log.warn("duplicateSubpageTree: no edit permission for page {}", sourcePageId);
+			return null;
 		}
 
 		SimplePage sourcePage = simplePageToolDao.getPage(sourcePageId);
@@ -5505,19 +5527,19 @@ public class SimplePageBean {
 			return null;
 		}
 
-		SimplePage currentPage = getCurrentPage();
-		Long topParent = currentPage.getTopParent();
-		if (topParent == null) {
-			topParent = currentPage.getPageId();
-		}
+		Long topParent = resolveTopParent(parentPageId);
 
 		String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 		SimplePage newPage = simplePageToolDao.makePage(toolId, getCurrentSiteId(), sourcePage.getTitle(), parentPageId, topParent);
 		copyPageProperties(sourcePage, newPage, sourcePage.getSiteId());
-		saveItem(newPage);
+		if (!saveItem(newPage)) {
+			return null;
+		}
+		registerCopiedPageGradebook(sourcePage, newPage);
 		pageMap.put(sourcePageId, newPage.getPageId());
 
 		String sourceSiteId = sourcePage.getSiteId();
+		List<SimplePageItem> createdItems = new ArrayList<>();
 		for (SimplePageItem oldItem : simplePageToolDao.findItemsOnPage(sourcePageId)) {
 			if (oldItem.getSequence() <= 0) {
 				continue;
@@ -5525,15 +5547,36 @@ public class SimplePageBean {
 			SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
 			newItem.setPageId(newPage.getPageId());
 			newItem.setSequence(oldItem.getSequence());
-			prepareCopiedItem(newItem, oldItem, sourceSiteId, SUBPAGE_COPY_DUPLICATE, pageMap);
-			saveItem(newItem);
+			if (!prepareCopiedItem(newItem, oldItem, sourceSiteId, SUBPAGE_COPY_DUPLICATE, pageMap)) {
+				rollbackDuplicatedSubtree(newPage, createdItems, pageMap, sourcePageId);
+				return null;
+			}
+			if (!saveItem(newItem)) {
+				rollbackDuplicatedSubtree(newPage, createdItems, pageMap, sourcePageId);
+				return null;
+			}
+			createdItems.add(newItem);
 			simplePageToolDao.copyItem2(oldItem, newItem);
 		}
 
 		return newPage.getPageId();
 	}
 
-	private void copyPageProperties(SimplePage source, SimplePage target, String sourceSiteId) {
+	Long resolveTopParent(Long parentPageId) {
+		if (parentPageId == null) {
+			SimplePage current = getCurrentPage();
+			Long top = current.getTopParent();
+			return top != null ? top : current.getPageId();
+		}
+		SimplePage parent = getPage(parentPageId);
+		if (parent == null) {
+			return parentPageId;
+		}
+		Long top = parent.getTopParent();
+		return top != null ? top : parent.getPageId();
+	}
+
+	void copyPageProperties(SimplePage source, SimplePage target, String sourceSiteId) {
 		String siteId = getCurrentSiteId();
 		if (source.getCssSheet() != null) {
 			target.setCssSheet(source.getCssSheet().replace("/group/" + sourceSiteId + "/", "/group/" + siteId + "/"));
@@ -5541,13 +5584,98 @@ public class SimplePageBean {
 		target.setHidden(source.isHidden());
 		target.setHiddenFromNavigation(source.isHiddenFromNavigation());
 		target.setReleaseDate(source.getReleaseDate());
-		target.setGradebookPoints(source.getGradebookPoints());
+		// Gradebook points stay cleared until registerCopiedPageGradebook succeeds for the new page ID.
+		target.setGradebookPoints(null);
 		if (source.getFolder() != null) {
 			target.setFolder(source.getFolder().replace("/group/" + sourceSiteId + "/", "/group/" + siteId + "/"));
 		}
 		target.setOwner(source.getOwner());
 		target.setGroup(source.getGroup());
 		target.setOwned(source.isOwned());
+	}
+
+	boolean registerCopiedPageGradebook(SimplePage source, SimplePage target) {
+		Double points = source.getGradebookPoints();
+		if (points == null || points <= 0) {
+			return true;
+		}
+		String siteId = getCurrentSiteId();
+		boolean add = false;
+		try {
+			List<String> gradebookUids = Arrays.asList(siteId);
+			if (gradebookIfc.isGradebookGroupEnabled(siteId)) {
+				gradebookUids = gradebookIfc.getGradebookGroupInstances(siteId);
+			}
+			add = gradebookIfc.addExternalAssessment(gradebookUids, siteId,
+					"lesson-builder:" + target.getPageId(), null,
+					target.getTitle(), points, null, LessonBuilderConstants.TOOL_ID);
+		} catch (ConflictingAssignmentNameException cane) {
+			log.warn("Gradebook title conflict registering copied page {}: {}", target.getPageId(), cane.toString());
+		} catch (RuntimeException e) {
+			log.warn("Failed to register gradebook for copied page {}: {}", target.getPageId(), e.toString());
+		}
+		if (add) {
+			target.setGradebookPoints(points);
+			update(target);
+		}
+		return add;
+	}
+
+	private void rollbackCopiedItems(List<SimplePageItem> createdItems, Map<Long, Long> pageMap) {
+		for (int i = createdItems.size() - 1; i >= 0; i--) {
+			SimplePageItem item = createdItems.get(i);
+			if (item.getType() == SimplePageItem.PAGE) {
+				deleteCopiedPageTree(item.getSakaiId(), pageMap);
+			}
+			simplePageToolDao.deleteItem(item);
+		}
+	}
+
+	private void rollbackDuplicatedSubtree(SimplePage newPage, List<SimplePageItem> createdItems,
+			Map<Long, Long> pageMap, Long sourcePageId) {
+		rollbackCopiedItems(createdItems, pageMap);
+		pageMap.remove(sourcePageId);
+		if (newPage.getGradebookPoints() != null) {
+			try {
+				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), "lesson-builder:" + newPage.getPageId());
+			} catch (RuntimeException e) {
+				log.warn("Failed removing gradebook for rolled-back page {}: {}", newPage.getPageId(), e.toString());
+			}
+		}
+		simplePageToolDao.deleteItem(newPage);
+	}
+
+	private void deleteCopiedPageTree(String sakaiId, Map<Long, Long> pageMap) {
+		if (StringUtils.isBlank(sakaiId)) {
+			return;
+		}
+		Long pageId;
+		try {
+			pageId = Long.valueOf(sakaiId);
+		} catch (NumberFormatException e) {
+			return;
+		}
+		List<SimplePageItem> childItems = simplePageToolDao.findItemsOnPage(pageId);
+		if (childItems != null) {
+			for (SimplePageItem child : childItems) {
+				if (child.getType() == SimplePageItem.PAGE) {
+					deleteCopiedPageTree(child.getSakaiId(), pageMap);
+				}
+				simplePageToolDao.deleteItem(child);
+			}
+		}
+		pageMap.values().removeIf(pageId::equals);
+		SimplePage page = simplePageToolDao.getPage(pageId);
+		if (page != null) {
+			if (page.getGradebookPoints() != null) {
+				try {
+					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), "lesson-builder:" + pageId);
+				} catch (RuntimeException e) {
+					log.warn("Failed removing gradebook for rolled-back page {}: {}", pageId, e.toString());
+				}
+			}
+			simplePageToolDao.deleteItem(page);
+		}
 	}
 
 	// when a gradebook entry is added or point value for page changed, need to
@@ -5739,10 +5867,15 @@ public class SimplePageBean {
 			    SimplePageItem oldItem = secondItems.get(Integer.parseInt(split[i].substring(1)) - 1);
 			    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
 			    Map<Long, Long> pageMap = new HashMap<>();
-			    prepareCopiedItem(newItem, oldItem, otherSiteId, subpageMode, pageMap);
 			    newItem.setPageId(getCurrentPageId());
+			    if (!prepareCopiedItem(newItem, oldItem, otherSiteId, subpageMode, pageMap)) {
+					setErrMessage(messageLocator.getMessage("simplepage.savefailed"));
+					return "failed";
+			    }
 			    newItem.setSequence(i + 1);
-			    saveItem(newItem);
+			    if (!saveItem(newItem)) {
+					return "failed";
+			    }
 			    simplePageToolDao.copyItem2(oldItem, newItem);
 			} else {
 			    // existing item. update its sequence and note that it's still used
