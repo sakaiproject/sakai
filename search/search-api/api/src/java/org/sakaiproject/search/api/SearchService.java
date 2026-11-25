@@ -230,15 +230,6 @@ public interface SearchService extends Diagnosable
 
 
 	/**
-	 * Adds a function for the SearchService to respond to and route to the
-	 * index builder. EntityProducers that want their content to be searched,
-	 * should register the events that indicate new data to this
-	 * 
-	 * @param function
-	 */
-	void registerFunction(String function);
-
-	/**
 	 * When reload is called, the index should be reloaded
 	 */
 	void reload();

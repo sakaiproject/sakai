@@ -47,7 +47,6 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -58,7 +57,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 @Slf4j
-public class LessonsEntityContentProducer implements EntityContentProducer, EntityContentProducerEvents
+public class LessonsEntityContentProducer implements EntityContentProducer
 {
 	static final String REFERENCE_ROOT = Entity.SEPARATOR + "lessonbuilder";
 
@@ -480,7 +479,7 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 	}
 
 	@Override
-	public Set<String> getTriggerFunctions() {
+	public Set<String> getTriggerEvents() {
 		return EVENT_ACTIONS.keySet();
 	}
 

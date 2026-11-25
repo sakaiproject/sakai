@@ -93,7 +93,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
@@ -1454,8 +1453,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     @Override
     public Set<String> getContentFunctions() {
         return producers.stream()
-                .filter(ecp -> ecp instanceof EntityContentProducerEvents)
-                .flatMap(ecp -> ((EntityContentProducerEvents)ecp).getTriggerFunctions().stream())
+                .flatMap(ecp -> ecp.getTriggerEvents().stream())
                 .collect(Collectors.toSet());
     }
 

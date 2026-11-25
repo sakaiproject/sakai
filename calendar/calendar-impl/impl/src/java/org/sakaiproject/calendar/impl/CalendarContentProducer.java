@@ -35,7 +35,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
@@ -51,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Setter
-public class CalendarContentProducer implements EntityContentProducer, EntityContentProducerEvents {
+public class CalendarContentProducer implements EntityContentProducer {
 
     private static final String EVENT_REFERENCE_PREFIX = CalendarService.REFERENCE_ROOT + Entity.SEPARATOR
             + CalendarService.REF_TYPE_EVENT + Entity.SEPARATOR;
@@ -74,7 +73,7 @@ public class CalendarContentProducer implements EntityContentProducer, EntityCon
     }
 
     @Override
-    public Set<String> getTriggerFunctions() {
+    public Set<String> getTriggerEvents() {
         return EVENT_ACTIONS.keySet();
     }
 

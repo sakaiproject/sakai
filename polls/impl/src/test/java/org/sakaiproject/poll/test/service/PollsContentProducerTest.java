@@ -47,7 +47,6 @@ import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -102,7 +101,7 @@ public class PollsContentProducerTest {
 
     @Test
     public void listensToPollChangesAsThePollsTool() {
-        assertEquals(Set.of("poll.add", "poll.update", "poll.delete"), ((EntityContentProducerEvents) producer).getTriggerFunctions());
+        assertEquals(Set.of("poll.add", "poll.update", "poll.delete"), producer.getTriggerEvents());
         assertEquals("polls", producer.getTool());
     }
 

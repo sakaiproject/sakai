@@ -360,9 +360,9 @@ And the 'pack' module that bundles your implementation into a Sakai component sh
   - Custom index builders should not use the default `name` ('Default') nor default `indexName` ('sakai_index') values.
   - Be sure to configure `destroy()` as the bean's `destroy-method`.
 4. Create default index and document mapping configurations at `<custom-builder-module-impl>/src/resources/org/sakaiproject/search/elastic/bundle/indexSettings.json` and `<custom-builder-module-impl>/src/resources/org/sakaiproject/search/elastic/bundle/mapping.json` respectively.
-5. Register EntityContentProducers with your index builder. As a best practice, EntityContentProducers should register themselves with their index builder only and _not_ with the ElasticSearchService. Additionally, EntityContentProducers should implement the EntityContentProducerEvents interface, which the index builder will use to source the list of events which should trigger re-index of EntityContentProducer-owned entities. A typical implementation of registration boilerplate in an EntityContentProducer should resemble the following:
+5. Register EntityContentProducers with your index builder. As a best practice, EntityContentProducers should register themselves with their index builder only and _not_ with the ElasticSearchService. Additionally, EntityContentProducers should override `getTriggerEvents()`, which the index builder will use to source the list of events which should trigger re-index of EntityContentProducer-owned entities. A typical implementation of registration boilerplate in an EntityContentProducer should resemble the following:
 ```
-public class MyEntityContentProducer implements EntityContentProducer, EntityContentProducerEvents {
+public class MyEntityContentProducer implements EntityContentProducer {
 
   // ... snip ...
   private ElasticSearchIndexBuilder indexBuilder;
@@ -374,8 +374,8 @@ public class MyEntityContentProducer implements EntityContentProducer, EntityCon
   }
 
   @Override
-  public Set<String> getTriggerFunctions() {
-    return Sets.newHashSet("myentity.add","myentity.update","myentity.delete");
+  public Set<String> getTriggerEvents() {
+    return Set.of("myentity.add","myentity.update","myentity.delete");
   }
   // ... snip ...
 }

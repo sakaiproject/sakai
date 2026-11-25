@@ -283,7 +283,6 @@
     <bean id="forumsAdaptor"
         class="org.sakaiproject.component.app.messageforums.entity.MessageForumsEntityContentProducer"
         init-method="init">
-        <property name="searchService" ref="org.sakaiproject.search.api.SearchService" />
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="toolName">

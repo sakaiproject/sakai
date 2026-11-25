@@ -37,7 +37,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -53,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Setter
-public class AssignmentContentProducer implements EntityContentProducer, EntityContentProducerEvents {
+public class AssignmentContentProducer implements EntityContentProducer {
 
     private AssignmentService assignmentService;
     private SearchIndexBuilder searchIndexBuilder;
@@ -210,7 +209,7 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
     }
 
     @Override
-    public Set<String> getTriggerFunctions() {
+    public Set<String> getTriggerEvents() {
         return EVENT_ACTIONS.keySet();
     }
 }

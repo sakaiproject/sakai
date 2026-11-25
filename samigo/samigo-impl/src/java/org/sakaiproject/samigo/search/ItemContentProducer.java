@@ -28,7 +28,6 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.entity.impl.ItemEntityProviderImpl;
@@ -40,7 +39,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ItemContentProducer implements EntityContentProducer, EntityContentProducerEvents {
+public class ItemContentProducer implements EntityContentProducer {
 
     @Getter @Setter private EntityManager entityManager = null;
     @Setter EntityProviderManager entityProviderManager;
@@ -67,7 +66,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
     }
 
     @Override
-    public Set<String> getTriggerFunctions() {
+    public Set<String> getTriggerEvents() {
         return EVENT_ACTIONS.keySet();
     }
 

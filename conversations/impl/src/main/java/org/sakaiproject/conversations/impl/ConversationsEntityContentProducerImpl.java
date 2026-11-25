@@ -17,8 +17,10 @@ package org.sakaiproject.conversations.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -36,7 +38,6 @@ import org.sakaiproject.conversations.api.repository.ConversationsTopicRepositor
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -61,8 +62,6 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
     @Setter
     private SearchIndexBuilder searchIndexBuilder;
     @Autowired
-    private SearchService searchService;
-    @Autowired
     private ServerConfigurationService serverConfigurationService;
 
     private List<String> addingEvents = new ArrayList<>();
@@ -80,9 +79,6 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
             deletingEvents.add(ConversationsEvent.TOPIC_DELETED.label);
             deletingEvents.add(ConversationsEvent.POST_DELETED.label);
             deletingEvents.add(ConversationsEvent.COMMENT_DELETED.label);
-            addingEvents.forEach(searchService::registerFunction);
-            deletingEvents.forEach(searchService::registerFunction);
-
             searchIndexBuilder.registerEntityContentProducer(this);
         }
     }
@@ -115,6 +111,14 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
 
         String evt = event.getEvent();
         return addingEvents.contains(evt) || deletingEvents.contains(evt);
+    }
+
+    @Override
+    public Set<String> getTriggerEvents() {
+
+        Set<String> events = new HashSet<>(addingEvents);
+        events.addAll(deletingEvents);
+        return events;
     }
 
     @Override

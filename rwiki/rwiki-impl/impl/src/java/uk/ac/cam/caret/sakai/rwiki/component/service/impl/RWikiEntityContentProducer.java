@@ -38,7 +38,6 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -53,7 +52,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
 @Slf4j
-public class RWikiEntityContentProducer implements EntityContentProducer, EntityContentProducerEvents
+public class RWikiEntityContentProducer implements EntityContentProducer
 {
 
 	private RenderService renderService = null;
@@ -444,7 +443,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer, Entity
 	}
 
 	@Override
-	public Set<String> getTriggerFunctions() {
+	public Set<String> getTriggerEvents() {
 		return EVENT_ACTIONS.keySet();
 	}
 

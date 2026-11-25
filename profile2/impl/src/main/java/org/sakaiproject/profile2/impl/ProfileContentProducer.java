@@ -34,7 +34,6 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.user.api.User;
@@ -48,7 +47,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Setter @Slf4j
-public class ProfileContentProducer implements EntityContentProducer, EntityContentProducerEvents {
+public class ProfileContentProducer implements EntityContentProducer {
 
     private static final String REFERENCE_ROOT = Entity.SEPARATOR + "profile";
     private static final String PROFILE = "profile";
@@ -79,7 +78,7 @@ public class ProfileContentProducer implements EntityContentProducer, EntityCont
     }
 
     @Override
-    public Set<String> getTriggerFunctions() {
+    public Set<String> getTriggerEvents() {
         return EVENT_ACTIONS.keySet();
     }
 

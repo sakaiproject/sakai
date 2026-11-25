@@ -107,9 +107,6 @@
       <property name="chatManager">
       	<ref bean="org.sakaiproject.chat2.model.ChatManager"/>
       </property>
-      <property name="searchService">
-      	<ref bean="org.sakaiproject.search.api.SearchService" />
-      </property>
       <property name="searchIndexBuilder">
       	<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
       </property>

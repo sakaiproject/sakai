@@ -32,7 +32,6 @@ import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
@@ -50,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Setter
-public class PollsContentProducer implements EntityContentProducer, EntityContentProducerEvents {
+public class PollsContentProducer implements EntityContentProducer {
 
     private static final String REFERENCE_PREFIX = PollConstants.REFERENCE_ROOT + Entity.SEPARATOR;
     private static final String TOOL_ID = "sakai.poll";
@@ -74,7 +73,7 @@ public class PollsContentProducer implements EntityContentProducer, EntityConten
     }
 
     @Override
-    public Set<String> getTriggerFunctions() {
+    public Set<String> getTriggerEvents() {
         return EVENT_ACTIONS.keySet();
     }
 

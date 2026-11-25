@@ -24,9 +24,11 @@ package org.sakaiproject.search.component.adapter.message;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +52,6 @@ import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
@@ -74,16 +75,13 @@ public class MessageContentProducer implements EntityContentProducer
 	private String toolName;
 
 	@Setter
-	private List addEvents;
+	private List<String> addEvents;
 
 	@Setter
-	private List removeEvents;
+	private List<String> removeEvents;
 
 	@Setter
 	private MessageService messageService;
-
-	@Setter
-	private SearchService searchService;
 
 	@Setter
 	private SearchIndexBuilder searchIndexBuilder;
@@ -105,14 +103,6 @@ public class MessageContentProducer implements EntityContentProducer
 
 		if ("true".equals(serverConfigurationService.getString("search.enable", "false")))
 		{
-			for (Iterator i = addEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			for (Iterator i = removeEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 		
@@ -335,6 +325,14 @@ public class MessageContentProducer implements EntityContentProducer
 	public boolean matches(Event event)
 	{
 		return matches(event.getResource());
+	}
+
+	@Override
+	public Set<String> getTriggerEvents()
+	{
+		Set<String> events = new HashSet<>(addEvents);
+		events.addAll(removeEvents);
+		return events;
 	}
 
 	@Override
