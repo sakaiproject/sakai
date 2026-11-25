@@ -2912,6 +2912,22 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 			{
 				// Keep each write in a separate transaction to avoid locking multiple grant rows.
 				String realmId = caseId(realm.getId());
+				Set<String> toUpdate = new HashSet<>();
+				for (UserAndRole grant : grantsToWrite)
+				{
+					if (toDelete.remove(grant.userId))
+					{
+						toUpdate.add(grant.userId);
+					}
+				}
+
+				// Revoke departing members before adding or updating grants.
+				String deleteSql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql();
+				for (String userId : toDelete)
+				{
+					m_sql.dbWrite(deleteSql, new Object[] {realmId, userId});
+				}
+
 				String insertSql = dbAuthzGroupSql.getInsertRealmRoleGroup3Sql();
 				String updateSql = dbAuthzGroupSql.getUpdateRealmRoleGroupSql();
 				Object insertRealm = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_1Sql(), realmId);
@@ -2920,7 +2936,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				{
 					String active = grant.active ? "1" : "0";
 					String provided = grant.provided ? "1" : "0";
-					if (toDelete.remove(grant.userId))
+					if (toUpdate.remove(grant.userId))
 					{
 						// Replace an existing grant in place so permission checks always see a grant.
 						m_sql.dbWrite(updateSql, new Object[] {grant.role, active, provided, realmId, grant.userId});
@@ -2931,12 +2947,6 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 						Object insertRole = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_2Sql(), grant.role);
 						m_sql.dbWrite(insertSql, new Object[] {insertRealm, grant.userId, insertRole, active, provided});
 					}
-				}
-
-				String deleteSql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql();
-				for (String userId : toDelete)
-				{
-					m_sql.dbWrite(deleteSql, new Object[] {realmId, userId});
 				}
 				if (log.isDebugEnabled()) {
 					log.debug("Realm {} refresh: deleted {}, inserted {}, updated {}, previously provided {}, previously non-provider {}",
