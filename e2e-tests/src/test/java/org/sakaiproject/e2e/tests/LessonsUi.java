@@ -271,6 +271,8 @@ final class LessonsUi {
         page.locator("#reorder-button a").click();
         assertThat(page.locator("#reorderCol1")).isVisible();
         page.waitForFunction("document.getElementById('order')?.value.includes('---')");
+        // The portal takes the focus shortly after loading, which would swallow keyboard moves.
+        sakai.waitForPortalFocus();
     }
 
     Locator reorderItem(String text) {
