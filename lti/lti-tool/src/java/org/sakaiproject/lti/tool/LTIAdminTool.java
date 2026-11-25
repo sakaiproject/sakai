@@ -227,19 +227,22 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	}
 
 	/**
-	 * Creates a tool link in the target site and adds it to the site navigation.
-	 * @return null on success, or an error message
+	 * Creates a tool link in the target site and adds it to the site navigation,
+	 * unless the tool cannot launch from navigation or the site already has a link to it.
+	 * @return null on success or when skipped, or an error message
 	 */
 	private String addSiteLink(Map<String, Object> tool, String targetSiteId, String adminSiteId) {
+		String toolId = String.valueOf(tool.get(LTIService.LTI_ID));
+		if (!isResourceLinkTool(tool) || hasSiteLink(toolId, targetSiteId)) {
+			return null;
+		}
+
 		String title = (String) tool.get(LTIService.LTI_TITLE);
 		Properties props = new Properties();
-		props.setProperty(LTIService.LTI_TOOL_ID, String.valueOf(tool.get(LTIService.LTI_ID)));
+		props.setProperty(LTIService.LTI_TOOL_ID, toolId);
 		props.setProperty(LTIService.LTI_SITE_ID, targetSiteId);
 		props.setProperty(LTIService.LTI_TITLE, title);
-		String description = (String) tool.get(LTIService.LTI_DESCRIPTION);
-		if (StringUtils.isNotBlank(description)) {
-			props.setProperty(LTIService.LTI_DESCRIPTION, description);
-		}
+		props.setProperty(LTIService.LTI_DESCRIPTION, StringUtils.defaultString((String) tool.get(LTIService.LTI_DESCRIPTION)));
 
 		Object contentId = ltiService.insertContent(props, adminSiteId);
 		if (!(contentId instanceof Long)) {
@@ -249,7 +252,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Object retval = ltiService.insertToolSiteLink(String.valueOf(contentId), title, adminSiteId);
 		if (retval instanceof String) {
 			ltiService.deleteContent((Long) contentId, adminSiteId);
-			return ((String) retval).replaceFirst("^[01]-?", "");
+			return ((String) retval).replaceFirst("^[01]", "");
 		}
 		return null;
 	}
@@ -1126,12 +1129,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		if (reqProps.getProperty("add_site_link") != null) {
 			Map<String, Object> tool = ltiService.getTool(Long.valueOf(toolId), adminSiteId);
-			if (isResourceLinkTool(tool)) {
-				for (String siteId : insertSuccessSiteIds) {
-					String error = addSiteLink(tool, siteId, adminSiteId);
-					if (error != null) {
-						insertErrorMessages.add("SiteId=" + siteId + ", " + error);
-					}
+			for (String siteId : insertSuccessSiteIds) {
+				String error = addSiteLink(tool, siteId, adminSiteId);
+				if (error != null) {
+					insertErrorMessages.add("SiteId=" + siteId + ", " + error);
 				}
 			}
 		}
@@ -1235,12 +1236,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
 
 			String siteId = (String) toolSite.get(LTIService.LTI_SITE_ID);
-			Map<String, Object> tool = ltiService.getTool(Long.valueOf(toolId), getSiteId(state));
-			if (addSiteLink && isResourceLinkTool(tool) && !hasSiteLink(toolId, siteId)) {
-				String error = addSiteLink(tool, siteId, getSiteId(state));
-				if (error != null) {
-					addAlert(state, rb.getString("error.tool.site.link") + " SiteId=" + siteId + ", " + error);
-				}
+			String error = addSiteLink ? addSiteLink(ltiService.getTool(Long.valueOf(toolId), getSiteId(state)), siteId, getSiteId(state)) : null;
+			if (error != null) {
+				addAlert(state, rb.getString("error.tool.site.link") + " SiteId=" + siteId + ", " + error);
 			}
 
 		} else { // Unexpected Error
