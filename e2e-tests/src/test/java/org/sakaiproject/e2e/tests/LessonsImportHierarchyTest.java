@@ -62,8 +62,10 @@ class LessonsImportHierarchyTest extends SakaiUiTestBase {
         assertThat(expand).isVisible();
         expand.click();
 
-        Locator assignmentLabel = page.locator("label").filter(new Locator.FilterOptions().setHasText(assignments));
-        Locator readingsLabel = page.locator("label").filter(new Locator.FilterOptions().setHasText(readings));
+        Locator assignmentLabel = page.locator(".tool-item-row label")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(assignments) + "$")));
+        Locator readingsLabel = page.locator(".tool-item-row label")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(readings) + "$")));
         assertThat(assignmentLabel).isVisible();
         assertThat(readingsLabel).isVisible();
 
@@ -72,10 +74,14 @@ class LessonsImportHierarchyTest extends SakaiUiTestBase {
         assertThat(assignmentCell.locator(".item-parent-label")).containsText("Subpage of " + week1);
         assertThat(readingsCell.locator(".item-parent-label")).containsText("Subpage of " + week1);
 
-        Locator weekCheckbox = page.locator("label").filter(new Locator.FilterOptions().setHasText(week1))
-            .locator("xpath=ancestor::td[1]//input.tool-item-checkbox");
         Locator assignmentCheckbox = assignmentCell.locator("input.tool-item-checkbox");
         Locator readingsCheckbox = readingsCell.locator("input.tool-item-checkbox");
+        String weekPageId = assignmentCheckbox.getAttribute("data-parent-id");
+        assertTrue(weekPageId != null && !weekPageId.isBlank() && !"0".equals(weekPageId));
+        Locator weekCheckbox = page.locator(
+            "input.tool-item-checkbox[data-site-id=\"" + sourceSiteId + "\"][value=\"" + weekPageId + "\"]");
+        assertThat(weekCheckbox).isVisible();
+
         weekCheckbox.check(new Locator.CheckOptions().setForce(true));
         assertTrue(assignmentCheckbox.isChecked());
         assertTrue(readingsCheckbox.isChecked());
