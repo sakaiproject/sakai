@@ -409,14 +409,11 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                                 String handlerFrom = und.getFrom();
                                 if (StringUtils.isBlank(handlerFrom)) handlerFrom = eventFrom;
 
-                                UserNotificationTransferBean bean
-                                    = UserNotificationTransferBean.of(doInsert(handlerFrom,
-                                        und,
-                                        event,
-                                        ref,
-                                        e.getEventTime(),
-                                        finalDeferred)
-                                    );
+                                UserNotification un = doInsert(handlerFrom, und, event, ref, e.getEventTime(), finalDeferred);
+                                if (un == null) {
+                                    return;
+                                }
+                                UserNotificationTransferBean bean = UserNotificationTransferBean.of(un);
 
                                 if (!finalDeferred) {
                                     if (und.isBroadcast()) {
@@ -450,12 +447,18 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         }
         final String finalTitle = processedTitle;
 
+        final String finalEvent = StringUtils.isNotBlank(und.getEvent()) ? und.getEvent() : event;
+
         return transactionTemplate.execute(status -> {
+
+            if (und.isSkipIfUnread() && userNotificationRepository.existsUnviewed(und.getTo(), finalEvent, ref)) {
+                return null;
+            }
 
             UserNotification ba = new UserNotification();
             ba.setFromUser(from);
             ba.setToUser(und.getTo());
-            ba.setEvent(StringUtils.isNotBlank(und.getEvent()) ? und.getEvent() : event);
+            ba.setEvent(finalEvent);
             ba.setRef(ref);
 
             ba.setTitle(finalTitle);

@@ -26,6 +26,7 @@ public interface UserNotificationRepository extends SpringCrudRepository<UserNot
     List<UserNotification> findByToUser(String toUser);
     List<UserNotification> findByBroadcast(boolean broadcast);
     long countUnviewedByToUser(String userId);
+    boolean existsUnviewed(String toUser, String event, String ref);
     long countActiveUnviewedBroadcastNotifications();
     int deleteByToUserAndDeferred(String userId, boolean deferred);
     int deleteExpiredNotifications();
