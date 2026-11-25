@@ -62,10 +62,10 @@ class LessonsImportHierarchyTest extends SakaiUiTestBase {
         assertThat(expand).isVisible();
         expand.click();
 
-        Locator assignmentLabel = page.locator(".tool-item-row label")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(assignments) + "$")));
-        Locator readingsLabel = page.locator(".tool-item-row label")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(readings) + "$")));
+        Locator assignmentLabel = page.locator(".tool-item-row")
+            .getByText(assignments, new Locator.GetByTextOptions().setExact(true));
+        Locator readingsLabel = page.locator(".tool-item-row")
+            .getByText(readings, new Locator.GetByTextOptions().setExact(true));
         assertThat(assignmentLabel).isVisible();
         assertThat(readingsLabel).isVisible();
 
