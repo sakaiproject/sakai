@@ -2931,7 +2931,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				String insertSql = dbAuthzGroupSql.getInsertRealmRoleGroup3Sql();
 				String updateSql = dbAuthzGroupSql.getUpdateRealmRoleGroupSql();
 				Object insertRealm = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_1Sql(), realmId);
-				int updated = 0;
+				int updateAttempts = 0;
 				for (UserAndRole grant : grantsToWrite)
 				{
 					String active = grant.active ? "1" : "0";
@@ -2940,7 +2940,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 					{
 						// Replace an existing grant in place so permission checks always see a grant.
 						m_sql.dbWrite(updateSql, new Object[] {grant.role, active, provided, realmId, grant.userId});
-						updated++;
+						updateAttempts++;
 					}
 					else
 					{
@@ -2949,8 +2949,8 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 					}
 				}
 				if (log.isDebugEnabled()) {
-					log.debug("Realm {} refresh: deleted {}, inserted {}, updated {}, previously provided {}, previously non-provider {}",
-							realmId, toDelete.size(), grantsToWrite.size() - updated, updated, existing.size(), nonProvider.size());
+					log.debug("Realm {} refresh attempted {} deletes, {} inserts, and {} updates; previously provided {}, previously non-provider {}",
+							realmId, toDelete.size(), grantsToWrite.size() - updateAttempts, updateAttempts, existing.size(), nonProvider.size());
 				}
 				eventTrackingService.post(eventTrackingService.newEvent(SECURE_UPDATE_AUTHZ_GROUP, realm.getReference(), true));
 			}
