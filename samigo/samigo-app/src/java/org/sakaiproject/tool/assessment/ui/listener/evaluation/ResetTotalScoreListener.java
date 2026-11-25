@@ -65,5 +65,6 @@ public class ResetTotalScoreListener implements ActionListener, ValueChangeListe
     log.debug("resetTotalScore()");
     TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     totalScoresBean.setAssessmentGradingList(new ArrayList());
+    totalScoresBean.setResultsAlreadyCalculated(false);
   }
 }
