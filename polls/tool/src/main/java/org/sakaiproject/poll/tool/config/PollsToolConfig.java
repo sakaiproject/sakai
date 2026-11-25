@@ -20,9 +20,6 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.poll.api.service.PollsService;
-import org.sakaiproject.poll.tool.entityproviders.PollEntityProvider;
-import org.sakaiproject.poll.tool.entityproviders.PollOptionEntityProvider;
-import org.sakaiproject.poll.tool.entityproviders.PollVoteEntityProvider;
 import org.sakaiproject.poll.tool.entityproviders.PollsEntityProvider;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.context.annotation.Bean;
@@ -38,43 +35,6 @@ public class PollsToolConfig {
                                                    EntityProviderManager entityProviderManager,
                                                    DeveloperHelperService developerHelperService) {
         PollsEntityProvider provider = new PollsEntityProvider();
-        provider.setPollsService(pollsService);
-        provider.setUsageSessionService(usageSessionService);
-        provider.setUserDirectoryService(userDirectoryService);
-        provider.setEntityProviderManager(entityProviderManager);
-        provider.setDeveloperHelperService(developerHelperService);
-        return provider;
-    }
-
-    @Bean
-    public PollEntityProvider pollEntityProvider(PollsService pollsService,
-                                                 EntityProviderManager entityProviderManager,
-                                                 DeveloperHelperService developerHelperService) {
-        PollEntityProvider provider = new PollEntityProvider();
-        provider.setPollsService(pollsService);
-        provider.setEntityProviderManager(entityProviderManager);
-        provider.setDeveloperHelperService(developerHelperService);
-        return provider;
-    }
-
-    @Bean
-    public PollOptionEntityProvider pollOptionEntityProvider(PollsService pollsService,
-                                                             EntityProviderManager entityProviderManager,
-                                                             DeveloperHelperService developerHelperService) {
-        PollOptionEntityProvider provider = new PollOptionEntityProvider();
-        provider.setPollsService(pollsService);
-        provider.setEntityProviderManager(entityProviderManager);
-        provider.setDeveloperHelperService(developerHelperService);
-        return provider;
-    }
-
-    @Bean
-    public PollVoteEntityProvider pollVoteEntityProvider(PollsService pollsService,
-                                                         UsageSessionService usageSessionService,
-                                                         UserDirectoryService userDirectoryService,
-                                                         EntityProviderManager entityProviderManager,
-                                                         DeveloperHelperService developerHelperService) {
-        PollVoteEntityProvider provider = new PollVoteEntityProvider();
         provider.setPollsService(pollsService);
         provider.setUsageSessionService(usageSessionService);
         provider.setUserDirectoryService(userDirectoryService);
