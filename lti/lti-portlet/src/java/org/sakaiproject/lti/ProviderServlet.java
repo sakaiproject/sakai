@@ -152,20 +152,27 @@ public class ProviderServlet extends HttpServlet {
 	}
 
 	public void doError(HttpServletRequest request,HttpServletResponse response, String s, String message, Throwable e) throws java.io.IOException {
+		doError(request, response, s, message, e, false, null);
+	}
+
+	public void doError(HttpServletRequest request,HttpServletResponse response, String s, String message, Throwable e,
+			boolean validated, String consumerKey) throws java.io.IOException {
 		if (e != null) {
 			log.error(e.getLocalizedMessage(), e);
 		}
 		log.info("{}: {}", rb.getString(s), message);
-		String return_url = request.getParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
-		if (return_url != null && return_url.length() > 1) {
-			if (return_url.indexOf('?') > 1) {
-				return_url += "&lti_msg=" + URLEncoder.encode(rb.getString(s), "UTF-8");
+		// Follow launch_presentation_return_url only after validate() succeeds,
+		// and only back to the consumer host or a path on this server.
+		String returnUrl = SakaiLTIProviderUtil.allowedLaunchErrorReturnUrl(
+				request.getParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL), validated, consumerKey);
+		if (returnUrl != null) {
+			String encodedMessage = URLEncoder.encode(rb.getString(s), "UTF-8");
+			if (returnUrl.indexOf('?') > 1) {
+				returnUrl += "&lti_msg=" + encodedMessage;
 			} else {
-				return_url += "?lti_msg=" + URLEncoder.encode(rb.getString(s), "UTF-8");
+				returnUrl += "?lti_msg=" + encodedMessage;
 			}
-			// Avoid Response Splitting
-			return_url = return_url.replaceAll("[\r\n]","");
-			response.sendRedirect(return_url);
+			response.sendRedirect(returnUrl);
 			return;
 		}
 		PrintWriter out = response.getWriter();
@@ -342,10 +349,14 @@ public class ProviderServlet extends HttpServlet {
 
 		}
 
+		boolean launchValidated = false;
+		String validatedConsumerKey = null;
         try {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.beforeValidation);
 
             validate(payload, isTrustedConsumer);
+            launchValidated = true;
+            validatedConsumerKey = (String) payload.get("oauth_consumer_key");
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterValidation);
 
@@ -423,7 +434,8 @@ public class ProviderServlet extends HttpServlet {
             response.sendRedirect(url.toString());
 
         } catch (LTIException ltiException) {
-            doError(request, response, ltiException.getErrorKey(), ltiException.getMessage(), ltiException.getCause());
+            doError(request, response, ltiException.getErrorKey(), ltiException.getMessage(), ltiException.getCause(),
+                    launchValidated, validatedConsumerKey);
         }
 
 
