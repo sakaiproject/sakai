@@ -105,6 +105,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServi
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper;
+import org.sakaiproject.tool.assessment.util.EssayMinScoreCriteria;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
@@ -1164,7 +1165,8 @@ public class GradingService
         if(item.getMinScore() != null){
         	Double accumulatedScore = itemGrading.getAutoScore();
         	Double itemParts = 1d;
-        	boolean answered = isAnswered(itemGrading, itemType2);
+        	boolean answered = isAnswered(itemGrading, itemType2)
+        			&& EssayMinScoreCriteria.isMet(item, itemGrading.getAnswerText());
         	if(minScoreCheck.containsKey(itemId)){
         		Double[] accumulatedScoreArr = minScoreCheck.get(itemId);
         		accumulatedScore += accumulatedScoreArr[0];

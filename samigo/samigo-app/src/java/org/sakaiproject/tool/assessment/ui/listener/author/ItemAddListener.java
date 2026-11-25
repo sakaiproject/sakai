@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -62,6 +63,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback;
@@ -108,6 +110,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.EssayMinScoreCriteria;
 import org.sakaiproject.tool.assessment.util.ParameterUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.api.FormattedText;
@@ -2512,6 +2515,11 @@ public class ItemAddListener implements ActionListener {
 		set.add(new ItemMetaData(item.getData(),
 					ItemMetaDataIfc.MCMS_PARTIAL_CREDIT, bean.getMcmsPartialCredit()));
 		}
+		EssayMinScoreCriteria.toMetaData(item.getTypeId(), bean.getItemMinScoreWordCount(), bean.getItemMinScoreKeywords()).forEach((label, entry) -> {
+			if (StringUtils.isNotEmpty(entry)) {
+				set.add(new ItemMetaData(item.getData(), label, entry));
+			}
+		});
 		
 		// 2/19/06 use PREDEFINED_SCALE to be in sync with what we are using
 		// for import/export
@@ -2674,6 +2682,17 @@ public class ItemAddListener implements ActionListener {
 			  itemMetaData.setEntry(bean.isTimedQuestion() ? Integer.toString(bean.getTimeLimit()) : "false");
 		  }
 	  }
+
+	  // The essay criteria may be new to an item published before they existed
+	  EssayMinScoreCriteria.toMetaData(item.getTypeId(), bean.getItemMinScoreWordCount(), bean.getItemMinScoreKeywords()).forEach((label, entry) -> {
+		  Optional<ItemMetaDataIfc> existing = ((Set<ItemMetaDataIfc>) itemMetaDataSet).stream()
+				  .filter(m -> label.equals(m.getLabel())).findFirst();
+		  if (existing.isPresent()) {
+			  existing.get().setEntry(entry);
+		  } else if (StringUtils.isNotEmpty(entry)) {
+			  itemMetaDataSet.add(new PublishedItemMetaData(item.getData(), label, entry));
+		  }
+	  });
 	  return itemMetaDataSet;
 	}
 
