@@ -1730,7 +1730,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							Date rDate = sPage.getReleaseDate();
 							String rDateString = "";
 							if (rDate != null) {
-								rDateString = rDate.toString();
+								rDateString = isoDateFormat.format(rDate);
 							}
 							UIOutput.make(tableRow, "subpagereleasedate", rDateString);
 						}
@@ -4657,7 +4657,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIOutput releaseForm2 = UIOutput.make(form, "releaseDate2:");
 		UIOutput.make(form, "sbReleaseDate", releaseDateString);
-		UIInput.make(form, "release_date2", "#{simplePageBean.releaseDate}" );
+		UIInput.make(form, "release_date2_string", "#{simplePageBean.releaseDate}" );
+		UIOutput.make(form, "release_date2");
 
 		// can't use site groups on user content, and don't want students to hack
 		// on groups for site content

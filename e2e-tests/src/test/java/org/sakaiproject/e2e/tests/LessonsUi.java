@@ -268,6 +268,32 @@ final class LessonsUi {
         assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
     }
 
+    Locator openItemEditor(Locator item) {
+        item.hover();
+        item.locator(".edit-col a.edit-link").first().click();
+        Locator dialog = page.locator("#edit-item-dialog");
+        assertThat(dialog).isVisible();
+        return dialog;
+    }
+
+    void saveItemEditor(Locator dialog) {
+        page.waitForNavigation(() -> dialog.locator("#edit-item").click());
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(dialog).isHidden();
+    }
+
+    void openSubpageFromParent(String title) {
+        item(title).locator("a.itemlink").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
+    }
+
+    void backToParent(String parentTitle) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Back").setExact(true)).first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".neoPortletTitleWrap")).containsText(parentTitle);
+    }
+
     void openReorder() {
         page.locator("#reorder-button a").click();
         assertThat(page.locator("#reorderCol1")).isVisible();
