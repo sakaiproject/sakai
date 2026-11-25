@@ -42,7 +42,6 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.service.PollsService;
-import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
@@ -105,7 +104,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     @Deprecated
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         Poll poll = (Poll) entity;
-        processSubmittedText(poll);
         poll.setCreationDate(Instant.now());
         if (poll.getOwner() == null) {
             poll.setOwner( developerHelperService.getCurrentUserId() );
@@ -124,20 +122,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         pollsService.savePoll(poll);
         return poll.getId();
-    }
-
-    private void processSubmittedText(Poll poll) {
-        if (poll.getText() != null) {
-            poll.setText(pollsService.processPollText(poll.getText()));
-        }
-        if (poll.getDescription() != null) {
-            poll.setDescription(pollsService.processPollText(poll.getDescription()));
-        }
-        for (Option option : poll.getOptions()) {
-            if (option.getText() != null) {
-                option.setText(pollsService.processPollText(option.getText()));
-            }
-        }
     }
 
     public Object getSampleEntity() {
@@ -159,7 +143,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new IllegalArgumentException("No poll found to update for the given reference: " + ref);
         }
         Poll poll = (Poll) entity;
-        processSubmittedText(poll);
         String siteId = developerHelperService.getCurrentLocationId();
         if (poll.getSiteId() == null) {
             poll.setSiteId( siteId );
