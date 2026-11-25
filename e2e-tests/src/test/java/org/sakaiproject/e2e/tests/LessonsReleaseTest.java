@@ -20,10 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Frame;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.FilePayload;
+import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.RequestOptions;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -136,8 +139,16 @@ class LessonsReleaseTest extends SakaiUiTestBase {
     @Test
     void subpageReleaseDateDoesNotDriftAcrossEditAndSettings() {
         try (TestUser instructor = sakai.createUser("lessons-subpage-release")) {
+            String courseUrl = sakai.createFreshCourse(INSTRUCTOR, TOOLS);
+            sakai.addMember(courseUrl, instructor.username(), "Instructor");
             sakai.login(instructor.username());
-            String courseUrl = sakai.createFreshCourse(instructor.username(), TOOLS);
+            APIResponse pin = page.request().post("/portal/favorites/update", RequestOptions.create()
+                .setForm(FormData.create().set("siteId", sakai.siteIdFromUrl(courseUrl)).set("pinned", "true")));
+            try {
+                assertTrue(pin.ok(), "Unable to pin the isolated user's course: HTTP " + pin.status());
+            } finally {
+                pin.dispose();
+            }
             sakai.setUserTimeZone(instructor.username(), "Europe/Madrid");
             assertEquals("Europe/Madrid", page.evaluate("() => portal.user.timezone"));
 
