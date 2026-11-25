@@ -17,12 +17,14 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FilePayload;
 import com.microsoft.playwright.options.LoadState;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import org.sakaiproject.e2e.support.SakaiHelper;
 
 /** Shared steps for building and reading Lessons pages. */
@@ -270,6 +272,8 @@ final class LessonsUi {
         page.locator("#reorder-button a").click();
         assertThat(page.locator("#reorderCol1")).isVisible();
         page.waitForFunction("document.getElementById('order')?.value.includes('---')");
+        // The portal takes the focus shortly after loading, which would swallow keyboard moves.
+        sakai.waitForPortalFocus();
     }
 
     Locator reorderItem(String text) {
@@ -287,6 +291,83 @@ final class LessonsUi {
         page.locator("input[type=radio][title='" + sourcePageTitle + " Select']").check();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Use selected item").setExact(true)).click();
         assertThat(page.locator("#reorderCol1")).isVisible();
+    }
+
+    /** Picks an item of another tool from the Lessons picker for the given Add Content entry. */
+    void linkExisting(String menuEntry, String title) {
+        openAddContent().getByText(menuEntry, new Locator.GetByTextOptions().setExact(true)).click();
+        page.locator("[role=listitem]").filter(new Locator.FilterOptions().setHasText(title))
+            .locator("input[type=radio]").check();
+        page.locator("input[type=submit].bold").click();
+        assertThat(item(title)).isVisible();
+    }
+
+    /** Embeds the listing of a Resources folder of the site. */
+    Locator addResourcesFolder(String folder) {
+        openAddContent().locator("a.add-folder").click();
+        page.locator("#workspace li.directory > a").filter(new Locator.FilterOptions().setHasText(folder)).click();
+        page.waitForFunction("folder => document.querySelector('#folder-path').value.endsWith('/' + folder + '/')", folder);
+        page.locator("#folder-picker input[type=submit].bold").click();
+        Locator item = page.locator(".item.resourceFolderType").filter(new Locator.FilterOptions().setHasText(folder));
+        assertThat(item).isVisible();
+        return item;
+    }
+
+    Locator embedCalendar() {
+        openAddContent().locator("a.calendar-link").click();
+        Locator item = page.locator(".item.calendar");
+        assertThat(item).isVisible();
+        return item;
+    }
+
+    Locator embedAnnouncements(String count) {
+        openAddContent().getByText("Embed Announcements", new Locator.GetByTextOptions().setExact(true)).click();
+        Locator dialog = page.locator("#add-announcements-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#announcementsNumberDropdown-selection").selectOption(count);
+        dialog.locator("#announcements-add-item").click();
+        Locator item = page.locator(".item.announcementsType");
+        assertThat(item).isVisible();
+        return item;
+    }
+
+    Locator embedForumConversations(String count) {
+        openAddContent().locator("a.forum-summary-link").click();
+        Locator dialog = page.locator("#add-forum-summary-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#forumNumberDropdown-selection").selectOption(count);
+        dialog.locator("#forum-summary-add-item").click();
+        Locator item = page.locator(".item.forumSummary");
+        assertThat(item).isVisible();
+        return item;
+    }
+
+    /** Uploads a ZIP file that Lessons expands into a folder and links through its index.html. */
+    void uploadZip(String linkTitle, String fileName, byte[] zip) {
+        openAddContent().locator("a.add-website").click();
+        Locator dialog = page.locator("#add-multimedia-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#new-file-section-collapse").click();
+        dialog.locator("#mm-file").setInputFiles(new FilePayload(fileName, "application/zip", zip));
+        dialog.locator(".mm-file-input-names").fill(linkTitle);
+        dialog.locator("#mm-add-item").click();
+        assertThat(item(linkTitle)).isVisible();
+    }
+
+    Download exportCommonCartridge() {
+        clickMoreTools("Export CC");
+        Locator dialog = page.locator("#export-cc-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#export-cc-v13").check();
+        return page.waitForDownload(() -> dialog.locator("#export-cc-submit").click());
+    }
+
+    void importCommonCartridge(Path cartridge) {
+        clickMoreTools("Import CC/CP");
+        Locator dialog = page.locator("#import-cc-dialog");
+        assertThat(dialog).isVisible();
+        dialog.locator("#cc-file").setInputFiles(cartridge);
+        page.waitForNavigation(() -> dialog.locator("#import-cc-submit").click());
     }
 
     Locator openPageSettings() {
