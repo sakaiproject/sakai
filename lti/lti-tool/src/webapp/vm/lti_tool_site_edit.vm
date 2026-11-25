@@ -13,6 +13,11 @@
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
         <input type="hidden" name="id" value="$id" />
 
+        <div id="add-site-link-container" class="form-check">
+            <input type="checkbox" id="add-site-link" class="form-check-input" name="add_site_link" value="on"#if ($hasSiteLink) checked disabled#{elseif}(!$canAddSiteLink) disabled#{end}>
+            <label for="add-site-link" class="form-check-label">#if ($hasSiteLink)$tlang.getString("tool.site.add.link.exists")#{else}$tlang.getString("tool.site.add.link")#{end}</label>
+        </div>
+
 
         <p class="act">
             <input type="submit" accesskey ="s" class="active" name="$doToolAction" value="$tlang.getString('gen.save')" />
