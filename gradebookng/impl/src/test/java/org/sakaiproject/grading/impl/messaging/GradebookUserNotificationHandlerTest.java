@@ -104,6 +104,7 @@ public class GradebookUserNotificationHandlerTest {
         assertEquals("site1", und.getSiteId());
         assertEquals("Quiz 1", und.getTitle());
         assertEquals("http://localhost/portal/site/site1/tool/gbsite", und.getUrl());
+        assertTrue(und.isSkipIfUnread());
     }
 
     @Test

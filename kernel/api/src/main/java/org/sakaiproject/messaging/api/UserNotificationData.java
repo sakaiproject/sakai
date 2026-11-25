@@ -37,9 +37,11 @@ public class UserNotificationData {
     private String event;
     private boolean broadcast;
     private Duration ttl;
+    // When true, nothing is added if the recipient has not yet viewed a notification for the same event and ref
+    private boolean skipIfUnread;
 
     public UserNotificationData(String from, String to, String siteId, String title, String url,
             String commonToolId, boolean broadcast, Duration ttl) {
-        this(from, to, siteId, title, url, commonToolId, null, broadcast, ttl);
+        this(from, to, siteId, title, url, commonToolId, null, broadcast, ttl, false);
     }
 }

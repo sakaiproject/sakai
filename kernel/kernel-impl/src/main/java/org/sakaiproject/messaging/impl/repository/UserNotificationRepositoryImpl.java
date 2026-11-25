@@ -77,6 +77,22 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
         return session.createQuery(query).getSingleResult();
     }
 
+    public boolean existsUnviewed(String toUser, String event, String ref) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<UserNotification> un = query.from(UserNotification.class);
+        query.select(un.get("id")).where(cb.and(
+                cb.equal(un.get("toUser"), toUser),
+                cb.equal(un.get("event"), event),
+                cb.equal(un.get("ref"), ref),
+                cb.or(cb.isNull(un.get("viewed")), cb.isFalse(un.get("viewed")))
+        ));
+        return !session.createQuery(query).setMaxResults(1).list().isEmpty();
+    }
+
     public long countActiveUnviewedBroadcastNotifications() {
 
         Session session = sessionFactory.getCurrentSession();

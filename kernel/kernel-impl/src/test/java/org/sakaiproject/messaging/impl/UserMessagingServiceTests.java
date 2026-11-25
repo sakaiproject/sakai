@@ -245,6 +245,40 @@ public class UserMessagingServiceTests extends SakaiTests {
         verify(handler).handleEvent(event);
     }
 
+    @Test
+    public void skipIfUnreadAddsOneNotificationUntilItIsViewed() throws Exception {
+
+        Site site = mock(Site.class);
+        when(site.isPublished()).thenReturn(true);
+        when(siteService.getSite(any())).thenReturn(site);
+
+        String eventString = "grade.posted";
+        Event event = mockEvent(eventString);
+        UserNotificationData und = new UserNotificationData(instructor, student, "site1", "Quiz 1", "http://nothing.com", "sakai.tool", false, null);
+        UserNotificationHandler handler = mock(UserNotificationHandler.class);
+        when(handler.getHandledEvents()).thenReturn(List.of(eventString));
+        when(handler.handleEvent(event)).thenReturn(Optional.of(List.of(und)));
+        userMessagingService.registerHandler(handler);
+        UserMessagingServiceImpl service = AopTestUtils.getTargetObject(userMessagingService);
+
+        switchToStudent();
+        // Handlers that don't opt in keep adding a notification per event
+        service.update(new Observable(), event);
+        service.update(new Observable(), event);
+        assertEquals(2, userMessagingService.getNotifications().size());
+        userMessagingService.clearAllNotifications();
+
+        und.setSkipIfUnread(true);
+        service.update(new Observable(), event);
+        service.update(new Observable(), event);
+        assertEquals(1, userMessagingService.getNotifications().size());
+
+        // Once viewed, the next event adds a new notification
+        userMessagingService.markAllNotificationsViewed(null, null);
+        service.update(new Observable(), event);
+        assertEquals(2, userMessagingService.getNotifications().size());
+    }
+
     /** Rejected endpoints must not open a database transaction for DNS validation. */
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)

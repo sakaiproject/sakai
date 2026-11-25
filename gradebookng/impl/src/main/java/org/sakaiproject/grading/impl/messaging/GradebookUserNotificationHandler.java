@@ -81,8 +81,11 @@ public class GradebookUserNotificationHandler extends AbstractUserNotificationHa
             }
 
             String url = serverConfigurationService.getPortalUrl() + "/site/" + site.getId() + "/tool/" + tool.get().getId();
-            return Optional.of(List.of(new UserNotificationData(e.getUserId(), studentId, site.getId(), item.getName(),
-                    url, GRADEBOOK_TOOL_ID, false, null)));
+            // One unread alert per item is enough: it opens the Gradebook, which shows the current grade
+            UserNotificationData und = new UserNotificationData(e.getUserId(), studentId, site.getId(), item.getName(),
+                    url, GRADEBOOK_TOOL_ID, false, null);
+            und.setSkipIfUnread(true);
+            return Optional.of(List.of(und));
         } catch (Exception ex) {
             log.warn("Could not create a grade notification for {}: {}", e.getResource(), ex.toString());
         }
