@@ -42,6 +42,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
@@ -131,6 +132,11 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         if (poll.getDescription() != null) {
             poll.setDescription(pollsService.processPollText(poll.getDescription()));
+        }
+        for (Option option : poll.getOptions()) {
+            if (option.getText() != null) {
+                option.setText(pollsService.processPollText(option.getText()));
+            }
         }
     }
 
