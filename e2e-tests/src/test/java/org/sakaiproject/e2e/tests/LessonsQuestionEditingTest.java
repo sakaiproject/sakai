@@ -150,13 +150,7 @@ class LessonsQuestionEditingTest extends SakaiUiTestBase {
             if (active) {
                 sakai.addMember(siteUrl, student.username(), "Student");
             } else {
-                APIResponse user = page.request().get("/direct/user/" + student.username() + ".json");
-                assertTrue(user.ok(), user.text());
-                String userId = JsonParser.parseString(user.text()).getAsJsonObject().get("id").getAsString();
-                APIResponse membership = page.request().post("/direct/membership/new", RequestOptions.create()
-                    .setForm(FormData.create().set("locationReference", "/site/" + sakai.siteIdFromUrl(siteUrl))
-                        .set("userId", userId).set("memberRole", "Student").set("active", "false")));
-                assertTrue(membership.ok(), membership.text());
+                setStudentMembership(student, false);
             }
         } catch (RuntimeException | AssertionError e) {
             try {
@@ -167,6 +161,17 @@ class LessonsQuestionEditingTest extends SakaiUiTestBase {
             throw e;
         }
         return student;
+    }
+
+    /** Adds the student to the site, or updates their membership, as active or inactive. */
+    private void setStudentMembership(TestUser student, boolean active) {
+        APIResponse user = page.request().get("/direct/user/" + student.username() + ".json");
+        assertTrue(user.ok(), user.text());
+        String userId = JsonParser.parseString(user.text()).getAsJsonObject().get("id").getAsString();
+        APIResponse membership = page.request().post("/direct/membership/new", RequestOptions.create()
+            .setForm(FormData.create().set("locationReference", "/site/" + sakai.siteIdFromUrl(siteUrl))
+                .set("userId", userId).set("memberRole", "Student").set("active", String.valueOf(active))));
+        assertTrue(membership.ok(), membership.text());
     }
 
     private void createGradedQuestion(boolean multipleChoice, String text, String gradebookTitle, String... answers) {
@@ -202,6 +207,9 @@ class LessonsQuestionEditingTest extends SakaiUiTestBase {
         item.hover();
         item.locator("a.gradingPaneLink").click();
         assertThat(page.locator(".gradingPane")).containsText(text);
+        // The page script numbers the status icons when it binds the points boxes, so wait for it
+        // before typing a grade.
+        assertThat(page.locator(".gradingTable img.statusImg[id='statusImg']")).hasCount(0);
     }
 
     private Locator gradingRow(String firstName) {
@@ -210,13 +218,16 @@ class LessonsQuestionEditingTest extends SakaiUiTestBase {
 
     /** The student's own Gradebook page shows the score that Lessons sent for the question. */
     private Locator gradebookScore(TestUser student, String gradebookTitle) {
+        return gradebookRow(student, gradebookTitle).locator(".gb-summary-grade-score-raw");
+    }
+
+    private Locator gradebookRow(TestUser student, String gradebookTitle) {
         sakai.login(student.username());
         page.navigate(siteUrl);
         sakai.toolClick("Gradebook");
         return page.locator(".gb-summary-grade-row")
             .filter(new Locator.FilterOptions().setHas(page.locator(".gb-summary-grade-title")
-                .filter(new Locator.FilterOptions().setHasText(gradebookTitle))))
-            .locator(".gb-summary-grade-score-raw");
+                .filter(new Locator.FilterOptions().setHasText(gradebookTitle))));
     }
 
     private static Pattern points(String value) {
@@ -396,6 +407,14 @@ class LessonsQuestionEditingTest extends SakaiUiTestBase {
             assertThat(gradebookScore(right, gradebookTitle)).hasText(points("10"));
             assertThat(gradebookScore(wrong, gradebookTitle)).hasText(points("0"));
             assertThat(gradebookScore(missing, gradebookTitle)).hasText(points("0"));
+
+            // The inactive student was not listed, so the button must not have given them a score.
+            sakai.login(INSTRUCTOR);
+            setStudentMembership(inactive, true);
+            Locator inactiveRow = gradebookRow(inactive, gradebookTitle);
+            assertThat(inactiveRow).isVisible();
+            // Gradebook shows a dash for an item without a score.
+            assertThat(inactiveRow.locator(".gb-summary-grade-score-raw")).hasText(Pattern.compile("^\\s*-\\s*$"));
         }
     }
 
