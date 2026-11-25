@@ -299,23 +299,31 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
    * @return results - Map
    */
   public Map getResults() {
-    Collection agentsToTally = agentsForTally();
-    if (this.isResultsAlreadyCalculated() && results != null) {
-      if (!hasMissingTallies(agentsToTally)) {
-        return results;
-      }
-      // Page/search changed the visible agents after a partial cache; fill only the gaps.
-      tallyAgents(agentsToTally, results);
-      return results;
+    if (!isResultsAlreadyCalculated()) {
+      ensureResultsCacheComplete();
     }
+    return results != null ? results : Collections.emptyMap();
+  }
 
-    this.setResultsAlreadyCalculated(true);
-    Map<Long, List<Integer>> resultsByUser = new HashMap<>();
-    // Tally against the full agent list (not the current page/search slice) so paging and
-    // searching can reuse the cache without blank Correct/Incorrect/Blank cells.
-    tallyAgents(agentsToTally, resultsByUser);
-    results = resultsByUser;
-    return results;
+  /**
+   * Fill Correct/Incorrect/Blank tallies for the full agent list. Called when the
+   * agent collection is prepared for render so {@link #getResults()} stays O(1).
+   * An empty cache after a completed pass (no submitted agents) remains valid.
+   */
+  void ensureResultsCacheComplete() {
+    Collection agentsToTally = agentsForTally();
+    if (!isResultsAlreadyCalculated() || results == null) {
+      Map<Long, List<Integer>> resultsByUser = new HashMap<>();
+      // Tally against the full agent list (not the current page/search slice) so paging and
+      // searching can reuse the cache without blank Correct/Incorrect/Blank cells.
+      tallyAgents(agentsToTally, resultsByUser);
+      results = resultsByUser;
+      setResultsAlreadyCalculated(true);
+      return;
+    }
+    if (hasMissingTallies(agentsToTally)) {
+      tallyAgents(agentsToTally, results);
+    }
   }
 
   Collection agentsForTally() {
@@ -336,7 +344,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
     return false;
   }
 
-  private void tallyAgents(Collection agentsToTally, Map<Long, List<Integer>> resultsByUser) {
+  void tallyAgents(Collection agentsToTally, Map<Long, List<Integer>> resultsByUser) {
     PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentIfc publishedAssessmentData = pubAssessmentService.getPublishedAssessment(this.getPublishedId());
     Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(publishedAssessmentData);
@@ -435,6 +443,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 	public void startRenderResponse() {
 		log.debug("startRenderResponse");
 		init();
+		ensureResultsCacheComplete();
 	}
 	
   /**

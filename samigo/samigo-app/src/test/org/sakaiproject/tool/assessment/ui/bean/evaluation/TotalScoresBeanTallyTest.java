@@ -20,19 +20,23 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class TotalScoresBeanTallyTest {
 
-	private TotalScoresBean bean;
+	private RecordingTotalScoresBean bean;
 
 	@Before
 	public void setUp() {
-		bean = new TotalScoresBean();
+		bean = new RecordingTotalScoresBean();
 	}
 
 	@Test
@@ -70,9 +74,62 @@ public class TotalScoresBeanTallyTest {
 		assertEquals(Collections.emptyList(), bean.agentsForTally());
 	}
 
+	@Test
+	public void getResultsKeepsCompletedEmptyCacheAndFillsOnlyMissingTallies() {
+		bean.setAllAgents(List.of(agent(-1L)));
+
+		Map first = bean.getResults();
+		assertTrue(first.isEmpty());
+		assertEquals(1, bean.tallyCalls);
+		assertTrue(bean.talliedGradingIds.isEmpty());
+		assertSame(first, bean.getResults());
+		assertEquals(1, bean.tallyCalls);
+
+		bean.setAllAgents(List.of(agent(-1L), agent(10L), agent(11L)));
+		bean.ensureResultsCacheComplete();
+
+		Map afterSubmit = bean.getResults();
+		assertEquals(List.of(1, 0, 0), afterSubmit.get(10L));
+		assertEquals(List.of(1, 0, 0), afterSubmit.get(11L));
+		assertEquals(2, bean.tallyCalls);
+		assertEquals(Set.of(10L, 11L), bean.talliedGradingIds);
+
+		bean.talliedGradingIds.clear();
+		assertSame(afterSubmit, bean.getResults());
+		assertEquals(2, bean.tallyCalls);
+
+		bean.setAllAgents(List.of(agent(-1L), agent(10L), agent(11L), agent(12L)));
+		bean.ensureResultsCacheComplete();
+
+		assertEquals(List.of(1, 0, 0), bean.getResults().get(12L));
+		assertEquals(3, bean.tallyCalls);
+		assertEquals(Set.of(12L), bean.talliedGradingIds);
+		assertSame(bean.getResults(), bean.getResults());
+		assertEquals(3, bean.tallyCalls);
+	}
+
 	private static AgentResults agent(long gradingId) {
 		AgentResults agent = new AgentResults();
 		agent.setAssessmentGradingId(gradingId);
 		return agent;
+	}
+
+	private static final class RecordingTotalScoresBean extends TotalScoresBean {
+		private int tallyCalls;
+		private final Set<Long> talliedGradingIds = new HashSet<>();
+
+		@Override
+		void tallyAgents(Collection agentsToTally, Map<Long, List<Integer>> resultsByUser) {
+			tallyCalls++;
+			for (Object object : agentsToTally) {
+				AgentResults agentResults = (AgentResults) object;
+				Long gradingId = agentResults.getAssessmentGradingId();
+				if (gradingId == null || gradingId == -1 || resultsByUser.containsKey(gradingId)) {
+					continue;
+				}
+				talliedGradingIds.add(gradingId);
+				resultsByUser.put(gradingId, List.of(1, 0, 0));
+			}
+		}
 	}
 }
