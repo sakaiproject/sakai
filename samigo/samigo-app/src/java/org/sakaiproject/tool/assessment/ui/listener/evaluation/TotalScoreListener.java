@@ -151,7 +151,9 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
     QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
     SubmissionStatusBean submissionbean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
-    
+
+    bean.setResultsAlreadyCalculated(false);
+
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
     PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();

@@ -299,53 +299,92 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
    * @return results - Map
    */
   public Map getResults() {
-    if (!this.isResultsAlreadyCalculated()) {
-      this.setResultsAlreadyCalculated(true);
-      // Instance a new PublishedAssessmentService to get all the published Answer for each student
-      PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
-      PublishedAssessmentIfc publishedAssessmentData = pubAssessmentService.getPublishedAssessment(this.getPublishedId());
-      Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(publishedAssessmentData);
-      // Instance a new GradingService to get all the student responses
-      GradingService gradingService = new GradingService();
-      StatisticsService statisticsService = new StatisticsService();
-      Map<Long, List<Integer>> resultsByUser = new HashMap<>();
-      List<PublishedItemData> tallyableItems = getTallyableItems(publishedAssessmentData);
-      Map<Long, AnswerIfc> answersById = new HashMap<>();
-      for (Object answerObject : publishedAnswerHash.values()) {
-        AnswerIfc answer = (AnswerIfc) answerObject;
-        if (answer != null && answer.getId() != null) {
-          answersById.put(answer.getId(), answer);
-        }
-      }
-      // For each agent (student) we will search the correct/incorrect/empty responses
-      for (Object object : agents) {
-        AgentResults agentResults = (AgentResults) object;
-        if (agentResults.getAssessmentGradingId() != -1) {
-          // Tallying needs item gradings only; skip attachment loading to avoid extra per-student DB work.
-          AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString(), false);
-          List<Integer> resultsAux = new ArrayList<>(Collections.nCopies(3, 0));
-          Map<Long, List<ItemGradingData>> gradingByItem = groupGradingsByItem(assessmentGradingAux);
-          for (PublishedItemData item : tallyableItems) {
-            Long itemId = item.getItemId();
-            List<ItemGradingData> gradingList = gradingByItem.get(itemId);
-            if (hasRandomDrawPart && gradingList == null) {
-              continue;
-            }
-            SubmissionOutcome submissionOutcome = statisticsService.classifySubmission(item, gradingList, answersById);
-            if (submissionOutcome == SubmissionOutcome.CORRECT) {
-              resultsAux.set(0, resultsAux.get(0) + 1);
-            } else if (submissionOutcome == SubmissionOutcome.INCORRECT) {
-              resultsAux.set(1, resultsAux.get(1) + 1);
-            } else if (submissionOutcome == SubmissionOutcome.BLANK) {
-              resultsAux.set(2, resultsAux.get(2) + 1);
-            }
-          }
-          resultsByUser.put(agentResults.getAssessmentGradingId(), resultsAux);
-        }
-      }
-      results = resultsByUser;
+    if (!isResultsAlreadyCalculated()) {
+      ensureResultsCacheComplete();
     }
-    return results;
+    return results != null ? results : Collections.emptyMap();
+  }
+
+  /**
+   * Fill Correct/Incorrect/Blank tallies for the full agent list. Called when the
+   * agent collection is prepared for render so {@link #getResults()} stays O(1).
+   * An empty cache after a completed pass (no submitted agents) remains valid.
+   */
+  void ensureResultsCacheComplete() {
+    Collection agentsToTally = agentsForTally();
+    if (!isResultsAlreadyCalculated() || results == null) {
+      Map<Long, List<Integer>> resultsByUser = new HashMap<>();
+      // Tally against the full agent list (not the current page/search slice) so paging and
+      // searching can reuse the cache without blank Correct/Incorrect/Blank cells.
+      tallyAgents(agentsToTally, resultsByUser);
+      results = resultsByUser;
+      setResultsAlreadyCalculated(true);
+      return;
+    }
+    if (hasMissingTallies(agentsToTally)) {
+      tallyAgents(agentsToTally, results);
+    }
+  }
+
+  Collection agentsForTally() {
+    if (allAgents != null && !allAgents.isEmpty()) {
+      return allAgents;
+    }
+    return agents != null ? agents : Collections.emptyList();
+  }
+
+  private boolean hasMissingTallies(Collection agentsToTally) {
+    for (Object object : agentsToTally) {
+      AgentResults agentResults = (AgentResults) object;
+      Long gradingId = agentResults.getAssessmentGradingId();
+      if (gradingId != null && gradingId != -1 && !results.containsKey(gradingId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void tallyAgents(Collection agentsToTally, Map<Long, List<Integer>> resultsByUser) {
+    PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+    PublishedAssessmentIfc publishedAssessmentData = pubAssessmentService.getPublishedAssessment(this.getPublishedId());
+    Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(publishedAssessmentData);
+    GradingService gradingService = new GradingService();
+    StatisticsService statisticsService = new StatisticsService();
+    List<PublishedItemData> tallyableItems = getTallyableItems(publishedAssessmentData);
+    Map<Long, AnswerIfc> answersById = new HashMap<>();
+    for (Object answerObject : publishedAnswerHash.values()) {
+      AnswerIfc answer = (AnswerIfc) answerObject;
+      if (answer != null && answer.getId() != null) {
+        answersById.put(answer.getId(), answer);
+      }
+    }
+    for (Object object : agentsToTally) {
+      AgentResults agentResults = (AgentResults) object;
+      Long gradingId = agentResults.getAssessmentGradingId();
+      if (gradingId == null || gradingId == -1 || resultsByUser.containsKey(gradingId)) {
+        continue;
+      }
+      // Tallying needs item gradings only; skip attachment loading to avoid extra per-student DB work.
+      AssessmentGradingData assessmentGradingAux = gradingService.load(gradingId.toString(), false);
+      List<Integer> resultsAux = new ArrayList<>(Collections.nCopies(3, 0));
+      Map<Long, List<ItemGradingData>> gradingByItem = groupGradingsByItem(assessmentGradingAux);
+      for (PublishedItemData item : tallyableItems) {
+        Long itemId = item.getItemId();
+        List<ItemGradingData> gradingList = gradingByItem.get(itemId);
+        if (hasRandomDrawPart && gradingList == null) {
+          continue;
+        }
+        SubmissionOutcome submissionOutcome = statisticsService.classifySubmission(item, gradingList, answersById);
+        if (submissionOutcome == SubmissionOutcome.CORRECT) {
+          resultsAux.set(0, resultsAux.get(0) + 1);
+        } else if (submissionOutcome == SubmissionOutcome.INCORRECT) {
+          resultsAux.set(1, resultsAux.get(1) + 1);
+        } else if (submissionOutcome == SubmissionOutcome.BLANK) {
+          resultsAux.set(2, resultsAux.get(2) + 1);
+        }
+      }
+      resultsByUser.put(gradingId, resultsAux);
+    }
   }
 
   private boolean isTallyableItemType(Long typeId) {
@@ -404,6 +443,9 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 	public void startRenderResponse() {
 		log.debug("startRenderResponse");
 		init();
+		if (getIsOneSelectionType()) {
+			ensureResultsCacheComplete();
+		}
 	}
 	
   /**
