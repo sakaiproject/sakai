@@ -429,7 +429,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.7.0</version>
+                        <version>3.8.6</version>
                         <!-- This execution runs the storage conversion from one FileSystemHandler to another. -->
                         <configuration>
                             <classpathScope>test</classpathScope>
