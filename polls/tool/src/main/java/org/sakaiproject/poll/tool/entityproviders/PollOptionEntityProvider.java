@@ -87,6 +87,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         if (option.getText() == null) {
             throw new IllegalArgumentException("Poll Option text must be set to create an option");
         }
+        option.setText(pollsService.processPollText(option.getText()));
         checkOptionPermission(userReference, option);
         Poll saved = pollsService.savePoll(poll);
         if (saved == null) {
@@ -110,6 +111,9 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
             throw new IllegalArgumentException("No option found to update for the given reference: " + ref);
         }
         Option option = (Option) entity;
+        if (option.getText() != null) {
+            option.setText(pollsService.processPollText(option.getText()));
+        }
         checkOptionPermission(userReference, current);
         developerHelperService.copyBean(option, current, 0, new String[] {"id", "poll"}, true);
         Poll saved = pollsService.savePoll(current.getPoll());
