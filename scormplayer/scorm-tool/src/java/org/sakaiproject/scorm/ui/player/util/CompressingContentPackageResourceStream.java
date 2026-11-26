@@ -18,9 +18,9 @@
  * This code borrows substantially from the Apache Wicket nested class
  *  	org.apache.wicket.markup.html.CompressedPackageResource$CompressingResourceStream
  * authored by Janne Hietam&auml;ki
- * 
+ *
  * The original license for that class is pasted below:
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -42,8 +42,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.SoftReference;
-import java.time.Instant;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.wicket.util.io.Streams;
@@ -56,11 +54,8 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 {
 	private static final long serialVersionUID = 1L;
 
-	/** Cache for compressed data */
-	private SoftReference cache = new SoftReference(null);
-
-	/** Timestamp of the cache */
-	private Instant timeStamp = null;
+	/** Holds the compressed bytes for this request so length() and getInputStream() compress only once. */
+	private transient byte[] compressedContent;
 
 	public CompressingContentPackageResourceStream(ContentPackageResource resource)
 	{
@@ -75,28 +70,21 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 
 	private byte[] getCompressedContent() throws ResourceStreamNotFoundException
 	{
-		InputStream stream = super.getInputStream();
-		try
+		if (compressedContent != null)
 		{
-			byte ret[] = (byte[]) cache.get();
-			if (ret != null && timeStamp != null)
-			{
-				if (timeStamp.equals(lastModifiedTime()))
-				{
-					return ret;
-				}
-			}
+			return compressedContent;
+		}
 
+		try (InputStream stream = super.getInputStream())
+		{
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try (GZIPOutputStream zout = new GZIPOutputStream(out))
 			{
 				Streams.copy(stream, zout);
 			}
-			stream.close();
-			ret = out.toByteArray();
-			timeStamp = lastModifiedTime();
-			cache = new SoftReference(ret);
-			return ret;
+
+			compressedContent = out.toByteArray();
+			return compressedContent;
 		}
 		catch (IOException e)
 		{
