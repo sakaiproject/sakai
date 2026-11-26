@@ -10,6 +10,8 @@ export class SakaiSearch extends SakaiElement {
     tool: { type: String },
 
     _results: { state: true },
+    _sites: { state: true },
+    _tools: { state: true },
   };
 
   constructor() {
@@ -56,6 +58,77 @@ export class SakaiSearch extends SakaiElement {
     });
   }
 
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    // The portal renders this in a hidden panel on every page, so wait until it is used
+    this.addEventListener("focusin", () => this._loadFilters(), { once: true });
+  }
+
+  _loadFilters() {
+
+    const sitesUrl = "/api/users/current/sites";
+    fetch(sitesUrl, { credentials: "same-origin" })
+      .then(r => {
+
+        if (r.ok) {
+          return r.json();
+        }
+        throw new Error(`Network error while retrieving sites from ${sitesUrl}`);
+      })
+      .then(data => this._sites = data.sites)
+      .catch(error => console.error(error));
+
+    const toolsUrl = "/api/search/tools";
+    fetch(toolsUrl, { credentials: "same-origin" })
+      .then(r => {
+
+        if (r.ok) {
+          return r.json();
+        }
+        throw new Error(`Network error while retrieving search tools from ${toolsUrl}`);
+      })
+      .then(tools => {
+
+        this._tools = tools.filter(t => this.toolNameMapping[t])
+          .sort((a, b) => this.toolNameMapping[a].localeCompare(this.toolNameMapping[b]));
+      })
+      .catch(error => console.error(error));
+  }
+
+  willUpdate(changed) {
+
+    // The site this search is scoped to may be unpinned, or not one of the user's sites at all (an admin's visit)
+    if ((changed.has("siteId") || changed.has("_sites")) && this._sites && this.siteId
+        && !this._sites.some(s => s.siteId === this.siteId)) {
+      const siteUrl = `/api/sites/${encodeURIComponent(this.siteId)}`;
+      fetch(siteUrl, { credentials: "same-origin" })
+        .then(r => {
+
+          if (r.ok) {
+            return r.json();
+          }
+          throw new Error(`Network error while retrieving site from ${siteUrl}`);
+        })
+        .then(site => this._sites = [ ...this._sites, { siteId: site.siteId, title: site.title } ])
+        .catch(error => console.error(error));
+    }
+  }
+
+  _siteSelected(e) {
+
+    this.siteId = e.target.value || undefined;
+    this._clearResults();
+  }
+
+  _toolSelected(e) {
+
+    this.tool = e.target.value || undefined;
+    this._clearResults();
+    this.dispatchEvent(new CustomEvent("search-tool-changed", { bubbles: true }));
+  }
+
   handleKeydownOnResult(e) {
 
     if (e.code === "Escape") {
@@ -64,10 +137,16 @@ export class SakaiSearch extends SakaiElement {
     }
   }
 
-  closeResults() {
+  _clearResults() {
 
     this._results = [];
+    this.noResults = false;
     this.dispatchEvent(new CustomEvent("hiding-search-results"));
+  }
+
+  closeResults() {
+
+    this._clearResults();
     this.querySelector("input").focus();
   }
 
@@ -85,7 +164,7 @@ export class SakaiSearch extends SakaiElement {
 
     if (terms.length > this.searchMinLengthValue - 1) {
 
-      const url = `/api/search?terms=${encodeURIComponent(terms)}${this.siteId ? `&site=${encodeURIComponent(this.siteId)}` : ""}${this.tool ? `&tool=${encodeURIComponent(this.tool)}` : ""}`;
+      const url = `/api/search?terms=${encodeURIComponent(terms)}${this.siteId ? `&site=${encodeURIComponent(this.siteId)}` : "&pinned=true"}${this.tool ? `&tool=${encodeURIComponent(this.tool)}` : ""}`;
       fetch(url, {
         cache: "no-cache",
         credentials: "same-origin"
@@ -130,6 +209,26 @@ export class SakaiSearch extends SakaiElement {
   render() {
 
     return html`
+      ${this._sites || this._tools ? html`
+        <div class="d-flex gap-2 mb-2">
+          ${this._sites ? html`
+            <select class="form-select" aria-label="${this._i18n.site_filter_label}" @change=${this._siteSelected}>
+              <option value="" .selected=${!this.siteId}>${this._i18n.all_pinned_sites}</option>
+              ${this._sites.filter(s => s.pinned || s.siteId === this.siteId).map(s => html`
+                <option value="${s.siteId}" .selected=${this.siteId === s.siteId}>${s.title}</option>
+              `)}
+            </select>
+          ` : nothing}
+          ${this._tools ? html`
+            <select class="form-select" aria-label="${this._i18n.tool_filter_label}" @change=${this._toolSelected}>
+              <option value="" .selected=${!this.tool}>${this._i18n.all_tools}</option>
+              ${this._tools.map(t => html`
+                <option value="${t}" .selected=${this.tool === t}>${this.toolNameMapping[t]}</option>
+              `)}
+            </select>
+          ` : nothing}
+        </div>
+      ` : nothing}
       <form class="input-group position-relative" @submit=${this.search}>
         <input type="search"
           class="sakaiSearch form-control"
