@@ -42,6 +42,8 @@ final class LessonsUi {
 
     void open(String siteUrl) {
         page.navigate(siteUrl);
+        // The site menu is drawn after the page loads, and toolClick only expands it if it is already there.
+        assertThat(page.locator("li.site-list-item.is-current-site").first()).isAttached();
         sakai.toolClick("Lessons");
         assertThat(page.locator("#lessonsCurrentPageId")).isAttached();
     }
