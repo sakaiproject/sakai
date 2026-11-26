@@ -299,6 +299,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		Poll poll = new Poll();
 		// copy from params to Poll
 		copyParamsToObject(params, poll);
+		processSubmittedText(poll);
 
 		poll.setCreationDate(Instant.now());
 		if (poll.getOwner() == null) {
@@ -342,6 +343,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		}
 		Poll poll = new Poll();
 		copyParamsToObject(params, poll);
+		processSubmittedText(poll);
 		String siteId = developerHelperService.getCurrentLocationId();
 		if (poll.getSiteId() == null) {
 			poll.setSiteId(siteId);
@@ -493,6 +495,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"Poll Option text must be set to create an option");
 		}
+		option.setText(pollsService.processPollText(option.getText()));
 		checkOptionPermission(userReference, option);
 
 		Poll saved = pollsService.saveNewOption(poll.get(), option);
@@ -501,6 +504,15 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 					+ ") for user (" + userReference + "): " + ref);
 		}
 		return option.getId().toString();
+	}
+
+	private void processSubmittedText(Poll poll) {
+		if (poll.getText() != null) {
+			poll.setText(pollsService.processPollText(poll.getText()));
+		}
+		if (poll.getDescription() != null) {
+			poll.setDescription(pollsService.processPollText(poll.getDescription()));
+		}
 	}
 
 	/**
@@ -570,6 +582,9 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		Option option = new Option();
 		// copy from params to Option
 		copyParamsToObject(params, option);
+		if (option.getText() != null) {
+			option.setText(pollsService.processPollText(option.getText()));
+		}
 
 		checkOptionPermission(userReference, current);
 		developerHelperService.copyBean(option, current, 0, new String[] {"id", "poll" }, true);

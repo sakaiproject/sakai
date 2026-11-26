@@ -392,8 +392,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         List<String> sanitizedOptions = new ArrayList<>();
         ZoneId userZoneId = userTimeService.getLocalTimeZone().toZoneId();
 
-        poll.setText(importedPoll.question());
-        poll.setDescription(cleanupImportedPollFormattedText(importedPoll.details()));
+        String question = processPollText(importedPoll.question());
+        if (StringUtils.isBlank(question)) {
+            throw new PollImportException(PollImportError.MISSING_QUESTION, importedPoll.rowNumber());
+        }
+        poll.setText(question);
+        poll.setDescription(processPollText(importedPoll.details()));
         poll.setSiteId(siteId);
         poll.setOwner(ownerId);
         poll.setDisplayResult(StringUtils.defaultIfBlank(importedPoll.displayResult(), "open"));
@@ -443,7 +447,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
 
         for (String optionText : importedPoll.options()) {
-            String cleanedOption = cleanupImportedPollFormattedText(optionText);
+            String cleanedOption = processPollText(optionText);
             if (StringUtils.isNotBlank(cleanedOption)) {
                 sanitizedOptions.add(cleanedOption);
             }
@@ -509,7 +513,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         };
     }
 
-    private String cleanupImportedPollFormattedText(String text) {
+    @Override
+    public String processPollText(String text) {
         String processed = formattedText.processFormattedText(StringUtils.defaultString(text), null, true, true);
         return PollUtils.cleanupHtmlPtags(processed);
     }

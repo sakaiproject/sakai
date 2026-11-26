@@ -150,6 +150,12 @@ public interface PollsService {
      * @return
      */
     Poll saveNewOption(Poll poll, Option option);
+
+    /**
+     * Processes question, description, or option text submitted by a user as Sakai formatted text.
+     * Call it once on submitted text before saving; stored text is already processed.
+     */
+    String processPollText(String text);
     
     /**
      *  Save a poll
