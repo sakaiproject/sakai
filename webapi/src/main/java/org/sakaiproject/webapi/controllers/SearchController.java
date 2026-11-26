@@ -13,9 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
-import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.webapi.beans.SearchRestBean;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,10 +39,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchController extends AbstractSakaiApiController {
 
 	@Autowired private SearchService searchService;
-
-	@Autowired
-	@Qualifier("org.sakaiproject.search.api.SearchIndexBuilder")
-	private SearchIndexBuilder searchIndexBuilder;
 
 	@GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SearchRestBean>> search(
@@ -76,19 +69,6 @@ public class SearchController extends AbstractSakaiApiController {
             return ResponseEntity.badRequest().build();
         }
 	}
-
-	@GetMapping(value = "/search/tools", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<String>> tools() {
-
-        checkSakaiSession();
-
-        return ResponseEntity.ok(searchIndexBuilder.getContentProducers().stream()
-            .map(EntityContentProducer::getTool)
-            .filter(StringUtils::isNotBlank)
-            .distinct()
-            .sorted()
-            .collect(Collectors.toList()));
-    }
 
 	@GetMapping(value = "/search/suggestions", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<String>> suggestions(@RequestParam("terms") String terms) {

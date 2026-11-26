@@ -21,11 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.querySelector("sakai-search input")?.focus();
   });
 
-  // the title names the tool a search started in, so it no longer fits once another tool is picked
-  document.getElementById("sakai-search-panel")?.addEventListener("search-tool-changed", () => {
-    document.getElementById("sakai-search-panel-label").textContent = portal.search.defaultTitle;
-  });
-
   document.querySelectorAll(".portal-search-button").forEach(b => {
     b.addEventListener("click", () => portal.search.setup({}));
   });

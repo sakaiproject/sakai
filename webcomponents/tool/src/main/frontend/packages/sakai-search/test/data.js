@@ -23,12 +23,16 @@ site_filter_label=Filter results by site
 tool_filter_label=Filter results by tool
 toolname_announcement=Announcement
 toolname_assignment=Assignment
+toolname_calendar=Calendar
 toolname_chat=Chat
 toolname_commons=Commons
 toolname_conversations=Conversations
 toolname_forum=Forum
 toolname_lesson=Lesson
+toolname_polls=Polls
 toolname_resources=Resources
+toolname_rubrics=Rubrics
+toolname_syllabus=Syllabus
 toolname_wiki=Wiki
 `;
 
@@ -50,11 +54,3 @@ export const sites = { sites: [
   { siteId: "turnips101", title: "Turnips 101", pinned: false },
 ] };
 
-// a site the user is not a member of, e.g. one an admin is visiting
-export const otherSiteId = "parsnips101";
-export const otherSiteUrl = `/api/sites/${otherSiteId}`;
-export const otherSite = { siteId: otherSiteId, title: "Parsnips 101" };
-
-export const toolsUrl = "/api/search/tools";
-// email has no translation so is left out of the tool filter
-export const tools = [ "wiki", "email", "assignments" ];
