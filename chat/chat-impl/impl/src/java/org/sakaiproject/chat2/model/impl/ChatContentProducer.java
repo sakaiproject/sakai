@@ -17,6 +17,7 @@
 package org.sakaiproject.chat2.model.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
@@ -55,7 +55,6 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class ChatContentProducer implements EntityContentProducer {
 
-   @Setter @Getter private SearchService searchService = null;
    @Setter @Getter private SearchIndexBuilder searchIndexBuilder = null;
    @Setter @Getter  private EntityManager entityManager = null;
    @Setter @Getter private ChatManager chatManager = null;
@@ -76,16 +75,7 @@ protected void init() throws Exception {
       if ("true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
             "search.enable", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
       {
-         for (Iterator<String> i = addEvents.iterator(); i.hasNext();)
-         {
-            getSearchService().registerFunction((String) i.next());
-         }
-         for (Iterator<String> i = removeEvents.iterator(); i.hasNext();)
-         {
-            getSearchService().registerFunction((String) i.next());
-         }
          getSearchIndexBuilder().registerEntityContentProducer(this);
-         
       }
       
       contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
@@ -452,6 +442,14 @@ protected void init() throws Exception {
    public boolean matches(Event event)
    {
       return matches(event.getResource());
+   }
+
+   @Override
+   public Set<String> getTriggerEvents()
+   {
+      Set<String> events = new HashSet<>(addEvents);
+      events.addAll(removeEvents);
+      return events;
    }
 
 }

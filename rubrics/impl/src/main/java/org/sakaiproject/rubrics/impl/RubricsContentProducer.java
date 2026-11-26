@@ -35,7 +35,6 @@ import org.sakaiproject.rubrics.api.model.Rating;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -53,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Setter
-public class RubricsContentProducer implements EntityContentProducer, EntityContentProducerEvents {
+public class RubricsContentProducer implements EntityContentProducer {
 
     private static final String REFERENCE_PREFIX = RubricsService.REFERENCE_ROOT + Entity.SEPARATOR;
 
@@ -77,7 +76,7 @@ public class RubricsContentProducer implements EntityContentProducer, EntityCont
     }
 
     @Override
-    public Set<String> getTriggerFunctions() {
+    public Set<String> getTriggerEvents() {
         return EVENT_ACTIONS.keySet();
     }
 

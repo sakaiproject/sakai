@@ -17,9 +17,11 @@ package org.sakaiproject.component.app.messageforums.entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +42,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 @Slf4j
@@ -48,15 +49,14 @@ public class MessageForumsEntityContentProducer implements
 		EntityContentProducer, PortalUrlEnabledProducer {
 
 	// runtime dependency
-	private List addEvents = null;
+	private List<String> addEvents = null;
 
 	// runtime dependency
-	private List removeEvents = null;
+	private List<String> removeEvents = null;
 	
 
 	@Setter private DeveloperHelperService developerHelperService;
 	@Setter private ServerConfigurationService serverConfigurationService;
-	@Setter private SearchService searchService;
 	@Setter private EntityBroker entityBroker;
 	@Setter private String toolName = null;
 	@Setter private SearchIndexBuilder searchIndexBuilder = null;
@@ -72,13 +72,13 @@ public class MessageForumsEntityContentProducer implements
 	 * @param addEvents
 	 *        The addEvents to set.
 	 */
-	public void setAddEvents(List addEvents)
+	public void setAddEvents(List<String> addEvents)
 	{
 		this.addEvents = addEvents;
 	}
 
 	
-	public void setRemoveEvents(List removeEvents) {
+	public void setRemoveEvents(List<String> removeEvents) {
 		this.removeEvents = removeEvents;
 	}
 	
@@ -89,16 +89,6 @@ public class MessageForumsEntityContentProducer implements
 		if ( "true".equals(serverConfigurationService.getString(
 				"search.enable", "false")))
 		{
-			for (Iterator i = addEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			
-			for (Iterator i = removeEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 	}
@@ -299,6 +289,13 @@ public class MessageForumsEntityContentProducer implements
 
 	public boolean matches(Event event) {
 		return matches(event.getResource());
+	}
+
+	@Override
+	public Set<String> getTriggerEvents() {
+		Set<String> events = new HashSet<>(addEvents);
+		events.addAll(removeEvents);
+		return events;
 	}
 
 }

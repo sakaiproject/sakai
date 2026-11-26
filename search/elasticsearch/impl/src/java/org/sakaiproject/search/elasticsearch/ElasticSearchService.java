@@ -57,7 +57,6 @@ import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.cluster.node.DiscoveryNodeRole;
 import org.opensearch.common.network.InetAddresses;
 import org.opensearch.common.settings.Settings;
-import org.opensearch.common.util.set.Sets;
 import org.opensearch.index.reindex.ReindexPlugin;
 import org.opensearch.node.InternalSettingsPreparer;
 import org.opensearch.node.Node;
@@ -155,7 +154,6 @@ import lombok.extern.slf4j.Slf4j;
     /* internal caches and configs */
     final private ConcurrentHashMap<String, ElasticSearchIndexBuilderRegistration> indexBuilders = new ConcurrentHashMap<>();
     private InternalEventRegistrar eventRegistrar = new InternalEventRegistrar();
-    private Set<String> globalContentFunctions = Sets.newConcurrentHashSet();
     /**
      * used in searchXML() to maintain backwards compatibility
      */
@@ -337,19 +335,10 @@ import lombok.extern.slf4j.Slf4j;
                 // Content providers are registered with index builders outside of the DI framework, so a builder's
                 // providers may not have registered themselves when the builder registers itself with the search
                 // service here. So we let the provider determine when to wire up its events. And that may happen
-                // repeatedly, as provider registrations trickle in.
-                //
-                // Historically, content providers registered their events directly with the search service
-                // (SearchService.registerFunction()) during startup. The global index builder was injected into the
-                // search service via DI and was configured as the listener for all events hitting the search service.
-                // That approach works less well now that we support multiple index builders because not all builders
-                // will be interested in all events. Builders can certainly filter out events they don't care about,
-                // but it is far better to never deliver them in the first place. Rather than require modifications
-                // to all content providers in the wild, though, we allow a mixed model here. Globally
-                // registered "functions" will still broadcast to all builders, but new content providers are
-                // encouraged to scope their events to their index builder. The index builder is then responsible
-                // for keeping its total set of event registrations up to date via the
-                // ElasticSearchIndexBuilderEventRegistrar passed into its initialize() method below.
+                // repeatedly, as provider registrations trickle in. Each content producer declares its events via
+                // EntityContentProducer.getTriggerEvents() and the index builder keeps its total set of event
+                // registrations up to date via the ElasticSearchIndexBuilderEventRegistrar passed into its
+                // initialize() method below.
                 //
                 // The thread local stuff is to work around scenarios where indexBuilder.initialize() calls back
                 // to eventRegistrar.updateEventsFor() immediately such that the index builder registration hasn't been
@@ -399,32 +388,12 @@ import lombok.extern.slf4j.Slf4j;
                     triggerFunctions.forEach(s -> registerNoDuplicates(s, registration.notification));
                     registerNoDuplicates(SearchService.EVENT_TRIGGER_SEARCH, registration.notification);
 
-                    // globalContentFunctions are registered dynamically as legacy content producers are initialized,
-                    // but these registrations are propagated immediately to any registered index builders
-                    // (see handleNewGlobalContentFunction() below), so we only need to register the entire collection
-                    // once here, when the index builder's notification is first built.
-                    globalContentFunctions.forEach(s -> registerNoDuplicates(s, registration.notification));
-
                     // set the action
                     notification.setAction(new SearchNotificationAction(indexBuilder));
                 }
 
                 indexBuilder.getTriggerFunctions().forEach(s -> registerNoDuplicates(s, registration.notification));
                 indexBuilder.getContentFunctions().forEach(s -> registerNoDuplicates(s, registration.notification));
-            }
-        }
-
-        private void handleNewGlobalContentFunction(String function) {
-            log.info("Register {} as a trigger for the search service", function);
-
-            if (!isEnabled()) {
-                log.debug("Search is not enabled. Set search.enable=true to change that.");
-                return;
-            }
-
-            synchronized (ElasticSearchService.this.indexBuilders) {
-                globalContentFunctions.add(function);
-                ElasticSearchService.this.indexBuilders.forEach((k,v) -> registerNoDuplicates(function, v.notification));
             }
         }
 
@@ -654,12 +623,6 @@ import lombok.extern.slf4j.Slf4j;
             chars[2 * i + 1] = (char) (lo < 10 ? ('0' + lo) : ('A' + lo - 10));
         }
         return new String(chars);
-    }
-
-
-    @Override
-    public void registerFunction(String function) {
-        eventRegistrar.handleNewGlobalContentFunction(function);
     }
 
     @Override

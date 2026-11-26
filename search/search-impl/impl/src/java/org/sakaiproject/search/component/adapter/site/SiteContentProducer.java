@@ -23,9 +23,11 @@ package org.sakaiproject.search.component.adapter.site;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +41,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
@@ -62,8 +63,6 @@ public class SiteContentProducer implements EntityContentProducer
 	private SiteService siteService;
 
 	private ServerConfigurationService serverConfigurationService;
-
-	private SearchService searchService;
 
 	private SearchIndexBuilder searchIndexBuilder;
 
@@ -97,22 +96,6 @@ public class SiteContentProducer implements EntityContentProducer
 	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
 	{
 		this.searchIndexBuilder = searchIndexBuilder;
-	}
-
-	/**
-	 * @return the searchService
-	 */
-	public SearchService getSearchService()
-	{
-		return searchService;
-	}
-
-	/**
-	 * @param searchService the searchService to set
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
 	}
 
 	/**
@@ -163,14 +146,6 @@ public class SiteContentProducer implements EntityContentProducer
 
 		if ("true".equals(serverConfigurationService.getString("search.enable", "false")))
 		{
-			for (Iterator i = addEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			for (Iterator i = removeEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 
@@ -514,6 +489,14 @@ public class SiteContentProducer implements EntityContentProducer
 	{
 		return addEvents.contains(event.getEvent())
 				|| removeEvents.contains(event.getEvent());
+	}
+
+	@Override
+	public Set<String> getTriggerEvents()
+	{
+		Set<String> events = new HashSet<>(addEvents);
+		events.addAll(removeEvents);
+		return events;
 	}
 
 }

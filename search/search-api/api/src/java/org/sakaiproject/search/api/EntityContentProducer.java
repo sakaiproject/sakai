@@ -23,6 +23,7 @@ package org.sakaiproject.search.api;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
@@ -107,6 +108,16 @@ public interface EntityContentProducer
 	 */
 	default boolean matches(Event event) {
 		return false;
+	}
+
+	/**
+	 * The events that should trigger indexing by this producer. The owning
+	 * {@link SearchIndexBuilder} registers these events when the producer is
+	 * registered with it.
+	 * @return the event names this producer handles
+	 */
+	default Set<String> getTriggerEvents() {
+		return Set.of();
 	}
 
 	/**

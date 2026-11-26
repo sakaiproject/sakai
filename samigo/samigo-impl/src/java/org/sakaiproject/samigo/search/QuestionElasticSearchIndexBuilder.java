@@ -435,13 +435,13 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     @Override
     public EntityContentProducer newEntityContentProducer(Event event) {
         ItemContentProducer icp = itemContentProducer;
-        Set<String> triggerIcp = icp.getTriggerFunctions();
+        Set<String> triggerIcp = icp.getTriggerEvents();
         if (triggerIcp.contains(event.getEvent())){
             log.debug("we have a ItemContentProducer for the event " + event + " in index builder " + getName());
             return itemContentProducer;
         }
         PublishedItemContentProducer picp = publishedItemContentProducer;
-        Set<String> triggerPicp = picp.getTriggerFunctions();
+        Set<String> triggerPicp = picp.getTriggerEvents();
         if (triggerPicp.contains(event.getEvent())){
             log.debug("we have a PublishedContentProducer for the event " + event + " in index builder " + getName());
             return publishedItemContentProducer;

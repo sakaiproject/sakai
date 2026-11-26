@@ -43,7 +43,6 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -60,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Generated for syllabus search support
  */
 @Slf4j
-public class SyllabusContentProducer implements EntityContentProducer, EntityContentProducerEvents {
+public class SyllabusContentProducer implements EntityContentProducer {
 
 	@Setter @Getter
 	private SearchIndexBuilder searchIndexBuilder = null;
@@ -363,7 +362,7 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 	}
 
 	@Override
-	public Set<String> getTriggerFunctions() {
+	public Set<String> getTriggerEvents() {
 		return EVENT_ACTIONS.keySet();
 	}
 } 

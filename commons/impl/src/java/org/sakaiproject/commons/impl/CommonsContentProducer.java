@@ -37,7 +37,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -59,7 +58,6 @@ public class CommonsContentProducer implements EntityContentProducer {
     private SakaiProxy sakaiProxy;
     private SearchIndexBuilder searchIndexBuilder;
     private ServerConfigurationService serverConfigurationService;
-    private SearchService searchService;
     private SiteService siteService;
     private TransactionTemplate transactionTemplate;
 
@@ -77,8 +75,6 @@ public class CommonsContentProducer implements EntityContentProducer {
             addingEvents.add(CommonsEvents.COMMENT_UPDATED);
             removingEvents.add(CommonsEvents.POST_DELETED);
             removingEvents.add(CommonsEvents.COMMENT_DELETED);
-            addingEvents.forEach(e -> searchService.registerFunction(e));
-            removingEvents.forEach(e -> searchService.registerFunction(e));
             searchIndexBuilder.registerEntityContentProducer(this);
         }
     }
@@ -160,6 +156,14 @@ public class CommonsContentProducer implements EntityContentProducer {
 
         String evt = event.getEvent();
         return addingEvents.contains(evt) || removingEvents.contains(evt);
+    }
+
+    @Override
+    public Set<String> getTriggerEvents() {
+
+        Set<String> events = new HashSet<>(addingEvents);
+        events.addAll(removingEvents);
+        return events;
     }
 
     @Override

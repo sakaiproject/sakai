@@ -44,14 +44,13 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
 
 @Slf4j
-public class ContentHostingContentProducer implements EntityContentProducer, EntityContentProducerEvents, StoredDigestContentProducer
+public class ContentHostingContentProducer implements EntityContentProducer, StoredDigestContentProducer
 {
 
 	/**
@@ -909,7 +908,7 @@ public class ContentHostingContentProducer implements EntityContentProducer, Ent
 	}
 
 	@Override
-	public Set<String> getTriggerFunctions() {
+	public Set<String> getTriggerEvents() {
 		return EVENT_ACTIONS.keySet();
 	}
 
