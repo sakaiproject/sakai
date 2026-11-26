@@ -202,6 +202,7 @@
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<input type="hidden" id="import-item-childof-template" value="$tlang.getString('import.item.childof')" />
 	</form>
 	#if ($isGradebookGroupEnabled)
 	<script src="/sakai-site-manage-tool/js/site-import.js$!{portalCdnQuery}"></script>

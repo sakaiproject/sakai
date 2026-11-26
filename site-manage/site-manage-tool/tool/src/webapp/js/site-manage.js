@@ -1487,11 +1487,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const numberRows = Object.values(sites).reduce((a, v) => v?.length > a ? v?.length : a, 0);
 
-          // Sort items alphabetically by title before listing them in the DOM
           siteIds.forEach(siteId => {
               let items = Array.isArray(sites[siteId]) ? sites[siteId] : [];
-              sites[siteId] = items; // normalize
-              items.sort((a, b) => (a?.title ?? '').localeCompare((b?.title ?? ''), undefined, { sensitivity: 'base' }));
+              const childrenByParent = {};
+              const roots = [];
+
+              items.forEach(item => {
+                const pId = item.parentId || "0";
+                if (pId === "0") {
+                  roots.push(item);
+                } else {
+                  if (!childrenByParent[pId]) childrenByParent[pId] = [];
+                  childrenByParent[pId].push(item);
+                }
+              });
+
+              const ordered = [];
+              const walk = (nodes, depth, parentTitle) => {
+                nodes.forEach(node => {
+                  node.depth = depth;
+                  node.parentTitle = parentTitle;
+                  ordered.push(node);
+                  if (childrenByParent[node.id]) {
+                    walk(childrenByParent[node.id], depth + 1, node.title);
+                  }
+                });
+              };
+              walk(roots, 0);
+              const orderedIds = new Set(ordered.map(node => node.id));
+              items.forEach(item => {
+                if (!orderedIds.has(item.id)) {
+                  ordered.push(item);
+                }
+              });
+              sites[siteId] = ordered;
           });
 
           let insertHtml = ``;
@@ -1512,16 +1541,29 @@ document.addEventListener('DOMContentLoaded', () => {
               if (item) {
                 const escapedTitle = $('<div>').text(item.title ?? "").html();
                 const itemId = item.id;
+                let subtextHtml = '';
+                if (item.parentTitle) {
+                  const parentLabelTemplate = document.getElementById('import-item-childof-template')?.value || "Child of {0}";
+                  const escapedParentTitle = $('<div>').text(item.parentTitle ?? "").html();
+                  const parentLabel = parentLabelTemplate.replace('{0}', escapedParentTitle);
+                  subtextHtml = `<div class="ms-2 item-parent-label text-muted small">${parentLabel}</div>`;
+                }
                 tr += `
                   <td>
+                  <div class="d-flex align-items-center">
                     <input type="checkbox"
                         id="item-${itemId}"
                         name="${toolId}$${siteId}-item-${itemId}"
                         data-tool-id="${toolId}"
                         data-site-id="${siteId}"
+                        data-parent-id="${item.parentId || '0'}"
                         class="ms-3 tool-item-checkbox"
                         value="${itemId}" ${toolCheckbox.checked ? "checked" : "" } />
+                    <div class="ms-2 d-flex flex-column">
                     <label class="ms-2 d-inline" for="item-${itemId}">${escapedTitle}</label>
+                      ${subtextHtml}
+                    </div>
+                  </div>
                   </td>`;
               } else {
                 tr += `<td>&nbsp;</td>`;
@@ -1543,6 +1585,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
 
             cb.addEventListener("click", e => {
+
+              const isChecked = e.target.checked;
+              const checkDescendants = (parentId) => {
+                const children = document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-parent-id="${parentId}"][data-site-id="${siteId}"]`);
+                children.forEach(child => {
+                  child.checked = isChecked;
+                  checkDescendants(child.value);
+                });
+              };
+              checkDescendants(e.target.value);
 
               const itemCheckboxes = Array.from(document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`));
 
