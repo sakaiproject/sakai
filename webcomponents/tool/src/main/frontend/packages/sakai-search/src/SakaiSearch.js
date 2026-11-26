@@ -10,6 +10,7 @@ export class SakaiSearch extends SakaiElement {
     tool: { type: String },
 
     _results: { state: true },
+    _sites: { state: true },
   };
 
   constructor() {
@@ -18,6 +19,7 @@ export class SakaiSearch extends SakaiElement {
 
     this.searchTerms = "";
     this.searchMinLengthValue = 3;
+    this._sites = [];
 
     this.iconMapping = {
       "announcement": "si si-sakai-announcements",
@@ -53,7 +55,66 @@ export class SakaiSearch extends SakaiElement {
         "syllabus": this._i18n.toolname_syllabus,
         "wiki": this._i18n.toolname_wiki
       };
+      this._tools = Object.keys(this.toolNameMapping)
+        .sort((a, b) => this.toolNameMapping[a].localeCompare(this.toolNameMapping[b]));
     });
+  }
+
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    // The portal renders this in a hidden panel on every page, so wait until it is used
+    this.addEventListener("focusin", () => this._sitesRequest ??= this._loadSites());
+  }
+
+  _loadSites() {
+
+    const sitesUrl = "/api/users/current/sites";
+    return fetch(sitesUrl, { credentials: "same-origin" })
+      .then(r => {
+
+        if (r.ok) {
+          return r.json();
+        }
+        throw new Error(`Network error while retrieving sites from ${sitesUrl}`);
+      })
+      .then(data => this._sites = data.sites)
+      .catch(error => {
+
+        console.error(error);
+        this._sitesRequest = undefined; // the next focus tries again
+      });
+  }
+
+  _siteSelected(e) {
+
+    this.siteId = e.target.value || undefined;
+    this._filterChanged();
+  }
+
+  _toolSelected(e) {
+
+    this.tool = e.target.value || undefined;
+    this._filterChanged();
+  }
+
+  _filterChanged() {
+
+    // results, finished or pending, belong to the old filters
+    this._searchController?.abort();
+    this._results = [];
+    this.noResults = false;
+  }
+
+  get _siteOptions() {
+
+    const sites = this._sites.filter(s => s.pinned || s.siteId === this.siteId);
+    // the portal scopes a search to the current site, which may not be one of the user's sites
+    if (this.siteId && !sites.some(s => s.siteId === this.siteId)) {
+      sites.push({ siteId: this.siteId, title: this._i18n.this_site });
+    }
+    return sites;
   }
 
   handleKeydownOnResult(e) {
@@ -85,10 +146,13 @@ export class SakaiSearch extends SakaiElement {
 
     if (terms.length > this.searchMinLengthValue - 1) {
 
-      const url = `/api/search?terms=${encodeURIComponent(terms)}${this.siteId ? `&site=${encodeURIComponent(this.siteId)}` : ""}${this.tool ? `&tool=${encodeURIComponent(this.tool)}` : ""}`;
+      const url = `/api/search?terms=${encodeURIComponent(terms)}${this.siteId ? `&site=${encodeURIComponent(this.siteId)}` : "&pinned=true"}${this.tool ? `&tool=${encodeURIComponent(this.tool)}` : ""}`;
+      this._searchController?.abort();
+      this._searchController = new AbortController();
       fetch(url, {
         cache: "no-cache",
-        credentials: "same-origin"
+        credentials: "same-origin",
+        signal: this._searchController.signal,
       })
       .then(r => {
 
@@ -123,13 +187,27 @@ export class SakaiSearch extends SakaiElement {
 
         this.requestUpdate();
       })
-      .catch (error => console.error(error));
+      .catch (error => error.name !== "AbortError" && console.error(error));
     }
   }
 
   render() {
 
     return html`
+      <div class="d-flex gap-2 mb-2">
+        <select class="form-select" aria-label="${this._i18n.site_filter_label}" @change=${this._siteSelected}>
+          <option value="" .selected=${!this.siteId}>${this._i18n.all_pinned_sites}</option>
+          ${this._siteOptions.map(s => html`
+            <option value="${s.siteId}" .selected=${this.siteId === s.siteId}>${s.title}</option>
+          `)}
+        </select>
+        <select class="form-select" aria-label="${this._i18n.tool_filter_label}" @change=${this._toolSelected}>
+          <option value="" .selected=${!this.tool}>${this._i18n.all_tools}</option>
+          ${this._tools.map(t => html`
+            <option value="${t}" .selected=${this.tool === t}>${this.toolNameMapping[t]}</option>
+          `)}
+        </select>
+      </div>
       <form class="input-group position-relative" @submit=${this.search}>
         <input type="search"
           class="sakaiSearch form-control"

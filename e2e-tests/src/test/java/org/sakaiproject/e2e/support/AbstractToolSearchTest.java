@@ -31,6 +31,7 @@ import com.google.gson.JsonParser;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Request;
+import com.microsoft.playwright.options.SelectOption;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -207,6 +208,39 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
     }
 
     @Test
+    @Order(5)
+    void portalSearchFiltersBySiteAndTool() {
+        sakai.login(author());
+        openSearchPanel();
+        Locator siteFilter = page.locator("sakai-search select[aria-label='Filter results by site']");
+        Locator toolFilter = page.locator("sakai-search select[aria-label='Filter results by tool']");
+        toolFilter.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(15_000));
+        assertThat(siteFilter).hasValue("");
+        assertThat(toolFilter).hasValue("");
+        assertThat(toolFilter.locator("option[value='" + searchToolName() + "']")).hasText(toolLabel());
+
+        // by default the search covers the pinned sites, which include the fixture site
+        Request pinned = page.waitForRequest(r -> r.url().contains("/api/search?"), () -> typeSearch(bodyWord));
+        assertEquals("true", queryParam(pinned.url(), "pinned"));
+        Locator results = page.locator("sakai-search .search-result-link");
+        assertThat(results.filter(new Locator.FilterOptions().setHasText(titleWord))).hasCount(1);
+
+        siteFilter.selectOption(siteId);
+        toolFilter.selectOption(searchToolName());
+        Request request = page.waitForRequest(r -> r.url().contains("/api/search?"), () -> typeSearch(bodyWord));
+        assertEquals(siteId, queryParam(request.url(), "site"));
+        assertEquals(searchToolName(), queryParam(request.url(), "tool"));
+        assertThat(results.filter(new Locator.FilterOptions().setHasText(titleWord))).hasCount(1);
+
+        // another tool clears the results and the next search no longer finds the item
+        String otherTool = toolFilter.locator("option").all().stream().map(o -> o.getAttribute("value"))
+            .filter(v -> !v.isEmpty() && !v.equals(searchToolName())).findFirst().orElseThrow();
+        toolFilter.selectOption(new SelectOption().setValue(otherTool));
+        assertThat(results).hasCount(0);
+        assertThat(searchInPortal(bodyWord).filter(new Locator.FilterOptions().setHasText(titleWord))).hasCount(0);
+    }
+
+    @Test
     @Order(6)
     void usersWithoutAccessCannotFindIt() {
         String denied = deniedUser();
@@ -356,13 +390,17 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         return results;
     }
 
-    private void typeSearch(String terms) {
+    private Locator openSearchPanel() {
         if (!page.locator("#sakai-search-input").isVisible()) {
             page.locator("button[data-bs-target='#sakai-search-panel']:visible").first().click();
         }
         Locator input = page.locator("#sakai-search-input");
         input.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(15_000));
-        input.fill(terms);
+        return input;
+    }
+
+    private void typeSearch(String terms) {
+        openSearchPanel().fill(terms);
         page.locator("#sakai-search-button").click();
     }
 

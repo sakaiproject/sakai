@@ -45,6 +45,7 @@ public class SearchController extends AbstractSakaiApiController {
             @RequestParam("terms") String terms,
             @RequestParam(name = "site", required = false) String site,
             @RequestParam(name = "tool", required = false) String tool,
+            @RequestParam(name = "pinned", defaultValue = "false") boolean pinned,
             @RequestParam(name = "start", defaultValue = "0") Integer start,
             @RequestParam(name = "limit", defaultValue = "10") Integer limit) {
 
@@ -56,7 +57,8 @@ public class SearchController extends AbstractSakaiApiController {
                 limit = 10;
             }
 
-            List<String> sites = site == null ? null : Collections.singletonList(site);
+            List<String> sites = site != null ? Collections.singletonList(site)
+                : pinned ? portalService.getPinnedSites() : null;
             List<String> tools = tool == null ? null : Collections.singletonList(tool);
 
             return ResponseEntity.ok(searchService.search(terms, sites, tools, start, limit)
