@@ -185,4 +185,31 @@ describe("sakai-search tests", () => {
     expect(siteSelect.value).to.equal("parsnips101");
     expect(siteSelect.selectedOptions[0].textContent.trim()).to.equal("This site");
   });
+
+  it ("loads the sites once, and again on a later focus after a failure", async () => {
+
+    fetchMock.removeRoutes();
+    fetchMock.get(data.i18nUrl, data.i18n).get("*", 500);
+    const el = await fixture(html`<sakai-search></sakai-search>`);
+    await waitUntil(() => el._i18n);
+    const input = el.querySelector("input");
+    const siteSelect = el.querySelector("select");
+
+    input.focus();
+    await waitUntil(() => fetchMock.callHistory.called(data.sitesUrl), "Sites were not requested");
+
+    fetchMock.removeRoutes();
+    fetchMock.get(data.i18nUrl, data.i18n).get(data.sitesUrl, data.sites).get("*", 500);
+    await waitUntil(() => {
+      siteSelect.focus();
+      input.focus();
+      return fetchMock.callHistory.calls(data.sitesUrl).length === 2;
+    }, "Sites were not requested again");
+    await waitUntil(() => siteSelect.options.length === 3, "Sites did not load on retry");
+
+    input.blur();
+    input.focus();
+    await el.updateComplete;
+    expect(fetchMock.callHistory.calls(data.sitesUrl)).to.have.length(2);
+  });
 });

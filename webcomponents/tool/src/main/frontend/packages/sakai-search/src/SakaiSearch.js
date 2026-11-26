@@ -65,13 +65,13 @@ export class SakaiSearch extends SakaiElement {
     super.connectedCallback();
 
     // The portal renders this in a hidden panel on every page, so wait until it is used
-    this.addEventListener("focusin", () => this._loadSites(), { once: true });
+    this.addEventListener("focusin", () => this._sitesRequest ??= this._loadSites());
   }
 
   _loadSites() {
 
     const sitesUrl = "/api/users/current/sites";
-    fetch(sitesUrl, { credentials: "same-origin" })
+    return fetch(sitesUrl, { credentials: "same-origin" })
       .then(r => {
 
         if (r.ok) {
@@ -80,7 +80,11 @@ export class SakaiSearch extends SakaiElement {
         throw new Error(`Network error while retrieving sites from ${sitesUrl}`);
       })
       .then(data => this._sites = data.sites)
-      .catch(error => console.error(error));
+      .catch(error => {
+
+        console.error(error);
+        this._sitesRequest = undefined; // the next focus tries again
+      });
   }
 
   _siteSelected(e) {
