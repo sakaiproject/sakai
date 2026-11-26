@@ -122,6 +122,7 @@ describe("sakai-search tests", () => {
     choose(siteSelect, "");
     await el.updateComplete;
     expect(el.siteId).to.be.undefined;
+    expect(el.querySelector(".search-result-link")).to.not.exist;
 
     el.querySelector("form").requestSubmit();
     await waitUntil(() => fetchMock.callHistory.called("pinned"), "Pinned search was not sent");
@@ -149,7 +150,39 @@ describe("sakai-search tests", () => {
     await waitUntil(() => el._i18n);
     const siteSelect = el.querySelector("select");
     el.querySelector("input").focus();
-    await waitUntil(() => siteSelect.value === "turnips101", "Unpinned scoped site was not selected");
-    expect(siteSelect.options.length).to.equal(4);
+    await waitUntil(() => siteSelect.options.length === 4, "Sites did not load");
+    expect(siteSelect.value).to.equal("turnips101");
+    expect(siteSelect.selectedOptions[0].textContent.trim()).to.equal("Turnips 101");
+  });
+
+  it ("drops a pending search when a filter changes", async () => {
+
+    fetchMock.removeRoutes();
+    fetchMock.get(data.i18nUrl, data.i18n)
+      .get(data.sitesUrl, data.sites)
+      .get(data.searchUrl, data.searchResults, { delay: 300 })
+      .get("*", 500);
+    const el = await fixture(html`<sakai-search site-id="${data.siteId}" tool="${data.tool}"></sakai-search>`);
+    await waitUntil(() => el._i18n);
+
+    el.querySelector("input").value = data.terms;
+    el.querySelector("form").requestSubmit();
+    choose(el.querySelectorAll("select")[1], "wiki");
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await el.updateComplete;
+
+    expect(el.querySelector(".search-result-link")).to.not.exist;
+  });
+
+  it ("shows a scoped site that is not one of the user's sites as this site", async () => {
+
+    const el = await fixture(html`<sakai-search site-id="parsnips101"></sakai-search>`);
+    await waitUntil(() => el._i18n);
+    const siteSelect = el.querySelector("select");
+    el.querySelector("input").focus();
+    await waitUntil(() => siteSelect.options.length > 2, "Sites did not load");
+
+    expect(siteSelect.value).to.equal("parsnips101");
+    expect(siteSelect.selectedOptions[0].textContent.trim()).to.equal("This site");
   });
 });

@@ -232,10 +232,11 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         assertEquals(searchToolName(), queryParam(request.url(), "tool"));
         assertThat(results.filter(new Locator.FilterOptions().setHasText(titleWord))).hasCount(1);
 
-        // with another tool picked the next search no longer finds the item
+        // another tool clears the results and the next search no longer finds the item
         String otherTool = toolFilter.locator("option").all().stream().map(o -> o.getAttribute("value"))
             .filter(v -> !v.isEmpty() && !v.equals(searchToolName())).findFirst().orElseThrow();
         toolFilter.selectOption(new SelectOption().setValue(otherTool));
+        assertThat(results).hasCount(0);
         assertThat(searchInPortal(bodyWord).filter(new Locator.FilterOptions().setHasText(titleWord))).hasCount(0);
     }
 

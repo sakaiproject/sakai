@@ -20,6 +20,7 @@ site_label=Site:
 all_pinned_sites=All Pinned Sites
 all_tools=All Tools
 site_filter_label=Filter results by site
+this_site=This site
 tool_filter_label=Filter results by tool
 toolname_announcement=Announcement
 toolname_assignment=Assignment
