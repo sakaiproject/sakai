@@ -471,7 +471,7 @@ final class LessonsUi {
         assertThat(studentCanUpdate()).isAttached();
     }
 
-    private void clickMoreTools(String entry) {
+    void clickMoreTools(String entry) {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
         Locator moreTools = page.locator("#moreDiv");
         assertThat(moreTools).isVisible();
