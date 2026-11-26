@@ -1622,16 +1622,6 @@ GbGradeTable.updateHasDroppedScores = function(student, assignmentIndex, dropped
     student.hasDroppedScores = hasDroppedScores.substr(0, assignmentIndex) + flag + hasDroppedScores.substr(assignmentIndex + 1);
 };
 
-GbGradeTable.moveItemFlag = function(flagString, fromIndex, toIndex) {
-    if (fromIndex === toIndex)
-    {
-        return flagString;
-    }
-    var tmp = flagString[fromIndex];
-    var removed = flagString.substr(0, fromIndex) + flagString.substr(fromIndex + 1);
-    return removed.substr(0, toIndex) + tmp + removed.substr(toIndex);
-};
-
 GbGradeTable.hasComment = function(student, assignmentId) {
   var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
   return student.hasComments[assignmentIndex] === "1";
@@ -1649,15 +1639,6 @@ GbGradeTable.isReadOnly = function(student, assignmentId) {
 
   var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
   return student.readonly[assignmentIndex] === "1";
-};
-
-GbGradeTable.updateHasComment = function(student, assignmentId, comment) {
-  var hasComments = student.hasComments;
-  var flag = (comment == null || comment == "") ? '0' : '1';
-
-  var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
-
-  student.hasComments = hasComments.substr(0, assignmentIndex) + flag + hasComments.substr(assignmentIndex+1);
 };
 
 GbGradeTable.editComment = function(studentId, assignmentId) {
@@ -1836,15 +1817,6 @@ GbGradeTable.selectCourseGradeCell = function(studentId) {
   return GbGradeTable.cellSelector(row, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
 };
 
-GbGradeTable.selectStudentCell = function(studentId) {
-  var row = 0;
-  if (studentId != null){
-    row = GbGradeTable.rowForStudent(studentId);
-  }
-
-  return GbGradeTable.cellSelector(row, GbGradeTable.STUDENT_COLUMN_INDEX);
-};
-
 GbGradeTable.updateComment = function(assignmentId, studentId, comment) {
   var student = GbGradeTable.modelForStudent(studentId);
 
@@ -2007,16 +1979,6 @@ GbGradeTable.applyStudentFilter = function(data) {
 
     return filteredData;
   }
-};
-
-GbGradeTable.getColumnWidths = function() {
-  var gradeColumnWidth = 180;
-  var fixedColumnWidths = GbGradeTable._fixedColumns.map(function(col) {
-    return col.width;
-  });
-
-  return fixedColumnWidths.
-            concat(GbGradeTable.columns.map(function () { return gradeColumnWidth }));
 };
 
 GbGradeTable.setupToggleGradeItems = function() {
@@ -2715,10 +2677,6 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
     }
   }
-};
-
-GbGradeTable.clearMetadata = function() {
-  $(".gb-metadata").remove();
 };
 
 GbGradeTable.hideMetadata = function() {
