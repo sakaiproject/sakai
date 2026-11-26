@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FilePayload;
 import com.microsoft.playwright.options.LoadState;
@@ -35,6 +36,8 @@ final class LessonsUi {
     private final Page page;
     private final SakaiHelper sakai;
 
+    private static final double OPEN_TIMEOUT = 15_000;
+
     LessonsUi(Page page, SakaiHelper sakai) {
         this.page = page;
         this.sakai = sakai;
@@ -43,9 +46,12 @@ final class LessonsUi {
     void open(String siteUrl) {
         page.navigate(siteUrl);
         // The site menu is drawn after the page loads, and toolClick only expands it if it is already there.
-        assertThat(page.locator("li.site-list-item.is-current-site").first()).isAttached();
+        // Both can take longer than the default timeout while the server is busy, e.g. after a site import.
+        assertThat(page.locator("li.site-list-item.is-current-site").first())
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(OPEN_TIMEOUT));
         sakai.toolClick("Lessons");
-        assertThat(page.locator("#lessonsCurrentPageId")).isAttached();
+        assertThat(page.locator("#lessonsCurrentPageId"))
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(OPEN_TIMEOUT));
     }
 
     /**
