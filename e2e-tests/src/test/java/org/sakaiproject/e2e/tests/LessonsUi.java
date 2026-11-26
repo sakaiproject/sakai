@@ -444,6 +444,13 @@ final class LessonsUi {
         assertThat(item(name)).isVisible();
     }
 
+    /** Adds a comments section at the bottom of the page. */
+    void addComments() {
+        page.waitForNavigation(() -> openAddContent().locator("#add-comments-link").click());
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".commentsCell")).isVisible();
+    }
+
     /** Ticks a checklist box and waits until the server has stored it. */
     void tickChecklistEntry(Locator checkbox) {
         String saveUrl = (String) page.locator("#saveChecklistForm-checklistId").evaluate("input => input.form.action");
