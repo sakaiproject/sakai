@@ -353,6 +353,16 @@ class LessonsStudentContentTest extends SakaiUiTestBase {
                     new Locator.FilterOptions().setHasText("Raquel Test"))));
             assertThat(gradee).hasCount(1);
             assertThat(gradee.locator(".peer-eval-grader-name").first()).containsText("Santi Test");
+            // The page script draws a rubric per student from that data, with the count of each rating.
+            Locator rubricOfOwner = page.locator(".rubric-set").filter(new Locator.FilterOptions().setHas(
+                page.locator(".rubric-name").filter(new Locator.FilterOptions().setHasText("Raquel Test"))));
+            assertThat(ratingCount(rubricOfOwner, "Clarity", "3")).hasText(points("1"));
+            assertThat(ratingCount(rubricOfOwner, "Content", "4")).hasText(points("1"));
         }
+    }
+
+    private Locator ratingCount(Locator rubric, String category, String rating) {
+        return rubric.locator(".peer-eval-row").filter(new Locator.FilterOptions().setHasText(category))
+            .locator("td[class~='" + rating + "'] .rating");
     }
 }
