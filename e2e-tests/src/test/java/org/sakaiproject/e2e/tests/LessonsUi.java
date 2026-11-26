@@ -451,6 +451,13 @@ final class LessonsUi {
         assertThat(page.locator(".commentsCell")).isVisible();
     }
 
+    /** Adds a student content section at the bottom of the page. */
+    void addStudentContent() {
+        page.waitForNavigation(() -> openAddContent().locator("#add-student-link").click());
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".studentDiv")).isVisible();
+    }
+
     /** Ticks a checklist box and waits until the server has stored it. */
     void tickChecklistEntry(Locator checkbox) {
         String saveUrl = (String) page.locator("#saveChecklistForm-checklistId").evaluate("input => input.form.action");
