@@ -2952,6 +2952,47 @@ $(document).ready(function () {
 		this.onclick = function () { window.open(this.href,'_blank');return false; };
 	});
 
+  // The Change pickers in Edit Item are separate pages, so unsaved edits are carried across the round trip.
+  // This runs last so the startup resets above don't hide the restored controls.
+  const EDIT_DRAFT_KEY = "lessons-edit-item-draft";
+  const editDialog = document.getElementById("edit-item-dialog");
+  const isToggle = el => el.type === "checkbox" || el.type === "radio";
+  const readEditFields = () => Object.fromEntries([...editDialog.querySelectorAll("input, textarea, select")]
+    .filter(el => el.id && !["hidden", "button", "submit"].includes(el.type))
+    .map(el => [el.id, isToggle(el) ? el.checked : el.value]));
+  let editInitialValues = {};
+
+  document.querySelectorAll(".edit-link").forEach(link => link.addEventListener("click", () => {
+    editInitialValues = readEditFields();
+  }));
+
+  document.querySelectorAll("#change-assignment, #change-quiz, #change-forum, #change-blti, #change-scorm")
+    .forEach(link => link.addEventListener("click", () => {
+      const changed = Object.fromEntries(Object.entries(readEditFields())
+        .filter(([id, value]) => value !== editInitialValues[id]));
+      sessionStorage.setItem(EDIT_DRAFT_KEY, JSON.stringify({ itemId: document.getElementById("item-id").value, changed }));
+    }));
+
+  const editDraft = JSON.parse(sessionStorage.getItem(EDIT_DRAFT_KEY));
+  sessionStorage.removeItem(EDIT_DRAFT_KEY);
+  const draftEditLink = editDraft && [...document.querySelectorAll(".current-item-id2")]
+    .find(el => el.textContent === editDraft.itemId)?.closest("div.item").querySelector(".edit-link");
+  if (draftEditLink) {
+    draftEditLink.click();
+    Object.entries(editDraft.changed).forEach(([id, value]) => {
+      const field = editDialog.querySelector(`#${CSS.escape(id)}`);
+      if (isToggle(field)) {
+        field.checked = value;
+      } else {
+        field.value = value;
+      }
+      field.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    // The requirement checkboxes only react to click
+    setUpRequirements();
+    bootstrap.Modal.getOrCreateInstance(editDialog).show();
+  }
+
   return false;
 }); // document.ready
 
