@@ -8845,6 +8845,16 @@ public class SimplePageBean {
 		}
 	}
 
+	/**
+	 * The students that the grading panes list, so the "set grades to zero" actions only
+	 * zero them and not instructors or inactive members.
+	 */
+	private Set<String> gradeableStudentIds() {
+	    return securityService.unlockUsers("section.role.student", getCurrentSite().getReference()).stream()
+		.map(User::getId)
+		.collect(Collectors.toCollection(HashSet::new));
+	}
+
 	public String missingStudentSetZero() {
 	    if (!checkCsrf())
 		return "permission-failed";
@@ -8865,14 +8875,7 @@ public class SimplePageBean {
 	    if (item.isGroupOwned()) {
 		notSubmitted = getOwnerGroups(item);
 	    } else {
-		Set<Member> members = new HashSet<>();
-		try {
-		    members = authzGroupService.getAuthzGroup(siteService.siteReference(getCurrentSiteId())).getMembers();
-		} catch (Exception e) {
-		    // since site obviously exists, this should be impossible
-		}
-		for (Member m: members)
-		    notSubmitted.add(m.getUserId());
+		notSubmitted = gradeableStudentIds();
 	    }
 					
 	    // now go through all student pages and remove them from the list
@@ -8944,14 +8947,7 @@ public class SimplePageBean {
 
 	    // initialize notsubmitted to all userids or groupids
 	    Set<String> notSubmitted = new HashSet<>();
-	    Set<Member> members = new HashSet<>();
-	    try {
-		members = authzGroupService.getAuthzGroup(siteService.siteReference(getCurrentSiteId())).getMembers();
-	    } catch (Exception e) {
-		// since site obviously exists, this should be impossible
-	    }
-	    for (Member m: members)
-		notSubmitted.add(m.getUserId());
+	    notSubmitted.addAll(gradeableStudentIds());
 					
 	    // now go through all comments and remove them from the list
 	    List<SimplePageComment> comments;
@@ -9018,14 +9014,7 @@ public class SimplePageBean {
 
 	    // initialize notsubmitted to all userids or groupids
 	    Set<String> notSubmitted = new HashSet<>();
-	    Set<Member> members = new HashSet<>();
-	    try {
-		members = authzGroupService.getAuthzGroup(siteService.siteReference(getCurrentSiteId())).getMembers();
-	    } catch (Exception e) {
-		// since site obviously exists, this should be impossible
-	    }
-	    for (Member m: members)
-		notSubmitted.add(m.getUserId());
+	    notSubmitted.addAll(gradeableStudentIds());
 					
 	    // now go through all answers and remove them from the list
 	    List<SimplePageQuestionResponse> responses = simplePageToolDao.findQuestionResponses(questionItem.getId());
