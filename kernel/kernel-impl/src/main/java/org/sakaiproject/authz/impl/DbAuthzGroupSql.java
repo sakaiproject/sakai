@@ -95,6 +95,8 @@ public interface DbAuthzGroupSql
 
 	String getInsertRealmRoleGroup3Sql();
 
+	String getUpdateRealmRoleGroupSql();
+
 	String getInsertRealmRoleSql();
 
 	String getSelectRealmFunction1Sql();

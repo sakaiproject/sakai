@@ -287,6 +287,13 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return "insert into SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED) values ((select REALM_KEY from SAKAI_REALM where REALM_ID = ?), ?, (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?), ?, ?)";
 	}
 
+	@Override
+	public String getUpdateRealmRoleGroupSql()
+	{
+		return "UPDATE SAKAI_REALM_RL_GR SET ROLE_KEY = (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?), ACTIVE = ?, PROVIDED = ?"
+				+ " WHERE REALM_KEY = (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?) AND USER_ID = ?";
+	}
+
 	public String getInsertRealmRoleSql()
 	{
 		return "insert into SAKAI_REALM_ROLE (ROLE_KEY, ROLE_NAME) values (NEXT VALUE FOR SAKAI_REALM_ROLE_SEQ, ?)";

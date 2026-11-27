@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -2704,8 +2705,6 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				}
 			}
 
-			String sql = "";
-
 			// Note: the realm is still lazy - we have the realm id but don't need to worry about changing grants
 
 			// get the latest userEid -> role name map from the provider
@@ -2753,7 +2752,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 			}
 
 			// compute the records we need to delete: every existing not in target or not matching target's role
-			List<String> toDelete = new Vector<String>();
+			Set<String> toDelete = new LinkedHashSet<>();
 			for (Map.Entry<String,String> entry : existing.entrySet())
 			{
 				String userId = entry.getKey();
@@ -2793,7 +2792,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 
 			// compute the records we need to add: every target not in existing, or not matching's existing's role
 			// we don't insert target grants that would override internal grants
-			List<UserAndRole> toInsert = new Vector<UserAndRole>();
+			List<UserAndRole> grantsToWrite = new ArrayList<>();
 			for (Map.Entry<String,String> entry : target.entrySet())
 			{
 				String userEid = entry.getKey();
@@ -2841,7 +2840,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 						if (insertRequired)
 						{
 							// Add or update user's role and active status to match containg realm grants
-							toInsert.add(new UserAndRole(userId, cMemberRoleId, cMemberActive, true));
+							grantsToWrite.add(new UserAndRole(userId, cMemberRoleId, cMemberActive, true));
 							
 							if ((existingRole != null && !existingRole.equals(cMemberRoleId)) // overriding existing authz group role
 									||!role.equals(cMemberRoleId))	// overriding provided role
@@ -2861,7 +2860,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 							}
 
 							// this is either at site level or at the group level but no need to synchronize
-							toInsert.add(new UserAndRole(userId, role, active, true));
+							grantsToWrite.add(new UserAndRole(userId, role, active, true));
 						}
 					}
 				}
@@ -2888,7 +2887,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 						{
 							log.debug("promoting user={} from role={} to targetRole={}", userEid, role, targetRole);
 
-							// remove from non-provided and add as provided
+							// Replace the manually assigned grant with a provider-managed grant.
 							toDelete.add(userId);
 
 							// Check whether this user was inactive in the site previously, if so preserve status
@@ -2897,7 +2896,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 								active = false;
 							}
 
-							toInsert.add(new UserAndRole(userId, targetRole, active, true));
+							grantsToWrite.add(new UserAndRole(userId, targetRole, active, true));
 						}
 					}
 					catch (UserNotDefinedException e)
@@ -2909,39 +2908,51 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 			}
 
 			// if any, do it
-			if ((toDelete.size() > 0) || (toInsert.size() > 0))
+			if (!toDelete.isEmpty() || !grantsToWrite.isEmpty())
 			{
-				// do these each in their own transaction, to avoid possible deadlock
-				// caused by transactions modifying more than one row at a time.
+				// Keep each write in a separate transaction to avoid locking multiple grant rows.
+				String realmId = caseId(realm.getId());
+				Set<String> toUpdate = new HashSet<>();
+				for (UserAndRole grant : grantsToWrite)
+				{
+					if (toDelete.remove(grant.userId))
+					{
+						toUpdate.add(grant.userId);
+					}
+				}
 
-				// delete
-				sql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql();
-				Object[] fields = new Object[2];
-				fields[0] = caseId(realm.getId());
+				// Revoke departing members before adding or updating grants.
+				String deleteSql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql();
 				for (String userId : toDelete)
 				{
-					fields[1] = userId;
-					m_sql.dbWrite(sql, fields);
+					m_sql.dbWrite(deleteSql, new Object[] {realmId, userId});
 				}
 
-				// insert
-				sql = dbAuthzGroupSql.getInsertRealmRoleGroup3Sql();
-				fields = new Object[5];
-				fields[0] = caseId(realm.getId());
-				fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_1Sql(), fields[0]);
-				for (UserAndRole uar : toInsert)
+				String insertSql = dbAuthzGroupSql.getInsertRealmRoleGroup3Sql();
+				String updateSql = dbAuthzGroupSql.getUpdateRealmRoleGroupSql();
+				Object insertRealm = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_1Sql(), realmId);
+				int updateAttempts = 0;
+				for (UserAndRole grant : grantsToWrite)
 				{
-					fields[1] = uar.userId;
-					fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_2Sql(), uar.role);
-					fields[3] = uar.active ? "1" : "0"; // KNL-1099
-					fields[4] = uar.provided ? "1" : "0"; // KNL-1099
-
-					m_sql.dbWrite(sql, fields);
+					String active = grant.active ? "1" : "0";
+					String provided = grant.provided ? "1" : "0";
+					if (toUpdate.remove(grant.userId))
+					{
+						// Replace an existing grant in place so permission checks always see a grant.
+						m_sql.dbWrite(updateSql, new Object[] {grant.role, active, provided, realmId, grant.userId});
+						updateAttempts++;
+					}
+					else
+					{
+						Object insertRole = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_2Sql(), grant.role);
+						m_sql.dbWrite(insertSql, new Object[] {insertRealm, grant.userId, insertRole, active, provided});
+					}
+				}
+				if (log.isDebugEnabled()) {
+					log.debug("Realm {} refresh attempted {} deletes, {} inserts, and {} updates; previously provided {}, previously non-provider {}",
+							realmId, toDelete.size(), grantsToWrite.size() - updateAttempts, updateAttempts, existing.size(), nonProvider.size());
 				}
 				eventTrackingService.post(eventTrackingService.newEvent(SECURE_UPDATE_AUTHZ_GROUP, realm.getReference(), true));
-			}
-			if (log.isDebugEnabled()) {
-				log.debug("refreshAuthzGroupInternal() deleted: "+ toDelete.size()+ " inserted: "+ toInsert.size()+ " provided: "+ existing.size()+ " nonProvider: "+ nonProvider.size());
 			}
 		}
 
