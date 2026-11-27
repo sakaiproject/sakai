@@ -532,25 +532,27 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				AssessmentFacade assessmentFacade = (AssessmentFacade) service.getAssessment(assessment.getAssessmentId());
 				boolean needToUpdate = false;
 
-				String assessmentDesc = assessmentFacade.getDescription();
+				String assessmentDesc = assessment.getDescription();
 				if(StringUtils.isNotBlank(assessmentDesc)){
 					log.debug("before migrate assessmentDesc: {}", assessmentDesc);
-					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
+					String migratedText = service.copyContentHostingAttachments(assessmentDesc, toContext);
+					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, migratedText);
 					log.debug("after migrate assessmentDesc: {}", assessmentDesc);
-					if(!assessmentDesc.equals(assessmentFacade.getDescription())){
+					if(!assessmentDesc.equals(assessment.getDescription())){
 						//need to save since a ref has been updated:
 						needToUpdate = true;
 						assessmentFacade.setDescription(assessmentDesc);
 					}
 				}
 
-				List sectionList = assessmentFacade.getSectionArray();
+				List sectionList = assessment.getSectionArray();
 				for(int i = 0; i < sectionList.size(); i++){
-					SectionFacade section = (SectionFacade) sectionList.get(i);
+					SectionData section = (SectionData) sectionList.get(i);
 					String sectionDesc = section.getDescription();
 					if(StringUtils.isNotBlank(sectionDesc)){
 						log.debug("before migrate sectionDesc: {}", sectionDesc);
-						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
+						String migratedText = service.copyContentHostingAttachments(sectionDesc, toContext);
+						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, migratedText);
 						log.debug("after migrate sectionDesc: {}", sectionDesc);
 						if(!sectionDesc.equals(section.getDescription())){
 							//need to save since a ref has been updated:
@@ -830,22 +832,27 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         List<String> result = new ArrayList<>();
 	org.jsoup.nodes.Document htmlDoc = Jsoup.parse(qText);
 
-        // Typically audio or video <source> or <img>
-	Elements media = htmlDoc.select("[src]");
+        // Typically audio/video <source>, <img src>, or <a href> to content
+	Elements media = htmlDoc.select("[src], a[href]");
 
-	for (org.jsoup.nodes.Element src : media) {
-		String link = src.attr("abs:src");
-
-		// embedded fckeditor attachments
-		if (link.contains("/access/content/attachment/")) {
-			String linkRef = link.replace(link.substring(0, link.indexOf("/attachment/")), "");
-			result.add(linkRef);
-			log.info("Found inline attachment asset: {} adding to attachment list as: {}", link, linkRef);
+	for (org.jsoup.nodes.Element el : media) {
+		String link = el.hasAttr("src") ? el.attr("abs:src") : el.attr("href");
+		if (StringUtils.isBlank(link)) {
 			continue;
 		}
 
 		// URLs below may include spaces, so URLDecode to turn back into a Sakai content ID
 		try {
+			// embedded fckeditor attachments
+			if (link.contains("/access/content/attachment/")) {
+				String linkRef = link.replace(link.substring(0, link.indexOf("/attachment/")), "");
+				linkRef = StringUtils.substringBefore(StringUtils.substringBefore(linkRef, "?"), "#");
+				linkRef = URLDecoder.decode(linkRef, "UTF-8");
+				result.add(linkRef);
+				log.info("Found inline attachment asset: {} adding to attachment list as: {}", link, linkRef);
+				continue;
+			}
+
 			// cross-site references
 			if (link.contains("/access/content/group/") && !link.contains(siteId)) {
 				String linkRef = URLDecoder.decode(link.replace(link.substring(0, link.indexOf("/group/")), ""), "UTF-8");
