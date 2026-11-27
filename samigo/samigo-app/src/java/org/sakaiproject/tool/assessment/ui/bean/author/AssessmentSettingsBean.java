@@ -2100,9 +2100,11 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         }
         accessControl.setRetractDate(this.retractDate);
         this.extendedTime.syncDates(accessControl);
-        List<ExtendedTime> extendedTimesTempList = new ArrayList<ExtendedTime>(extendedTimes);
+        ExtendedTimeValidator validator = new ExtendedTimeValidator();
+        List<ExtendedTime> extendedTimesTempList = new ArrayList<>(extendedTimes);
         extendedTimesTempList.add(entry);
-        if (new ExtendedTimeValidator().validateEntries(extendedTimesTempList, context, this)) {
+        if (validator.validateEntry(entry, context, this)
+                && validator.validateDuplicates(extendedTimesTempList, context, this)) {
             this.extendedTimes.add(this.extendedTime);
             resetExtendedTime();
         }
@@ -2126,9 +2128,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     }
 
     public void cancelEdit() {
-      //Reset the time back again
-      this.extendedTime = this.transitoryExtendedTime;
-      addExtendedTime();
+      this.extendedTimes.add(this.transitoryExtendedTime);
+      resetExtendedTime();
     }
 
     public boolean getEditingExtendedTime() {

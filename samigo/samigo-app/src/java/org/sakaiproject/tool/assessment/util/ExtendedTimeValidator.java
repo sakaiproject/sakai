@@ -183,7 +183,42 @@ public class ExtendedTimeValidator
             }
         }
 
-        // Check for duplicate users
+        checkDuplicateUsersAndGroups( users, groups, context );
+
+        return valid;
+    }
+
+    /**
+     * Check a list of {@link ExtendedTime} entries for duplicate users or groups only.
+     * Does not run per-entry timing validation and does not mutate entries.
+     * @param entries The {@link ExtendedTime} entries to check
+     * @param context The {@link FacesContext}, in case validation errors are generated
+     * @param settings The SettingsBean, for quiz settings (either {@link AssessmentSettingsBean} or {@link PublishedAssessmentSettingsBean})
+     * @return true if there are no duplicate users or groups; false otherwise.
+     */
+    public boolean validateDuplicates( List<ExtendedTime> entries, FacesContext context, Object settings )
+    {
+        valid = true;
+        settingsBean = settings;
+        List<String> users = new ArrayList<>( entries.size() );
+        List<String> groups = new ArrayList<>( entries.size() );
+        for( ExtendedTime entry : entries )
+        {
+            if( StringUtils.isNotEmpty( entry.getUser() ) )
+            {
+                users.add( entry.getUser() );
+            }
+            if( StringUtils.isNotEmpty( entry.getGroup() ) )
+            {
+                groups.add( entry.getGroup() );
+            }
+        }
+        checkDuplicateUsersAndGroups( users, groups, context );
+        return valid;
+    }
+
+    private void checkDuplicateUsersAndGroups( List<String> users, List<String> groups, FacesContext context )
+    {
         Set<String> duplicateUsers = findDuplicates(users);
         if( !duplicateUsers.isEmpty() )
         {
@@ -212,7 +247,6 @@ public class ExtendedTimeValidator
             addError( MSG_KEY_DUP_USERS, context, new Object[] { dupUsers } );
         }
 
-        // Check for duplicate groups
         Set<String> duplicateGroups = findDuplicates(groups);
         if( !duplicateGroups.isEmpty() )
         {
@@ -240,8 +274,6 @@ public class ExtendedTimeValidator
 
             addError( MSG_KEY_DUP_GROUPS, context, new Object[] { dupGroups } );
         }
-
-        return valid;
     }
 
     /**

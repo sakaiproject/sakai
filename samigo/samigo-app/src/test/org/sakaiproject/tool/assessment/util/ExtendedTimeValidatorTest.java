@@ -26,7 +26,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -87,6 +89,26 @@ public class ExtendedTimeValidatorTest {
                     date("2030-06-30T00:00:00Z"));
 
             assertFalse(new ExtendedTimeValidator().validateEntry(entry, facesContext, settings));
+            verify(facesContext).addMessage(isNull(), any(FacesMessage.class));
+        }
+    }
+
+    @Test
+    public void rejectsDuplicateUsersWithoutMutatingExistingEntries() {
+        try (MockedStatic<ContextUtil> contextUtil = mockStatic(ContextUtil.class)) {
+            contextUtil.when(() -> ContextUtil.getLocalizedString(anyString(), anyString()))
+                    .thenAnswer(invocation -> invocation.getArgument(1));
+
+            FacesContext facesContext = mock(FacesContext.class);
+            AssessmentSettingsBean settings = feedbackByDateSettings(date("2030-06-28T00:00:00Z"));
+
+            Date existingStart = date("2030-06-01T00:00:00Z");
+            ExtendedTime existing = exceptionEntry(existingStart, date("2030-05-01T00:00:00Z"), null);
+            ExtendedTime candidate = exceptionEntry(date("2030-06-02T00:00:00Z"), date("2030-06-20T00:00:00Z"), null);
+            List<ExtendedTime> entries = Arrays.asList(existing, candidate);
+
+            assertFalse(new ExtendedTimeValidator().validateDuplicates(entries, facesContext, settings));
+            assertTrue(existingStart.equals(existing.getStartDate()));
             verify(facesContext).addMessage(isNull(), any(FacesMessage.class));
         }
     }
