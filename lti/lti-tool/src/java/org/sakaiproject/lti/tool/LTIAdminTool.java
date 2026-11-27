@@ -212,6 +212,52 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	}
 
 	/**
+	 * @return true when the tool supports a resource link launch, so it can be placed in site navigation.
+	 */
+	private boolean isResourceLinkTool(Map<String, Object> tool) {
+		return tool != null && LTIUtil.toLong(tool.get(LTIService.LTI_MT_LAUNCH)) == 1L;
+	}
+
+	/**
+	 * @return true when the site already has a navigation link for the tool.
+	 */
+	private boolean hasSiteLink(String toolId, String siteId) {
+		return ltiService.getContentsForToolAndSite(Long.valueOf(toolId), siteId).stream()
+				.anyMatch(content -> SiteService.findTool(content.getPlacement()) != null);
+	}
+
+	/**
+	 * Creates a tool link in the target site and adds it to the site navigation,
+	 * unless the tool cannot launch from navigation or the site already has a link to it.
+	 * @return null on success or when skipped, or an error message
+	 */
+	private String addSiteLink(Map<String, Object> tool, String targetSiteId, String adminSiteId) {
+		String toolId = String.valueOf(tool.get(LTIService.LTI_ID));
+		if (!isResourceLinkTool(tool) || hasSiteLink(toolId, targetSiteId)) {
+			return null;
+		}
+
+		String title = (String) tool.get(LTIService.LTI_TITLE);
+		Properties props = new Properties();
+		props.setProperty(LTIService.LTI_TOOL_ID, toolId);
+		props.setProperty(LTIService.LTI_SITE_ID, targetSiteId);
+		props.setProperty(LTIService.LTI_TITLE, title);
+		props.setProperty(LTIService.LTI_DESCRIPTION, StringUtils.defaultString((String) tool.get(LTIService.LTI_DESCRIPTION)));
+
+		Object contentId = ltiService.insertContent(props, adminSiteId);
+		if (!(contentId instanceof Long)) {
+			return String.valueOf(contentId);
+		}
+
+		Object retval = ltiService.insertToolSiteLink(String.valueOf(contentId), title, adminSiteId);
+		if (retval instanceof String) {
+			ltiService.deleteContent((Long) contentId, adminSiteId);
+			return ((String) retval).replaceFirst("^[01]", "");
+		}
+		return null;
+	}
+
+	/**
 	 * Setup the velocity context and choose the template for the response.
 	 */
 	public String buildErrorPanelContext(VelocityPortlet portlet, Context context,
@@ -979,6 +1025,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
 		context.put("showDeploymentGroup", isLti13Tool(toolId, getSiteId(state)));
+		context.put("canAddSiteLink", isResourceLinkTool(ltiService.getTool(Long.valueOf(toolId), getSiteId(state))));
 
 		// Remove previous form inputs
 		state.removeAttribute(STATE_POST);
@@ -1080,6 +1127,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			}
 		}
 
+		if (reqProps.getProperty("add_site_link") != null) {
+			Map<String, Object> tool = ltiService.getTool(Long.valueOf(toolId), adminSiteId);
+			for (String siteId : insertSuccessSiteIds) {
+				String error = addSiteLink(tool, siteId, adminSiteId);
+				if (error != null) {
+					insertErrorMessages.add("SiteId=" + siteId + ", " + error);
+				}
+			}
+		}
+
 		if (!insertErrorMessages.isEmpty()) {
 			addAlert(state, rb.getString("error.tool.site.insert") + " Error Info=" + insertErrorMessages);
 		}
@@ -1135,6 +1192,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("formInput", formInput);
 
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+		context.put("canAddSiteLink", isResourceLinkTool(ltiService.getTool(Long.valueOf(toolId), getSiteId(state))));
+		context.put("hasSiteLink", hasSiteLink(toolId, toolSiteBean.getSiteId()));
 
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_site_edit";
@@ -1165,6 +1224,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			reqProps.remove(LTIService.LTI_DEPLOYMENT_GROUP);
 		}
 
+		boolean addSiteLink = reqProps.remove("add_site_link") != null;
+
 		// Save to DB
 		Object retval = ltiService.updateToolSite(Long.valueOf(id), reqProps, getSiteId(state));
 
@@ -1173,6 +1234,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		} else if ( retval instanceof Boolean ) { // Success
 			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
+
+			String siteId = (String) toolSite.get(LTIService.LTI_SITE_ID);
+			String error = addSiteLink ? addSiteLink(ltiService.getTool(Long.valueOf(toolId), getSiteId(state)), siteId, getSiteId(state)) : null;
+			if (error != null) {
+				addAlert(state, rb.getString("error.tool.site.link") + " SiteId=" + siteId + ", " + error);
+			}
 
 		} else { // Unexpected Error
 			log.error("Unexpected return type from updateToolSite={}, id={}, current siteId={}", retval, id, getSiteId(state));

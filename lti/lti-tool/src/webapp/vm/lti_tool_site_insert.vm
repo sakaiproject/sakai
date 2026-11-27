@@ -37,6 +37,11 @@
             </div>
         </div>
 
+        <div id="add-site-link-container" class="form-check">
+            <input type="checkbox" id="add-site-link" class="form-check-input" name="add_site_link" value="on"#if (!$canAddSiteLink) disabled#{elseif}($previousPost.get("add_site_link")) checked#{end}>
+            <label for="add-site-link" class="form-check-label">$tlang.getString("tool.site.add.link")</label>
+        </div>
+
         <p class="act">
             <input type="submit" accesskey ="s" class="active" name="$doToolAction" value="$tlang.getString('gen.save')" />
             <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
