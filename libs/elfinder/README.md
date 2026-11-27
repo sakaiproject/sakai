@@ -25,7 +25,7 @@ benefit.
 |--------|-------------------|
 | elFinder servlet backend | `org.sakaiproject.elfinder:elfinder-servlet` |
 
-Maven version: Sakai's platform version (currently `27-SNAPSHOT`), not upstream `1.2`, matching
+Maven version: Sakai's platform version (currently `28-SNAPSHOT`), not upstream `1.2`, matching
 the Pluto/Tomahawk convention.
 
 ### Consumers

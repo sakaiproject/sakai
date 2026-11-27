@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.sakaiproject.webservices</groupId>
         <artifactId>webservices</artifactId>
-        <version>27-SNAPSHOT</version>
+        <version>28-SNAPSHOT</version>
     </parent>
 
     <properties>

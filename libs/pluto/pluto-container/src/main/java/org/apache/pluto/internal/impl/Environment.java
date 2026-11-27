@@ -53,7 +53,7 @@ final class Environment {
         if (dot >= 0) {
             return version.substring(0, dot);
         }
-        // Maven-style versions like 27-SNAPSHOT have no '.'
+        // Maven-style versions like 28-SNAPSHOT have no '.'
         int dash = version.indexOf('-');
         return dash < 0 ? version : version.substring(0, dash);
     }
@@ -69,7 +69,7 @@ final class Environment {
         if (dot >= 0) {
             return version.substring(dot);
         }
-        // Maven-style versions like 27-SNAPSHOT have no '.'
+        // Maven-style versions like 28-SNAPSHOT have no '.'
         int dash = version.indexOf('-');
         return dash < 0 ? "" : version.substring(dash);
     }

@@ -26,7 +26,7 @@ which was repackaged. Renaming would buy nothing and would break existing import
 |--------|-------------------|
 | Component library | `org.sakaiproject.tomahawk:tomahawk` |
 
-Maven version: Sakai's platform version (currently `27-SNAPSHOT`), not upstream `1.1.14`,
+Maven version: Sakai's platform version (currently `28-SNAPSHOT`), not upstream `1.1.14`,
 matching the Pluto convention.
 
 Deliberately **no** `deploy.target`. Unlike the Pluto container, this is a JSF component

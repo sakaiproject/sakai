@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject.roster2</groupId>
         <artifactId>sakai-roster2-base</artifactId>
-        <version>27-SNAPSHOT</version>
+        <version>28-SNAPSHOT</version>
     </parent>
     <name>ROSTER2 API</name>
     <artifactId>sakai-roster2-api</artifactId>

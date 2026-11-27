@@ -11,10 +11,10 @@
   <name>Sakai Master</name>
   <url>https://www.sakailms.org/</url>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
-  <version>27-SNAPSHOT</version>
+  <version>28-SNAPSHOT</version>
 
   <properties>
-    <sakai.version>27-SNAPSHOT</sakai.version>
+    <sakai.version>28-SNAPSHOT</sakai.version>
     <sakai.test.forks>1</sakai.test.forks>
     <!-- Standard dependency versions -->
     <sakai.commons-io.version>2.22.0</sakai.commons-io.version>

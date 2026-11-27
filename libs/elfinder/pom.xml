@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>libs</artifactId>
-        <version>27-SNAPSHOT</version>
+        <version>28-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
