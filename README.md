@@ -2,22 +2,22 @@
 
 This is the source code for the Sakai CLE.
 
-The master branch is the most current development release, Sakai 24.
+The master branch is the most current development release, Sakai 28.
 The other branches are currently or previously supported releases. See below for more information on the release plan and support schedule.
 
 ## Building
 
 This is the "Mini Quick Start" for more complete steps to get Sakai configured please look at [this guide on the wiki](https://github.com/sakaiproject/sakai/wiki/Quick-Start-from-Source).
 
-To build Sakai you need Java 1.8. Once you have, clone a copy of this repository you can
-build it by running (or `./mvnw install` if you don't have Maven installed):
+To build Sakai you need Java 21 and Maven. Once you have cloned a copy of this repository you can
+build it by running:
 ```
 mvn install
 ```
 
 ## Running
 
-Sakai runs on Apache Tomcat 9. Download the latest version from http://tomcat.apache.org and extract the archive.
+Sakai runs on Apache Tomcat 10.1. Download the latest version from http://tomcat.apache.org and extract the archive.
 *Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.*
 
 You **must** configure Tomcat according to the instructions on this page:
@@ -91,6 +91,7 @@ For full history of supported releases please see our [release information on co
 
 ## Under Development
 
+- *Sakai 27* is developed on the `27.x` branch. It is expected to release Q1 or Q2 2027.
 - *Sakai 25.3* is the current development release of Sakai 25. It is expected to release Q4 2026.
 - *Sakai 23.6* is the current development release of Sakai 23. It is expected to release Q4 2026.
 
