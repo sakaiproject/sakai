@@ -229,6 +229,55 @@ class LessonsLayoutTest extends SakaiUiTestBase {
         assertThat(column).containsClass("colnorange-trans");
     }
 
+    /** The settings of a break inserted between items open without reloading the page first. */
+    @Test
+    void breaksInsertedBetweenItemsCanBeConfiguredAtOnce() {
+        newPage("Breaks");
+        lessons.addText("<p>First text</p>");
+        lessons.addText("<p>Second text</p>");
+        lessons.addText("<p>Third text</p>");
+
+        lessons.addAboveButton(lessons.item("Third text")).click();
+        page.locator("#addContentDiv a.add-break-column").click();
+        Locator firstSection = lessons.sections().first();
+        assertThat(lessons.columns(firstSection)).hasCount(2);
+        Locator settings = lessons.openColumnSettings(lessons.columns(firstSection).nth(1));
+        settings.locator("#column-cancel").click();
+        assertThat(settings).isHidden();
+
+        lessons.addAboveButton(lessons.item("Second text")).click();
+        page.locator("#addContentDiv a.add-break-section").click();
+        assertThat(lessons.sections()).hasCount(2);
+        settings = lessons.openColumnSettings(lessons.columns(lessons.sections().nth(1)).first());
+        settings.locator("#column-cancel").click();
+        assertThat(settings).isHidden();
+
+        page.reload();
+        assertThat(lessons.sections()).hasCount(2);
+        assertThat(lessons.sections().first()).containsText("First text");
+        assertThat(lessons.sections().first()).not().containsText("Second text");
+        Locator secondColumns = lessons.columns(lessons.sections().nth(1));
+        assertThat(secondColumns).hasCount(2);
+        assertThat(secondColumns.first()).containsText("Second text");
+        assertThat(secondColumns.nth(1)).containsText("Third text");
+    }
+
+    @Test
+    void bordersTakeTheColorOfTheColumn() {
+        newPage("Column borders");
+        lessons.addText("<p>Bordered text</p>");
+        Locator column = lessons.columns(lessons.sections().first()).first();
+        Locator settings = lessons.openColumnSettings(column);
+        settings.locator("#columnbackground").selectOption("norange");
+        settings.locator("#show-borders").check();
+        lessons.saveColumnSettings(settings);
+
+        page.reload();
+        assertThat(column).containsClass("colnorange");
+        assertThat(column).not().containsClass("colnorange-trans");
+        assertThat(lessons.openColumnSettings(column).locator("#show-borders")).isChecked();
+    }
+
     private TestUser newStudent(String prefix) {
         return lessons.newStudent(siteUrl, prefix);
     }

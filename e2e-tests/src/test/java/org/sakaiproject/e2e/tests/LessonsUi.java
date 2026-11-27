@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FilePayload;
 import com.microsoft.playwright.options.LoadState;
@@ -35,6 +36,8 @@ final class LessonsUi {
     private final Page page;
     private final SakaiHelper sakai;
 
+    private static final double OPEN_TIMEOUT = 15_000;
+
     LessonsUi(Page page, SakaiHelper sakai) {
         this.page = page;
         this.sakai = sakai;
@@ -42,8 +45,13 @@ final class LessonsUi {
 
     void open(String siteUrl) {
         page.navigate(siteUrl);
+        // The site menu is drawn after the page loads, and toolClick only expands it if it is already there.
+        // Both can take longer than the default timeout while the server is busy, e.g. after a site import.
+        assertThat(page.locator("li.site-list-item.is-current-site").first())
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(OPEN_TIMEOUT));
         sakai.toolClick("Lessons");
-        assertThat(page.locator("#lessonsCurrentPageId")).isAttached();
+        assertThat(page.locator("#lessonsCurrentPageId"))
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(OPEN_TIMEOUT));
     }
 
     /**
@@ -444,6 +452,20 @@ final class LessonsUi {
         assertThat(item(name)).isVisible();
     }
 
+    /** Adds a comments section at the bottom of the page. */
+    void addComments() {
+        page.waitForNavigation(() -> openAddContent().locator("#add-comments-link").click());
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".commentsCell")).isVisible();
+    }
+
+    /** Adds a student content section at the bottom of the page. */
+    void addStudentContent() {
+        page.waitForNavigation(() -> openAddContent().locator("#add-student-link").click());
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".studentDiv")).isVisible();
+    }
+
     /** Ticks a checklist box and waits until the server has stored it. */
     void tickChecklistEntry(Locator checkbox) {
         String saveUrl = (String) page.locator("#saveChecklistForm-checklistId").evaluate("input => input.form.action");
@@ -457,7 +479,7 @@ final class LessonsUi {
         assertThat(studentCanUpdate()).isAttached();
     }
 
-    private void clickMoreTools(String entry) {
+    void clickMoreTools(String entry) {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
         Locator moreTools = page.locator("#moreDiv");
         assertThat(moreTools).isVisible();
