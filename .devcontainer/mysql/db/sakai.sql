@@ -1,0 +1,17 @@
+-- Creates Sakai databases at startup
+CREATE DATABASE IF NOT EXISTS sakai DEFAULT CHARACTER SET utf8;
+CREATE DATABASE IF NOT EXISTS sakai12 DEFAULT CHARACTER SET utf8;
+CREATE DATABASE IF NOT EXISTS sakai19 DEFAULT CHARACTER SET utf8;
+CREATE DATABASE IF NOT EXISTS sakai20 DEFAULT CHARACTER SET utf8;
+
+-- Create Sakai users
+CREATE USER IF NOT EXISTS 'sakai'@'localhost' IDENTIFIED BY 'ironchef';
+CREATE USER IF NOT EXISTS 'sakai'@'127.0.0.1' IDENTIFIED BY 'ironchef';
+CREATE USER IF NOT EXISTS 'sakai'@'%' IDENTIFIED BY 'ironchef';
+
+-- Grant privileges
+GRANT ALL PRIVILEGES ON `sakai%`.* TO 'sakai'@'localhost';
+GRANT ALL PRIVILEGES ON `sakai%`.* TO 'sakai'@'127.0.0.1';
+GRANT ALL PRIVILEGES ON `sakai%`.* TO 'sakai'@'%';
+
+

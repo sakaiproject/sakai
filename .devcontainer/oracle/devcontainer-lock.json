@@ -1,0 +1,19 @@
+{
+  "features": {
+    "ghcr.io/devcontainers-extra/features/tomcat-sdkman:2": {
+      "version": "2.0.17",
+      "resolved": "ghcr.io/devcontainers-extra/features/tomcat-sdkman@sha256:caad7805bc7a3c7d853776939cae5ca7bc1e02f9762affe91cf2136d64a93226",
+      "integrity": "sha256:caad7805bc7a3c7d853776939cae5ca7bc1e02f9762affe91cf2136d64a93226"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "1.8.3",
+      "resolved": "ghcr.io/devcontainers/features/java@sha256:61a839211feda1e2a1f10646648a948e733e4d98d770f3a4b6698a3c5fc92abe",
+      "integrity": "sha256:61a839211feda1e2a1f10646648a948e733e4d98d770f3a4b6698a3c5fc92abe"
+    },
+    "ghcr.io/sliekens/devcontainer-features/opencode:1": {
+      "version": "1.0.3",
+      "resolved": "ghcr.io/sliekens/devcontainer-features/opencode@sha256:0391045ce93403ce24ccc9a5e69473a652249f8b8967b59291fd531cc6430dbc",
+      "integrity": "sha256:0391045ce93403ce24ccc9a5e69473a652249f8b8967b59291fd531cc6430dbc"
+    }
+  }
+}
