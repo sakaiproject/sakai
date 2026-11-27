@@ -1,6 +1,9 @@
 #!/bin/bash
-# Append any secret properties from /run/secrets/security.properties
-cat /run/secrets/security.properties >> /usr/local/tomcat/sakai/security.properties
+set -euo pipefail
 
-# Start tomcat
-catalina.sh run
+# Optional swarm/k8s secret overlay for local or orchestrated deploys.
+if [[ -f /run/secrets/security.properties ]]; then
+  cat /run/secrets/security.properties >> /usr/local/tomcat/sakai/security.properties
+fi
+
+exec catalina.sh run

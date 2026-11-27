@@ -36,6 +36,7 @@ scormplayer/scorm-tool/contentPackages
 .vscode/
 .java-version
 .aider*
+.docker-deploy/
 
 **/.claude/settings.local.json
 .mcp.json
