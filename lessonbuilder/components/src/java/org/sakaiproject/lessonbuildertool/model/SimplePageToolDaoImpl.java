@@ -167,6 +167,9 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 		//  also, top-level fake items have pageid of 0
 		if(!canEdit && pageId != -1L && pageId != 0L) {
 			SimplePage page = getPage(pageId);
+			if (page == null) {
+				return false;
+			}
 			String owner = page.getOwner();
 			String group = page.getGroup();
 			if (group != null)

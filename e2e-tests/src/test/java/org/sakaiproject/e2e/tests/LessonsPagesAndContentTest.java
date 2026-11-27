@@ -212,6 +212,65 @@ class LessonsPagesAndContentTest extends SakaiUiTestBase {
     }
 
     @Test
+    void newPageBlankCopyModeLeavesContentBehind() {
+        String source = newPage("Blank source");
+        lessons.addText("<p>Source only</p>");
+        lessons.addSubpage("Blank child");
+        sakai.toolClick(source);
+
+        String blank = "Blank copy " + sakai.randomId();
+        lessons.createTopLevelPage(blank, "");
+
+        assertThat(lessons.items()).hasCount(0);
+        sakai.toolClick(source);
+        assertThat(lessons.items()).hasCount(2);
+    }
+
+    @Test
+    void newPageSharedCopyModeKeepsSubpagesLinked() {
+        String source = newPage("Shared source");
+        lessons.addText("<p>Shared parent text</p>");
+        lessons.addSubpage("Shared child");
+        lessons.addText("<p>shared-original</p>");
+        sakai.toolClick(source);
+
+        String copy = "Shared copy " + sakai.randomId();
+        lessons.createTopLevelPage(copy, "shared");
+
+        assertThat(lessons.item("Shared parent text")).hasCount(1);
+        assertThat(lessons.item("Shared child")).hasCount(1);
+        lessons.openSubpage("Shared child");
+        lessons.addText("<p>shared-changed</p>");
+
+        sakai.toolClick(source);
+        lessons.openSubpage("Shared child");
+        assertThat(lessons.item("shared-original")).hasCount(1);
+        assertThat(lessons.item("shared-changed")).hasCount(1);
+    }
+
+    @Test
+    void newPageDuplicateCopyModeCreatesIndependentSubpages() {
+        String source = newPage("Dup source");
+        lessons.addText("<p>Dup parent text</p>");
+        lessons.addSubpage("Dup child");
+        lessons.addText("<p>dup-original</p>");
+        sakai.toolClick(source);
+
+        String copy = "Dup copy " + sakai.randomId();
+        lessons.createTopLevelPage(copy, "duplicate");
+
+        assertThat(lessons.item("Dup parent text")).hasCount(1);
+        assertThat(lessons.item("Dup child")).hasCount(1);
+        lessons.openSubpage("Dup child");
+        lessons.addText("<p>dup-changed</p>");
+
+        sakai.toolClick(source);
+        lessons.openSubpage("Dup child");
+        assertThat(page.locator(".item.textType .textbox")).containsText("dup-original");
+        assertThat(page.locator(".item.textType .textbox")).not().containsText("dup-changed");
+    }
+
+    @Test
     void studentSeesContentWithoutEditingTools() {
         String title = newPage("Student view");
         lessons.addText("<p>Visible to students</p>");

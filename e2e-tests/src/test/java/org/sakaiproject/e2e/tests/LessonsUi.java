@@ -89,15 +89,35 @@ final class LessonsUi {
 
     /** Adds a top-level page and leaves the browser on it. */
     void createTopLevelPage(String title) {
+        createTopLevelPage(title, "");
+    }
+
+    /**
+     * Adds a top-level page, optionally copying the current page's content.
+     * {@code copyMode} is {@code ""} (blank), {@code "shared"}, or {@code "duplicate"}.
+     */
+    void createTopLevelPage(String title, String copyMode) {
         clickMoreTools("Add More Pages");
         Locator dialog = page.locator("#new-page-dialog");
         assertThat(dialog).isVisible();
         dialog.locator("#newPage").fill(title);
+        String radioId = switch (copyMode == null ? "" : copyMode) {
+            case "shared" -> "#page-copy-shared";
+            case "duplicate" -> "#page-copy-duplicate";
+            default -> "#page-copy-none";
+        };
+        dialog.locator(radioId).check();
         dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Save").setExact(true)).click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(navigationLink(title)).hasCount(1);
         sakai.toolClick(title);
         assertThat(page.locator(".neoPortletTitleWrap")).containsText(title);
+    }
+
+    void openSubpage(String title) {
+        item(title).locator("a.itemlink").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
     }
 
     private Locator openAddContent() {

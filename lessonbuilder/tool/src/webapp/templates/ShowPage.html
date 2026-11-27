@@ -1839,9 +1839,20 @@
                     <input type="text" name="new-page-number" id="new-page-number" rsf:id="new-page-number" size="3" maxlength="3" />
                     <span class="textPanelFooter" rsf:id="msg=simplepage.new-page-number-2"></span>
                   </p>
-                  <p class="checkbox">
-                    <input type="checkbox" name="new-page-copy" id="new-page-copy" rsf:id="new-page-copy" />
-                    <label for="new-page-copy"><span rsf:id="msg=simplepage.new-page-copy"></span></label>
+                  <p class="shorttext" id="new-page-copy-options">
+                    <span rsf:id="page-copy-select" />
+                    <div class="radio">
+                      <input type="radio" rsf:id="page-copy-none" name="pageCopyMode" value="" id="page-copy-none" checked="checked" />
+                      <label for="page-copy-none"><span rsf:id="msg=simplepage.new-page-copy-none"></span></label>
+                    </div>
+                    <div class="radio">
+                      <input type="radio" rsf:id="page-copy-shared" name="pageCopyMode" value="shared" id="page-copy-shared" />
+                      <label for="page-copy-shared"><span rsf:id="msg=simplepage.new-page-copy-shared"></span></label>
+                    </div>
+                    <div class="radio">
+                      <input type="radio" rsf:id="page-copy-duplicate" name="pageCopyMode" value="duplicate" id="page-copy-duplicate" />
+                      <label for="page-copy-duplicate"><span rsf:id="msg=simplepage.new-page-copy-duplicate"></span></label>
+                    </div>
                   </p>
 
                   <div class="act">

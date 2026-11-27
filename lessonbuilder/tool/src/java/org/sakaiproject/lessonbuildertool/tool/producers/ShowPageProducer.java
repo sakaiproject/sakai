@@ -5217,7 +5217,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIInput.make(form, "new-page-number", "#{simplePageBean.numberOfPages}");
 
-		UIBoundBoolean.make(form, "new-page-copy", "#{simplePageBean.copyPage}", false);
+		UISelect pageCopyRadios = UISelect.make(form, "page-copy-select",
+				new String[] {"", SimplePageBean.SUBPAGE_COPY_SHARED, SimplePageBean.SUBPAGE_COPY_DUPLICATE},
+				"#{simplePageBean.pageCopyMode}", "");
+		UISelectChoice.make(form, "page-copy-none", pageCopyRadios.getFullID(), 0);
+		UISelectChoice.make(form, "page-copy-shared", pageCopyRadios.getFullID(), 1);
+		UISelectChoice.make(form, "page-copy-duplicate", pageCopyRadios.getFullID(), 2);
 		
 		GeneralViewParameters view = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
 		view.setSendingPage(-1L);

@@ -95,6 +95,17 @@
           <label class="form-check-label" for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
         </div>
       </div>
+      <div rsf:id="subpage-copy-options" class="page-picker-options">
+        <span rsf:id="subpage-copy-select" />
+        <div class="form-check">
+          <input type="radio" class="form-check-input" rsf:id="subpage-copy-shared" name="subpageCopyMode" value="shared" id="subpage-copy-shared" checked="checked" />
+          <label class="form-check-label" for="subpage-copy-shared"><span rsf:id="msg=simplepage.subpage-copy-shared"></span></label>
+        </div>
+        <div class="form-check">
+          <input type="radio" class="form-check-input" rsf:id="subpage-copy-duplicate" name="subpageCopyMode" value="duplicate" id="subpage-copy-duplicate" />
+          <label class="form-check-label" for="subpage-copy-duplicate"><span rsf:id="msg=simplepage.subpage-copy-duplicate"></span></label>
+        </div>
+      </div>
       <p class="act">
         <input type="hidden" rsf:id="addBefore" />
         <input type="submit" class="btn btn-primary" rsf:id="submit" />
