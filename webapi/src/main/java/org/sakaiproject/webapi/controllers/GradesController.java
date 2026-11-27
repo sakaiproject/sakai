@@ -40,20 +40,26 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.webapi.beans.GradableObjectRestBean;
 import org.sakaiproject.webapi.beans.GradebookItemRestBean;
 import org.sakaiproject.webapi.beans.GradebookRestBean;
 import org.sakaiproject.webapi.beans.GradeRestBean;
+import org.sakaiproject.webapi.services.GradebookItemOpenDateService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -72,6 +78,9 @@ public class GradesController extends AbstractSakaiApiController {
 
     @Resource
     private SecurityService securityService;
+
+    @Autowired
+    private GradebookItemOpenDateService gradebookItemOpenDateService;
 
     private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = siteId -> {
 
@@ -369,5 +378,76 @@ public class GradesController extends AbstractSakaiApiController {
             log.error("Error while trying to get gradebooks for site {} : {}", siteId, e.getMessage());
             return new HashMap<>();
         }
+    }
+
+    @GetMapping(value = "/sites/{siteId}/grades/gradable-object", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GradableObjectRestBean> getGradableObject(@PathVariable("siteId") String siteId, @RequestParam(name = "externalId", required = false) String externalId) {
+
+        String currentUserId = checkSakaiSession().getUserId();
+
+        if (StringUtils.isBlank(externalId)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // graders get the items they are allowed to grade, students only the released ones
+        List<Assignment> items = getViewableGradebookUids(siteId, currentUserId).stream()
+            .flatMap(gradebookUid -> gradingService.getViewableAssignmentsForCurrentUser(gradebookUid, siteId, SortType.SORT_BY_NONE).stream())
+            .collect(Collectors.toList());
+
+        // an exact match wins, then the last path segment, as assignments use a full reference as their external id
+        String tail = "/" + externalId;
+        Optional<Assignment> match = findItem(items, item -> externalId.equals(item.getExternalId()))
+            .or(() -> findItem(items, item -> externalId.equals(item.getReference())))
+            .or(() -> findItem(items, item -> StringUtils.endsWith(item.getExternalId(), tail) || StringUtils.endsWith(item.getReference(), tail)));
+
+        return match.map(item -> ResponseEntity.ok(GradableObjectRestBean.of(siteId, getEntityId(item, externalId), item, gradebookItemOpenDateService.getOpenDate(item))))
+            .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    private List<String> getViewableGradebookUids(String siteId, String userId) {
+
+        // only the gradebooks that already exist, as a lookup must not create one
+        List<String> gradebookUids = gradingService.getExistingGradebookUids(siteId);
+
+        if (gradingService.currentUserHasGradeAllPerm(siteId)) {
+            return gradebookUids;
+        }
+
+        if (gradingService.isGradebookGroupEnabled(siteId)) {
+            // a group gradebook is only for the members of its group
+            Set<String> groupIds = siteService.getOptionalSite(siteId).stream()
+                .flatMap(site -> site.getGroupsWithMember(userId).stream())
+                .map(Group::getId)
+                .collect(Collectors.toSet());
+
+            gradebookUids = gradebookUids.stream()
+                .filter(gradebookUid -> gradebookUid.equals(siteId) || groupIds.contains(gradebookUid))
+                .collect(Collectors.toList());
+        }
+
+        if (!gradingService.currentUserHasGradingPerm(siteId)) {
+            // a student only sees the items of a gradebook that displays its released items to students
+            gradebookUids = gradebookUids.stream()
+                .filter(gradebookUid -> gradingService.getGradebook(gradebookUid).getAssignmentsDisplayed())
+                .collect(Collectors.toList());
+        }
+
+        return gradebookUids;
+    }
+
+    private Optional<Assignment> findItem(List<Assignment> items, Predicate<Assignment> filter) {
+
+        return items.stream().filter(filter).min(Comparator.comparing(Assignment::getId));
+    }
+
+    private String getEntityId(Assignment item, String externalId) {
+
+        // an exact external id match keeps the stored value, otherwise the last path segment is returned
+        if (externalId.equals(item.getExternalId())) {
+            return externalId;
+        }
+
+        String storedId = StringUtils.defaultIfBlank(item.getExternalId(), item.getReference());
+        return storedId.substring(storedId.lastIndexOf('/') + 1);
     }
 }

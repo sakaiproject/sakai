@@ -30,6 +30,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.webapi.beans.SiteDetailsRestBean;
+import org.sakaiproject.webapi.beans.SiteMemberRestBean;
 
 import org.springframework.http.MediaType;
 
@@ -262,5 +264,31 @@ public class SitesController extends AbstractSakaiApiController {
         }
 
         return siteMap;
+    }
+
+    @GetMapping(value = "/sites/{siteId}/members/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SiteMemberRestBean> getSiteMember(@PathVariable("siteId") String siteId, @PathVariable("userId") String userId) {
+
+        String currentUserId = checkSakaiSession().getUserId();
+
+        // Other members are only visible to users who can view the roster
+        if (!userId.equals(currentUserId) && !siteService.allowViewRoster(siteId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        return siteService.getOptionalSite(siteId)
+            .map(site -> site.getMember(userId))
+            .map(member -> ResponseEntity.ok(SiteMemberRestBean.of(siteId, member)))
+            .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(value = "/sites/{siteId}/details", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SiteDetailsRestBean> getSiteDetails(@PathVariable("siteId") String siteId) {
+
+        checkSakaiSession();
+
+        return siteService.getOptionalSite(siteId)
+            .map(site -> ResponseEntity.ok(SiteDetailsRestBean.of(site)))
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
