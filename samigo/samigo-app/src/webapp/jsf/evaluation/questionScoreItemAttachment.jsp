@@ -21,6 +21,8 @@
 
 <!-- ATTACHMENTS -->
 <%-- Similar to /jsf/delivery/item/attachment.jsp: attachment.jsp expects 'question' is an instance of ItemContentsBean, while questionScore expects 'question' is a PublishedItemData instance --%>
-<t:aliasBean alias="#{itemAttachmentList}" value="#{question.itemAttachmentList}" >
-  <%@ include file="/jsf/shared/itemAttachmentList.jsp" %>
+<t:aliasBean alias="#{attachmentsAccordionId}" value="#{'itemAttachments-' += question.itemId}">
+  <t:aliasBean alias="#{itemAttachmentList}" value="#{question.itemAttachmentList}" >
+    <%@ include file="/jsf/shared/itemAttachmentList.jsp" %>
+  </t:aliasBean>
 </t:aliasBean>
